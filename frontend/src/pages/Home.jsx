@@ -5,6 +5,7 @@ import { documentsData as localDocs, midtermExams as localMidterms, finalExams a
 import DocCard from '../components/DocCard';
 import { API_BASE_URL } from '../config';
 import { formatResourceDate } from '../utils/resourceDate';
+import { mergeResourceItems } from '../utils/resourceMerge';
 import '../assets/styles/Home.css';
 
 export default function Home() {
@@ -35,9 +36,9 @@ export default function Home() {
         const response = await fetch(`${API_BASE_URL}/api/resources`);
         const data = await response.json();
         if (response.ok && data.success) {
-          setDocs(data.resources.documentsData || []);
-          setMidterms(data.resources.midtermExams || []);
-          setFinals(data.resources.finalExams || []);
+          setDocs(mergeResourceItems(data.resources.documentsData || [], localDocs));
+          setMidterms(mergeResourceItems(data.resources.midtermExams || [], localMidterms));
+          setFinals(mergeResourceItems(data.resources.finalExams || [], localFinals));
         } else {
           setDocs(localDocs);
           setMidterms(localMidterms);
@@ -108,6 +109,9 @@ export default function Home() {
     ? docs
     : docs.filter(doc => doc.category === docCategoryTab);
 
+  const isPracticeExam = (exam) => exam.hasDetailRoute || exam.id === 'k50-dot-2';
+  const practiceFinalExams = finals.filter(isPracticeExam);
+
   const getPaginatedItems = (items, page) => {
     const startIndex = (page - 1) * itemsPerHomePage;
     return items.slice(startIndex, startIndex + itemsPerHomePage);
@@ -115,7 +119,7 @@ export default function Home() {
 
   const getTotalPages = (items) => Math.max(1, Math.ceil(items.length / itemsPerHomePage));
 
-  const paginatedFinals = getPaginatedItems(finals, finalPage);
+  const paginatedFinals = getPaginatedItems(practiceFinalExams, finalPage);
   const paginatedMidterms = getPaginatedItems(filteredMidtermExams, midtermPage);
   const paginatedDocs = getPaginatedItems(filteredDocs, docsPage);
 
@@ -269,8 +273,8 @@ export default function Home() {
         <div className="container">
           <div className="section-title">
             <span className="section-subtitle">ĐỀ THI CUỐI KỲ</span>
-            <h2>Lời Giải Toán Cao Cấp Qua Các Năm</h2>
-            <p>Tuyển tập đầy đủ các đề thi chính thức từ nhà trường qua các khóa học, kèm đáp án lời giải cực kỳ chi tiết.</p>
+            <h2>Phòng Luyện Thi Toán Cao Cấp</h2>
+            <p>Làm bài mô phỏng theo thời gian thực, đánh dấu câu khó và xem phân tích kết quả sau khi nộp bài.</p>
           </div>
 
           <div className="exams-grid">
@@ -285,15 +289,9 @@ export default function Home() {
                   <p>{exam.desc}</p>
                 </div>
                 <div className="exam-card-footer">
-                  {exam.hasDetailRoute ? (
-                    <Link to={`/exam/${exam.id}`} className="btn-exam-action">
-                      Làm bài kiểm tra
-                    </Link>
-                  ) : (
-                    <Link to={`/document/ap1`} className="btn-exam-action">
-                      Xem trong Tuyển tập
-                    </Link>
-                  )}
+                  <Link to={`/exam/${exam.id}`} className="btn-exam-action">
+                    Làm bài kiểm tra
+                  </Link>
                 </div>
               </div>
             ))}
@@ -301,7 +299,7 @@ export default function Home() {
 
           <PaginationControls
             currentPage={finalPage}
-            totalPages={getTotalPages(finals)}
+            totalPages={getTotalPages(practiceFinalExams)}
             onPageChange={setFinalPage}
             label="Phân trang đề thi cuối kỳ"
           />

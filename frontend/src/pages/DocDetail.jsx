@@ -4,6 +4,7 @@ import { Calendar, Download, Eye, FileText, ArrowLeft, ArrowUpRight, AlertTriang
 import { documentsData, midtermExams } from '../data/documentsData';
 import { API_BASE_URL } from '../config';
 import { formatResourceDate } from '../utils/resourceDate';
+import { mergeResourceItems } from '../utils/resourceMerge';
 import '../assets/styles/Document.css';
 
 export default function DocDetail() {
@@ -33,8 +34,8 @@ export default function DocDetail() {
         const response = await fetch(`${API_BASE_URL}/api/resources`);
         const data = await response.json();
         if (response.ok && data.success) {
-          const apiDocs = data.resources.documentsData || [];
-          const apiMidterms = data.resources.midtermExams || [];
+          const apiDocs = mergeResourceItems(data.resources.documentsData || [], documentsData);
+          const apiMidterms = mergeResourceItems(data.resources.midtermExams || [], midtermExams);
           resourcesList = [...apiDocs, ...apiMidterms];
         } else {
           resourcesList = [...documentsData, ...midtermExams];

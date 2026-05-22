@@ -5,6 +5,7 @@ import { documentsData as localDocs, midtermExams as localMidterms, finalExams a
 import DocCard from '../components/DocCard';
 import { API_BASE_URL } from '../config';
 import { formatResourceDate } from '../utils/resourceDate';
+import { mergeResourceItems } from '../utils/resourceMerge';
 import '../assets/styles/Resources.css';
 
 export default function ResourcesPage() {
@@ -42,9 +43,9 @@ export default function ResourcesPage() {
         const response = await fetch(`${API_BASE_URL}/api/resources`);
         const data = await response.json();
         if (response.ok && data.success) {
-          setDocs(data.resources.documentsData || []);
-          setMidterms(data.resources.midtermExams || []);
-          setFinals(data.resources.finalExams || []);
+          setDocs(mergeResourceItems(data.resources.documentsData || [], localDocs));
+          setMidterms(mergeResourceItems(data.resources.midtermExams || [], localMidterms));
+          setFinals(mergeResourceItems(data.resources.finalExams || [], localFinals));
         } else {
           // Fallback to local data
           setDocs(localDocs);
@@ -75,6 +76,9 @@ export default function ResourcesPage() {
     setCurrentPage(1);
   };
 
+  const isPracticeExam = (exam) => exam.hasDetailRoute || exam.id === 'k50-dot-2';
+  const practiceFinalExams = finals.filter(isPracticeExam);
+
   // Compile full list based on active tab and format appropriately
   const getFilteredItems = () => {
     let items = [];
@@ -83,12 +87,12 @@ export default function ResourcesPage() {
       // Map all items to a uniform structure for display
       const mappedDocs = docs.map(d => ({ ...d, type: 'publication', displayCategory: d.categoryLabel || 'Tài liệu' }));
       const mappedMidterms = midterms.map(m => ({ ...m, type: 'midterm', displayCategory: 'Đề thi giữa kỳ' }));
-      const mappedFinals = finals.map(f => ({ ...f, type: 'final', displayCategory: 'Đề thi cuối kỳ' }));
+      const mappedFinals = practiceFinalExams.map(f => ({ ...f, type: 'final', displayCategory: 'Đề thi cuối kỳ' }));
       items = [...mappedDocs, ...mappedMidterms, ...mappedFinals];
     } else if (activeTab === 'midterm') {
       items = midterms.map(m => ({ ...m, type: 'midterm', displayCategory: 'Đề thi giữa kỳ' }));
     } else if (activeTab === 'final') {
-      items = finals.map(f => ({ ...f, type: 'final', displayCategory: 'Đề thi cuối kỳ' }));
+      items = practiceFinalExams.map(f => ({ ...f, type: 'final', displayCategory: 'Đề thi cuối kỳ' }));
     } else if (activeTab === 'publication') {
       items = docs.map(d => ({ ...d, type: 'publication', displayCategory: d.categoryLabel || 'Tài liệu' }));
     }
@@ -168,9 +172,9 @@ export default function ResourcesPage() {
           </div>
 
           <div className="resources-tabs-wrapper">
-            <button className={`tab-btn ${activeTab === 'all' ? 'active' : ''}`} onClick={() => handleTabClick('all')}>Tất cả tài nguyên ({docs.length + midterms.length + finals.length})</button>
+            <button className={`tab-btn ${activeTab === 'all' ? 'active' : ''}`} onClick={() => handleTabClick('all')}>Tất cả tài nguyên ({docs.length + midterms.length + practiceFinalExams.length})</button>
             <button className={`tab-btn ${activeTab === 'midterm' ? 'active' : ''}`} onClick={() => handleTabClick('midterm')}>Đề thi Giữa kỳ ({midterms.length})</button>
-            <button className={`tab-btn ${activeTab === 'final' ? 'active' : ''}`} onClick={() => handleTabClick('final')}>Đề thi Cuối kỳ ({finals.length})</button>
+            <button className={`tab-btn ${activeTab === 'final' ? 'active' : ''}`} onClick={() => handleTabClick('final')}>Luyện thi Cuối kỳ ({practiceFinalExams.length})</button>
             <button className={`tab-btn ${activeTab === 'publication' ? 'active' : ''}`} onClick={() => handleTabClick('publication')}>Ấn phẩm & Tài liệu ({docs.length})</button>
           </div>
         </div>
@@ -207,11 +211,7 @@ export default function ResourcesPage() {
                         <p className="text-sm text-gray-400 line-clamp-3">{item.desc}</p>
                       </div>
                       <div className="exam-card-footer mt-4">
-                        {item.hasDetailRoute ? (
-                          <Link to={`/exam/${item.id}`} className="btn-exam-action">Làm bài kiểm tra</Link>
-                        ) : (
-                          <Link to={`/document/ap1`} className="btn-exam-action">Xem trong Tuyển tập</Link>
-                        )}
+                        <Link to={`/exam/${item.id}`} className="btn-exam-action">Làm bài kiểm tra</Link>
                       </div>
                     </div>
                   );
@@ -280,11 +280,7 @@ export default function ResourcesPage() {
                           <span>Tải Drive</span>
                         </a>
                       ) : item.type === 'final' ? (
-                        item.hasDetailRoute ? (
-                          <Link to={`/exam/${item.id}`} className="btn btn-primary btn-small">Luyện thi</Link>
-                        ) : (
-                          <Link to={`/document/ap1`} className="btn btn-secondary btn-small">Xem tập</Link>
-                        )
+                        <Link to={`/exam/${item.id}`} className="btn btn-primary btn-small">Luyện thi</Link>
                       ) : (
                         <Link to={`/document/${item.id}`} className="btn btn-primary btn-small">Xem PDF</Link>
                       )}
