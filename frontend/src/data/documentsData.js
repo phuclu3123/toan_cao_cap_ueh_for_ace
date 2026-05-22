@@ -70,6 +70,36 @@ export const documentsData = [
     desc: 'Tập hợp bài giảng tự biên soạn tổng hợp lý thuyết tinh gọn, kèm ví dụ áp dụng thực tế giúp sinh viên nhanh chóng nắm bắt phương pháp làm bài tập Toán Cao Cấp.'
   },
   {
+    id: 'tl1-hpt-lg',
+    title: 'Tài Liệu 1 - Hệ Phương Trình Tuyến Tính Và Lượng Giác',
+    date: '23/05/2026',
+    category: 'support',
+    categoryLabel: 'Tài liệu chuyên đề',
+    image: 'c123.jpg',
+    pdf: '1. TL1_HPT_LG.pdf',
+    desc: 'Chuyên đề nền tảng về hệ phương trình tuyến tính và lượng giác, tổng hợp kiến thức trọng tâm, dạng bài thường gặp và phương pháp xử lý nhanh khi luyện thi Toán Cao Cấp.'
+  },
+  {
+    id: 'tl2-bien-hscd',
+    title: 'Tài Liệu 2 - Biến Số Và Hệ Số Co Giãn',
+    date: '23/05/2026',
+    category: 'support',
+    categoryLabel: 'Tài liệu chuyên đề',
+    image: 'c4678.jpg',
+    pdf: '2. TL2_BIEN_HSCD.pdf',
+    desc: 'Tài liệu chuyên sâu về biến số, hàm số và hệ số co giãn trong các bài toán kinh tế, giúp sinh viên luyện cách đọc đề, đặt biến và tính toán chính xác.'
+  },
+  {
+    id: 'tl3-mo-hinh-kinh-te',
+    title: 'Tài Liệu 3 - Mô Hình Kinh Tế',
+    date: '23/05/2026',
+    category: 'support',
+    categoryLabel: 'Tài liệu chuyên đề',
+    image: 'bg.jpg',
+    pdf: '3. TL3_MO_HINH_KINH_TE.pdf',
+    desc: 'Bộ tài liệu mô hình kinh tế trong Toán Cao Cấp, tập trung vào cách chuyển bài toán thực tế sang mô hình đại số, giải hệ và diễn giải kết quả.'
+  },
+  {
     id: 'drive-1',
     title: 'Chuyên Đề Phương Trình Hàm Trên Tập R+',
     date: '08/09/2023',
@@ -141,12 +171,12 @@ export const midtermExams = [
 ];
 
 export const finalExams = [
-  { id: 'k50-dot-2', title: 'Toán Cao Cấp K50 Đợt 2', date: 'Mới nhất', hasDetailRoute: true, desc: 'Lời giải chi tiết đề thi chính thức TCC khóa K50 đợt 2 đợt thi gần đây nhất, bao gồm trắc nghiệm hệ số co giãn, đạo hàm toán kinh tế.' },
-  { id: 'ap1', title: 'Toán Cao Cấp K50 Đợt 1 Mã Đề Khác', date: 'Học kỳ 1 - K50', hasDetailRoute: false, desc: 'Xem lời giải chi tiết trong Tuyển tập đề thi các năm (Trang 1-20).' },
-  { id: 'ap1', title: 'Toán Cao Cấp K50 Đợt 1', date: 'Học kỳ 1 - K50', hasDetailRoute: false, desc: 'Xem lời giải chi tiết trong Tuyển tập đề thi các năm (Trang 21-40).' },
-  { id: 'ap1', title: 'Toán Cao Cấp K49 Mã Đề 1', date: 'Học kỳ 2 - K49', hasDetailRoute: false, desc: 'Xem lời giải chi tiết trong Tuyển tập đề thi các năm (Trang 41-55).' },
-  { id: 'ap1', title: 'Toán Cao Cấp K49 Mã Đề 2', date: 'Học kỳ 2 - K49', hasDetailRoute: false, desc: 'Xem lời giải chi tiết trong Tuyển tập đề thi các năm (Trang 56-70).' },
-  { id: 'ap1', title: 'Toán Cao Cấp K48', date: 'Học kỳ 1 - K48', hasDetailRoute: false, desc: 'Xem lời giải chi tiết trong Tuyển tập đề thi các năm (Trang 71-85).' },
-  { id: 'ap1', title: 'Toán Cao Cấp K47', date: 'Học kỳ 1 - K47', hasDetailRoute: false, desc: 'Xem lời giải chi tiết trong Tuyển tập đề thi các năm (Trang 86-100).' },
-  { id: 'ap1', title: 'Toán Cao Cấp K46', date: 'Học kỳ 1 - K46', hasDetailRoute: false, desc: 'Xem lời giải chi tiết trong Tuyển tập đề thi các năm (Trang 101-115).' }
+  { id: 'k50-dot-2', title: 'Toán Cao Cấp K50 Đợt 2', date: 'Mới nhất', hasDetailRoute: true, desc: 'Bài kiểm tra mô phỏng 75 phút theo cấu trúc đề Toán Cao Cấp K50, có chấm điểm, đánh dấu câu khó và thống kê kết quả sau khi nộp bài.' },
+  { id: 'ap1-f1', title: 'Toán Cao Cấp K50 Đợt 1 Mã Đề Khác', date: 'Học kỳ 1 - K50', hasDetailRoute: false, desc: 'Xem lời giải chi tiết trong Tuyển tập đề thi các năm (Trang 1-20).' },
+  { id: 'ap1-f2', title: 'Toán Cao Cấp K50 Đợt 1', date: 'Học kỳ 1 - K50', hasDetailRoute: false, desc: 'Xem lời giải chi tiết trong Tuyển tập đề thi các năm (Trang 21-40).' },
+  { id: 'ap1-f3', title: 'Toán Cao Cấp K49 Mã Đề 1', date: 'Học kỳ 2 - K49', hasDetailRoute: false, desc: 'Xem lời giải chi tiết trong Tuyển tập đề thi các năm (Trang 41-55).' },
+  { id: 'ap1-f4', title: 'Toán Cao Cấp K49 Mã Đề 2', date: 'Học kỳ 2 - K49', hasDetailRoute: false, desc: 'Xem lời giải chi tiết trong Tuyển tập đề thi các năm (Trang 56-70).' },
+  { id: 'ap1-f5', title: 'Toán Cao Cấp K48', date: 'Học kỳ 1 - K48', hasDetailRoute: false, desc: 'Xem lời giải chi tiết trong Tuyển tập đề thi các năm (Trang 71-85).' },
+  { id: 'ap1-f6', title: 'Toán Cao Cấp K47', date: 'Học kỳ 1 - K47', hasDetailRoute: false, desc: 'Xem lời giải chi tiết trong Tuyển tập đề thi các năm (Trang 86-100).' },
+  { id: 'ap1-f7', title: 'Toán Cao Cấp K46', date: 'Học kỳ 1 - K46', hasDetailRoute: false, desc: 'Xem lời giải chi tiết trong Tuyển tập đề thi các năm (Trang 101-115).' }
 ];

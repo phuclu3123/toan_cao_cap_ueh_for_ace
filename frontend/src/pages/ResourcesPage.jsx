@@ -208,7 +208,7 @@ export default function ResourcesPage() {
                       </div>
                       <div className="exam-card-footer mt-4">
                         {item.hasDetailRoute ? (
-                          <Link to={`/exam/${item.id}`} className="btn-exam-action">Xem lời giải nháp</Link>
+                          <Link to={`/exam/${item.id}`} className="btn-exam-action">Làm bài kiểm tra</Link>
                         ) : (
                           <Link to={`/document/ap1`} className="btn-exam-action">Xem trong Tuyển tập</Link>
                         )}
@@ -281,7 +281,7 @@ export default function ResourcesPage() {
                         </a>
                       ) : item.type === 'final' ? (
                         item.hasDetailRoute ? (
-                          <Link to={`/exam/${item.id}`} className="btn btn-primary btn-small">Giải nháp</Link>
+                          <Link to={`/exam/${item.id}`} className="btn btn-primary btn-small">Luyện thi</Link>
                         ) : (
                           <Link to={`/document/ap1`} className="btn btn-secondary btn-small">Xem tập</Link>
                         )

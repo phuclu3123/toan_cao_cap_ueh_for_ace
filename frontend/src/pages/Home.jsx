@@ -287,7 +287,7 @@ export default function Home() {
                 <div className="exam-card-footer">
                   {exam.hasDetailRoute ? (
                     <Link to={`/exam/${exam.id}`} className="btn-exam-action">
-                      Xem lời giải nháp
+                      Làm bài kiểm tra
                     </Link>
                   ) : (
                     <Link to={`/document/ap1`} className="btn-exam-action">

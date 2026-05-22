@@ -70,7 +70,10 @@ const resourceSchema = new mongoose.Schema({
   image: { type: String },
   pdf: { type: String },
   desc: { type: String },
-  externalUrl: { type: String }
+  externalUrl: { type: String },
+  professor: { type: String },
+  professorName: { type: String },
+  hasDetailRoute: { type: Boolean }
 }, { timestamps: true });
 
 // Message Schema
@@ -121,6 +124,38 @@ const writeJSONFile = (filePath, data) => {
   }
 };
 
+const normalizeResourceItem = (type, item) => ({
+  id: item.id || (type.substring(0, 2) + '-' + Date.now()),
+  type,
+  title: item.title,
+  date: item.date,
+  category: item.category,
+  categoryLabel: item.categoryLabel,
+  image: item.image,
+  pdf: item.pdf,
+  desc: item.desc,
+  externalUrl: item.externalUrl,
+  professor: item.professor,
+  professorName: item.professorName,
+  hasDetailRoute: item.hasDetailRoute
+});
+
+const getLocalResourceSeedItems = () => {
+  const localResources = readJSONFile(path.join(dataDir, 'resources.json'), { documentsData: [], midtermExams: [], finalExams: [] });
+  const seedItems = [];
+  const types = ['documentsData', 'midtermExams', 'finalExams'];
+
+  types.forEach(type => {
+    if (localResources[type] && Array.isArray(localResources[type])) {
+      localResources[type].forEach(item => {
+        seedItems.push(normalizeResourceItem(type, item));
+      });
+    }
+  });
+
+  return seedItems;
+};
+
 // Auto-Migration Function
 const runAutoMigration = async () => {
   try {
@@ -152,37 +187,46 @@ const runAutoMigration = async () => {
 
     // 2. Di trú Resources
     const resourceCount = await Resource.countDocuments();
+    const resourcesToInsert = getLocalResourceSeedItems();
+
     if (resourceCount === 0) {
       console.log('MongoDB collection Resource trống. Bắt đầu import từ resources.json...');
-      const localResources = readJSONFile(path.join(dataDir, 'resources.json'), { documentsData: [], midtermExams: [], finalExams: [] });
-      const resourcesToInsert = [];
-
-      const types = ['documentsData', 'midtermExams', 'finalExams'];
-      types.forEach(type => {
-        if (localResources[type] && Array.isArray(localResources[type])) {
-          localResources[type].forEach(item => {
-            resourcesToInsert.push({
-              id: item.id || (type.substring(0, 2) + '-' + Date.now()),
-              type: type,
-              title: item.title,
-              date: item.date,
-              category: item.category,
-              categoryLabel: item.categoryLabel,
-              image: item.image,
-              pdf: item.pdf,
-              desc: item.desc,
-              externalUrl: item.externalUrl
-            });
-          });
-        }
-      });
 
       if (resourcesToInsert.length > 0) {
         await Resource.insertMany(resourcesToInsert);
         console.log(`>>> Đã di trú thành công ${resourcesToInsert.length} tài liệu/đề thi lên MongoDB! <<<`);
       }
     } else {
-      console.log('Collection Resource trên MongoDB đã có dữ liệu. Bỏ qua di trú Resource.');
+      let insertedCount = 0;
+      let metadataUpdatedCount = 0;
+
+      for (const seedItem of resourcesToInsert) {
+        const existing = await Resource.findOne({ id: seedItem.id });
+        if (!existing) {
+          await Resource.create(seedItem);
+          insertedCount += 1;
+          continue;
+        }
+
+        const metadataUpdates = {};
+        ['professor', 'professorName', 'hasDetailRoute'].forEach(field => {
+          if (seedItem[field] !== undefined && existing[field] === undefined) {
+            metadataUpdates[field] = seedItem[field];
+          }
+        });
+
+        if (seedItem.id === 'k50-dot-2') {
+          metadataUpdates.hasDetailRoute = true;
+          metadataUpdates.desc = seedItem.desc;
+        }
+
+        if (Object.keys(metadataUpdates).length > 0) {
+          await Resource.updateOne({ id: seedItem.id }, { $set: metadataUpdates });
+          metadataUpdatedCount += 1;
+        }
+      }
+
+      console.log(`Collection Resource đã có dữ liệu. Đã bổ sung ${insertedCount} tài nguyên seed còn thiếu, cập nhật metadata ${metadataUpdatedCount} tài nguyên.`);
     }
 
     // 3. Di trú Subscribers
@@ -424,7 +468,10 @@ app.post('/api/resources', async (req, res) => {
         image: item.image,
         pdf: item.pdf,
         desc: item.desc,
-        externalUrl: item.externalUrl
+        externalUrl: item.externalUrl,
+        professor: item.professor,
+        professorName: item.professorName,
+        hasDetailRoute: item.hasDetailRoute
       });
       await newResource.save();
       return res.json({ success: true, message: 'Đăng tải tài liệu thành công!', item: savedItem });
