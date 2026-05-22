@@ -2,6 +2,8 @@ import { initializeApp } from 'firebase/app';
 import { 
   getAuth, 
   GoogleAuthProvider, 
+  FacebookAuthProvider,
+  GithubAuthProvider,
   RecaptchaVerifier, 
   signInWithPhoneNumber,
   signInWithEmailAndPassword,
@@ -32,14 +34,20 @@ const isFirebaseConfigured = !!(
 let app;
 let auth;
 let googleProvider;
+let facebookProvider;
+let githubProvider;
 
 if (isFirebaseConfigured) {
   try {
     app = initializeApp(firebaseConfig);
     auth = getAuth(app);
     googleProvider = new GoogleAuthProvider();
-    // Prompt Google sign-in to select an account if multiple are active
     googleProvider.setCustomParameters({ prompt: 'select_account' });
+    
+    facebookProvider = new FacebookAuthProvider();
+    facebookProvider.setCustomParameters({ display: 'popup' });
+    
+    githubProvider = new GithubAuthProvider();
   } catch (error) {
     console.error("Lỗi khởi tạo Firebase:", error);
   }
@@ -60,6 +68,8 @@ export {
   app, 
   auth, 
   googleProvider, 
+  facebookProvider,
+  githubProvider,
   isFirebaseConfigured,
   RecaptchaVerifier,
   signInWithPhoneNumber,
@@ -70,3 +80,4 @@ export {
   onAuthStateChanged,
   signInWithPopup
 };
+
