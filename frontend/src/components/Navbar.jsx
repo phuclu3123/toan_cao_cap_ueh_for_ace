@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Menu, X, Mail, Phone, User, LogIn, Upload, PlusCircle, 
   CheckCircle, AlertCircle, Shield, Smartphone, 
-  KeyRound, ArrowLeft, PhoneCall
+  KeyRound, ArrowLeft, PhoneCall, Lock
 } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 import '../assets/styles/Navbar.css';
@@ -489,25 +489,38 @@ export default function Navbar() {
       return;
     }
 
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(forgotEmail)) {
+      setAuthError('Địa chỉ email không đúng định dạng!');
+      return;
+    }
+
     setForgotLoading(true);
     
     if (isFirebaseConfigured && auth) {
-      // Firebase Cloud Flow
+      // Firebase Cloud Flow - sends real password reset email
       try {
-        await sendPasswordResetEmail(auth, forgotEmail);
-        setAuthSuccessMsg('Email khôi phục mật khẩu đã được gửi! Hãy kiểm tra hòm thư của bạn.');
+        const actionCodeSettings = {
+          url: window.location.origin + '/',
+          handleCodeInApp: false,
+        };
+        await sendPasswordResetEmail(auth, forgotEmail, actionCodeSettings);
+        setAuthSuccessMsg(`✅ Email khôi phục đã gửi tới ${forgotEmail}! Kiểm tra Hộp thư đến (và cả Spam).`);
         setForgotEmail('');
         setTimeout(() => {
           setAuthMode('login');
           setAuthSuccessMsg('');
-        }, 4000);
+        }, 6000);
       } catch (error) {
         console.error("Forgot Password Error:", error);
         let msg = 'Lỗi khi gửi email khôi phục mật khẩu.';
         if (error.code === 'auth/user-not-found') {
-          msg = 'Không tìm thấy tài khoản nào liên kết với email này!';
+          msg = 'Không tìm thấy tài khoản nào được đăng ký với email này!';
         } else if (error.code === 'auth/invalid-email') {
           msg = 'Địa chỉ email không đúng định dạng!';
+        } else if (error.code === 'auth/too-many-requests') {
+          msg = 'Bạn đã gửi quá nhiều yêu cầu. Vui lòng chờ vài phút và thử lại!';
         }
         setAuthError(msg);
       } finally {
@@ -524,7 +537,7 @@ export default function Navbar() {
         const data = await response.json();
         if (response.ok && data.success) {
           setAuthSuccessMsg(data.message || 'Mã OTP đã được gửi về email của bạn!');
-          setForgotStep(2); // Switch to OTP & password reset step
+          setForgotStep(2);
         } else {
           setAuthError(data.message || 'Không thể yêu cầu khôi phục mật khẩu.');
         }
@@ -946,40 +959,46 @@ export default function Navbar() {
               <form className="modal-form" onSubmit={handleLoginSubmit}>
                 <div className="form-group">
                   <label htmlFor="username">Email đăng nhập / Tài khoản</label>
-                  <input
-                    type="text"
-                    id="username"
-                    className="form-input"
-                    placeholder="e.g. sinhvien@ueh.edu.vn hoặc admin@ueh.edu.vn"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="password">Mật khẩu</label>
-                  <input
-                    type="password"
-                    id="password"
-                    className="form-input"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
+                  <div className="input-with-icon">
+                    <Mail size={18} className="input-icon" />
+                    <input
+                      type="text"
+                      id="username"
+                      className="form-input"
+                      placeholder="Email hoặc tài khoản đăng nhập"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      required
+                    />
+                  </div>
                 </div>
                 
-                <div className="text-right" style={{ marginTop: '-10px', marginBottom: '5px' }}>
-                  <button 
-                    type="button" 
-                    className="text-xs text-rose font-medium hover:underline" 
-                    onClick={() => { setAuthMode('forgot'); setAuthError(''); setAuthSuccessMsg(''); }}
-                  >
-                    Quên mật khẩu?
-                  </button>
+                <div className="form-group">
+                  <div className="form-group-header">
+                    <label htmlFor="password">Mật khẩu</label>
+                    <button 
+                      type="button" 
+                      className="forgot-password-link" 
+                      onClick={() => { setAuthMode('forgot'); setAuthError(''); setAuthSuccessMsg(''); }}
+                    >
+                      Quên mật khẩu?
+                    </button>
+                  </div>
+                  <div className="input-with-icon">
+                    <Lock size={18} className="input-icon" />
+                    <input
+                      type="password"
+                      id="password"
+                      className="form-input"
+                      placeholder="Nhập mật khẩu của bạn"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
+                  </div>
                 </div>
 
-                <button type="submit" className="btn btn-primary w-full">Đăng Nhập</button>
+                <button type="submit" className="btn btn-primary w-full" style={{ marginTop: '10px' }}>Đăng Nhập</button>
                 
                 <div className="auth-divider">hoặc đăng nhập bằng</div>
 
@@ -1052,55 +1071,67 @@ export default function Navbar() {
               <form className="modal-form" onSubmit={handleSignupSubmit}>
                 <div className="form-group">
                   <label htmlFor="signupName">Họ và Tên của bạn</label>
-                  <input
-                    type="text"
-                    id="signupName"
-                    className="form-input"
-                    placeholder="e.g. Nguyễn Văn A"
-                    value={signupName}
-                    onChange={(e) => setSignupName(e.target.value)}
-                    required
-                  />
+                  <div className="input-with-icon">
+                    <User size={17} className="input-icon" />
+                    <input
+                      type="text"
+                      id="signupName"
+                      className="form-input"
+                      placeholder="Nguyễn Văn A"
+                      value={signupName}
+                      onChange={(e) => setSignupName(e.target.value)}
+                      required
+                    />
+                  </div>
                 </div>
                 <div className="form-group">
                   <label htmlFor="signupUsername">Địa chỉ Email</label>
-                  <input
-                    type="email"
-                    id="signupUsername"
-                    className="form-input"
-                    placeholder="e.g. sinhvien@ueh.edu.vn"
-                    value={signupUsername}
-                    onChange={(e) => setSignupUsername(e.target.value)}
-                    required
-                  />
+                  <div className="input-with-icon">
+                    <Mail size={17} className="input-icon" />
+                    <input
+                      type="email"
+                      id="signupUsername"
+                      className="form-input"
+                      placeholder="sinhvien@ueh.edu.vn"
+                      value={signupUsername}
+                      onChange={(e) => setSignupUsername(e.target.value)}
+                      required
+                    />
+                  </div>
                 </div>
                 <div className="form-group">
                   <label htmlFor="signupPassword">Mật khẩu</label>
-                  <input
-                    type="password"
-                    id="signupPassword"
-                    className="form-input"
-                    placeholder="Tối thiểu 6 ký tự"
-                    value={signupPassword}
-                    onChange={(e) => setSignupPassword(e.target.value)}
-                    required
-                  />
+                  <div className="input-with-icon">
+                    <Lock size={17} className="input-icon" />
+                    <input
+                      type="password"
+                      id="signupPassword"
+                      className="form-input"
+                      placeholder="Tối thiểu 6 ký tự"
+                      value={signupPassword}
+                      onChange={(e) => setSignupPassword(e.target.value)}
+                      required
+                    />
+                  </div>
                 </div>
                 <div className="form-group">
                   <label htmlFor="signupConfirmPassword">Nhập lại mật khẩu</label>
-                  <input
-                    type="password"
-                    id="signupConfirmPassword"
-                    className="form-input"
-                    placeholder="••••••••"
-                    value={signupConfirmPassword}
-                    onChange={(e) => setSignupConfirmPassword(e.target.value)}
-                    required
-                  />
+                  <div className="input-with-icon">
+                    <Lock size={17} className="input-icon" />
+                    <input
+                      type="password"
+                      id="signupConfirmPassword"
+                      className="form-input"
+                      placeholder="Xác nhận mật khẩu"
+                      value={signupConfirmPassword}
+                      onChange={(e) => setSignupConfirmPassword(e.target.value)}
+                      required
+                    />
+                  </div>
                 </div>
                 <button type="submit" className="btn btn-primary w-full">Đăng Ký Tài Khoản</button>
                 
-                <div className="auth-modal-switch mt-4 text-center text-sm text-gray-400">
+                <div className="auth-modal-switch mt-4 text-center text-sm">
                   <span>Đã có tài khoản? </span>
                   <button type="button" className="text-teal font-semibold hover:underline" onClick={() => { setAuthMode('login'); setAuthError(''); setAuthSuccessMsg(''); }}>Đăng nhập ngay</button>
                 </div>
@@ -1112,21 +1143,33 @@ export default function Navbar() {
               forgotStep === 1 ? (
                 <form className="modal-form" onSubmit={handleForgotPasswordSubmit}>
                   <div className="form-group">
-                    <label htmlFor="forgotEmail">Địa chỉ Email đã đăng ký</label>
-                    <input
-                      type="email"
-                      id="forgotEmail"
-                      className="form-input"
-                      placeholder="e.g. sinhvien@ueh.edu.vn"
-                      value={forgotEmail}
-                      onChange={(e) => setForgotEmail(e.target.value)}
-                      required
-                    />
+                    <label htmlFor="forgotEmail">Email đã đăng ký tài khoản</label>
+                    <div className="input-with-icon">
+                      <Mail size={17} className="input-icon" />
+                      <input
+                        type="email"
+                        id="forgotEmail"
+                        className="form-input"
+                        placeholder="sinhvien@ueh.edu.vn"
+                        value={forgotEmail}
+                        onChange={(e) => setForgotEmail(e.target.value)}
+                        required
+                        autoComplete="email"
+                      />
+                    </div>
                   </div>
                   
                   <button type="submit" className="btn btn-primary w-full" disabled={forgotLoading}>
-                    {forgotLoading ? 'Đang gửi yêu cầu...' : (isFirebaseConfigured && auth ? 'Gửi Link Khôi Phục Mật Khẩu' : 'Gửi Mã OTP Xác Thực')}
+                    {forgotLoading ? (
+                      <span>⏳ Đang gửi email...</span>
+                    ) : (
+                      isFirebaseConfigured && auth ? '📧 Gửi Link Đặt Lại Mật Khẩu' : 'Gửi Mã OTP Xác Thực'
+                    )}
                   </button>
+
+                  <p style={{ textAlign: 'center', fontSize: '0.8rem', color: '#64748b', lineHeight: '1.5' }}>
+                    Firebase sẽ gửi email chứa link đặt lại mật khẩu.<br/>Nhớ kiểm tra cả thư mục Spam!
+                  </p>
 
                   <div className="text-center mt-3">
                     <button 
@@ -1143,42 +1186,51 @@ export default function Navbar() {
                 <form className="modal-form" onSubmit={handleResetPasswordSubmit}>
                   <div className="form-group">
                     <label htmlFor="forgotOtp">Nhập mã OTP (6 chữ số)</label>
-                    <input
-                      type="text"
-                      id="forgotOtp"
-                      className="form-input"
-                      placeholder="e.g. 123456"
-                      maxLength="6"
-                      value={forgotOtp}
-                      onChange={(e) => setForgotOtp(e.target.value)}
-                      required
-                    />
+                    <div className="input-with-icon">
+                      <Shield size={17} className="input-icon" />
+                      <input
+                        type="text"
+                        id="forgotOtp"
+                        className="form-input"
+                        placeholder="123456"
+                        maxLength="6"
+                        value={forgotOtp}
+                        onChange={(e) => setForgotOtp(e.target.value)}
+                        required
+                      />
+                    </div>
                   </div>
 
                   <div className="form-group">
                     <label htmlFor="forgotNewPassword">Mật khẩu mới</label>
-                    <input
-                      type="password"
-                      id="forgotNewPassword"
-                      className="form-input"
-                      placeholder="Nhập tối thiểu 3 ký tự"
-                      value={forgotNewPassword}
-                      onChange={(e) => setForgotNewPassword(e.target.value)}
-                      required
-                    />
+                    <div className="input-with-icon">
+                      <Lock size={17} className="input-icon" />
+                      <input
+                        type="password"
+                        id="forgotNewPassword"
+                        className="form-input"
+                        placeholder="Tối thiểu 3 ký tự"
+                        value={forgotNewPassword}
+                        onChange={(e) => setForgotNewPassword(e.target.value)}
+                        required
+                      />
+                    </div>
                   </div>
 
                   <div className="form-group">
                     <label htmlFor="forgotConfirmNewPassword">Xác nhận mật khẩu mới</label>
-                    <input
-                      type="password"
-                      id="forgotConfirmNewPassword"
-                      className="form-input"
-                      placeholder="Nhập lại mật khẩu mới"
-                      value={forgotConfirmNewPassword}
-                      onChange={(e) => setForgotConfirmNewPassword(e.target.value)}
-                      required
-                    />
+                    <div className="input-with-icon">
+                      <Lock size={17} className="input-icon" />
+                      <input
+                        type="password"
+                        id="forgotConfirmNewPassword"
+                        className="form-input"
+                        placeholder="Nhập lại mật khẩu mới"
+                        value={forgotConfirmNewPassword}
+                        onChange={(e) => setForgotConfirmNewPassword(e.target.value)}
+                        required
+                      />
+                    </div>
                   </div>
                   
                   <button type="submit" className="btn btn-primary w-full" disabled={forgotLoading}>
@@ -1215,45 +1267,50 @@ export default function Navbar() {
                   <>
                     <div className="form-group">
                       <label htmlFor="phoneInput">Số điện thoại của bạn</label>
-                      <input
-                        type="tel"
-                        id="phoneInput"
-                        className="form-input"
-                        placeholder="e.g. +84912345678 hoặc 0912345678"
-                        value={phoneInput}
-                        onChange={(e) => setPhoneInput(e.target.value)}
-                        required
-                      />
+                      <div className="input-with-icon">
+                        <Smartphone size={17} className="input-icon" />
+                        <input
+                          type="tel"
+                          id="phoneInput"
+                          className="form-input"
+                          placeholder="+84912345678"
+                          value={phoneInput}
+                          onChange={(e) => setPhoneInput(e.target.value)}
+                          required
+                        />
+                      </div>
                     </div>
-                    {/* Hidden Captcha anchor */}
                     <div id="recaptcha-container"></div>
                     
                     <button type="submit" className="btn btn-primary w-full" disabled={otpLoading}>
-                      <PhoneCall size={16} className="mr-2" style={{ display: 'inline', verticalAlign: 'middle' }} />
-                      <span style={{ verticalAlign: 'middle' }}>{otpLoading ? 'Đang gửi mã...' : 'Gửi mã xác thực OTP'}</span>
+                      <PhoneCall size={16} />
+                      <span>{otpLoading ? 'Đang gửi mã...' : 'Gửi mã xác thực OTP'}</span>
                     </button>
                   </>
                 ) : (
                   <>
                     <div className="form-group">
                       <label htmlFor="verificationCode">Nhập mã OTP gồm 6 chữ số</label>
-                      <input
-                        type="text"
-                        id="verificationCode"
-                        className="form-input"
-                        placeholder="e.g. 123456"
-                        maxLength="6"
-                        value={verificationCode}
-                        onChange={(e) => setVerificationCode(e.target.value)}
-                        required
-                      />
+                      <div className="input-with-icon">
+                        <Shield size={17} className="input-icon" />
+                        <input
+                          type="text"
+                          id="verificationCode"
+                          className="form-input"
+                          placeholder="123456"
+                          maxLength="6"
+                          value={verificationCode}
+                          onChange={(e) => setVerificationCode(e.target.value)}
+                          required
+                        />
+                      </div>
                     </div>
                     
                     <button type="submit" className="btn btn-primary w-full" disabled={otpLoading}>
                       <span>{otpLoading ? 'Đang xác thực...' : 'Xác nhận Đăng Nhập'}</span>
                     </button>
                     
-                    <div className="text-center mt-2 text-sm text-gray-400">
+                    <div className="auth-modal-switch mt-2 text-sm">
                       <span>Không nhận được mã? </span>
                       <button 
                         type="button" 
