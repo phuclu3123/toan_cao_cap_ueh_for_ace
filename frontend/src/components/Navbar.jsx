@@ -278,14 +278,20 @@ export default function Navbar() {
         setSignupPassword('');
         setSignupConfirmPassword('');
       } catch (error) {
-        console.error("Firebase Signup Error:", error);
+        console.error("Firebase Signup Error:", error.code, error.message);
         let msg = 'Đăng ký thất bại. Vui lòng thử lại!';
         if (error.code === 'auth/email-already-in-use') {
-          msg = 'Địa chỉ email này đã được đăng ký bởi tài khoản khác!';
+          msg = '⚠️ Email này đã được đăng ký rồi! Hãy chuyển sang Đăng Nhập thay vì Đăng Ký.';
         } else if (error.code === 'auth/invalid-email') {
           msg = 'Địa chỉ email không đúng định dạng!';
         } else if (error.code === 'auth/weak-password') {
           msg = 'Mật khẩu quá yếu! Vui lòng nhập tối thiểu 6 ký tự.';
+        } else if (error.code === 'auth/operation-not-allowed') {
+          msg = 'Đăng ký bằng Email/Password chưa được bật trong Firebase Console!';
+        } else if (error.code === 'auth/network-request-failed') {
+          msg = 'Lỗi kết nối mạng. Vui lòng kiểm tra internet và thử lại!';
+        } else if (error.message) {
+          msg = `Lỗi: ${error.message}`;
         }
         setAuthError(msg);
       }
