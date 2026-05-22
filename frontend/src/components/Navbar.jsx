@@ -15,9 +15,6 @@ import {
   isFirebaseConfigured,
   RecaptchaVerifier,
   signInWithPhoneNumber,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  sendPasswordResetEmail,
   signOut as firebaseSignOut,
   onAuthStateChanged,
   signInWithPopup
@@ -180,6 +177,16 @@ export default function Navbar() {
     };
   };
 
+  const clearFirebaseSessionIfNeeded = async () => {
+    if (isFirebaseConfigured && auth?.currentUser) {
+      try {
+        await firebaseSignOut(auth);
+      } catch (error) {
+        console.error("Lỗi đăng xuất phiên Firebase trước khi dùng MongoDB:", error);
+      }
+    }
+  };
+
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setAuthError('');
@@ -188,61 +195,29 @@ export default function Navbar() {
       setAuthError('Vui lòng nhập đầy đủ email và mật khẩu!');
       return;
     }
-    
-    if (isFirebaseConfigured && auth) {
-      try {
-        const userCredential = await signInWithEmailAndPassword(auth, username, password);
-        const dbUser = await syncUserWithBackend(userCredential.user);
-        setLoggedInUser(dbUser);
-        localStorage.setItem('ueh_tcc_user', JSON.stringify(dbUser));
+
+    // Email/password accounts are owned by the backend MongoDB database.
+    try {
+      await clearFirebaseSessionIfNeeded();
+      const response = await fetch(`${API_BASE_URL}/api/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setLoggedInUser(data.user);
+        localStorage.setItem('ueh_tcc_user', JSON.stringify(data.user));
         setShowLoginModal(false);
         setUsername('');
         setPassword('');
-      } catch (error) {
-        console.error("Firebase Login Error:", error);
-        let msg = 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin!';
-        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-          msg = 'Email hoặc mật khẩu chưa chính xác!';
-        } else if (error.code === 'auth/invalid-email') {
-          msg = 'Định dạng email không hợp lệ!';
-        } else if (error.code === 'auth/too-many-requests') {
-          msg = 'Tài khoản tạm thời bị khóa do thử sai quá nhiều lần. Vui lòng đặt lại mật khẩu hoặc thử lại sau!';
-        }
-        setAuthError(msg);
+      } else {
+        setAuthError(data.message || 'Đăng nhập thất bại.');
       }
-    } else {
-      // Local Database Offline Fallback
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password })
-        });
-        
-        const data = await response.json();
-        if (response.ok && data.success) {
-          setLoggedInUser(data.user);
-          localStorage.setItem('ueh_tcc_user', JSON.stringify(data.user));
-          setShowLoginModal(false);
-          setUsername('');
-          setPassword('');
-        } else {
-          setAuthError(data.message || 'Đăng nhập thất bại.');
-        }
-      } catch (error) {
-        // Offline fallback for demo
-        const isDemoAdmin = username.toLowerCase().includes('admin');
-        const mockUser = {
-          username,
-          name: isDemoAdmin ? 'Quản Trị Viên (Demo Offline)' : username.split('@')[0],
-          role: isDemoAdmin ? 'Admin' : 'Student'
-        };
-        setLoggedInUser(mockUser);
-        localStorage.setItem('ueh_tcc_user', JSON.stringify(mockUser));
-        setShowLoginModal(false);
-        setUsername('');
-        setPassword('');
-      }
+    } catch (error) {
+      console.error("MongoDB Login Error:", error);
+      setAuthError('Không thể kết nối đến máy chủ Backend để đăng nhập. Hãy chạy backend!');
     }
   };
 
@@ -262,67 +237,38 @@ export default function Navbar() {
     }
 
     if (signupPassword.length < 6) {
-      setAuthError('Mật khẩu phải tối thiểu 6 ký tự để bảo mật (Yêu cầu bởi Firebase)!');
+      setAuthError('Mật khẩu phải tối thiểu 6 ký tự để bảo mật!');
       return;
     }
 
-    if (isFirebaseConfigured && auth) {
-      try {
-        const userCredential = await createUserWithEmailAndPassword(auth, signupUsername, signupPassword);
-        const dbUser = await syncUserWithBackend(userCredential.user, signupName);
-        setLoggedInUser(dbUser);
-        localStorage.setItem('ueh_tcc_user', JSON.stringify(dbUser));
-        setShowLoginModal(false);
+    // Email/password registration is stored directly in MongoDB.
+    try {
+      await clearFirebaseSessionIfNeeded();
+      const response = await fetch(`${API_BASE_URL}/api/signup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: signupName,
+          username: signupUsername,
+          password: signupPassword
+        })
+      });
+
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setAuthSuccessMsg('Đăng ký thành công! Hãy đăng nhập bằng tài khoản mới.');
+        setUsername(signupUsername);
+        setAuthMode('login');
         setSignupName('');
         setSignupUsername('');
         setSignupPassword('');
         setSignupConfirmPassword('');
-      } catch (error) {
-        console.error("Firebase Signup Error:", error.code, error.message);
-        let msg = 'Đăng ký thất bại. Vui lòng thử lại!';
-        if (error.code === 'auth/email-already-in-use') {
-          msg = '⚠️ Email này đã được đăng ký rồi! Hãy chuyển sang Đăng Nhập thay vì Đăng Ký.';
-        } else if (error.code === 'auth/invalid-email') {
-          msg = 'Địa chỉ email không đúng định dạng!';
-        } else if (error.code === 'auth/weak-password') {
-          msg = 'Mật khẩu quá yếu! Vui lòng nhập tối thiểu 6 ký tự.';
-        } else if (error.code === 'auth/operation-not-allowed') {
-          msg = 'Đăng ký bằng Email/Password chưa được bật trong Firebase Console!';
-        } else if (error.code === 'auth/network-request-failed') {
-          msg = 'Lỗi kết nối mạng. Vui lòng kiểm tra internet và thử lại!';
-        } else if (error.message) {
-          msg = `Lỗi: ${error.message}`;
-        }
-        setAuthError(msg);
+      } else {
+        setAuthError(data.message || 'Đăng ký thất bại.');
       }
-    } else {
-      // Local Database Offline Fallback
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/signup`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: signupName,
-            username: signupUsername,
-            password: signupPassword
-          })
-        });
-
-        const data = await response.json();
-        if (response.ok && data.success) {
-          setAuthSuccessMsg('Đăng ký thành công! Hãy đăng nhập bằng tài khoản mới.');
-          setUsername(signupUsername);
-          setAuthMode('login');
-          setSignupName('');
-          setSignupUsername('');
-          setSignupPassword('');
-          setSignupConfirmPassword('');
-        } else {
-          setAuthError(data.message || 'Đăng ký thất bại.');
-        }
-      } catch (error) {
-        setAuthError('Không thể kết nối đến máy chủ Backend để đăng ký. Hãy chạy backend!');
-      }
+    } catch (error) {
+      console.error("MongoDB Signup Error:", error);
+      setAuthError('Không thể kết nối đến máy chủ Backend để đăng ký. Hãy chạy backend!');
     }
   };
 
@@ -503,56 +449,26 @@ export default function Navbar() {
     }
 
     setForgotLoading(true);
-    
-    if (isFirebaseConfigured && auth) {
-      // Firebase Cloud Flow - sends real password reset email
-      try {
-        const actionCodeSettings = {
-          url: window.location.origin + '/',
-          handleCodeInApp: false,
-        };
-        await sendPasswordResetEmail(auth, forgotEmail, actionCodeSettings);
-        setAuthSuccessMsg(`✅ Email khôi phục đã gửi tới ${forgotEmail}! Kiểm tra Hộp thư đến (và cả Spam).`);
-        setForgotEmail('');
-        setTimeout(() => {
-          setAuthMode('login');
-          setAuthSuccessMsg('');
-        }, 6000);
-      } catch (error) {
-        console.error("Forgot Password Error:", error);
-        let msg = 'Lỗi khi gửi email khôi phục mật khẩu.';
-        if (error.code === 'auth/user-not-found') {
-          msg = 'Không tìm thấy tài khoản nào được đăng ký với email này!';
-        } else if (error.code === 'auth/invalid-email') {
-          msg = 'Địa chỉ email không đúng định dạng!';
-        } else if (error.code === 'auth/too-many-requests') {
-          msg = 'Bạn đã gửi quá nhiều yêu cầu. Vui lòng chờ vài phút và thử lại!';
-        }
-        setAuthError(msg);
-      } finally {
-        setForgotLoading(false);
+
+    // MongoDB email/password accounts reset password through backend OTP.
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: forgotEmail })
+      });
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setAuthSuccessMsg(data.message || 'Mã OTP đã được gửi về email của bạn!');
+        setForgotStep(2);
+      } else {
+        setAuthError(data.message || 'Không thể yêu cầu khôi phục mật khẩu.');
       }
-    } else {
-      // Local Database/Nodemailer Flow
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: forgotEmail })
-        });
-        const data = await response.json();
-        if (response.ok && data.success) {
-          setAuthSuccessMsg(data.message || 'Mã OTP đã được gửi về email của bạn!');
-          setForgotStep(2);
-        } else {
-          setAuthError(data.message || 'Không thể yêu cầu khôi phục mật khẩu.');
-        }
-      } catch (error) {
-        console.error("Backend Forgot Password Error:", error);
-        setAuthError('Không thể kết nối tới Backend để gửi OTP. Hãy bật backend server!');
-      } finally {
-        setForgotLoading(false);
-      }
+    } catch (error) {
+      console.error("Backend Forgot Password Error:", error);
+      setAuthError('Không thể kết nối tới Backend để gửi OTP. Hãy bật backend server!');
+    } finally {
+      setForgotLoading(false);
     }
   };
 
@@ -947,12 +863,12 @@ export default function Navbar() {
               {isFirebaseConfigured ? (
                 <div className="demo-mode-badge" style={{ color: '#34d399', background: 'rgba(52, 211, 153, 0.06)', borderColor: 'rgba(52, 211, 153, 0.12)' }}>
                   <span className="w-2 h-2 rounded-full inline-block mr-1" style={{ backgroundColor: '#34d399', width: '6px', height: '6px', borderRadius: '50%' }}></span>
-                  <span>Đã kết nối Firebase Cloud</span>
+                  <span>Email MongoDB | MXH Firebase</span>
                 </div>
               ) : (
                 <div className="demo-mode-badge">
                   <span className="w-2 h-2 rounded-full inline-block mr-1" style={{ backgroundColor: 'var(--accent-teal)', width: '6px', height: '6px', borderRadius: '50%' }}></span>
-                  <span>Đồng bộ Đám mây MongoDB Atlas</span>
+                  <span>Email MongoDB Atlas</span>
                 </div>
               )}
             </div>
@@ -1169,12 +1085,12 @@ export default function Navbar() {
                     {forgotLoading ? (
                       <span>⏳ Đang gửi email...</span>
                     ) : (
-                      isFirebaseConfigured && auth ? '📧 Gửi Link Đặt Lại Mật Khẩu' : 'Gửi Mã OTP Xác Thực'
+                      'Gửi Mã OTP Xác Thực'
                     )}
                   </button>
 
                   <p style={{ textAlign: 'center', fontSize: '0.8rem', color: '#64748b', lineHeight: '1.5' }}>
-                    Firebase sẽ gửi email chứa link đặt lại mật khẩu.<br/>Nhớ kiểm tra cả thư mục Spam!
+                    Tài khoản email/password dùng mã OTP từ backend MongoDB.<br/>Nhớ kiểm tra cả thư mục Spam!
                   </p>
 
                   <div className="text-center mt-3">

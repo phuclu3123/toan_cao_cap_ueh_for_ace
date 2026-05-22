@@ -8,14 +8,23 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import dns from 'dns';
 
-// Thiết lập DNS để tránh lỗi querySrv ECONNREFUSED khi kết nối MongoDB Atlas
-try {
-  dns.setServers(['8.8.8.8', '8.8.4.4']);
-} catch (dnsErr) {
-  console.warn('Cảnh báo: Không thể đổi DNS mặc định:', dnsErr.message);
-}
-
 dotenv.config();
+
+// Optional DNS override for environments where Node cannot resolve mongodb+srv.
+// Leave unset by default; some networks block direct DNS to public resolvers.
+const mongoDnsServers = (process.env.MONGODB_DNS_SERVERS || process.env.MONGO_DNS_SERVERS || '')
+  .split(',')
+  .map(server => server.trim())
+  .filter(Boolean);
+
+if (mongoDnsServers.length > 0) {
+  try {
+    dns.setServers(mongoDnsServers);
+    console.log(`Configured MongoDB DNS servers: ${mongoDnsServers.join(', ')}`);
+  } catch (dnsErr) {
+    console.warn('Could not override DNS servers:', dnsErr.message);
+  }
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -220,7 +229,7 @@ const runAutoMigration = async () => {
   }
 };
 
-const mongoURI = process.env.MONGODB_URI || process.env.MONGO_URI;
+const mongoURI = process.env.MONGODB_DIRECT_URI || process.env.MONGO_DIRECT_URI || process.env.MONGODB_URI || process.env.MONGO_URI;
 
 // Establish connection directly over internet
 if (mongoURI) {
@@ -235,10 +244,13 @@ if (mongoURI) {
     })
     .catch((err) => {
       console.error('!!! Lỗi kết nối MongoDB Atlas:', err.message);
+      if (mongoURI.startsWith('mongodb+srv://') && /querySrv|ENOTFOUND|ETIMEOUT|ECONNREFUSED/i.test(err.message)) {
+        console.error('Goi y: URI mongodb+srv can DNS SRV. Neu Node khong resolve duoc, hay dung MONGODB_DIRECT_URI/MONGO_DIRECT_URI dang mongodb:// seedlist hoac cau hinh MONGODB_DNS_SERVERS.');
+      }
       console.log('>>> Server hoạt động ở chế độ OFFLINE FALLBACK (đọc/ghi file JSON cục bộ) <<<');
     });
 } else {
-  console.log('Không tìm thấy cấu hình MONGODB_URI hoặc MONGO_URI.');
+  console.log('Không tìm thấy cấu hình MONGODB_DIRECT_URI, MONGO_DIRECT_URI, MONGODB_URI hoặc MONGO_URI.');
   console.log('>>> Server hoạt động ở chế độ OFFLINE FALLBACK (đọc/ghi file JSON cục bộ) <<<');
 }
 
