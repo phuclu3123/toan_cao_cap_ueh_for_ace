@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, BookOpen, Calendar, HelpCircle, CheckCircle2, AlertCircle, RefreshCw, ChevronDown, ChevronUp, Sparkles, Award } from 'lucide-react';
 import { finalExams } from '../data/documentsData';
 import { API_BASE_URL } from '../config';
+import { formatResourceDate } from '../utils/resourceDate';
 import '../assets/styles/ExamDetail.css';
 
 export default function ExamDetail() {
@@ -308,7 +309,7 @@ export default function ExamDetail() {
                     <Link key={idx} to={item.hasDetailRoute ? `/exam/${item.id}` : `/document/${item.id}`} className="sidebar-item">
                       <div className="sidebar-info-exam">
                         <h4 className="sidebar-item-title">{item.title}</h4>
-                        <span className="sidebar-item-date">📅 {item.date}</span>
+                        <span className="sidebar-item-date">📅 {formatResourceDate(item)}</span>
                         <p className="sidebar-item-desc">{item.desc}</p>
                       </div>
                     </Link>

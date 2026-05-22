@@ -2,10 +2,12 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, ArrowUpRight } from 'lucide-react';
 import '../assets/styles/DocCard.css';
+import { formatResourceDate } from '../utils/resourceDate';
 
 export default function DocCard({ doc }) {
   // Safe image path checking
   const imageSrc = doc.image ? `/images/${doc.image}` : '/images/tccvang.jpg';
+  const displayDate = formatResourceDate(doc);
 
   return (
     <div className="doc-card glass-panel animate-on-scroll">
@@ -24,7 +26,7 @@ export default function DocCard({ doc }) {
       <div className="card-body">
         <div className="card-meta">
           <Calendar size={13} />
-          <span>{doc.date}</span>
+          <span>{displayDate}</span>
         </div>
         <h3 className="card-title">
           <Link to={`/document/${doc.id}`}>{doc.title}</Link>

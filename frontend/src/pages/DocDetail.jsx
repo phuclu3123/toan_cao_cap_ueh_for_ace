@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Calendar, Download, Eye, FileText, ArrowLeft, ArrowUpRight, AlertTriangle, BookOpen } from 'lucide-react';
 import { documentsData, midtermExams } from '../data/documentsData';
 import { API_BASE_URL } from '../config';
+import { formatResourceDate } from '../utils/resourceDate';
 import '../assets/styles/Document.css';
 
 export default function DocDetail() {
@@ -68,6 +69,7 @@ export default function DocDetail() {
 
   const pdfUrl = `/docs/${doc.pdf}`;
   const coverImage = doc.image ? `/images/${doc.image}` : '/images/tccvang.jpg';
+  const displayDate = formatResourceDate(doc, '09/08/2025');
 
   return (
     <div className="doc-detail-page">
@@ -83,7 +85,7 @@ export default function DocDetail() {
           <div className="doc-detail-meta">
             <div className="meta-item">
               <Calendar size={14} />
-              <span>⏰ Cập nhật: {doc.date || '09/08/2025'}</span>
+              <span>⏰ Cập nhật: {displayDate}</span>
             </div>
             <div className="meta-item">
               <Eye size={14} />
@@ -171,7 +173,7 @@ export default function DocDetail() {
                         </div>
                         <div className="sidebar-info">
                           <h4 className="sidebar-item-title">{item.title}</h4>
-                          <span className="sidebar-item-date">📅 {item.date || '09/08/2025'}</span>
+                          <span className="sidebar-item-date">📅 {formatResourceDate(item, '09/08/2025')}</span>
                         </div>
                         <ArrowUpRight size={14} className="sidebar-item-arrow" />
                       </Link>

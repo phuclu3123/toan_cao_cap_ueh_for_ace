@@ -4,6 +4,7 @@ import { Search, Grid, List, ChevronLeft, ChevronRight, FileText, BookOpen, Cale
 import { documentsData as localDocs, midtermExams as localMidterms, finalExams as localFinals } from '../data/documentsData';
 import DocCard from '../components/DocCard';
 import { API_BASE_URL } from '../config';
+import { formatResourceDate } from '../utils/resourceDate';
 import '../assets/styles/Resources.css';
 
 export default function ResourcesPage() {
@@ -198,7 +199,7 @@ export default function ResourcesPage() {
                     <div key={item.id} className="exam-card glass-panel flex flex-col justify-between">
                       <div className="exam-card-header">
                         <span className="exam-index">📝</span>
-                        <span className="exam-date">{item.date}</span>
+                        <span className="exam-date">{formatResourceDate(item)}</span>
                       </div>
                       <div className="exam-card-body">
                         <span className="list-category-badge">ĐỀ THI CUỐI KỲ</span>
@@ -230,7 +231,7 @@ export default function ResourcesPage() {
                     </div>
                     <div className="card-body">
                       <div className="card-meta">
-                        <span>⏰ {item.date}</span>
+                        <span>⏰ {formatResourceDate(item)}</span>
                       </div>
                       <h3 className="card-title">
                         <a href={item.externalUrl} target="_blank" rel="noopener noreferrer">{item.title}</a>
@@ -268,7 +269,7 @@ export default function ResourcesPage() {
                       <h3 className="list-title">{item.title}</h3>
                       <p className="list-desc">{item.desc}</p>
                       <div className="flex gap-4 mt-2 text-xs text-gray-400">
-                        {item.date && <span>📅 Cập nhật: {item.date}</span>}
+                        <span>📅 Cập nhật: {formatResourceDate(item)}</span>
                         {item.professorName && <span>👨‍🏫 Giảng viên: {item.professorName}</span>}
                       </div>
                     </div>

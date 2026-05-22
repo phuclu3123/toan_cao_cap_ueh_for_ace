@@ -4,6 +4,7 @@ import { Play, BookOpen, Download, Send, CheckCircle, AlertCircle, FileText, Hel
 import { documentsData as localDocs, midtermExams as localMidterms, finalExams as localFinals } from '../data/documentsData';
 import DocCard from '../components/DocCard';
 import { API_BASE_URL } from '../config';
+import { formatResourceDate } from '../utils/resourceDate';
 import '../assets/styles/Home.css';
 
 export default function Home() {
@@ -277,7 +278,7 @@ export default function Home() {
               <div key={exam.id} className="exam-card glass-panel">
                 <div className="exam-card-header">
                   <span className="exam-index">{(((finalPage - 1) * itemsPerHomePage) + index + 1).toString().padStart(2, '0')}</span>
-                  <span className="exam-date">{exam.date}</span>
+                  <span className="exam-date">{formatResourceDate(exam)}</span>
                 </div>
                 <div className="exam-card-body">
                   <h3>{exam.title}</h3>
@@ -396,7 +397,7 @@ export default function Home() {
                   </div>
                   <div className="card-body">
                     <div className="card-meta">
-                      <span>⏰ {doc.date}</span>
+                      <span>⏰ {formatResourceDate(doc)}</span>
                     </div>
                     <h3 className="card-title">
                       <a href={doc.externalUrl} target="_blank" rel="noopener noreferrer">{doc.title}</a>
