@@ -6,6 +6,14 @@ import { fileURLToPath } from 'url';
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
+import dns from 'dns';
+
+// Thiết lập DNS để tránh lỗi querySrv ECONNREFUSED khi kết nối MongoDB Atlas
+try {
+  dns.setServers(['8.8.8.8', '8.8.4.4']);
+} catch (dnsErr) {
+  console.warn('Cảnh báo: Không thể đổi DNS mặc định:', dnsErr.message);
+}
 
 dotenv.config();
 
