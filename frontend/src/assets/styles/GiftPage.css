@@ -1,0 +1,627 @@
+/* --- GIFT 20-10 PAGE STYLES --- */
+
+/* Reset & Background */
+.gift-page-wrapper {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #fae1dd;
+  font-family: 'Poppins', var(--font-body);
+  position: relative;
+  overflow: hidden;
+  transition: background-color 1s ease;
+}
+
+.gift-page-wrapper.phase-2 {
+  background-color: #f7d6d0; /* Soft warm pink for phase 2 */
+}
+
+/* Floating back button */
+.gift-btn-back {
+  position: fixed;
+  top: 24px;
+  left: 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #d62828;
+  font-weight: 700;
+  font-size: 0.9rem;
+  background: rgba(255, 255, 255, 0.4);
+  padding: 8px 18px;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 100;
+  transition: all 0.3s ease;
+}
+
+.gift-btn-back:hover {
+  background: rgba(255, 255, 255, 0.7);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(214, 40, 40, 0.15);
+}
+
+/* =======================================================
+   PHASE 1: THE ROSE DRAWING
+   ======================================================= */
+.rose-phase-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 90vh;
+  width: 100%;
+  max-width: 600px;
+  padding: 20px;
+}
+
+.rose-svg-wrapper {
+  width: 100%;
+  max-width: 450px;
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.3s ease;
+}
+
+.rose-svg-wrapper:hover {
+  transform: scale(1.03);
+}
+
+.rose-svg {
+  width: 85%;
+  height: 85%;
+  display: block;
+}
+
+/* SVG Path Drawing Animations */
+.animate-path {
+  stroke: #d62828;
+  stroke-width: 3.5px;
+  fill: none;
+  stroke-dasharray: 1200;
+  stroke-dashoffset: 1200;
+  animation: drawPath 3.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Customize animations for specific parts */
+.leafOne {
+  animation-delay: 0.1s;
+}
+.stickLine {
+  animation-delay: 0.5s;
+  stroke: #83aa2e;
+}
+.leafTwo {
+  animation-delay: 0.8s;
+}
+.leafS1 {
+  animation-delay: 1.1s;
+}
+.rose1 {
+  animation-delay: 1.4s;
+  stroke: #ff758f;
+}
+.rose2 {
+  animation-delay: 1.7s;
+  stroke: #e63946;
+}
+.rose3 {
+  animation-delay: 2s;
+  stroke: #ff758f;
+}
+.rose4 {
+  animation-delay: 2.3s;
+  stroke: #e63946;
+}
+
+@keyframes drawPath {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* After drawing completes, fill in the colors */
+.rose-svg-wrapper svg .leafOne {
+  animation: drawPath 3s ease-out forwards, fillLeafOne 1.5s ease-out 3.2s forwards;
+}
+.rose-svg-wrapper svg .leafTwo {
+  animation: drawPath 3s ease-out forwards, fillLeafTwo 1.5s ease-out 3.2s forwards;
+}
+.rose-svg-wrapper svg .leafS1 {
+  animation: drawPath 3s ease-out forwards, fillLeafS1 1.5s ease-out 3.2s forwards;
+}
+.rose-svg-wrapper svg .stickLine {
+  animation: drawPath 3s ease-out forwards, fillStick 1.5s ease-out 3.2s forwards;
+}
+.rose-svg-wrapper svg .rose1 {
+  animation: drawPath 3s ease-out forwards, fillRoseLight 1.5s ease-out 3.2s forwards;
+}
+.rose-svg-wrapper svg .rose3 {
+  animation: drawPath 3s ease-out forwards, fillRoseLight 1.5s ease-out 3.2s forwards;
+}
+.rose-svg-wrapper svg .rose2 {
+  animation: drawPath 3s ease-out forwards, fillRoseDark 1.5s ease-out 3.2s forwards;
+}
+.rose-svg-wrapper svg .rose4 {
+  animation: drawPath 3s ease-out forwards, fillRoseDark 1.5s ease-out 3.2s forwards;
+}
+
+@keyframes fillLeafOne { to { fill: #9cdd05; stroke-width: 0.5px; } }
+@keyframes fillLeafTwo { to { fill: #9cdd05; stroke-width: 0.5px; } }
+@keyframes fillLeafS1 { to { fill: #9cdd05; stroke-width: 0.5px; } }
+@keyframes fillStick { to { fill: #83aa2e; stroke-width: 0.5px; } }
+@keyframes fillRoseLight { to { fill: #f37d79; stroke-width: 0.5px; } }
+@keyframes fillRoseDark { to { fill: #d86666; stroke-width: 0.5px; } }
+
+/* Click Me Prompt */
+.click-prompt-text {
+  margin-top: 25px;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #d62828;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-shadow: 0 2px 4px rgba(255, 255, 255, 0.8);
+  animation: float 2.5s ease-in-out infinite;
+}
+
+.icon-gift {
+  color: #ff4d6d;
+}
+
+/* =======================================================
+   PHASE 2: ENVELOPE & HEART TEXT PATH
+   ======================================================= */
+.envelope-phase-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+}
+
+/* Typing / Scrolling SVG Text Path */
+.typing-svg-container {
+  position: absolute;
+  top: 8%;
+  width: 80%;
+  max-width: 550px;
+  height: 40vh;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.heart-text-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.heart-text-svg text {
+  fill: #e6668a;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 9px;
+  font-weight: bold;
+}
+
+.heart-text-svg path {
+  fill: none;
+  stroke: transparent;
+}
+
+.text-path-animate {
+  animation: scrollTextPath 15s linear infinite;
+}
+
+@keyframes scrollTextPath {
+  0% {
+    startOffset: 0%;
+  }
+  100% {
+    startOffset: 100%;
+  }
+}
+
+/* Valentines Envelope */
+.valentines-envelope-wrapper {
+  margin-top: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 5;
+  position: relative;
+}
+
+.valentines-card {
+  position: relative;
+  width: 320px;
+  height: 220px;
+  cursor: pointer;
+  transform-style: preserve-3d;
+}
+
+/* Envelope folds */
+.envelope-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: #f08080;
+  border-radius: var(--radius-sm);
+  z-index: 1;
+}
+
+.envelope-flap {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-left: 160px solid transparent;
+  border-right: 160px solid transparent;
+  border-top: 115px solid #f4978e;
+  top: 0;
+  left: 0;
+  z-index: 4;
+  transform-origin: top;
+  transition: transform 0.4s ease 0.2s, z-index 0.1s ease 0.2s;
+}
+
+.envelope-front {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-left: 160px solid #f8ad9d;
+  border-top: 110px solid transparent;
+  border-bottom: 110px solid #f8ad9d;
+  border-right: 160px solid transparent;
+  bottom: 0;
+  left: 0;
+  z-index: 3;
+}
+
+/* Hover envelope opening effect */
+.valentines-card.hovered .envelope-flap {
+  transform: rotateX(180deg);
+  z-index: 1;
+}
+
+.valentines-card.hovered .letter-inner-card {
+  transform: translateY(-110px);
+}
+
+/* Card popping out of envelope */
+.letter-inner-card {
+  position: absolute;
+  background-color: #eae2b7;
+  width: 288px;
+  height: 180px;
+  top: 20px;
+  left: 16px;
+  box-shadow: -5px -5px 30px rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  z-index: 2;
+  transition: transform 0.5s ease-out;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  border: 2px dashed #003049;
+}
+
+.card-message {
+  font-family: 'Brush Script MT', 'Dancing Script', cursive;
+  font-size: 1.8rem;
+  text-align: center;
+  color: #003049;
+  line-height: 1.2;
+  margin-top: 10px;
+}
+
+.card-heart-icon {
+  color: #d62828;
+  animation: heartbeat 1.2s infinite;
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+/* Floating micro-hearts */
+.floating-hearts {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.mini-heart {
+  position: absolute;
+  opacity: 0;
+  font-size: 1.2rem;
+  bottom: 20px;
+}
+
+.mini-heart.h1 { left: 40px; animation: heartFloatUp 2s ease-out infinite 0.2s; }
+.mini-heart.h2 { left: 100px; animation: heartFloatUp 2.5s ease-out infinite 0.6s; }
+.mini-heart.h3 { left: 160px; animation: heartFloatUp 2.2s ease-out infinite 0.1s; }
+.mini-heart.h4 { left: 220px; animation: heartFloatUp 2.8s ease-out infinite 0.8s; }
+.mini-heart.h5 { left: 280px; animation: heartFloatUp 2s ease-out infinite 0.4s; }
+
+@keyframes heartFloatUp {
+  0% {
+    transform: translateY(0) scale(0.3) rotate(0deg);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(-160px) scale(1.3) rotate(45deg);
+    opacity: 0;
+  }
+}
+
+.envelope-shadow {
+  position: absolute;
+  width: 340px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.08);
+  top: 235px;
+  left: -10px;
+  animation: shadowPulse 3s ease-in-out infinite;
+  z-index: -1;
+}
+
+@keyframes shadowPulse {
+  0%, 100% { transform: scaleX(1); }
+  50% { transform: scaleX(0.85); }
+}
+
+.envelope-tip-text {
+  margin-top: 35px;
+  color: #b05757;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* =======================================================
+   DETAILED LETTER POPUP MODAL
+   ======================================================= */
+.letter-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: modalFadeIn 0.3s ease-out forwards;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.letter-modal-box {
+  width: 90%;
+  max-width: 600px;
+  background-color: #ffebeb;
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  position: relative;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  animation: letterPopup 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes letterPopup {
+  from { transform: scale(0.7); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.btn-close-modal {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  color: #ff6666;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius-full);
+  padding: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1002;
+  transition: all 0.2s ease;
+}
+
+.btn-close-modal:hover {
+  background: #ff6666;
+  color: white;
+  transform: rotate(90deg);
+}
+
+.letter-modal-dashed-border {
+  width: 100%;
+  height: 100%;
+  border: 2px dashed #ff6666;
+  border-radius: calc(var(--radius-lg) - 4px);
+  padding: 20px;
+  position: relative;
+  min-height: 380px;
+  display: flex;
+  flex-direction: column;
+}
+
+.heart-stamp {
+  position: absolute;
+  color: #ff6666;
+  background: #ffebeb;
+  padding: 6px;
+  border-radius: var(--radius-full);
+  z-index: 10;
+  animation: pulse-slow 2s infinite;
+}
+
+.stamp-tl { top: 8px; right: 8px; }
+.stamp-br { bottom: 8px; left: 8px; }
+
+.letter-modal-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  flex-grow: 1;
+}
+
+.letter-title {
+  font-family: 'Dancing Script', cursive;
+  font-size: 2.2rem;
+  color: #d62828;
+  text-align: center;
+  margin-top: 10px;
+  margin-bottom: 16px;
+}
+
+.letter-body-text {
+  font-family: 'Dancing Script', cursive;
+  font-size: 1.3rem;
+  text-align: center;
+  color: #003049;
+  line-height: 1.6;
+  margin-bottom: 24px;
+  padding: 0 10px;
+  white-space: pre-wrap;
+  min-height: 100px;
+}
+
+/* Cute animation section */
+.letter-animations-grid {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  width: 100%;
+  margin-top: auto;
+}
+
+.cat-gif-container {
+  width: 80px;
+}
+
+.cat-gif {
+  width: 100%;
+  border-radius: 8px;
+}
+
+.heart-gif-container {
+  width: 130px;
+}
+
+.heart-gif {
+  width: 100%;
+}
+
+/* Responsive Rules for Gift Page */
+@media (max-width: 576px) {
+  .gift-btn-back {
+    top: 16px;
+    left: 16px;
+    padding: 6px 14px;
+    font-size: 0.8rem;
+  }
+  
+  .rose-svg-wrapper {
+    max-width: 320px;
+  }
+  
+  .click-prompt-text {
+    font-size: 1.1rem;
+  }
+  
+  .typing-svg-container {
+    top: 5%;
+    width: 90%;
+    height: 30vh;
+  }
+  
+  .valentines-card {
+    width: 280px;
+    height: 190px;
+  }
+  
+  .envelope-flap {
+    border-left-width: 140px;
+    border-right-width: 140px;
+    border-top-width: 100px;
+  }
+  
+  .envelope-front {
+    border-left-width: 140px;
+    border-right-width: 140px;
+    border-bottom-width: 95px;
+  }
+  
+  .letter-inner-card {
+    width: 250px;
+    height: 155px;
+    left: 15px;
+    top: 15px;
+  }
+  
+  .card-message {
+    font-size: 1.5rem;
+  }
+  
+  .envelope-shadow {
+    width: 300px;
+    top: 200px;
+  }
+  
+  .letter-title {
+    font-size: 1.7rem;
+  }
+  
+  .letter-body-text {
+    font-size: 1.15rem;
+  }
+  
+  .cat-gif-container {
+    width: 50px;
+  }
+  
+  .heart-gif-container {
+    width: 90px;
+  }
+  
+  .letter-modal-box {
+    padding: 16px;
+  }
+  
+  .letter-modal-dashed-border {
+    padding: 12px;
+    min-height: 350px;
+  }
+}

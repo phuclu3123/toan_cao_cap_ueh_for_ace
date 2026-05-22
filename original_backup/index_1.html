@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  
+  <title>UEH TCC - Hỗ Trợ Học Tập Toán Cao Cấp</title>
+  <meta name="description" content="Trang web hỗ trợ học tập môn Toán Cao Cấp dành cho sinh viên UEH. Cung cấp đề thi, lời giải và tài liệu ôn tập.">
+  <meta name="keywords" content="UEH, Toán Cao Cấp, Đề thi, Tài liệu học tập, Lữ Phúc">
+
+  <link href="fvc.jpg" rel="icon">
+  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="assets/vendor/aos/aos.css" rel="stylesheet">
+  <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+  <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+  <link href="assets/css/main.css" rel="stylesheet">
+
+  <style>
+    /* Cấu hình Sidebar (Thanh bên chứa tài liệu) */
+    .sidebar {
+      display: flex;
+      gap: 100px; /* Khoảng cách giữa các cột */
+      padding: 20px 0;
+      max-width: 2000px;
+      margin-left: auto; /* Căn giữa nếu màn hình lớn */
+      margin-right: auto;
+      justify-content: center; /* Căn giữa nội dung */
+      font-family: Arial, sans-serif;
+      flex-wrap: wrap; /* Cho phép xuống dòng trên mobile */
+    }
+
+    .sidebar-column {
+      flex: 1;
+      min-width: 300px; /* Đảm bảo không quá nhỏ trên mobile */
+    }
+
+    .sidebar-title {
+      display: flex;
+      align-items: center;
+      height: 50px;
+      margin-bottom: 20px;
+      padding-left: 16px;
+      background-color: #f3f3f3;
+      border-left: 6px solid black;
+      font-size: 18px;
+      font-weight: 700;
+      color: #333;
+    }
+
+    .sidebar-item {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 30px;
+      align-items: flex-start;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.2s;
+    }
+
+    .sidebar-item:hover {
+      transform: translateX(5px); /* Hiệu ứng di chuyển nhẹ khi hover */
+    }
+
+    .sidebar-item img {
+      width: 90px;
+      height: auto;
+      border: 1px solid #ccc;
+      object-fit: cover;
+    }
+
+    .sidebar-item-content {
+      flex: 1;
+    }
+
+    .sidebar-item-content p {
+      font-weight: 600;
+      font-size: 15px;
+      margin: 0 0 6px 0;
+      color: #000; /* Đảm bảo màu chữ dễ đọc */
+    }
+
+    .sidebar-item-content .date {
+      color: gray;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Hiệu ứng Hover Box (Nếu sử dụng) */
+    .hover-box .row {
+      display: none;
+      transition: all 0.3s ease-in-out;
+    }
+
+    .hover-box:hover .row {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    .hover-box .section-title {
+      cursor: pointer;
+      background-color: #f8f8f8;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+      transition: background-color 0.3s;
+    }
+
+    .hover-box .section-title:hover {
+      background-color: #e0e0e0;
+    }
+  </style>
+
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@4.0.0/tex-mml-chtml.js"></script>
+</head>
+
+<body class="index-page">
+
+  <header id="header" class="header fixed-top">
+    <div class="topbar d-flex align-items-center">
+      <div class="container d-flex justify-content-center justify-content-md-between">
+        <div class="contact-info d-flex align-items-center">
+          <i class="bi bi-envelope d-flex align-items-center"><a href="mailto:luphuc321@gmail.com">luphuc321@gmail.com</a></i>
+          <i class="bi bi-phone d-flex align-items-center ms-4"><span>0815451095</span></i>
+        </div>
+        <div class="languages d-none d-md-flex align-items-center">
+          <ul>
+            <li><span style="color: white;">Lữ</span></li>
+            <li><a href="#">Phúc</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="branding d-flex align-items-center">
+      <div class="container position-relative d-flex align-items-center justify-content-between">
+        <a href="index.html" class="logo d-flex align-items-center me-auto me-xl-0">
+          <h1 class="sitename">Hỗ Trợ Học Tập</h1>
+        </a>
+
+        <nav id="navmenu" class="navmenu">
+          <ul>
+            <li><a href="#hero" class="active">Trang Chủ</a></li>
+            <li><a href="#about">Về Chúng Tôi</a></li>
+            <li><a href="#why-us">Đề Thi TCC</a></li>
+            <li><a href="#menu">Đề GK Của Các Thầy</a></li>
+            
+            <li class="dropdown"><a href="#specials"><span>Ấn Phẩm</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+              <ul>
+                <li><a href="ap1.html">Ấn Phẩm 1</a></li>
+                <li><a href="ap2.html">Ấn Phẩm 2</a></li>
+                <li><a href="ap3.html">Ấn Phẩm 3</a></li>
+                <li><a href="ap4.html">Ấn Phẩm 4</a></li>
+                <li><a href="ap5.html">Ấn Phẩm 5</a></li>
+                <li class="dropdown"><a href="#specials"><span>Ấn Phẩm Khác...</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+                  <ul>
+                    <li><a href="#">Ấn Phẩm 6</a></li>
+                    <li><a href="#">Ấn Phẩm 7</a></li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li><a href="20-10.html">Quà cho các bạn nữ 20-10</a></li>
+          </ul>
+          <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+        </nav>
+
+        <a class="btn-book-a-table d-none d-xl-block" href="#book-a-table">Đăng Nhập</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <section id="hero" class="hero section dark-background">
+      <img src="hp.avif" alt="Banner Toán Cao Cấp" data-aos="fade-in">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 d-flex flex-column align-items-center align-items-lg-start">
+            <h2 data-aos="fade-up" data-aos-delay="100">Đây Là <span style="color: #40E0D0;">Nơi Hỗ Trợ Toán Cao Cấp</span></h2>
+            <p data-aos="fade-up" data-aos-delay="200">Hỗ Trợ Học Tập Sinh Viên UEH!</p>
+            <div class="d-flex mt-4" data-aos="fade-up" data-aos-delay="300">
+              <a href="#menu" class="cta-btn">Hướng dẫn sử dụng</a>
+              <a href="#book-a-table" class="cta-btn">Bài Viết</a>
+            </div>
+          </div>
+          <div class="col-lg-4 d-flex align-items-center justify-content-center mt-5 mt-lg-0">
+            <a href="https://youtu.be/iAhWqqvZ3og" class="glightbox pulsating-play-btn"></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="about" class="about section">
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+        <div class="row gy-4">
+          <div class="col-lg-6 order-1 order-lg-2">
+            <img src="hẹ hẹ.jpg" class="img-fluid about-img" alt="Hình ảnh giới thiệu">
+          </div>
+          <div class="col-lg-6 order-2 order-lg-1 content">
+            <h3>Tại Sao Tôi Lại Lập Ra Trang WEB</h3>
+            <p class="fst-italic">
+              Khó Khăn Vẫn Còn Đó, Nhưng Ít Nhất Giờ Đây Bạn Đã Có Tôi Đồng Hành.
+            </p>
+            <ul>
+              <li><i class="bi bi-check2-all"></i> <span>Biết rằng Toán Cao Cấp là môn khó với các bạn khối xã hội, web này ra đời để hỗ trợ các bạn.</span></li>
+              <li><i class="bi bi-check2-all"></i> <span>Hỗ trợ các bạn muốn đạt A, A+, hay cần cải thiện điểm.</span></li>
+              <li><i class="bi bi-check2-all"></i> <span>Tạo ra cộng đồng học tập và tài liệu chất lượng.</span></li>
+            </ul>
+            <p>
+              Tôi tên <strong>Phúc</strong> - Sinh viên UEH khóa K50. Rất vui vì được hỗ trợ các bạn!
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="why-us" class="why-us section">
+      <div class="container section-title" data-aos="fade-up">
+        <h2>Đề Thi</h2>
+        <p>Và Lời Giải Toán Cao Cấp Qua các Năm</p>
+      </div>
+
+      <div class="container">
+        <div class="row gy-4">
+          <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+            <div class="card-item">
+              <span>01</span>
+              <h4><a href="k50 đợt 2.html" class="stretched-link">Toán Cao Cấp K50 Đợt 2</a></h4>
+              <p>Lời Giải Chi Tiết</p>
+            </div>
+          </div>
+          
+          <div class="col-lg-4" data-aos="fade-up" data-aos-delay="200">
+            <div class="card-item">
+              <span>02</span>
+              <h4><a href="" class="stretched-link">Toán Cao Cấp K50 Đợt 1 (Mã khác)</a></h4>
+              <p>Lời Giải Chi Tiết</p>
+            </div>
+          </div>
+
+          <div class="col-lg-4" data-aos="fade-up" data-aos-delay="300">
+            <div class="card-item">
+              <span>03</span>
+              <h4><a href="" class="stretched-link">Toán Cao Cấp K50 Đợt 1</a></h4>
+              <p>Lời Giải Chi Tiết</p>
+            </div>
+          </div>
+
+          <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+            <div class="card-item">
+              <span>04</span>
+              <h4><a href="" class="stretched-link">Toán Cao Cấp K49 Mã Đề 1</a></h4>
+              <p>Lời Giải Chi Tiết</p>
+            </div>
+          </div>
+          <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+            <div class="card-item">
+              <span>05</span>
+              <h4><a href="" class="stretched-link">Toán Cao Cấp K49 Mã Đề 2</a></h4>
+              <p>Lời Giải Chi Tiết</p>
+            </div>
+          </div>
+           <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+            <div class="card-item">
+              <span>06</span>
+              <h4><a href="" class="stretched-link">Toán Cao Cấp K48</a></h4>
+              <p>Lời Giải Chi Tiết</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="menu" class="menu section">
+      <div class="container section-title" data-aos="fade-up">
+        <h2>Đề Thi</h2>
+        <p>Giữa Kỳ Của Một Số Thầy</p>
+      </div>
+
+      <div class="container isotope-layout" data-default-filter="*" data-layout="masonry" data-sort="original-order">
+        <div class="row" data-aos="fade-up" data-aos-delay="100">
+          <div class="col-lg-12 d-flex justify-content-center">
+            <ul class="menu-filters isotope-filters">
+              <li data-filter="*" class="filter-active">Tất cả</li>
+              <li data-filter=".filter-starters">Thầy Phan Ngô Tuấn Anh</li>
+              <li data-filter=".filter-salads">Thầy Ngô Trấn Vũ</li>
+              <li data-filter=".filter-specialty">Thầy Nguyễn Đình Tuấn</li>
+              <li data-filter=".filter-lp">Thầy Nguyễn Thanh Vân</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="row isotope-container" data-aos="fade-up" data-aos-delay="200">
+          <div class="col-lg-6 menu-item isotope-item filter-starters">
+            <img src="PNTA.jpg" class="menu-img" alt="Thầy PNTA">
+            <div class="menu-content">
+              <a href="pnta.html">Đề Thi Thầy</a><span>PNTA</span>
+            </div>
+            <div class="menu-ingredients">Lời Giải Chi Tiết</div>
+          </div>
+
+          <div class="col-lg-6 menu-item isotope-item filter-specialty">
+            <img src="NDT.png" class="menu-img" alt="Thầy NDT">
+            <div class="menu-content">
+              <a href="#">Đề Thi Thầy</a><span>NDT</span>
+            </div>
+            <div class="menu-ingredients">Lời Giải Chi Tiết</div>
+          </div>
+
+          <div class="col-lg-6 menu-item isotope-item filter-salads">
+            <img src="NTV.jpg" class="menu-img" alt="Thầy NTV">
+            <div class="menu-content">
+              <a href="#">Đề Thi Thầy</a><span>NTV</span>
+            </div>
+            <div class="menu-ingredients">Lời Giải Chi Tiết</div>
+          </div>
+          
+           <div class="col-lg-6 menu-item isotope-item filter-lp">
+            <img src="ntvv.jpg" class="menu-img" alt="Thầy NTVV">
+            <div class="menu-content">
+              <a href="#">Đề Thi Thầy</a><span>NTV</span>
+            </div>
+            <div class="menu-ingredients">Lời Giải Chi Tiết</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="specials" class="specials section">
+      <div class="container section-title" data-aos="fade-up">
+        <h2>Nhìn Lại</h2>
+        <p>Các Ấn Phẩm Đặc Biệt</p>
+      </div>
+
+      <div class="container">
+        <div class="sidebar">
+          
+          <div class="sidebar-column">
+            <h3 class="sidebar-title">TÀI LIỆU MỚI NHẤT</h3>
+            
+            <a href="ap1.html" class="sidebar-item">
+              <img src="FINAL CHẮC LÀ VẬY_page-0001.jpg" alt="Tuyển tập đề thi">
+              <div class="sidebar-item-content">
+                <p>Tuyển Tập Đề Thi Và Lời Giải Toán Cao Cấp Qua Các Năm</p>
+                <div class="date">⏰ 09/08/2025</div>
+              </div>
+            </a>
+
+            <a href="ap2.html" class="sidebar-item">
+              <img src="TCCCC_page-0001.jpg" alt="Bài tập các chương">
+              <div class="sidebar-item-content">
+                <p>Bài Tập Toán Cao Cấp Các Chương</p>
+                <div class="date">⏰ 09/08/2025</div>
+              </div>
+            </a>
+
+            <a href="ap6.html" class="sidebar-item">
+              <img src="tccvang.jpg" alt="Sách Toán Cao Cấp">
+              <div class="sidebar-item-content">
+                <p>PDF Sách Toán Cao Cấp</p>
+                <div class="date">⏰ 09/08/2025</div>
+              </div>
+            </a>
+            
+            <a href="ap7.html" class="sidebar-item">
+              <img src="tccvang.jpg" alt="Slide thầy Trường">
+              <div class="sidebar-item-content">
+                <p>Slide Các Chương Thầy Lê Xuân Trường</p>
+                <div class="date">⏰ 09/08/2025</div>
+              </div>
+            </a>
+          </div>
+
+          <div class="sidebar-column">
+            <h3 class="sidebar-title">TÀI LIỆU BỔ TRỢ</h3>
+            <a href="ap3.html" class="sidebar-item">
+              <img src="c123.jpg" alt="Chương 1-2-3">
+              <div class="sidebar-item-content">
+                <p>Bài Tập Các Chương 1-2-3</p>
+                <div class="date">⏰ 16/06/2025</div>
+              </div>
+            </a>
+
+            <a href="ap4.html" class="sidebar-item">
+              <img src="c4678.jpg" alt="Chương 4-5-6-7-8">
+              <div class="sidebar-item-content">
+                <p>Bài Tập Các Chương 4-5-6-7-8</p>
+                <div class="date">⏰ 16/06/2025</div>
+              </div>
+            </a>
+
+            <a href="ap5.html" class="sidebar-item">
+              <img src="bg.jpg" alt="Bài giảng">
+              <div class="sidebar-item-content">
+                <p>Bài Giảng Các Chương Toán Cao Cấp</p>
+                <div class="date">⏰ 16/06/2025</div>
+              </div>
+            </a>
+          </div>
+
+          <div class="sidebar-column">
+            <h3 class="sidebar-title">TÀI LIỆU KHÁC</h3>
+            <a href="https://drive.google.com/file/d/1yi3mNIt7UHPyVeGDEp3F1BPUKWRC7TWN/view?usp=sharing" class="sidebar-item">
+              <img src="lp.jpg" alt="Phương trình hàm">
+              <div class="sidebar-item-content">
+                <p>Phương Trình Hàm Trên R+</p>
+                <div class="date">⏰ 08/09/2023</div>
+              </div>
+            </a>
+
+            <a href="https://drive.google.com/file/d/1gu0-xTiwepKi1LSDM1Qn3eSHZcHlpweq/view?usp=sharing" class="sidebar-item">
+              <img src="hhp.jpg" alt="Hình học phẳng">
+              <div class="sidebar-item-content">
+                <p>Hình Học Phẳng Dạo Trong Hè</p>
+                <div class="date">⏰ 08/09/2023</div>
+              </div>
+            </a>
+
+            <a href="https://drive.google.com/file/d/1rRAdejU_C5k1V3JDXxYRq50sZPZoUi4d/view?usp=sharing" class="sidebar-item">
+              <img src="ts10.jpg" alt="Tuyển sinh 10 Cà Mau">
+              <div class="sidebar-item-content">
+                <p>Đề Thi Tuyển Sinh Lớp 10 Cà Mau</p>
+                <div class="date">⏰ 08/09/2023</div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer id="footer" class="footer">
+    <div class="container footer-top">
+      <div class="row gy-4">
+        <div class="col-lg-4 col-md-6 footer-about">
+          <a href="index.html" class="logo d-flex align-items-center">
+            <h1>Hỗ Trợ Học Tập</h1>
+          </a>
+          <div class="footer-contact pt-3">
+            <p class="mt-3"><strong>Phone:</strong> <span>0815451095</span></p>
+            <p><strong>Email:</strong> <span>luphuc321@gmail.com</span></p>
+          </div>
+          <div class="social-links d-flex mt-4">
+            <a href="#"><i class="bi bi-facebook"></i></a>
+            <a href="#"><i class="bi bi-instagram"></i></a>
+            <a href="#"><i class="bi bi-linkedin"></i></a>
+          </div>
+        </div>
+
+        <div class="col-lg-2 col-md-3 footer-links">
+          <h4>Tài Nguyên</h4>
+          <ul>
+            <li><a href="#">Trang Chủ</a></li>
+            <li><a href="#about">Về Chúng Tôi</a></li>
+            <li><a href="#contact">Liên Hệ</a></li>
+            <li><a href="#">Cộng Đồng</a></li>
+            <li><a href="#">Bài Viết</a></li>
+          </ul>
+        </div>
+
+        <div class="col-lg-2 col-md-3 footer-links">
+          <h4>Donate Phát Triển & Từ Thiện</h4>
+          <ul>
+            <li><a href="#">MB-BANK: 08092006192939</a></li>
+            <li><a href="#">Sacombank: 070128368343</a></li>
+          </ul>
+        </div>
+
+        <div class="col-lg-4 col-md-12 footer-newsletter">
+          <h4>Đăng ký nhận tin</h4>
+          <p>Điền Email Để Nhận Được Các Bài Viết Mới Nhất</p>
+          <form action="forms/newsletter.php" method="post" class="php-email-form">
+            <div class="newsletter-form">
+              <input type="email" name="email">
+              <input type="submit" value="Đăng ký">
+            </div>
+            <div class="loading">Đang tải</div>
+            <div class="error-message"></div>
+            <div class="sent-message">Yêu cầu đăng ký đã được gửi. Cảm ơn bạn!</div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="container copyright text-center mt-4">
+      <p>© Bản quyền thuộc về <span>UEH</span> <strong class="px-1 sitename">Hỗ Trợ Học Tập Toán Cao Cấp</strong></p>
+      <div class="credits">
+        Trang Web của <a href="https://www.facebook.com/Luphuc08092006/">Lữ Phúc</a>
+      </div>
+    </div>
+  </footer>
+
+  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <div id="preloader"></div>
+
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/vendor/php-email-form/validate.js"></script>
+  <script src="assets/vendor/aos/aos.js"></script>
+  <script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
+  <script src="assets/vendor/imagesloaded/imagesloaded.pkgd.min.js"></script>
+  <script src="assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
+  <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
+
+  <script src="assets/js/main.js"></script>
+
+</body>
+</html>

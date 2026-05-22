@@ -1,0 +1,18 @@
+[
+  {
+    "id": "u-admin",
+    "username": "admin@ueh.edu.vn",
+    "password": "admin123",
+    "name": "Quản Trị Viên",
+    "role": "Admin",
+    "createdAt": "2026-05-22T00:00:00.000Z"
+  },
+  {
+    "id": "u-demo",
+    "username": "sinhvien@ueh.edu.vn",
+    "password": "123",
+    "name": "Nguyễn Văn A",
+    "role": "Student",
+    "createdAt": "2026-05-22T00:00:00.000Z"
+  }
+]

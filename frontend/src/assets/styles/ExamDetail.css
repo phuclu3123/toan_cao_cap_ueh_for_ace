@@ -1,0 +1,516 @@
+/* --- EXAM DETAIL PAGE STYLES --- */
+
+.exam-detail-page {
+  padding-top: 80px; /* Offset for sticky navbar */
+  min-height: 100vh;
+  background-color: var(--bg-primary);
+}
+
+/* 1. Breadcrumb Banner */
+.exam-detail-banner {
+  background: linear-gradient(135deg, #101622 0%, #172033 100%);
+  border-bottom: 1px solid var(--border-color);
+  padding: 40px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.exam-detail-banner::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(64, 224, 208, 0.08) 0%, transparent 70%);
+  filter: blur(40px);
+  pointer-events: none;
+}
+
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+  transition: var(--transition-fast);
+}
+
+.btn-back:hover {
+  color: var(--accent-teal);
+  transform: translateX(-4px);
+}
+
+.exam-detail-category {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--accent-teal);
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.exam-detail-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  line-height: 1.2;
+}
+
+.exam-detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.exam-detail-meta .meta-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+/* 2. Grid Layout */
+.exam-detail-grid {
+  display: grid;
+  grid-template-columns: 8fr 3.2fr;
+  gap: 30px;
+  align-items: start;
+}
+
+/* 3. Main Content - Exam Paper Card */
+.exam-card-paper {
+  padding: 35px;
+  margin-bottom: 30px;
+}
+
+.exam-paper-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 20px;
+  margin-bottom: 25px;
+}
+
+.exam-title-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.exam-duration {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 4px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.exam-section-label {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--bg-primary);
+  background-color: var(--accent-teal);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 20px;
+  letter-spacing: 0.05em;
+}
+
+.question-item {
+  position: relative;
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  border-radius: var(--radius-md);
+  padding: 24px;
+}
+
+.question-number {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--accent-teal);
+  margin-bottom: 12px;
+}
+
+.question-text {
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.math-display {
+  display: block;
+  margin: 20px 0;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius-sm);
+  overflow-x: auto;
+}
+
+.question-target {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+.question-target strong {
+  color: var(--accent-teal);
+}
+
+/* 4. Interactive Card */
+.interactive-card {
+  padding: 30px;
+  margin-bottom: 30px;
+  border: 1px dashed rgba(64, 224, 208, 0.2);
+  position: relative;
+}
+
+.interactive-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.interactive-header h3 {
+  font-size: 1.25rem;
+  color: var(--text-primary);
+}
+
+.interactive-intro {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  margin-bottom: 20px;
+}
+
+.interactive-form {
+  margin-bottom: 15px;
+}
+
+.answer-input-wrapper label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.input-row {
+  display: flex;
+  gap: 12px;
+}
+
+.input-row .form-input {
+  flex: 1;
+}
+
+.interactive-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.btn-link {
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: var(--transition-fast);
+}
+
+.btn-link:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.btn-link.text-teal {
+  color: var(--accent-teal);
+}
+
+.btn-link.text-teal:hover {
+  color: var(--accent-teal-hover);
+}
+
+.btn-link.text-gray {
+  color: var(--text-secondary);
+}
+
+.btn-link.text-gray:hover {
+  color: var(--text-primary);
+}
+
+/* Feedback Alerts */
+.feedback-alert {
+  margin-top: 20px;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  animation: fadeInUp 0.3s ease-out;
+}
+
+.feedback-alert.success {
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  color: #a7f3d0;
+  box-shadow: 0 0 15px 0 rgba(16, 185, 129, 0.05);
+}
+
+.feedback-alert.success .alert-icon {
+  color: #34d399;
+}
+
+.feedback-alert.error {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+}
+
+.feedback-alert.error .alert-icon {
+  color: #f87171;
+}
+
+.feedback-alert.hint {
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  color: #fde68a;
+}
+
+.feedback-alert.hint .alert-icon {
+  color: #fbbf24;
+}
+
+.feedback-message {
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* 5. Collapsible Solution Card */
+.solution-container {
+  margin-bottom: 30px;
+}
+
+.btn-solution-toggle {
+  width: 100%;
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: var(--transition-normal);
+  text-align: left;
+}
+
+.btn-solution-toggle .toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.btn-solution-toggle:hover {
+  border-color: var(--accent-teal);
+  box-shadow: var(--shadow-teal);
+}
+
+.btn-solution-toggle.active {
+  border-color: rgba(64, 224, 208, 0.3);
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  background: linear-gradient(180deg, rgba(18, 24, 36, 0.9) 0%, rgba(18, 24, 36, 0.75) 100%);
+}
+
+.solution-details {
+  border-top: none;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  padding: 30px;
+  animation: fadeInUp 0.4s ease-out;
+}
+
+.solution-section {
+  margin-bottom: 30px;
+}
+
+.solution-section:last-child {
+  margin-bottom: 0;
+}
+
+.solution-section h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent-teal);
+  margin-bottom: 12px;
+  padding-left: 10px;
+  border-left: 2px solid var(--accent-teal);
+}
+
+.solution-section p {
+  color: var(--text-secondary);
+  font-size: 0.98rem;
+  line-height: 1.7;
+  margin-bottom: 16px;
+}
+
+.solution-conclusion {
+  margin-top: 20px;
+  padding: 16px;
+  background: rgba(64, 224, 208, 0.05);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(64, 224, 208, 0.1);
+  color: var(--text-primary) !important;
+}
+
+.solution-conclusion strong {
+  color: var(--accent-teal);
+  font-size: 1.1rem;
+}
+
+/* 6. Sidebar section */
+.exam-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.sidebar-section {
+  padding: 24px;
+}
+
+.sidebar-section-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  letter-spacing: 0.02em;
+}
+
+.sidebar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sidebar-item {
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: var(--radius-md);
+  transition: var(--transition-normal);
+  display: block;
+}
+
+.sidebar-item:hover {
+  transform: translateY(-2px);
+  border-color: rgba(64, 224, 208, 0.2);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.sidebar-info-exam h4 {
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+
+.sidebar-item-date {
+  font-size: 0.75rem;
+  color: var(--accent-teal);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.sidebar-item-desc {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Formula Cheat Sheet */
+.cheat-sheet-content {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.cheat-item h5 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.cheat-item p {
+  font-size: 0.9rem;
+  color: var(--accent-teal);
+  background: rgba(0, 0, 0, 0.15);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  font-family: monospace;
+}
+
+/* Responsive Rules */
+@media (max-width: 992px) {
+  .exam-detail-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .exam-sidebar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .exam-detail-banner {
+    padding: 30px 0;
+  }
+  
+  .exam-detail-title {
+    font-size: 1.7rem;
+  }
+  
+  .exam-card-paper {
+    padding: 20px;
+  }
+  
+  .interactive-card {
+    padding: 20px;
+  }
+  
+  .input-row {
+    flex-direction: column;
+  }
+  
+  .input-row .btn {
+    width: 100%;
+  }
+  
+  .solution-details {
+    padding: 20px;
+  }
+  
+  .exam-sidebar {
+    grid-template-columns: 1fr;
+  }
+}
