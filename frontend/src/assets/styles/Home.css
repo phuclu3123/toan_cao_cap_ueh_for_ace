@@ -269,7 +269,7 @@
 
 .exams-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 24px;
 }
 
@@ -412,7 +412,7 @@
 /* Midterm Grid Cards */
 .midterm-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 30px;
 }
 
@@ -492,7 +492,7 @@
 
 .docs-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 30px;
 }
 
@@ -503,6 +503,57 @@
 
 .external-card:hover {
   border-color: rgba(64, 224, 208, 0.15) !important;
+}
+
+.home-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 32px;
+}
+
+.home-page-btn {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-secondary);
+  font-weight: 700;
+  line-height: 1;
+  transition: var(--transition-fast);
+}
+
+.home-page-btn:hover:not(:disabled) {
+  border-color: rgba(64, 224, 208, 0.3);
+  color: var(--accent-teal);
+  background: rgba(64, 224, 208, 0.06);
+}
+
+.home-page-btn.active {
+  background: var(--accent-teal);
+  border-color: var(--accent-teal);
+  color: var(--bg-primary);
+}
+
+.home-page-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
+.home-page-summary {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 10px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 600;
 }
 
 /* ==========================================================================
@@ -565,6 +616,12 @@
   .about-image-area {
     order: 2; /* Put image below content on smaller tablets */
   }
+
+  .exams-grid,
+  .midterm-grid,
+  .docs-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 768px) {
@@ -596,5 +653,20 @@
   
   .contact-card {
     padding: 24px;
+  }
+
+  .exams-grid,
+  .midterm-grid,
+  .docs-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .home-pagination {
+    margin-top: 24px;
+  }
+
+  .home-page-summary {
+    width: 100%;
+    justify-content: center;
   }
 }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Play, BookOpen, Download, Send, CheckCircle, AlertCircle, FileText, HelpCircle, Heart, User, Sparkles } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Play, BookOpen, Download, Send, CheckCircle, AlertCircle, FileText, HelpCircle, User, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
 import { documentsData as localDocs, midtermExams as localMidterms, finalExams as localFinals } from '../data/documentsData';
 import DocCard from '../components/DocCard';
 import { API_BASE_URL } from '../config';
@@ -9,6 +9,9 @@ import '../assets/styles/Home.css';
 export default function Home() {
   const [professorFilter, setProfessorFilter] = useState('all');
   const [docCategoryTab, setDocCategoryTab] = useState('all');
+  const [finalPage, setFinalPage] = useState(1);
+  const [midtermPage, setMidtermPage] = useState(1);
+  const [docsPage, setDocsPage] = useState(1);
   
   // Dynamic database lists
   const [docs, setDocs] = useState([]);
@@ -23,7 +26,7 @@ export default function Home() {
   const [contactStatus, setContactStatus] = useState('idle'); // idle | loading | success | error
   const [contactStatusMsg, setContactStatusMsg] = useState('');
 
-  const navigate = useNavigate();
+  const itemsPerHomePage = 6;
 
   useEffect(() => {
     const fetchResources = async () => {
@@ -103,6 +106,68 @@ export default function Home() {
   const filteredDocs = docCategoryTab === 'all'
     ? docs
     : docs.filter(doc => doc.category === docCategoryTab);
+
+  const getPaginatedItems = (items, page) => {
+    const startIndex = (page - 1) * itemsPerHomePage;
+    return items.slice(startIndex, startIndex + itemsPerHomePage);
+  };
+
+  const getTotalPages = (items) => Math.max(1, Math.ceil(items.length / itemsPerHomePage));
+
+  const paginatedFinals = getPaginatedItems(finals, finalPage);
+  const paginatedMidterms = getPaginatedItems(filteredMidtermExams, midtermPage);
+  const paginatedDocs = getPaginatedItems(filteredDocs, docsPage);
+
+  const handleProfessorFilterChange = (filter) => {
+    setProfessorFilter(filter);
+    setMidtermPage(1);
+  };
+
+  const handleDocCategoryChange = (category) => {
+    setDocCategoryTab(category);
+    setDocsPage(1);
+  };
+
+  const PaginationControls = ({ currentPage, totalPages, onPageChange, label }) => {
+    if (totalPages <= 1) return null;
+
+    return (
+      <div className="home-pagination" aria-label={label}>
+        <button
+          type="button"
+          className="home-page-btn"
+          onClick={() => onPageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          aria-label="Trang trước"
+        >
+          <ChevronLeft size={18} />
+        </button>
+
+        {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNumber) => (
+          <button
+            type="button"
+            key={pageNumber}
+            className={`home-page-btn ${currentPage === pageNumber ? 'active' : ''}`}
+            onClick={() => onPageChange(pageNumber)}
+          >
+            {pageNumber}
+          </button>
+        ))}
+
+        <button
+          type="button"
+          className="home-page-btn"
+          onClick={() => onPageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          aria-label="Trang sau"
+        >
+          <ChevronRight size={18} />
+        </button>
+
+        <span className="home-page-summary">Trang {currentPage} / {totalPages}</span>
+      </div>
+    );
+  };
 
   return (
     <div className="home-page">
@@ -208,10 +273,10 @@ export default function Home() {
           </div>
 
           <div className="exams-grid">
-            {finals.slice(0, 4).map((exam, index) => (
-              <div key={index} className="exam-card glass-panel">
+            {paginatedFinals.map((exam, index) => (
+              <div key={exam.id} className="exam-card glass-panel">
                 <div className="exam-card-header">
-                  <span className="exam-index">{(index + 1).toString().padStart(2, '0')}</span>
+                  <span className="exam-index">{(((finalPage - 1) * itemsPerHomePage) + index + 1).toString().padStart(2, '0')}</span>
                   <span className="exam-date">{exam.date}</span>
                 </div>
                 <div className="exam-card-body">
@@ -233,11 +298,12 @@ export default function Home() {
             ))}
           </div>
 
-          <div className="text-center mt-8">
-            <Link to="/resources?category=final" className="btn btn-secondary">
-              <span>Xem tất cả đề thi cuối kỳ ({finals.length})</span>
-            </Link>
-          </div>
+          <PaginationControls
+            currentPage={finalPage}
+            totalPages={getTotalPages(finals)}
+            onPageChange={setFinalPage}
+            label="Phân trang đề thi cuối kỳ"
+          />
         </div>
       </section>
 
@@ -253,16 +319,16 @@ export default function Home() {
           {/* Midterm Filter tabs */}
           <div className="filter-tabs-wrapper">
             <div className="filter-tabs glass-panel">
-              <button className={`filter-tab-btn ${professorFilter === 'all' ? 'active' : ''}`} onClick={() => setProfessorFilter('all')}>Tất cả</button>
-              <button className={`filter-tab-btn ${professorFilter === 'pnta' ? 'active' : ''}`} onClick={() => setProfessorFilter('pnta')}>Thầy Phan Ngô Tuấn Anh</button>
-              <button className={`filter-tab-btn ${professorFilter === 'ndt' ? 'active' : ''}`} onClick={() => setProfessorFilter('ndt')}>Thầy Nguyễn Đình Tuấn</button>
-              <button className={`filter-tab-btn ${professorFilter === 'ntv' ? 'active' : ''}`} onClick={() => setProfessorFilter('ntv')}>Thầy Ngô Trấn Vũ</button>
-              <button className={`filter-tab-btn ${professorFilter === 'ntvv' ? 'active' : ''}`} onClick={() => setProfessorFilter('ntvv')}>Thầy Nguyễn Thanh Vân</button>
+              <button className={`filter-tab-btn ${professorFilter === 'all' ? 'active' : ''}`} onClick={() => handleProfessorFilterChange('all')}>Tất cả</button>
+              <button className={`filter-tab-btn ${professorFilter === 'pnta' ? 'active' : ''}`} onClick={() => handleProfessorFilterChange('pnta')}>Thầy Phan Ngô Tuấn Anh</button>
+              <button className={`filter-tab-btn ${professorFilter === 'ndt' ? 'active' : ''}`} onClick={() => handleProfessorFilterChange('ndt')}>Thầy Nguyễn Đình Tuấn</button>
+              <button className={`filter-tab-btn ${professorFilter === 'ntv' ? 'active' : ''}`} onClick={() => handleProfessorFilterChange('ntv')}>Thầy Ngô Trấn Vũ</button>
+              <button className={`filter-tab-btn ${professorFilter === 'ntvv' ? 'active' : ''}`} onClick={() => handleProfessorFilterChange('ntvv')}>Thầy Nguyễn Thanh Vân</button>
             </div>
           </div>
 
           <div className="midterm-grid">
-            {filteredMidtermExams.slice(0, 3).map((exam) => (
+            {paginatedMidterms.map((exam) => (
               <div key={exam.id} className="midterm-card glass-panel">
                 <div className="midterm-card-img-wrapper">
                   <img 
@@ -285,11 +351,12 @@ export default function Home() {
             ))}
           </div>
 
-          <div className="text-center mt-8">
-            <Link to={`/resources?category=midterm`} className="btn btn-secondary">
-              <span>Xem tất cả đề thi giữa kỳ ({midterms.length})</span>
-            </Link>
-          </div>
+          <PaginationControls
+            currentPage={midtermPage}
+            totalPages={getTotalPages(filteredMidtermExams)}
+            onPageChange={setMidtermPage}
+            label="Phân trang đề thi giữa kỳ"
+          />
         </div>
       </section>
 
@@ -305,16 +372,16 @@ export default function Home() {
           {/* Category Tabs */}
           <div className="filter-tabs-wrapper">
             <div className="filter-tabs category-tabs glass-panel">
-              <button className={`filter-tab-btn ${docCategoryTab === 'all' ? 'active' : ''}`} onClick={() => setDocCategoryTab('all')}>Tất cả</button>
-              <button className={`filter-tab-btn ${docCategoryTab === 'latest' ? 'active' : ''}`} onClick={() => setDocCategoryTab('latest')}>Tài liệu mới nhất</button>
-              <button className={`filter-tab-btn ${docCategoryTab === 'support' ? 'active' : ''}`} onClick={() => setDocCategoryTab('support')}>Tài liệu bổ trợ</button>
-              <button className={`filter-tab-btn ${docCategoryTab === 'other' ? 'active' : ''}`} onClick={() => setDocCategoryTab('other')}>Tài liệu khác</button>
+              <button className={`filter-tab-btn ${docCategoryTab === 'all' ? 'active' : ''}`} onClick={() => handleDocCategoryChange('all')}>Tất cả</button>
+              <button className={`filter-tab-btn ${docCategoryTab === 'latest' ? 'active' : ''}`} onClick={() => handleDocCategoryChange('latest')}>Tài liệu mới nhất</button>
+              <button className={`filter-tab-btn ${docCategoryTab === 'support' ? 'active' : ''}`} onClick={() => handleDocCategoryChange('support')}>Tài liệu bổ trợ</button>
+              <button className={`filter-tab-btn ${docCategoryTab === 'other' ? 'active' : ''}`} onClick={() => handleDocCategoryChange('other')}>Tài liệu khác</button>
             </div>
           </div>
 
           {/* Grid Cards */}
           <div className="docs-grid">
-            {filteredDocs.slice(0, 3).map((doc) => (
+            {paginatedDocs.map((doc) => (
               doc.externalUrl ? (
                 // If it is a direct Google Drive link
                 <div key={doc.id} className="doc-card glass-panel external-card">
@@ -348,11 +415,12 @@ export default function Home() {
             ))}
           </div>
 
-          <div className="text-center mt-8">
-            <Link to="/resources?category=publication" className="btn btn-secondary">
-              <span>Xem tất cả tài liệu & ấn phẩm ({docs.length})</span>
-            </Link>
-          </div>
+          <PaginationControls
+            currentPage={docsPage}
+            totalPages={getTotalPages(filteredDocs)}
+            onPageChange={setDocsPage}
+            label="Phân trang tài liệu và ấn phẩm"
+          />
         </div>
       </section>
 
