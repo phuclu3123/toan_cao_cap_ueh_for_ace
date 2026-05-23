@@ -194,7 +194,11 @@ export default function ExamDetail() {
   };
 
   const handleExit = () => {
-    navigate('/');
+    if (submitted) {
+      navigate('/');
+    } else {
+      setShowExitModal(true);
+    }
   };
 
   const selectedAnswer = answers[currentQuestion.id];

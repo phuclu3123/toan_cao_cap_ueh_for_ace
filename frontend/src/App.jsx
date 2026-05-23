@@ -13,14 +13,17 @@ const ExamDetail = lazy(() => import('./pages/ExamDetail'));
 function Layout() {
   const location = useLocation();
   const isGiftPage = location.pathname === '/20-10';
+  const isExamPage = location.pathname.startsWith('/exam/');
+  
+  const showHeaderFooter = !isGiftPage && !isExamPage;
 
   return (
     <div className="app-container">
-      {!isGiftPage && <Navbar />}
+      {showHeaderFooter && <Navbar />}
       <main className="main-content">
         <Outlet />
       </main>
-      {!isGiftPage && <Footer />}
+      {showHeaderFooter && <Footer />}
     </div>
   );
 }
