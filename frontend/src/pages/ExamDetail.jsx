@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useBlocker } from 'react-router-dom';
 import {
   AlertTriangle,
   ArrowLeft,
@@ -44,6 +44,43 @@ export default function ExamDetail() {
   const [submitReason, setSubmitReason] = useState('');
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [showExitModal, setShowExitModal] = useState(false);
+
+  // Set up router navigation blocker
+  const blocker = useBlocker(
+    ({ currentValue, nextLocation }) =>
+      !submitted && currentValue.location.pathname !== nextLocation.pathname
+  );
+
+  useEffect(() => {
+    if (blocker.state === 'blocked') {
+      setShowExitModal(true);
+    }
+  }, [blocker.state]);
+
+  const handleExitCancel = () => {
+    setShowExitModal(false);
+    if (blocker.state === 'blocked') {
+      blocker.reset();
+    }
+  };
+
+  const handleExitSubmit = () => {
+    setSubmitted(true);
+    setSubmitReason('exit');
+    setShowExitModal(false);
+    if (blocker.state === 'blocked') {
+      setTimeout(() => {
+        blocker.proceed();
+      }, 0);
+    }
+  };
+
+  const handleExitWithoutSubmit = () => {
+    setShowExitModal(false);
+    if (blocker.state === 'blocked') {
+      blocker.proceed();
+    }
+  };
 
   const currentQuestion = questions[currentIndex] || questions[0];
   const answeredCount = questions.reduce((count, question) => (
@@ -157,11 +194,7 @@ export default function ExamDetail() {
   };
 
   const handleExit = () => {
-    if (submitted) {
-      navigate('/');
-      return;
-    }
-    setShowExitModal(true);
+    navigate('/');
   };
 
   const selectedAnswer = answers[currentQuestion.id];
@@ -505,13 +538,13 @@ export default function ExamDetail() {
               Bạn muốn làm gì?
             </p>
             <div className="modal-actions stacked">
-              <button type="button" className="modal-btn btn-primary" onClick={() => submitExam('exit')}>
+              <button type="button" className="modal-btn btn-primary" onClick={handleExitSubmit}>
                 Nộp bài và thoát
               </button>
-              <button type="button" className="modal-btn btn-secondary" onClick={() => setShowExitModal(false)}>
+              <button type="button" className="modal-btn btn-secondary" onClick={handleExitCancel}>
                 Tiếp tục làm bài
               </button>
-              <button type="button" className="modal-btn ghost-danger" onClick={() => navigate('/')}>
+              <button type="button" className="modal-btn ghost-danger" onClick={handleExitWithoutSubmit}>
                 Thoát không nộp
               </button>
             </div>

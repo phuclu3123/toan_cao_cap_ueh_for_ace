@@ -1,6 +1,5 @@
-/* --- FOOTER MAIN --- */
 .footer {
-  background-color: #05070c;
+  background-color: var(--bg-secondary);
   color: var(--text-primary);
   border-top: 1px solid rgba(255, 255, 255, 0.05);
   font-size: 0.95rem;
@@ -257,7 +256,7 @@
 
 /* --- FOOTER BOTTOM --- */
 .footer-bottom {
-  background: #020306;
+  background: var(--bg-primary);
   padding: 24px 0;
   border-top: 1px solid rgba(255, 255, 255, 0.02);
   font-size: 0.85rem;

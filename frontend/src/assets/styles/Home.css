@@ -264,7 +264,7 @@
    3. FINAL EXAMS SECTION
    ========================================================================== */
 .exams-section {
-  background: #090c13;
+  background: var(--bg-primary);
 }
 
 .exams-grid {
@@ -279,14 +279,17 @@
   flex-direction: column;
   gap: 20px;
   border-radius: var(--radius-md);
-  border-color: rgba(255, 255, 255, 0.03);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   transition: var(--transition-normal);
 }
 
 .exam-card:hover {
   transform: translateY(-4px);
-  border-color: rgba(64, 224, 208, 0.15);
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+  border-color: rgba(45, 212, 191, 0.25);
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.4),
+    0 0 24px rgba(45, 212, 191, 0.08);
 }
 
 .exam-card-header {
@@ -487,7 +490,7 @@
    5. PUBLICATIONS (ẤN PHẨM) SECTION
    ========================================================================== */
 .docs-section {
-  background: #090c13;
+  background: var(--bg-primary);
 }
 
 .docs-grid {

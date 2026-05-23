@@ -1,5 +1,5 @@
 import React, { lazy, Suspense } from 'react';
-import { HashRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { createHashRouter, RouterProvider, Outlet, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -10,8 +10,7 @@ import './App.css';
 
 const ExamDetail = lazy(() => import('./pages/ExamDetail'));
 
-// Subcomponent to have access to useLocation
-function AppContent() {
+function Layout() {
   const location = useLocation();
   const isGiftPage = location.pathname === '/20-10';
 
@@ -19,32 +18,45 @@ function AppContent() {
     <div className="app-container">
       {!isGiftPage && <Navbar />}
       <main className="main-content">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/resources" element={<ResourcesPage />} />
-          <Route path="/document/:id" element={<DocDetail />} />
-          <Route
-            path="/exam/:id"
-            element={(
-              <Suspense fallback={<div className="loading-doc text-center">Đang tải phòng thi...</div>}>
-                <ExamDetail />
-              </Suspense>
-            )}
-          />
-          <Route path="/20-10" element={<GiftPage />} />
-        </Routes>
+        <Outlet />
       </main>
       {!isGiftPage && <Footer />}
     </div>
   );
 }
 
-function App() {
-  return (
-    <Router>
-      <AppContent />
-    </Router>
-  );
-}
+const router = createHashRouter([
+  {
+    path: '/',
+    element: <Layout />,
+    children: [
+      {
+        path: '',
+        element: <Home />
+      },
+      {
+        path: 'resources',
+        element: <ResourcesPage />
+      },
+      {
+        path: 'document/:id',
+        element: <DocDetail />
+      },
+      {
+        path: 'exam/:id',
+        element: (
+          <Suspense fallback={<div className="loading-doc text-center">Đang tải phòng thi...</div>}>
+            <ExamDetail />
+          </Suspense>
+        )
+      },
+      {
+        path: '20-10',
+        element: <GiftPage />
+      }
+    ]
+  }
+]);
 
-export default App;
+export default function App() {
+  return <RouterProvider router={router} />;}

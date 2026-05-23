@@ -115,17 +115,35 @@
 
 .nav-link-item {
   color: var(--text-secondary);
-  font-weight: 500;
-  font-size: 0.95rem;
+  font-weight: 600;
+  font-size: 0.925rem;
   padding: 8px 16px;
-  border-radius: var(--radius-sm);
-  transition: var(--transition-fast);
+  position: relative;
+  transition: color var(--transition-fast);
 }
 
 .nav-link-item:hover,
 .nav-link-item.active {
   color: var(--accent-teal);
-  background: rgba(64, 224, 208, 0.05);
+  background: none !important;
+}
+
+.nav-link-item::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent-teal), var(--accent-blue));
+  transition: all var(--transition-normal);
+  transform: translateX(-50%);
+  border-radius: var(--radius-full);
+}
+
+.nav-link-item:hover::after,
+.nav-link-item.active::after {
+  width: 24px;
 }
 
 .rose-link {
@@ -135,7 +153,11 @@
 .rose-link:hover,
 .rose-link.active {
   color: var(--accent-rose) !important;
-  background: rgba(255, 101, 132, 0.08) !important;
+  background: none !important;
+}
+
+.rose-link::after {
+  background: var(--accent-rose);
 }
 
 /* Actions */
