@@ -1,21 +1,21 @@
 /* --- DESIGN SYSTEM & CSS VARIABLES --- */
 :root {
   /* Colors - Highly Curated Professional Dark Mode Palette */
-  --bg-primary: #080b11;      /* Deepest midnight space background */
-  --bg-secondary: #0f1420;    /* Premium slate navy card background */
-  --bg-tertiary: #171e30;     /* Highlight card background */
+  --bg-primary: #07090e;      /* Deepest midnight space background */
+  --bg-secondary: #0d111b;    /* Premium slate navy card background */
+  --bg-tertiary: #141a29;     /* Highlight card background */
   --bg-light: #f8fafc;
   --bg-white: #ffffff;
   
   --text-primary: #f8fafc;    /* High-contrast crisp white-blue text */
   --text-secondary: #94a3b8;  /* Slate gray text */
   --text-dark: #0f172a;
-  --text-muted: #4b5563;
+  --text-muted: #475569;
   
-  /* Modern Accent Colors (Teal, Indigo, Rose, Gold, Emerald) */
-  --accent-teal: #2dd4bf;     /* High-end neon teal */
-  --accent-teal-hover: #14b8a6;
-  --accent-blue: #38bdf8;     /* Sky blue */
+  /* Modern Accent Colors (Cyan, Blue, Indigo, Rose, Gold, Emerald) */
+  --accent-teal: #06b6d4;     /* High-end neon cyan */
+  --accent-teal-hover: #0891b2;
+  --accent-blue: #3b82f6;     /* Royal blue */
   --accent-indigo: #6366f1;   /* Rich purple-indigo */
   --accent-rose: #f43f5e;     /* Rose red for warning/error/incorrect */
   --accent-gold: #fbbf24;     /* Warm amber gold for flagged questions */

@@ -72,6 +72,8 @@ export default function ExamDetail() {
       setTimeout(() => {
         blocker.proceed();
       }, 0);
+    } else {
+      navigate('/');
     }
   };
 
@@ -79,6 +81,8 @@ export default function ExamDetail() {
     setShowExitModal(false);
     if (blocker.state === 'blocked') {
       blocker.proceed();
+    } else {
+      navigate('/');
     }
   };
 
