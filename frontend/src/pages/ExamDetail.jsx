@@ -49,10 +49,14 @@ export default function ExamDetail() {
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [showExitModal, setShowExitModal] = useState(false);
 
-  // Set up router navigation blocker
+  // Set up router navigation blocker with bypass ref to avoid routing deadlock
+  const bypassBlockerRef = React.useRef(false);
+
   const blocker = useBlocker(
-    ({ currentValue, nextLocation }) =>
-      !submitted && currentValue.location.pathname !== nextLocation.pathname
+    ({ currentValue, nextLocation }) => {
+      if (bypassBlockerRef.current) return false;
+      return !submitted && currentValue.location.pathname !== nextLocation.pathname;
+    }
   );
 
   useEffect(() => {
@@ -62,6 +66,7 @@ export default function ExamDetail() {
   }, [blocker.state]);
 
   const handleExitCancel = () => {
+    bypassBlockerRef.current = false;
     setShowExitModal(false);
     if (blocker.state === 'blocked') {
       blocker.reset();
@@ -69,6 +74,7 @@ export default function ExamDetail() {
   };
 
   const handleExitSubmit = () => {
+    bypassBlockerRef.current = true;
     setSubmitted(true);
     setSubmitReason('exit');
     setShowExitModal(false);
@@ -82,6 +88,7 @@ export default function ExamDetail() {
   };
 
   const handleExitWithoutSubmit = () => {
+    bypassBlockerRef.current = true;
     setShowExitModal(false);
     if (blocker.state === 'blocked') {
       blocker.proceed();

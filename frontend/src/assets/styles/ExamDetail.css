@@ -218,8 +218,8 @@
   justify-content: center;
   min-width: 90px;
   height: 64px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
 }
 
@@ -256,7 +256,7 @@
   align-items: center;
   margin-bottom: 30px;
   padding-bottom: 18px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .q-title-block {
@@ -290,8 +290,8 @@
   gap: 8px;
   padding: 8px 16px;
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
   color: var(--text-secondary);
   font-size: 0.85rem;
   font-weight: 600;
@@ -336,8 +336,8 @@
   padding: 18px 24px;
   min-height: 64px;
   border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.015);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   color: var(--text-primary);
   font-size: 1.05rem;
   text-align: left;
@@ -345,7 +345,7 @@
 }
 
 .answer-option:hover:not(:disabled) {
-  border-color: rgba(6, 182, 212, 0.25);
+  border-color: var(--accent-teal);
   background: rgba(6, 182, 212, 0.04);
   transform: translateY(-2px);
 }
@@ -359,13 +359,13 @@
 }
 
 .answer-option.correct {
-  border-color: rgba(16, 185, 129, 0.4);
+  border-color: var(--accent-emerald);
   background: rgba(16, 185, 129, 0.08);
   box-shadow: 0 4px 20px rgba(16, 185, 129, 0.08);
 }
 
 .answer-option.wrong {
-  border-color: rgba(244, 63, 94, 0.4);
+  border-color: var(--accent-rose);
   background: rgba(244, 63, 94, 0.08);
   box-shadow: 0 4px 20px rgba(244, 63, 94, 0.08);
 }
@@ -376,8 +376,8 @@
   border-radius: 8px;
   display: grid;
   place-items: center;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
   color: var(--text-secondary);
   font-weight: 800;
   font-size: 0.9rem;
@@ -453,7 +453,7 @@
   justify-content: space-between;
   align-items: center;
   padding-top: 24px;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid var(--border-color);
 }
 
 .nav-question-btn {
@@ -896,7 +896,7 @@
   font-size: 1.5rem;
   font-weight: 800;
   margin-bottom: 10px;
-  color: #ffffff;
+  color: var(--text-primary);
 }
 
 .modal-desc {
@@ -941,14 +941,14 @@
 }
 
 .modal-btn.btn-secondary {
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--bg-tertiary);
   color: var(--text-primary);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-color);
 }
 
 .modal-btn.btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.15);
+  background: var(--bg-secondary);
+  border-color: var(--border-color-hover);
 }
 
 .modal-btn.ghost-danger {

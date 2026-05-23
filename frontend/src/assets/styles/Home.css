@@ -85,7 +85,7 @@
   border-radius: var(--radius-lg);
   overflow: hidden;
   padding: 8px;
-  border-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
   box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.5);
   transition: var(--transition-normal);
 }
@@ -113,7 +113,7 @@
   height: 64px;
   border-radius: var(--radius-full);
   background: var(--accent-teal);
-  color: var(--bg-primary);
+  color: #050811;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -179,7 +179,7 @@
   border-radius: var(--radius-lg);
   position: relative;
   z-index: 2;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-color);
   box-shadow: var(--shadow-xl);
 }
 

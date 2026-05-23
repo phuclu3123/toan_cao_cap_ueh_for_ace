@@ -250,7 +250,7 @@
   max-width: 320px;
   height: 100%;
   background: var(--bg-secondary);
-  border-left: 1px solid rgba(255, 255, 255, 0.05);
+  border-left: 1px solid var(--border-color);
   padding: 30px 24px;
   transform: translateX(100%);
   transition: transform var(--transition-normal);
@@ -285,7 +285,7 @@
   font-weight: 500;
   text-align: left;
   padding: 10px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid var(--border-color);
   width: 100%;
 }
 
@@ -351,16 +351,15 @@
   padding: 36px 36px 28px;
   position: relative;
   border-radius: 22px;
-  /* Fully opaque dark slate - no background bleed */
-  background: #0f1729;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.04) inset,
-    0 32px 64px -12px rgba(0, 0, 0, 0.9),
-    0 0 60px -20px rgba(64, 224, 208, 0.2);
+    0 0 0 1px rgba(255, 255, 255, 0.01) inset,
+    0 32px 64px -12px rgba(0, 0, 0, 0.4),
+    0 0 60px -20px rgba(6, 182, 212, 0.15);
   animation: modalScaleUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   scrollbar-width: thin;
-  scrollbar-color: rgba(64, 224, 208, 0.2) transparent;
+  scrollbar-color: rgba(6, 182, 212, 0.2) transparent;
 }
 
 .modal-content::-webkit-scrollbar {
@@ -447,10 +446,7 @@
   font-size: 1.7rem;
   font-weight: 800;
   margin-bottom: 8px;
-  background: linear-gradient(135deg, #ffffff 30%, #a5f3fc 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--text-primary);
   letter-spacing: -0.03em;
 }
 
@@ -544,7 +540,7 @@
 .form-group label {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #cbd5e1;
+  color: var(--text-secondary);
 }
 
 /* Input with Icon */
@@ -574,10 +570,10 @@
 
 /* Form Input */
 .form-input {
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  background: var(--bg-primary) !important;
+  border: 1px solid var(--border-color) !important;
   border-radius: 11px !important;
-  color: #f1f5f9 !important;
+  color: var(--text-primary) !important;
   padding: 13px 16px !important;
   font-size: 0.925rem !important;
   font-family: var(--font-body) !important;
@@ -588,15 +584,14 @@
 }
 
 .form-input:hover {
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: var(--border-color-hover) !important;
 }
 
 .form-input:focus {
   outline: none !important;
-  background: rgba(64, 224, 208, 0.05) !important;
-  border-color: rgba(64, 224, 208, 0.6) !important;
-  box-shadow: 0 0 0 3px rgba(64, 224, 208, 0.12), 0 4px 16px rgba(64, 224, 208, 0.08) !important;
+  background: rgba(6, 182, 212, 0.05) !important;
+  border-color: var(--accent-teal) !important;
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.12), 0 4px 16px rgba(6, 182, 212, 0.08) !important;
 }
 
 .form-input::placeholder {
@@ -643,7 +638,7 @@
   display: flex;
   align-items: center;
   text-align: center;
-  color: #475569;
+  color: var(--text-muted);
   font-size: 0.8rem;
   font-weight: 500;
   margin: 4px 0;
@@ -655,7 +650,7 @@
   content: '';
   flex: 1;
   height: 1px;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--border-color);
 }
 
 /* Social Login Grid */
@@ -671,9 +666,9 @@
   justify-content: center;
   height: 48px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #ffffff;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
   transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   position: relative;
@@ -733,7 +728,7 @@
 .btn-back-link {
   background: none;
   border: none;
-  color: #64748b;
+  color: var(--text-secondary);
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -776,11 +771,11 @@
 /* Footer note */
 .auth-footer-note {
   font-size: 0.78rem;
-  color: #475569;
+  color: var(--text-muted);
   text-align: center;
   margin-top: 4px;
   line-height: 1.5;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid var(--border-color);
   padding-top: 12px;
 }
 

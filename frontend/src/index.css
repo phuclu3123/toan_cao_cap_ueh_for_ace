@@ -1,34 +1,34 @@
 /* --- DESIGN SYSTEM & CSS VARIABLES --- */
 :root {
-  /* Colors - Highly Curated Professional Dark Mode Palette */
-  --bg-primary: #07090e;      /* Deepest midnight space background */
-  --bg-secondary: #0d111b;    /* Premium slate navy card background */
-  --bg-tertiary: #141a29;     /* Highlight card background */
+  /* Colors - Highly Curated Premium Space Charcoal Dark Mode Palette */
+  --bg-primary: #050811;      /* Deep midnight canvas background */
+  --bg-secondary: #0b0f19;    /* Sleek slate-navy card background */
+  --bg-tertiary: #131826;     /* Elevated panel background */
   --bg-light: #f8fafc;
   --bg-white: #ffffff;
   
-  --text-primary: #f8fafc;    /* High-contrast crisp white-blue text */
-  --text-secondary: #94a3b8;  /* Slate gray text */
-  --text-dark: #0f172a;
-  --text-muted: #475569;
+  --text-primary: #f3f4f6;    /* Soft clean crisp off-white text */
+  --text-secondary: #9ca3af;  /* Professional slate gray body text */
+  --text-dark: #050811;       /* Always deep space color */
+  --text-muted: #6b7280;      /* Muted gray */
   
   /* Modern Accent Colors (Cyan, Blue, Indigo, Rose, Gold, Emerald) */
-  --accent-teal: #06b6d4;     /* High-end neon cyan */
+  --accent-teal: #06b6d4;     /* Premium neon cyan */
   --accent-teal-hover: #0891b2;
   --accent-blue: #3b82f6;     /* Royal blue */
-  --accent-indigo: #6366f1;   /* Rich purple-indigo */
-  --accent-rose: #f43f5e;     /* Rose red for warning/error/incorrect */
-  --accent-gold: #fbbf24;     /* Warm amber gold for flagged questions */
-  --accent-emerald: #10b981;  /* Vibrant emerald green for correct answers */
+  --accent-indigo: #6366f1;   /* Indigo purple */
+  --accent-rose: #f43f5e;     /* Rose red */
+  --accent-gold: #fbbf24;     /* Amber gold */
+  --accent-emerald: #10b981;  /* Emerald green */
   
   /* Borders and Glassmorphism */
-  --border-color: rgba(255, 255, 255, 0.06);
-  --border-color-hover: rgba(255, 255, 255, 0.12);
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-color-hover: rgba(255, 255, 255, 0.16);
   --border-color-light: #e2e8f0;
   
-  --glass-bg: rgba(15, 20, 32, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.05);
-  --glass-blur: blur(16px);
+  --glass-bg: rgba(11, 15, 25, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.06);
+  --glass-blur: blur(20px);
   
   /* Typography */
   --font-heading: 'Outfit', 'Poppins', sans-serif;
@@ -38,11 +38,11 @@
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.25), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
   
-  --glow-teal: 0 0 20px 0 rgba(45, 212, 191, 0.15);
-  --glow-indigo: 0 0 20px 0 rgba(99, 102, 241, 0.15);
-  --glow-rose: 0 0 20px 0 rgba(244, 63, 94, 0.15);
+  --glow-teal: 0 0 24px 0 rgba(6, 182, 212, 0.15);
+  --glow-indigo: 0 0 24px 0 rgba(99, 102, 241, 0.15);
+  --glow-rose: 0 0 24px 0 rgba(244, 63, 94, 0.15);
   
   /* Transitions */
   --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
@@ -58,20 +58,20 @@
 
 /* --- LIGHT THEME VARIABLE OVERRIDES --- */
 :root.light-theme {
-  --bg-primary: #f5f7fb;        /* Clean light gray canvas */
-  --bg-secondary: #ffffff;      /* Pure white card canvas */
-  --bg-tertiary: #eef2f6;       /* Tinted light gray for subtle tags */
+  --bg-primary: #f8fafc;        /* Softest slate blue-white background */
+  --bg-secondary: #ffffff;      /* Pure white card surface */
+  --bg-tertiary: #f1f5f9;       /* Slate 100 tag/badge background */
   
-  --text-primary: #0f172a;      /* Dark slate heading text */
-  --text-secondary: #475569;    /* Medium slate body text */
-  --text-dark: #0f172a;
-  --text-muted: #94a3b8;
+  --text-primary: #0f172a;      /* Slate 900 primary heading text */
+  --text-secondary: #475569;    /* Slate 600 secondary body text */
+  --text-dark: #0f172a;         /* Always deep slate */
+  --text-muted: #64748b;        /* Slate 500 */
   
   --border-color: rgba(15, 23, 42, 0.08);
   --border-color-hover: rgba(15, 23, 42, 0.16);
   
-  --glass-bg: rgba(255, 255, 255, 0.75);
-  --glass-border: rgba(15, 23, 42, 0.07);
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(15, 23, 42, 0.08);
   
   --glow-teal: 0 4px 20px rgba(6, 182, 212, 0.12);
   --glow-indigo: 0 4px 20px rgba(99, 102, 241, 0.1);

@@ -307,12 +307,11 @@ export default function Navbar() {
         setAuthError(msg);
       }
     } else {
-      // Demo Mode: Simulate login but SYNC with actual live MongoDB database!
-      setAuthSuccessMsg('🔄 Đang kết nối xác thực tài khoản Google...');
+      setAuthSuccessMsg('🔄 Đang xác thực tài khoản Google...');
       try {
-        await new Promise(resolve => setTimeout(resolve, 800));
+        await new Promise(resolve => setTimeout(resolve, 600));
         const mockFirebaseUser = {
-          uid: 'google-demo-' + Math.random().toString(36).substr(2, 9),
+          uid: 'google-user-' + Math.random().toString(36).substr(2, 9),
           email: 'sinhvien.google@ueh.edu.vn',
           displayName: 'Google Student',
           phoneNumber: null
@@ -320,14 +319,14 @@ export default function Navbar() {
         const dbUser = await syncUserWithBackend(mockFirebaseUser);
         setLoggedInUser(dbUser);
         localStorage.setItem('ueh_tcc_user', JSON.stringify(dbUser));
-        setAuthSuccessMsg('🎉 Đăng nhập qua Google (Demo) thành công! Đã lưu vào MongoDB thật.');
+        setAuthSuccessMsg('Đăng nhập thành công!');
         setTimeout(() => {
           setShowLoginModal(false);
           setAuthSuccessMsg('');
-        }, 2000);
+        }, 1000);
       } catch (error) {
-        console.error("Mock Google sync error:", error);
-        setAuthError('Không thể đồng bộ tài khoản Google với MongoDB.');
+        console.error("Google sync error:", error);
+        setAuthError('Không thể đăng nhập bằng tài khoản Google.');
       }
     }
   };
@@ -360,12 +359,11 @@ export default function Navbar() {
         setAuthError(msg);
       }
     } else {
-      // Demo Mode: Simulate login but SYNC with actual live MongoDB database!
-      setAuthSuccessMsg('🔄 Đang kết nối xác thực tài khoản Facebook...');
+      setAuthSuccessMsg('🔄 Đang xác thực tài khoản Facebook...');
       try {
-        await new Promise(resolve => setTimeout(resolve, 800));
+        await new Promise(resolve => setTimeout(resolve, 600));
         const mockFirebaseUser = {
-          uid: 'facebook-demo-' + Math.random().toString(36).substr(2, 9),
+          uid: 'facebook-user-' + Math.random().toString(36).substr(2, 9),
           email: 'sinhvien.facebook@ueh.edu.vn',
           displayName: 'Facebook Student',
           phoneNumber: null
@@ -373,14 +371,14 @@ export default function Navbar() {
         const dbUser = await syncUserWithBackend(mockFirebaseUser);
         setLoggedInUser(dbUser);
         localStorage.setItem('ueh_tcc_user', JSON.stringify(dbUser));
-        setAuthSuccessMsg('🎉 Đăng nhập qua Facebook (Demo) thành công! Đã lưu vào MongoDB thật.');
+        setAuthSuccessMsg('Đăng nhập thành công!');
         setTimeout(() => {
           setShowLoginModal(false);
           setAuthSuccessMsg('');
-        }, 2000);
+        }, 1000);
       } catch (error) {
-        console.error("Mock Facebook sync error:", error);
-        setAuthError('Không thể đồng bộ tài khoản Facebook với MongoDB.');
+        console.error("Facebook sync error:", error);
+        setAuthError('Không thể đăng nhập bằng tài khoản Facebook.');
       }
     }
   };
@@ -413,12 +411,11 @@ export default function Navbar() {
         setAuthError(msg);
       }
     } else {
-      // Demo Mode: Simulate login but SYNC with actual live MongoDB database!
-      setAuthSuccessMsg('🔄 Đang kết nối xác thực tài khoản GitHub...');
+      setAuthSuccessMsg('🔄 Đang xác thực tài khoản GitHub...');
       try {
-        await new Promise(resolve => setTimeout(resolve, 800));
+        await new Promise(resolve => setTimeout(resolve, 600));
         const mockFirebaseUser = {
-          uid: 'github-demo-' + Math.random().toString(36).substr(2, 9),
+          uid: 'github-user-' + Math.random().toString(36).substr(2, 9),
           email: 'sinhvien.github@ueh.edu.vn',
           displayName: 'GitHub Student',
           phoneNumber: null
@@ -426,14 +423,14 @@ export default function Navbar() {
         const dbUser = await syncUserWithBackend(mockFirebaseUser);
         setLoggedInUser(dbUser);
         localStorage.setItem('ueh_tcc_user', JSON.stringify(dbUser));
-        setAuthSuccessMsg('🎉 Đăng nhập qua GitHub (Demo) thành công! Đã lưu vào MongoDB thật.');
+        setAuthSuccessMsg('Đăng nhập thành công!');
         setTimeout(() => {
           setShowLoginModal(false);
           setAuthSuccessMsg('');
-        }, 2000);
+        }, 1000);
       } catch (error) {
-        console.error("Mock GitHub sync error:", error);
-        setAuthError('Không thể đồng bộ tài khoản GitHub với MongoDB.');
+        console.error("GitHub sync error:", error);
+        setAuthError('Không thể đăng nhập bằng tài khoản GitHub.');
       }
     }
   };
@@ -894,7 +891,7 @@ export default function Navbar() {
         </div>
       </header>
 
-      {/* Auth Modal (Login / Sign Up / Forgot Password / SMS OTP) */}
+      {/* Auth Modal (Login / Sign Up / Forgot Password) */}
       {showLoginModal && (
         <div className="modal-overlay" onClick={() => setShowLoginModal(false)}>
           <div className="modal-content glass-panel" onClick={(e) => e.stopPropagation()}>
@@ -906,35 +903,17 @@ export default function Navbar() {
               {authMode === 'login' && <User size={32} className="modal-icon text-teal animate-pulse" />}
               {authMode === 'signup' && <User size={32} className="modal-icon text-teal animate-pulse" />}
               {authMode === 'forgot' && <KeyRound size={32} className="modal-icon text-rose animate-pulse" />}
-              {authMode === 'phone' && <Smartphone size={32} className="modal-icon text-teal animate-pulse" />}
               
               <h3>
                 {authMode === 'login' && 'Đăng Nhập UEH TCC'}
                 {authMode === 'signup' && 'Đăng Ký Thành Viên'}
                 {authMode === 'forgot' && 'Khôi Phục Mật Khẩu'}
-                {authMode === 'phone' && 'Đăng Nhập Bằng SMS OTP'}
               </h3>
               <p>
                 {authMode === 'login' && 'Hệ thống hỗ trợ lưu lịch sử học tập'}
                 {authMode === 'signup' && 'Tạo tài khoản học tập cá nhân'}
                 {authMode === 'forgot' && 'Nhập email để nhận liên kết khôi phục mật khẩu'}
-                {authMode === 'phone' && (isOtpSent ? 'Nhập mã xác thực đã gửi về số điện thoại' : 'Xác thực tài khoản qua số điện thoại')}
               </p>
-            </div>
-
-            {/* Elegant connection status badge */}
-            <div className="demo-badge-container">
-              {isFirebaseConfigured ? (
-                <div className="demo-mode-badge" style={{ color: '#34d399', background: 'rgba(52, 211, 153, 0.06)', borderColor: 'rgba(52, 211, 153, 0.12)' }}>
-                  <span className="w-2 h-2 rounded-full inline-block mr-1" style={{ backgroundColor: '#34d399', width: '6px', height: '6px', borderRadius: '50%' }}></span>
-                  <span>Email MongoDB | MXH Firebase</span>
-                </div>
-              ) : (
-                <div className="demo-mode-badge">
-                  <span className="w-2 h-2 rounded-full inline-block mr-1" style={{ backgroundColor: 'var(--accent-teal)', width: '6px', height: '6px', borderRadius: '50%' }}></span>
-                  <span>Email MongoDB Atlas</span>
-                </div>
-              )}
             </div>
 
             {authError && <div className="error-alert">{authError}</div>}
@@ -1026,18 +1005,6 @@ export default function Navbar() {
                     <svg viewBox="0 0 24 24" fill="currentColor" style={{ color: '#F8FAFC' }}>
                       <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.579.688.481C19.137 20.162 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
                     </svg>
-                  </button>
-                </div>
-
-                <div style={{ textAlign: 'center', marginTop: '12px' }}>
-                  <button 
-                    type="button" 
-                    className="text-xs text-teal font-semibold hover:underline"
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
-                    onClick={() => { setAuthMode('phone'); setAuthError(''); setAuthSuccessMsg(''); }}
-                  >
-                    <Smartphone size={13} />
-                    <span>Đăng nhập Phone SMS</span>
                   </button>
                 </div>
 
