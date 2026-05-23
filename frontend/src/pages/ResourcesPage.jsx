@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { Search, Grid, List, ChevronLeft, ChevronRight, FileText, BookOpen, Calendar, HelpCircle, Download } from 'lucide-react';
 import { documentsData as localDocs, midtermExams as localMidterms, finalExams as localFinals } from '../data/documentsData';
@@ -6,9 +6,13 @@ import DocCard from '../components/DocCard';
 import { API_BASE_URL } from '../config';
 import { formatResourceDate } from '../utils/resourceDate';
 import { mergeResourceItems } from '../utils/resourceMerge';
+import { LanguageContext } from '../App';
+import { translations } from '../utils/translations';
 import '../assets/styles/Resources.css';
 
 export default function ResourcesPage() {
+  const { language } = useContext(LanguageContext);
+  const t = translations[language];
   const location = useLocation();
   
   // Dynamic resource lists fetched from API
@@ -88,16 +92,16 @@ export default function ResourcesPage() {
 
     if (activeTab === 'all') {
       // Map all items to a uniform structure for display
-      const mappedDocs = docs.map(d => ({ ...d, type: 'publication', displayCategory: d.categoryLabel || 'Tài liệu' }));
-      const mappedMidterms = midterms.map(m => ({ ...m, type: 'midterm', displayCategory: 'Đề thi giữa kỳ' }));
-      const mappedFinals = practiceFinalExams.map(f => ({ ...f, type: 'final', displayCategory: 'Đề thi cuối kỳ' }));
+      const mappedDocs = docs.map(d => ({ ...d, type: 'publication', displayCategory: d.categoryLabel || t.resources.tabPub }));
+      const mappedMidterms = midterms.map(m => ({ ...m, type: 'midterm', displayCategory: t.resources.tabMidterm }));
+      const mappedFinals = practiceFinalExams.map(f => ({ ...f, type: 'final', displayCategory: t.resources.badgeFinal }));
       items = [...mappedDocs, ...mappedMidterms, ...mappedFinals];
     } else if (activeTab === 'midterm') {
-      items = midterms.map(m => ({ ...m, type: 'midterm', displayCategory: 'Đề thi giữa kỳ' }));
+      items = midterms.map(m => ({ ...m, type: 'midterm', displayCategory: t.resources.tabMidterm }));
     } else if (activeTab === 'final') {
-      items = practiceFinalExams.map(f => ({ ...f, type: 'final', displayCategory: 'Đề thi cuối kỳ' }));
+      items = practiceFinalExams.map(f => ({ ...f, type: 'final', displayCategory: t.resources.badgeFinal }));
     } else if (activeTab === 'publication') {
-      items = docs.map(d => ({ ...d, type: 'publication', displayCategory: d.categoryLabel || 'Tài liệu' }));
+      items = docs.map(d => ({ ...d, type: 'publication', displayCategory: d.categoryLabel || t.resources.tabPub }));
     }
 
     // Apply search filter
@@ -133,10 +137,10 @@ export default function ResourcesPage() {
       {/* 1. HERO BANNER */}
       <section className="resources-banner">
         <div className="container">
-          <span className="resources-banner-subtitle">Học liệu chất lượng cao</span>
-          <h1 className="resources-banner-title">Thư Viện Tài Nguyên Học Tập</h1>
+          <span className="resources-banner-subtitle">{t.resources.bannerSubtitle}</span>
+          <h1 className="resources-banner-title">{t.resources.bannerTitle}</h1>
           <p className="resources-banner-desc">
-            Nơi tập hợp, lưu trữ toàn bộ giáo trình, đề thi trắc nghiệm, giữa kỳ, cuối kỳ chính thức và ấn phẩm bổ trợ chuyên sâu Toán Cao Cấp UEH.
+            {t.resources.bannerDesc}
           </p>
         </div>
       </section>
@@ -150,7 +154,7 @@ export default function ResourcesPage() {
               <input 
                 type="text" 
                 className="search-field" 
-                placeholder="Tìm kiếm tài liệu, đề kiểm tra, bài giải..." 
+                placeholder={t.resources.searchPlaceholder} 
                 value={searchQuery}
                 onChange={handleSearchChange}
               />
@@ -160,14 +164,14 @@ export default function ResourcesPage() {
               <button 
                 className={`btn-layout-toggle ${viewMode === 'grid' ? 'active' : ''}`} 
                 onClick={() => setViewMode('grid')}
-                title="Hiển thị dạng lưới"
+                title={t.resources.titleGrid}
               >
                 <Grid size={18} />
               </button>
               <button 
                 className={`btn-layout-toggle ${viewMode === 'list' ? 'active' : ''}`} 
                 onClick={() => setViewMode('list')}
-                title="Hiển thị dạng danh sách"
+                title={t.resources.titleList}
               >
                 <List size={18} />
               </button>
@@ -175,10 +179,10 @@ export default function ResourcesPage() {
           </div>
 
           <div className="resources-tabs-wrapper">
-            <button className={`tab-btn ${activeTab === 'all' ? 'active' : ''}`} onClick={() => handleTabClick('all')}>Tất cả tài nguyên ({docs.length + midterms.length + practiceFinalExams.length})</button>
-            <button className={`tab-btn ${activeTab === 'midterm' ? 'active' : ''}`} onClick={() => handleTabClick('midterm')}>Đề thi Giữa kỳ ({midterms.length})</button>
-            <button className={`tab-btn ${activeTab === 'final' ? 'active' : ''}`} onClick={() => handleTabClick('final')}>Luyện thi Cuối kỳ ({practiceFinalExams.length})</button>
-            <button className={`tab-btn ${activeTab === 'publication' ? 'active' : ''}`} onClick={() => handleTabClick('publication')}>Ấn phẩm & Tài liệu ({docs.length})</button>
+            <button className={`tab-btn ${activeTab === 'all' ? 'active' : ''}`} onClick={() => handleTabClick('all')}>{t.resources.tabAllRes} ({docs.length + midterms.length + practiceFinalExams.length})</button>
+            <button className={`tab-btn ${activeTab === 'midterm' ? 'active' : ''}`} onClick={() => handleTabClick('midterm')}>{t.resources.tabMidterm} ({midterms.length})</button>
+            <button className={`tab-btn ${activeTab === 'final' ? 'active' : ''}`} onClick={() => handleTabClick('final')}>{t.resources.tabFinal} ({practiceFinalExams.length})</button>
+            <button className={`tab-btn ${activeTab === 'publication' ? 'active' : ''}`} onClick={() => handleTabClick('publication')}>{t.resources.tabPub} ({docs.length})</button>
           </div>
         </div>
       </div>
@@ -187,14 +191,14 @@ export default function ResourcesPage() {
       <section className="resources-content-section">
         <div className="container">
           {loading ? (
-            <div className="loading-doc text-center">Đang tải tài liệu học tập...</div>
+            <div className="loading-doc text-center">{t.docDetail.loading}</div>
           ) : paginatedItems.length === 0 ? (
             <div className="empty-results">
               <div className="empty-icon-box">
                 <HelpCircle size={32} />
               </div>
-              <h3 className="empty-title">Không tìm thấy tài liệu phù hợp!</h3>
-              <p className="empty-desc">Hãy thử thay đổi từ khóa hoặc bộ lọc của bạn xem sao nhé.</p>
+              <h3 className="empty-title">{t.resources.emptyTitle}</h3>
+              <p className="empty-desc">{t.resources.emptyDesc}</p>
             </div>
           ) : viewMode === 'grid' ? (
             /* GRID VIEW MODE */
@@ -209,12 +213,12 @@ export default function ResourcesPage() {
                         <span className="exam-date">{formatResourceDate(item)}</span>
                       </div>
                       <div className="exam-card-body">
-                        <span className="list-category-badge">ĐỀ THI CUỐI KỲ</span>
+                        <span className="list-category-badge">{t.resources.badgeFinal}</span>
                         <h3 className="text-lg font-bold mt-1 mb-2 text-white">{item.title}</h3>
                         <p className="text-sm text-gray-400 line-clamp-3">{item.desc}</p>
                       </div>
                       <div className="exam-card-footer mt-4">
-                        <Link to={`/exam/${item.id}`} className="btn-exam-action">Làm bài kiểm tra</Link>
+                        <Link to={`/exam/${item.id}`} className="btn-exam-action">{t.finals.btnAction}</Link>
                       </div>
                     </div>
                   );
@@ -230,7 +234,7 @@ export default function ResourcesPage() {
                         className="card-image"
                         onError={(e) => { e.target.onerror = null; e.target.src = '/images/tccvang.jpg'; }}
                       />
-                      <div className="card-category-tag">Google Drive</div>
+                      <div className="card-category-tag">{t.docs.externalLabel}</div>
                     </div>
                     <div className="card-body">
                       <div className="card-meta">
@@ -242,7 +246,7 @@ export default function ResourcesPage() {
                       <p className="card-desc">{item.desc}</p>
                       <div className="card-footer">
                         <a href={item.externalUrl} target="_blank" rel="noopener noreferrer" className="btn-read-more">
-                          <span>Mở trên Drive</span>
+                          <span>{t.docs.btnDrive}</span>
                         </a>
                       </div>
                     </div>
@@ -272,20 +276,20 @@ export default function ResourcesPage() {
                       <h3 className="list-title">{item.title}</h3>
                       <p className="list-desc">{item.desc}</p>
                       <div className="flex gap-4 mt-2 text-xs text-gray-400">
-                        <span>📅 Cập nhật: {formatResourceDate(item)}</span>
-                        {item.professorName && <span>👨‍🏫 Giảng viên: {item.professorName}</span>}
+                        <span>📅 {t.resources.metaUpdate} {formatResourceDate(item)}</span>
+                        {item.professorName && <span>👨‍🏫 {t.resources.metaProf} {item.professorName}</span>}
                       </div>
                     </div>
                     <div className="list-action-area">
                       {item.externalUrl ? (
                         <a href={item.externalUrl} target="_blank" rel="noopener noreferrer" className="btn btn-secondary btn-small">
                           <Download size={14} />
-                          <span>Tải Drive</span>
+                          <span>{t.resources.btnDriveShort}</span>
                         </a>
                       ) : item.type === 'final' ? (
-                        <Link to={`/exam/${item.id}`} className="btn btn-primary btn-small">Luyện thi</Link>
+                        <Link to={`/exam/${item.id}`} className="btn btn-primary btn-small">{t.resources.btnPracticeShort}</Link>
                       ) : (
-                        <Link to={`/document/${item.id}`} className="btn btn-primary btn-small">Xem PDF</Link>
+                        <Link to={`/document/${item.id}`} className="btn btn-primary btn-small">{t.resources.btnPdfShort}</Link>
                       )}
                     </div>
                   </div>
@@ -301,7 +305,7 @@ export default function ResourcesPage() {
                 className="btn-page" 
                 onClick={goToPreviousPage} 
                 disabled={currentPage === 1}
-                aria-label="Previous Page"
+                aria-label={t.common.pagePrev}
               >
                 <ChevronLeft size={18} />
               </button>
@@ -320,12 +324,14 @@ export default function ResourcesPage() {
                 className="btn-page" 
                 onClick={goToNextPage} 
                 disabled={currentPage === totalPages}
-                aria-label="Next Page"
+                aria-label={t.common.pageNext}
               >
                 <ChevronRight size={18} />
               </button>
               
-              <span className="page-info">Trang {currentPage} / {totalPages}</span>
+              <span className="page-info">
+                {t.common.pageSummary.replace('{current}', currentPage).replace('{total}', totalPages)}
+              </span>
             </div>
           )}
         </div>

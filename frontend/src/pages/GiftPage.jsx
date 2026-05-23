@@ -1,9 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { ArrowLeft, Heart, X, Gift } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { LanguageContext } from '../App';
+import { translations } from '../utils/translations';
 import '../assets/styles/GiftPage.css';
 
 export default function GiftPage() {
+  const { language } = useContext(LanguageContext);
+  const t = translations[language];
+
   const [phase, setPhase] = useState(1); // 1 = Rose Drawing, 2 = Envelope & Heart
   const [isHovered, setIsHovered] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -13,8 +18,8 @@ export default function GiftPage() {
   const [typedBody, setTypedBody] = useState('');
   const [isTypingFinished, setIsTypingFinished] = useState(false);
 
-  const titleText = "Gửi Các Bạn Nữ Xinh Đẹp!";
-  const bodyText = "Hôm nay là ngày 20/10 mình chúc các bạn luôn hạnh phúc và gặp nhiều may mắn trong cuộc sống nhá. Hãy luôn giữ mãi nụ cười trên môi nhá và đừng suy nghĩ nhiều về những thứ không đáng nha !!!!!";
+  const titleText = t.giftPage.letterTitle;
+  const bodyText = t.giftPage.letterBody;
 
   // Typing effect trigger
   useEffect(() => {
@@ -50,7 +55,7 @@ export default function GiftPage() {
     return () => {
       clearInterval(titleInterval);
     };
-  }, [isModalOpen]);
+  }, [isModalOpen, titleText, bodyText]);
 
   // Rose auto-timer fallback to display Click Me
   const [showClickPrompt, setShowClickPrompt] = useState(false);
@@ -66,7 +71,7 @@ export default function GiftPage() {
       {/* Back button */}
       <Link to="/" className="gift-btn-back">
         <ArrowLeft size={16} />
-        <span>Về trang chủ</span>
+        <span>{t.giftPage.btnBack}</span>
       </Link>
 
       {/* PHASE 1: THE GROWING ROSE */}
@@ -135,7 +140,7 @@ export default function GiftPage() {
             {showClickPrompt && (
               <p className="click-prompt-text animate-pulse">
                 <Gift className="icon-gift" />
-                <span>Click vào hoa để nhận quà!</span>
+                <span>{t.giftPage.rosePrompt}</span>
               </p>
             )}
           </div>
@@ -204,7 +209,7 @@ export default function GiftPage() {
               </div>
             </div>
             <div className="envelope-shadow"></div>
-            <p className="envelope-tip-text">Di chuột vào phong bì và click vào tấm thiệp!</p>
+            <p className="envelope-tip-text">{t.giftPage.envelopeTip}</p>
           </div>
         </div>
       )}

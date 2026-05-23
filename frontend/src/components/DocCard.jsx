@@ -1,10 +1,15 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, ArrowUpRight } from 'lucide-react';
+import { LanguageContext } from '../App';
+import { translations } from '../utils/translations';
 import '../assets/styles/DocCard.css';
 import { formatResourceDate } from '../utils/resourceDate';
 
 export default function DocCard({ doc }) {
+  const { language } = useContext(LanguageContext);
+  const t = translations[language];
+  
   // Safe image path checking
   const imageSrc = doc.image ? `/images/${doc.image}` : '/images/tccvang.jpg';
   const displayDate = formatResourceDate(doc);
@@ -34,7 +39,7 @@ export default function DocCard({ doc }) {
         <p className="card-desc">{doc.desc || 'Tài liệu ôn tập Toán Cao Cấp chi tiết dành cho sinh viên UEH.'}</p>
         <div className="card-footer">
           <Link to={`/document/${doc.id}`} className="btn-read-more">
-            <span>Chi tiết</span>
+            <span>{t.common.detail}</span>
             <ArrowUpRight size={14} className="arrow-icon" />
           </Link>
         </div>

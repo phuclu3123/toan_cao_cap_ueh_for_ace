@@ -56,6 +56,50 @@
   --radius-full: 9999px;
 }
 
+/* --- LIGHT THEME VARIABLE OVERRIDES --- */
+:root.light-theme {
+  --bg-primary: #f5f7fb;        /* Clean light gray canvas */
+  --bg-secondary: #ffffff;      /* Pure white card canvas */
+  --bg-tertiary: #eef2f6;       /* Tinted light gray for subtle tags */
+  
+  --text-primary: #0f172a;      /* Dark slate heading text */
+  --text-secondary: #475569;    /* Medium slate body text */
+  --text-dark: #0f172a;
+  --text-muted: #94a3b8;
+  
+  --border-color: rgba(15, 23, 42, 0.08);
+  --border-color-hover: rgba(15, 23, 42, 0.16);
+  
+  --glass-bg: rgba(255, 255, 255, 0.75);
+  --glass-border: rgba(15, 23, 42, 0.07);
+  
+  --glow-teal: 0 4px 20px rgba(6, 182, 212, 0.12);
+  --glow-indigo: 0 4px 20px rgba(99, 102, 241, 0.1);
+  --glow-rose: 0 4px 20px rgba(244, 63, 94, 0.1);
+}
+
+/* Smooth Theme Transitions */
+body, 
+.glass-panel, 
+.navbar, 
+.footer, 
+.exam-practice-topbar,
+.answer-option,
+.question-map-btn,
+.exam-panel-card,
+.hero-badge,
+.topbar,
+.modal-content,
+.exam-modal,
+.input-group,
+a, 
+button, 
+input, 
+textarea, 
+select {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease !important;
+}
+
 /* --- BASE STYLES --- */
 * {
   box-sizing: border-box;

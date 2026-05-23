@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Menu, X, Mail, Phone, User, LogIn, Upload, PlusCircle, 
   CheckCircle, AlertCircle, Shield, Smartphone, 
-  KeyRound, ArrowLeft, PhoneCall, Lock
+  KeyRound, ArrowLeft, PhoneCall, Lock, Sun, Moon, Globe
 } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 import '../assets/styles/Navbar.css';
@@ -19,11 +19,18 @@ import {
   onAuthStateChanged,
   signInWithPopup
 } from '../firebase';
+import { LanguageContext, ThemeContext } from '../App';
+import { translations } from '../utils/translations';
 
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [showLangMenu, setShowLangMenu] = useState(false);
+
+  const { language, changeLanguage } = useContext(LanguageContext);
+  const { theme, toggleTheme } = useContext(ThemeContext);
+  const t = translations[language];
   
   // Login / Signup / Phone OTP / Forgot Password Modal States
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -742,12 +749,51 @@ export default function Navbar() {
 
             {/* Desktop Navigation Links */}
             <div className="nav-links">
-              <Link to="/" className={`nav-link-item ${location.pathname === '/' ? 'active' : ''}`} onClick={() => window.scrollTo(0, 0)}>Trang Chủ</Link>
-              <button className="nav-link-item" onClick={() => handleNavClick('about')}>Về Chúng Tôi</button>
-              <Link to="/resources?category=all" className={`nav-link-item ${location.pathname === '/resources' ? 'active' : ''}`}>Thư Viện</Link>
-              <button className="nav-link-item" onClick={() => handleNavClick('exams')}>Đề Thi TCC</button>
-              <button className="nav-link-item" onClick={() => handleNavClick('midterm')}>Đề Giữa Kỳ</button>
-              <Link to="/20-10" className={`nav-link-item rose-link ${location.pathname === '/20-10' ? 'active' : ''}`}>Quà 20/10</Link>
+              <Link to="/" className={`nav-link-item ${location.pathname === '/' ? 'active' : ''}`} onClick={() => window.scrollTo(0, 0)}>{t.nav.home}</Link>
+              <button className="nav-link-item" onClick={() => handleNavClick('about')}>{t.nav.about}</button>
+              <Link to="/resources?category=all" className={`nav-link-item ${location.pathname === '/resources' ? 'active' : ''}`}>{t.nav.library}</Link>
+              <button className="nav-link-item" onClick={() => handleNavClick('exams')}>{t.nav.exams}</button>
+              <button className="nav-link-item" onClick={() => handleNavClick('midterm')}>{t.nav.midterm}</button>
+              <Link to="/20-10" className={`nav-link-item rose-link ${location.pathname === '/20-10' ? 'active' : ''}`}>{t.nav.gift}</Link>
+            </div>
+
+            {/* Theme & Language Controls */}
+            <div className="nav-controls">
+              <button 
+                type="button"
+                className="control-btn theme-toggle-btn" 
+                onClick={toggleTheme}
+                title={theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+              >
+                {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+              </button>
+
+              <div className="lang-selector-container">
+                <button 
+                  type="button" 
+                  className="control-btn lang-btn"
+                  onClick={() => setShowLangMenu(!showLangMenu)}
+                >
+                  <Globe size={16} />
+                  <span className="lang-code-capsule">{language.toUpperCase()}</span>
+                </button>
+                {showLangMenu && (
+                  <div className="lang-dropdown-menu glass-panel">
+                    <button type="button" className={`lang-option-btn ${language === 'vi' ? 'active' : ''}`} onClick={() => { changeLanguage('vi'); setShowLangMenu(false); }}>
+                      <span>Tiếng Việt</span>
+                    </button>
+                    <button type="button" className={`lang-option-btn ${language === 'en' ? 'active' : ''}`} onClick={() => { changeLanguage('en'); setShowLangMenu(false); }}>
+                      <span>English</span>
+                    </button>
+                    <button type="button" className={`lang-option-btn ${language === 'ja' ? 'active' : ''}`} onClick={() => { changeLanguage('ja'); setShowLangMenu(false); }}>
+                      <span>日本語</span>
+                    </button>
+                    <button type="button" className={`lang-option-btn ${language === 'zh' ? 'active' : ''}`} onClick={() => { changeLanguage('zh'); setShowLangMenu(false); }}>
+                      <span>中文</span>
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Login Action / Admin Action */}
@@ -760,17 +806,17 @@ export default function Navbar() {
                       onClick={() => setShowUploadModal(true)}
                     >
                       <PlusCircle size={15} />
-                      <span>Đăng tài liệu</span>
+                      <span>{t.nav.upload}</span>
                     </button>
                   )}
                   <User size={16} />
-                  <span className="user-profile-name">Chào, {loggedInUser.name}</span>
-                  <button className="btn-logout ml-2" onClick={handleLogout}>Thoát</button>
+                  <span className="user-profile-name">{t.nav.welcome}{loggedInUser.name}</span>
+                  <button className="btn-logout ml-2" onClick={handleLogout}>{t.nav.logout}</button>
                 </div>
               ) : (
                 <button className="btn btn-primary btn-login-nav" onClick={() => { setAuthMode('login'); setAuthError(''); setAuthSuccessMsg(''); setShowLoginModal(true); }}>
                   <LogIn size={15} />
-                  <span>Đăng Nhập</span>
+                  <span>{t.nav.login}</span>
                 </button>
               )}
             </div>
@@ -793,12 +839,30 @@ export default function Navbar() {
               </button>
             </div>
             <div className="mobile-links">
-              <Link to="/" className="mobile-link-item" onClick={() => { setIsOpen(false); window.scrollTo(0, 0); }}>Trang Chủ</Link>
-              <button className="mobile-link-item" onClick={() => handleNavClick('about')}>Về Chúng Tôi</button>
-              <Link to="/resources?category=all" className="mobile-link-item" onClick={() => setIsOpen(false)}>Thư Viện Tài Liệu</Link>
-              <button className="mobile-link-item" onClick={() => handleNavClick('exams')}>Đề Thi TCC</button>
-              <button className="mobile-link-item" onClick={() => handleNavClick('midterm')}>Đề Giữa Kỳ</button>
-              <Link to="/20-10" className="mobile-link-item rose-link" onClick={() => setIsOpen(false)}>Quà 20/10</Link>
+              <Link to="/" className="mobile-link-item" onClick={() => { setIsOpen(false); window.scrollTo(0, 0); }}>{t.nav.home}</Link>
+              <button className="mobile-link-item" onClick={() => handleNavClick('about')}>{t.nav.about}</button>
+              <Link to="/resources?category=all" className="mobile-link-item" onClick={() => setIsOpen(false)}>{t.nav.library}</Link>
+              <button className="mobile-link-item" onClick={() => handleNavClick('exams')}>{t.nav.exams}</button>
+              <button className="mobile-link-item" onClick={() => handleNavClick('midterm')}>{t.nav.midterm}</button>
+              <Link to="/20-10" className="mobile-link-item rose-link" onClick={() => setIsOpen(false)}>{t.nav.gift}</Link>
+              
+              {/* Mobile theme & language controls */}
+              <div className="mobile-controls-row">
+                <button 
+                  type="button"
+                  className="mobile-control-btn"
+                  onClick={toggleTheme}
+                >
+                  {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+                  <span>{theme === 'dark' ? 'Light' : 'Dark'}</span>
+                </button>
+                <div className="mobile-lang-options">
+                  <button type="button" className={`mobile-lang-btn ${language === 'vi' ? 'active' : ''}`} onClick={() => { changeLanguage('vi'); setIsOpen(false); }}>VI</button>
+                  <button type="button" className={`mobile-lang-btn ${language === 'en' ? 'active' : ''}`} onClick={() => { changeLanguage('en'); setIsOpen(false); }}>EN</button>
+                  <button type="button" className={`mobile-lang-btn ${language === 'ja' ? 'active' : ''}`} onClick={() => { changeLanguage('ja'); setIsOpen(false); }}>JA</button>
+                  <button type="button" className={`mobile-lang-btn ${language === 'zh' ? 'active' : ''}`} onClick={() => { changeLanguage('zh'); setIsOpen(false); }}>ZH</button>
+                </div>
+              </div>
               
               <div className="mobile-drawer-auth">
                 {loggedInUser ? (
@@ -813,15 +877,15 @@ export default function Navbar() {
                         onClick={() => { setIsOpen(false); setShowUploadModal(true); }}
                       >
                         <PlusCircle size={15} />
-                        <span>Đăng tài liệu Admin</span>
+                        <span>{t.nav.upload} Admin</span>
                       </button>
                     )}
-                    <button className="btn btn-secondary w-full" onClick={handleLogout}>Đăng Xuất</button>
+                    <button className="btn btn-secondary w-full" onClick={handleLogout}>{t.nav.logout}</button>
                   </div>
                 ) : (
                   <button className="btn btn-primary w-full" onClick={() => { setIsOpen(false); setAuthMode('login'); setAuthError(''); setAuthSuccessMsg(''); setShowLoginModal(true); }}>
                     <LogIn size={15} />
-                    <span>Đăng Nhập</span>
+                    <span>{t.nav.login}</span>
                   </button>
                 )}
               </div>

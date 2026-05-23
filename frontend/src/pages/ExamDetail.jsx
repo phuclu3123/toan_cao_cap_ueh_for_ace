@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useContext } from 'react';
 import { useNavigate, useParams, useBlocker } from 'react-router-dom';
 import {
   AlertTriangle,
@@ -18,6 +18,8 @@ import {
   XCircle
 } from 'lucide-react';
 import { getPracticeExamById } from '../data/practiceExams';
+import { LanguageContext } from '../App';
+import { translations } from '../utils/translations';
 import '../assets/styles/ExamDetail.css';
 
 const DEFAULT_DURATION_MINUTES = 75;
@@ -29,6 +31,8 @@ const formatTime = (seconds) => {
 };
 
 export default function ExamDetail() {
+  const { language } = useContext(LanguageContext);
+  const t = translations[language];
   const navigate = useNavigate();
   const { id } = useParams();
   const exam = useMemo(() => getPracticeExamById(id), [id]);
@@ -143,7 +147,7 @@ export default function ExamDetail() {
     const handleBeforeUnload = (event) => {
       if (!submitted) {
         event.preventDefault();
-        event.returnValue = 'Bài làm chưa được nộp. Bạn có chắc muốn rời khỏi trang?';
+        event.returnValue = t.exam.exitModalDesc;
       }
     };
 
@@ -213,22 +217,22 @@ export default function ExamDetail() {
       <header className="exam-practice-topbar glass-panel">
         <button type="button" className="exam-back-btn" onClick={handleExit}>
           <ArrowLeft size={16} />
-          <span>Thoát</span>
+          <span>{t.exam.exit}</span>
         </button>
 
         <div className="exam-header-title-container">
-          <span className="exam-header-kicker">Đang thi:</span>
+          <span className="exam-header-kicker">{t.exam.kicker}</span>
           <span className="exam-header-title">{exam.title}</span>
         </div>
 
         <div className="exam-live-status">
           <div className={`exam-timer ${timeLeft < 600 && !submitted ? 'danger' : ''}`}>
             <Clock size={16} />
-            <span>{submitted ? 'Đã nộp bài' : formatTime(timeLeft)}</span>
+            <span>{submitted ? t.exam.submitted : formatTime(timeLeft)}</span>
           </div>
           <button type="button" className="exam-submit-inline" onClick={() => setShowSubmitModal(true)} disabled={submitted}>
             <Send size={14} />
-            <span>Nộp bài</span>
+            <span>{t.exam.submit}</span>
           </button>
         </div>
       </header>
@@ -241,26 +245,25 @@ export default function ExamDetail() {
                 {submitReason === 'time' ? <AlertTriangle size={32} /> : <ShieldCheck size={32} />}
               </div>
               <div className="result-copy">
-                <span className="result-kicker">{submitReason === 'time' ? 'Hết giờ làm bài' : 'Đã hoàn thành'}</span>
-                <h2>{result.score}/100 Điểm</h2>
+                <span className="result-kicker">{submitReason === 'time' ? t.exam.timeUp : t.exam.completed}</span>
+                <h2>{result.score}/100 {t.exam.score}</h2>
                 <p>
-                  Đúng <strong>{result.correctCount}</strong>/{questions.length} câu · 
-                  Hoàn thành <strong>{result.answeredCount}</strong>/{questions.length} câu
+                  {t.exam.correct} <strong>{result.correctCount}</strong>/{questions.length} · {t.exam.completed} <strong>{result.answeredCount}</strong>/{questions.length}
                 </p>
               </div>
             </div>
 
             <div className="result-stats-grid">
               <div className="stat-box correct">
-                <span className="label">Đúng</span>
+                <span className="label">{t.exam.correct}</span>
                 <span className="value">{result.correctCount}</span>
               </div>
               <div className="stat-box wrong">
-                <span className="label">Sai/Bỏ trống</span>
+                <span className="label">{t.exam.wrong}/{t.exam.skipped}</span>
                 <span className="value">{questions.length - result.correctCount}</span>
               </div>
               <div className="stat-box flagged">
-                <span className="label">Đánh dấu</span>
+                <span className="label">{t.exam.flagged}</span>
                 <span className="value">{result.flaggedCount}</span>
               </div>
             </div>
@@ -268,7 +271,7 @@ export default function ExamDetail() {
             <div className="result-actions">
               <button type="button" className="exam-reset-btn btn-secondary" onClick={resetExam}>
                 <RotateCcw size={14} />
-                <span>Làm lại bài thi</span>
+                <span>{t.exam.reset}</span>
               </button>
             </div>
           </section>
@@ -278,19 +281,19 @@ export default function ExamDetail() {
               <h1>{exam.title}</h1>
               <p className="meta-desc">{exam.description}</p>
               <div className="meta-details">
-                <span>Nguồn: <strong>{exam.sourceLabel}</strong></span>
+                <span>{language === 'vi' ? 'Nguồn' : language === 'en' ? 'Source' : language === 'ja' ? '出典' : '来源'}: <strong>{exam.sourceLabel}</strong></span>
                 <span className="bullet">·</span>
-                <span>Tài liệu: <strong>{exam.sourcePdf}</strong></span>
+                <span>{language === 'vi' ? 'Tài liệu' : language === 'en' ? 'Document' : language === 'ja' ? '資料' : '文献'}: <strong>{exam.sourcePdf}</strong></span>
               </div>
             </div>
             <div className="meta-right-stats">
               <div className="mini-stat-pill">
                 <span className="num">{questions.length}</span>
-                <span className="txt">câu hỏi</span>
+                <span className="txt">{t.exam.questions}</span>
               </div>
               <div className="mini-stat-pill">
                 <span className="num">{durationMinutes}</span>
-                <span className="txt">phút</span>
+                <span className="txt">{t.exam.minutes}</span>
               </div>
             </div>
           </section>
@@ -301,7 +304,10 @@ export default function ExamDetail() {
             <div className="question-toolbar">
               <div className="q-title-block">
                 <span className="question-section">{currentQuestion.section}</span>
-                <h2>Câu {currentIndex + 1} <span className="total-q">/ {questions.length}</span></h2>
+                <h2>
+                  {language === 'zh' ? `第 ${currentIndex + 1} 题` : language === 'ja' ? `問 ${currentIndex + 1}` : language === 'en' ? `Question ${currentIndex + 1}` : `Câu ${currentIndex + 1}`}
+                  <span className="total-q">/ {questions.length}</span>
+                </h2>
               </div>
               <button
                 type="button"
@@ -310,7 +316,7 @@ export default function ExamDetail() {
                 disabled={submitted}
               >
                 <Flag size={14} />
-                <span>{isCurrentFlagged ? 'Đã đánh dấu' : 'Đánh dấu'}</span>
+                <span>{isCurrentFlagged ? t.exam.flagged : t.exam.flag}</span>
               </button>
             </div>
 
@@ -349,7 +355,7 @@ export default function ExamDetail() {
                 <div className="answer-explanation glass-panel">
                   <div className="explanation-header">
                     <HelpCircle size={16} />
-                    <h3>Lời giải chi tiết (Đáp án đúng: {currentQuestion.correct})</h3>
+                    <h3>{t.exam.solutionTitle.replace('{correct}', currentQuestion.correct)}</h3>
                   </div>
                   <div className="explanation-body">
                     {currentQuestion.explanation}
@@ -366,7 +372,7 @@ export default function ExamDetail() {
                 disabled={currentIndex === 0}
               >
                 <ChevronLeft size={16} />
-                <span>Câu trước</span>
+                <span>{t.exam.prev}</span>
               </button>
 
               {currentIndex < questions.length - 1 ? (
@@ -375,13 +381,13 @@ export default function ExamDetail() {
                   className="nav-question-btn primary btn-primary"
                   onClick={() => setCurrentIndex((value) => Math.min(questions.length - 1, value + 1))}
                 >
-                  <span>Câu tiếp theo</span>
+                  <span>{t.exam.next}</span>
                   <ChevronRight size={16} />
                 </button>
               ) : (
                 <button type="button" className="nav-question-btn primary btn-primary" onClick={() => setShowSubmitModal(true)} disabled={submitted}>
                   <Send size={16} />
-                  <span>Nộp bài</span>
+                  <span>{t.exam.submit}</span>
                 </button>
               )}
             </div>
@@ -391,7 +397,7 @@ export default function ExamDetail() {
             <div className="exam-panel-card glass-panel">
               <div className="panel-heading">
                 <ListChecks size={16} />
-                <span>Bảng tiến độ câu hỏi</span>
+                <span>{t.exam.progressTitle}</span>
               </div>
 
               <div className="question-map">
@@ -424,7 +430,7 @@ export default function ExamDetail() {
 
               <div className="exam-progress-block">
                 <div className="progress-row">
-                  <span>Tiến độ bài làm</span>
+                  <span>{t.exam.progressLabel}</span>
                   <strong>{answeredCount}/{questions.length}</strong>
                 </div>
                 <div className="progress-track">
@@ -435,17 +441,17 @@ export default function ExamDetail() {
               <div className="exam-mini-stats">
                 <div className="mini-stat-cell answered">
                   <span className="dot" />
-                  <span>Đã làm</span>
+                  <span>{t.exam.answered}</span>
                   <strong>{answeredCount}</strong>
                 </div>
                 <div className="mini-stat-cell blank">
                   <span className="dot" />
-                  <span>Chưa làm</span>
+                  <span>{t.exam.unanswered}</span>
                   <strong>{unansweredCount}</strong>
                 </div>
                 <div className="mini-stat-cell flagged">
                   <span className="dot" />
-                  <span>Đã đánh dấu</span>
+                  <span>{t.exam.flagged}</span>
                   <strong>{flaggedCount}</strong>
                 </div>
               </div>
@@ -454,13 +460,13 @@ export default function ExamDetail() {
             <div className="exam-panel-card exam-rule-card glass-panel">
               <div className="panel-heading">
                 <BookOpen size={16} />
-                <span>Quy chế làm bài</span>
+                <span>{t.exam.rulesTitle}</span>
               </div>
               <ul className="rule-list">
-                <li>Không tải lại trang khi đang làm bài.</li>
-                <li>Hệ thống tự động lưu tiến trình cục bộ.</li>
-                <li>Đánh dấu câu hỏi để xem lại sau.</li>
-                <li>Khi hết giờ, hệ thống sẽ tự nộp bài.</li>
+                <li>{t.exam.rule1}</li>
+                <li>{t.exam.rule2}</li>
+                <li>{t.exam.rule3}</li>
+                <li>{t.exam.rule4}</li>
               </ul>
             </div>
           </aside>
@@ -470,14 +476,14 @@ export default function ExamDetail() {
           <section className="exam-review-panel glass-panel">
             <div className="review-heading">
               <Award size={20} />
-              <h2>Phân tích kết quả chi tiết từng câu</h2>
+              <h2>{t.exam.reviewTitle}</h2>
             </div>
             <div className="review-grid-table">
               <div className="review-table-header">
-                <div>Câu hỏi</div>
-                <div>Lựa chọn của bạn</div>
-                <div>Đáp án đúng</div>
-                <div>Kết quả</div>
+                <div>{t.exam.colQ}</div>
+                <div>{t.exam.colMyAns}</div>
+                <div>{t.exam.colCorrect}</div>
+                <div>{t.exam.colResult}</div>
               </div>
               <div className="review-table-body">
                 {questions.map((question, index) => {
@@ -492,14 +498,16 @@ export default function ExamDetail() {
                         window.scrollTo({ top: 400, behavior: 'smooth' });
                       }}
                     >
-                      <div className="col-idx">Câu {index + 1}</div>
-                      <div className="col-ans">{selected || 'Bỏ trống'}</div>
+                      <div className="col-idx">
+                        {language === 'zh' ? `第 ${index + 1} 题` : language === 'ja' ? `問 ${index + 1}` : language === 'en' ? `Question ${index + 1}` : `Câu ${index + 1}`}
+                      </div>
+                      <div className="col-ans">{selected || t.exam.skipped}</div>
                       <div className="col-correct">{question.correct}</div>
                       <div className="col-status">
                         {isCorrect ? (
-                          <span className="status-badge correct">Đúng</span>
+                          <span className="status-badge correct">{t.exam.correct}</span>
                         ) : (
-                          <span className="status-badge wrong">Sai</span>
+                          <span className="status-badge wrong">{t.exam.wrong}</span>
                         )}
                       </div>
                     </div>
@@ -515,21 +523,20 @@ export default function ExamDetail() {
         <div className="exam-modal-overlay" role="dialog" aria-modal="true">
           <div className="exam-modal glass-panel">
             <div className="modal-icon warning"><Send size={24} /></div>
-            <h2>Xác nhận nộp bài</h2>
+            <h2>{t.exam.confirmSubmitTitle}</h2>
             <p className="modal-desc">
-              Bạn đã trả lời <strong>{answeredCount}</strong>/{questions.length} câu. 
               {unansweredCount > 0 ? (
-                <span> Còn <strong>{unansweredCount}</strong> câu chưa làm.</span>
+                <span>{t.exam.confirmSubmitDesc.replace('{answered}', answeredCount).replace('{total}', questions.length).replace('{unanswered}', unansweredCount)}</span>
               ) : (
-                ' Bạn đã hoàn thành tất cả câu hỏi.'
+                <span>{t.exam.confirmSubmitAllDone}</span>
               )}
             </p>
             <div className="modal-actions">
               <button type="button" className="modal-btn btn-secondary" onClick={() => setShowSubmitModal(false)}>
-                Quay lại
+                {t.exam.confirmSubmitBack}
               </button>
               <button type="button" className="modal-btn btn-primary" onClick={() => submitExam('manual')}>
-                Nộp bài ngay
+                {t.exam.confirmSubmitOk}
               </button>
             </div>
           </div>
@@ -540,20 +547,19 @@ export default function ExamDetail() {
         <div className="exam-modal-overlay" role="dialog" aria-modal="true">
           <div className="exam-modal glass-panel">
             <div className="modal-icon danger"><AlertTriangle size={24} /></div>
-            <h2>Rời khỏi phòng thi?</h2>
+            <h2>{t.exam.exitModalTitle}</h2>
             <p className="modal-desc">
-              Tiến độ làm bài của bạn sẽ không được lưu nếu bạn thoát mà không nộp bài. 
-              Bạn muốn làm gì?
+              {t.exam.exitModalDesc}
             </p>
             <div className="modal-actions stacked">
               <button type="button" className="modal-btn btn-primary" onClick={handleExitSubmit}>
-                Nộp bài và thoát
+                {t.exam.exitModalOk}
               </button>
               <button type="button" className="modal-btn btn-secondary" onClick={handleExitCancel}>
-                Tiếp tục làm bài
+                {t.exam.exitModalCancel}
               </button>
               <button type="button" className="modal-btn ghost-danger" onClick={handleExitWithoutSubmit}>
-                Thoát không nộp
+                {t.exam.exitModalDiscard}
               </button>
             </div>
           </div>

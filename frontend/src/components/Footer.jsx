@@ -1,11 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Mail, Phone, Send, CheckCircle, AlertCircle } from 'lucide-react';
 import '../assets/styles/Footer.css';
+import { LanguageContext } from '../App';
+import { translations } from '../utils/translations';
 
 export default function Footer() {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState('idle'); // idle | loading | success | error
   const [message, setMessage] = useState('');
+
+  const { language } = useContext(LanguageContext);
+  const t = translations[language];
 
   const handleSubscribeSubmit = async (e) => {
     e.preventDefault();
@@ -59,7 +64,7 @@ export default function Footer() {
               <span className="logo-helper">UEH</span> <span className="logo-main">TCC</span>
             </a>
             <p className="footer-desc">
-              Trang web phi lợi nhuận hỗ trợ học tập môn Toán Cao Cấp cho sinh viên UEH. Cung cấp bài giải đề thi chi tiết, câu hỏi ôn tập chất lượng.
+              {t.footer.desc}
             </p>
             <div className="footer-contact">
               <p className="contact-item">
@@ -96,21 +101,21 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div className="footer-links">
-            <h4>Tài Nguyên</h4>
+            <h4>{t.nav.library}</h4>
             <ul>
-              <li><button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Trang Chủ</button></li>
-              <li><button onClick={() => handleScrollToSection('about')}>Về Chúng Tôi</button></li>
-              <li><button onClick={() => handleScrollToSection('exams')}>Đề Thi TCC</button></li>
-              <li><button onClick={() => handleScrollToSection('midterm')}>Đề Giữa Kỳ</button></li>
-              <li><button onClick={() => handleScrollToSection('docs')}>Ấn Phẩm</button></li>
+              <li><button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>{t.nav.home}</button></li>
+              <li><button onClick={() => handleScrollToSection('about')}>{t.nav.about}</button></li>
+              <li><button onClick={() => handleScrollToSection('exams')}>{t.nav.exams}</button></li>
+              <li><button onClick={() => handleScrollToSection('midterm')}>{t.nav.midterm}</button></li>
+              <li><button onClick={() => handleScrollToSection('docs')}>{t.nav.library}</button></li>
             </ul>
           </div>
 
           {/* Donations */}
           <div className="footer-links">
-            <h4>Ủng Hộ & Từ Thiện</h4>
+            <h4>{t.footer.donateTitle}</h4>
             <p className="donate-desc">
-              Ủng hộ duy trì trang web và đóng góp vào các quỹ hoạt động từ thiện của cộng đồng sinh viên:
+              {t.footer.donateDesc}
             </p>
             <ul className="donate-list">
               <li className="donate-item">
@@ -121,20 +126,20 @@ export default function Footer() {
                 <span className="bank-name">Sacombank:</span>
                 <span className="bank-number">070128368343</span>
               </li>
-              <li className="bank-owner">Chủ tài khoản: Lữ Phúc</li>
+              <li className="bank-owner">{t.footer.bankOwner}</li>
             </ul>
           </div>
 
           {/* Newsletter subscription form */}
           <div className="footer-newsletter">
-            <h4>Nhận Bài Viết Mới</h4>
-            <p className="newsletter-desc">Điền email của bạn để tự động nhận lời giải chi tiết và bài viết hướng dẫn mới nhất:</p>
+            <h4>{t.footer.subscribeTitle}</h4>
+            <p className="newsletter-desc">{t.footer.subscribeDesc}</p>
             
             <form onSubmit={handleSubscribeSubmit} className="newsletter-form">
               <div className="input-group">
                 <input 
                   type="email" 
-                  placeholder="Địa chỉ email của bạn..." 
+                  placeholder={t.footer.subscribePlaceholder} 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={status === 'loading'}
@@ -168,10 +173,10 @@ export default function Footer() {
       <div className="footer-bottom">
         <div className="container footer-bottom-content">
           <p className="copyright">
-            © <span>{new Date().getFullYear()}</span> <strong className="logo-main">UEH TCC</strong> - Hỗ Trợ Học Tập Toán Cao Cấp. All Rights Reserved.
+            © <span>{new Date().getFullYear()}</span> <strong className="logo-main">UEH TCC</strong> - {t.footer.copyright}
           </p>
           <div className="credits">
-            Phát triển bởi <a href="https://www.facebook.com/Luphuc08092006/" target="_blank" rel="noopener noreferrer" className="author-link">Lữ Phúc</a>
+            {t.footer.credits} <a href="https://www.facebook.com/Luphuc08092006/" target="_blank" rel="noopener noreferrer" className="author-link">Lữ Phúc</a>
           </div>
         </div>
       </div>

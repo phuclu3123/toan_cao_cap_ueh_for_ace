@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from 'react';
+import React, { createContext, useContext, useState, useEffect, lazy, Suspense } from 'react';
 import { createHashRouter, RouterProvider, Outlet, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -8,7 +8,29 @@ import GiftPage from './pages/GiftPage';
 import ResourcesPage from './pages/ResourcesPage';
 import './App.css';
 
-const ExamDetail = lazy(() => import('./pages/ExamDetail'));
+// Create Global Contexts
+export const LanguageContext = createContext();
+export const ThemeContext = createContext();
+
+// Dynamic chunk fetch error recovery wrapper
+function safeLazy(importFunc) {
+  return lazy(() =>
+    importFunc().catch((error) => {
+      const errorMsg = error.message || '';
+      if (
+        error.name === 'TypeError' ||
+        errorMsg.indexOf('Failed to fetch') !== -1 ||
+        errorMsg.indexOf('dynamically imported module') !== -1
+      ) {
+        console.warn('Chunk loading failed. Dynamic module mismatch, reloading page to fetch latest build...', error);
+        window.location.reload();
+      }
+      throw error;
+    })
+  );
+}
+
+const ExamDetail = safeLazy(() => import('./pages/ExamDetail'));
 
 function Layout() {
   const location = useLocation();
@@ -61,5 +83,44 @@ const router = createHashRouter([
   }
 ]);
 
+export function AppProviders({ children }) {
+  const [language, setLanguage] = useState(() => localStorage.getItem('ueh_tcc_lang') || 'vi');
+  const [theme, setTheme] = useState(() => localStorage.getItem('ueh_tcc_theme') || 'dark');
+
+  useEffect(() => {
+    localStorage.setItem('ueh_tcc_lang', language);
+  }, [language]);
+
+  useEffect(() => {
+    localStorage.setItem('ueh_tcc_theme', theme);
+    if (theme === 'light') {
+      document.documentElement.classList.add('light-theme');
+    } else {
+      document.documentElement.classList.remove('light-theme');
+    }
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
+
+  const changeLanguage = (lang) => {
+    setLanguage(lang);
+  };
+
+  return (
+    <LanguageContext.Provider value={{ language, changeLanguage }}>
+      <ThemeContext.Provider value={{ theme, toggleTheme }}>
+        {children}
+      </ThemeContext.Provider>
+    </LanguageContext.Provider>
+  );
+}
+
 export default function App() {
-  return <RouterProvider router={router} />;}
+  return (
+    <AppProviders>
+      <RouterProvider router={router} />
+    </AppProviders>
+  );
+}

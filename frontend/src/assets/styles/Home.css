@@ -673,3 +673,55 @@
     justify-content: center;
   }
 }
+
+/* ==========================================================================
+   7. LIGHT THEME OVERRIDES
+   ========================================================================== */
+:root.light-theme .hero-badge {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+:root.light-theme .video-card {
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.1);
+}
+
+:root.light-theme .btn-exam-action {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+:root.light-theme .filter-tabs {
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+:root.light-theme .midterm-card {
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+:root.light-theme .home-page-btn {
+  border-color: rgba(0, 0, 0, 0.08);
+  background: rgba(0, 0, 0, 0.02);
+}
+
+:root.light-theme .contact-card {
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+:root.light-theme .external-card {
+  background: rgba(0, 0, 0, 0.01) !important;
+  border-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+:root.light-theme .about-image {
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+:root.light-theme .author-signature {
+  border-top-color: rgba(0, 0, 0, 0.08);
+}
+
+:root.light-theme .video-card-badge {
+  color: var(--text-secondary);
+}

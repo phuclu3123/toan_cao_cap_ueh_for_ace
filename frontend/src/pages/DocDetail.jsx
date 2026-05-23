@@ -1,13 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Calendar, Download, Eye, FileText, ArrowLeft, ArrowUpRight, AlertTriangle, BookOpen } from 'lucide-react';
 import { documentsData, midtermExams } from '../data/documentsData';
 import { API_BASE_URL } from '../config';
 import { formatResourceDate } from '../utils/resourceDate';
 import { mergeResourceItems } from '../utils/resourceMerge';
+import { LanguageContext } from '../App';
+import { translations } from '../utils/translations';
 import '../assets/styles/Document.css';
 
 export default function DocDetail() {
+  const { language } = useContext(LanguageContext);
+  const t = translations[language];
   const { id } = useParams();
   const navigate = useNavigate();
   const [doc, setDoc] = useState(null);
@@ -65,7 +69,7 @@ export default function DocDetail() {
   }, [id, navigate]);
 
   if (loading || !doc) {
-    return <div className="loading-doc">Đang tải tài liệu...</div>;
+    return <div className="loading-doc">{t.docDetail.loading}</div>;
   }
 
   const pdfUrl = `/docs/${doc.pdf}`;
@@ -79,22 +83,22 @@ export default function DocDetail() {
         <div className="container">
           <Link to="/" className="btn-back">
             <ArrowLeft size={16} />
-            <span>Quay lại trang chủ</span>
+            <span>{t.docDetail.btnBack}</span>
           </Link>
-          <span className="doc-detail-category">{doc.categoryLabel || 'Đề thi giữa kỳ'}</span>
+          <span className="doc-detail-category">{doc.categoryLabel || t.resources.tabMidterm}</span>
           <h1 className="doc-detail-title">{doc.title}</h1>
           <div className="doc-detail-meta">
             <div className="meta-item">
               <Calendar size={14} />
-              <span>⏰ Cập nhật: {displayDate}</span>
+              <span>⏰ {t.resources.metaUpdate} {displayDate}</span>
             </div>
             <div className="meta-item">
               <Eye size={14} />
-              <span>1,200+ Lượt xem</span>
+              <span>1,200{t.docDetail.viewsSuffix}</span>
             </div>
             <div className="meta-item">
               <FileText size={14} />
-              <span>Định dạng: PDF</span>
+              <span>{t.docDetail.metaFormat} PDF</span>
             </div>
           </div>
         </div>
@@ -111,8 +115,8 @@ export default function DocDetail() {
                 <div className="mobile-pdf-preview glass-panel">
                   <div className="preview-header">
                     <AlertTriangle className="text-teal" size={24} />
-                    <h3>Trải nghiệm xem di động</h3>
-                    <p>Nhằm tối ưu hóa tốc độ tải và ngăn ngừa vỡ giao diện trên điện thoại, bạn có thể tải về hoặc mở file PDF trực tiếp bằng ứng dụng đọc chuyên dụng của thiết bị.</p>
+                    <h3>{t.docDetail.mobileTitle}</h3>
+                    <p>{t.docDetail.mobileDesc}</p>
                   </div>
                   <div className="preview-card">
                     <img 
@@ -126,7 +130,7 @@ export default function DocDetail() {
                       <p className="preview-desc">{doc.desc || 'Tài liệu ôn thi Toán Cao Cấp tuyển chọn kỹ lưỡng dành cho các bạn sinh viên UEH.'}</p>
                       <a href={pdfUrl} target="_blank" rel="noopener noreferrer" className="btn btn-primary w-full">
                         <Download size={16} />
-                        <span>Mở trực tiếp PDF</span>
+                        <span>{t.docDetail.mobileBtn}</span>
                       </a>
                     </div>
                   </div>
@@ -137,11 +141,11 @@ export default function DocDetail() {
                   <div className="viewer-header">
                     <div className="viewer-title">
                       <BookOpen size={16} className="text-teal" />
-                      <span>Trình Xem Tài Liệu Trực Tuyến</span>
+                      <span>{t.docDetail.desktopTitle}</span>
                     </div>
                     <a href={pdfUrl} download className="btn btn-secondary btn-small">
                       <Download size={14} />
-                      <span>Tải xuống bản gốc</span>
+                      <span>{t.docDetail.desktopBtn}</span>
                     </a>
                   </div>
                   <div className="iframe-container">
@@ -158,7 +162,7 @@ export default function DocDetail() {
             {/* RIGHT AREA: Sidebar other documents */}
             <aside className="doc-sidebar">
               <div className="sidebar-section glass-panel">
-                <h3 className="sidebar-section-title">CÁC ẤN PHẨM KHÁC</h3>
+                <h3 className="sidebar-section-title">{t.docDetail.sidebarTitle}</h3>
                 <div className="sidebar-list">
                   {otherDocs.map((item) => {
                     const sideImage = item.image ? `/images/${item.image}` : '/images/tccvang.jpg';
