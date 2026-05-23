@@ -76,8 +76,11 @@ export default function ResourcesPage() {
     setCurrentPage(1);
   };
 
-  const isPracticeExam = (exam) => exam.hasDetailRoute || exam.id === 'k50-dot-2';
-  const practiceFinalExams = finals.filter(isPracticeExam);
+  const finalExamOrder = new Map(localFinals.map((exam, index) => [exam.id, index]));
+  const isPracticeExam = (exam) => exam.hasDetailRoute;
+  const practiceFinalExams = finals
+    .filter(isPracticeExam)
+    .sort((a, b) => (finalExamOrder.get(a.id) ?? 999) - (finalExamOrder.get(b.id) ?? 999));
 
   // Compile full list based on active tab and format appropriately
   const getFilteredItems = () => {

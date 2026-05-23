@@ -1,13 +1,14 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { HashRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
 import DocDetail from './pages/DocDetail';
-import ExamDetail from './pages/ExamDetail';
 import GiftPage from './pages/GiftPage';
 import ResourcesPage from './pages/ResourcesPage';
 import './App.css';
+
+const ExamDetail = lazy(() => import('./pages/ExamDetail'));
 
 // Subcomponent to have access to useLocation
 function AppContent() {
@@ -22,7 +23,14 @@ function AppContent() {
           <Route path="/" element={<Home />} />
           <Route path="/resources" element={<ResourcesPage />} />
           <Route path="/document/:id" element={<DocDetail />} />
-          <Route path="/exam/:id" element={<ExamDetail />} />
+          <Route
+            path="/exam/:id"
+            element={(
+              <Suspense fallback={<div className="loading-doc text-center">Đang tải phòng thi...</div>}>
+                <ExamDetail />
+              </Suspense>
+            )}
+          />
           <Route path="/20-10" element={<GiftPage />} />
         </Routes>
       </main>
@@ -40,4 +48,3 @@ function App() {
 }
 
 export default App;
-

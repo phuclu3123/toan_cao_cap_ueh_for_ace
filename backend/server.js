@@ -215,9 +215,12 @@ const runAutoMigration = async () => {
           }
         });
 
-        if (seedItem.id === 'k50-dot-2') {
-          metadataUpdates.hasDetailRoute = true;
-          metadataUpdates.desc = seedItem.desc;
+        if (seedItem.type === 'finalExams') {
+          ['title', 'date', 'desc', 'hasDetailRoute'].forEach(field => {
+            if (seedItem[field] !== undefined && existing[field] !== seedItem[field]) {
+              metadataUpdates[field] = seedItem[field];
+            }
+          });
         }
 
         if (Object.keys(metadataUpdates).length > 0) {

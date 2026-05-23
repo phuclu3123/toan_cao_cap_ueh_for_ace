@@ -171,12 +171,16 @@ export const midtermExams = [
 ];
 
 export const finalExams = [
-  { id: 'k50-dot-2', title: 'Toán Cao Cấp K50 Đợt 2', date: 'Mới nhất', hasDetailRoute: true, desc: 'Bài kiểm tra mô phỏng 75 phút theo cấu trúc đề Toán Cao Cấp K50, có chấm điểm, đánh dấu câu khó và thống kê kết quả sau khi nộp bài.' },
-  { id: 'ap1-f1', title: 'Toán Cao Cấp K50 Đợt 1 Mã Đề Khác', date: 'Học kỳ 1 - K50', hasDetailRoute: false, desc: 'Xem lời giải chi tiết trong Tuyển tập đề thi các năm (Trang 1-20).' },
-  { id: 'ap1-f2', title: 'Toán Cao Cấp K50 Đợt 1', date: 'Học kỳ 1 - K50', hasDetailRoute: false, desc: 'Xem lời giải chi tiết trong Tuyển tập đề thi các năm (Trang 21-40).' },
-  { id: 'ap1-f3', title: 'Toán Cao Cấp K49 Mã Đề 1', date: 'Học kỳ 2 - K49', hasDetailRoute: false, desc: 'Xem lời giải chi tiết trong Tuyển tập đề thi các năm (Trang 41-55).' },
-  { id: 'ap1-f4', title: 'Toán Cao Cấp K49 Mã Đề 2', date: 'Học kỳ 2 - K49', hasDetailRoute: false, desc: 'Xem lời giải chi tiết trong Tuyển tập đề thi các năm (Trang 56-70).' },
-  { id: 'ap1-f5', title: 'Toán Cao Cấp K48', date: 'Học kỳ 1 - K48', hasDetailRoute: false, desc: 'Xem lời giải chi tiết trong Tuyển tập đề thi các năm (Trang 71-85).' },
-  { id: 'ap1-f6', title: 'Toán Cao Cấp K47', date: 'Học kỳ 1 - K47', hasDetailRoute: false, desc: 'Xem lời giải chi tiết trong Tuyển tập đề thi các năm (Trang 86-100).' },
-  { id: 'ap1-f7', title: 'Toán Cao Cấp K46', date: 'Học kỳ 1 - K46', hasDetailRoute: false, desc: 'Xem lời giải chi tiết trong Tuyển tập đề thi các năm (Trang 101-115).' }
+  { id: 'k51-204', title: 'Toán Cao Cấp K51 Mã Đề 204', date: 'MAIN K51', hasDetailRoute: true, desc: 'Đề K51 mới nhất mã 204 từ main.pdf, làm bài trong 75 phút với chấm điểm tự động, cắm cờ câu khó và thống kê sau khi nộp.' },
+  { id: 'k51-118', title: 'Toán Cao Cấp K51 Mã Đề 118', date: 'MAIN K51', hasDetailRoute: true, desc: 'Đề K51 mới nhất mã 118 từ main.pdf, chuyển thành phòng luyện thi tương tác theo nhịp bài thi thật.' },
+  { id: 'k51-354', title: 'Toán Cao Cấp K51 Mã Đề 354', date: 'MAIN K51', hasDetailRoute: true, desc: 'Đề K51 mới nhất mã 354 từ main.pdf, dùng để luyện tốc độ làm trắc nghiệm và kiểm tra đáp án sau khi nộp.' },
+  { id: 'k51-442', title: 'Toán Cao Cấp K51 Mã Đề 442', date: 'MAIN K51', hasDetailRoute: true, desc: 'Đề K51 mới nhất mã 442 từ main.pdf, mô phỏng bài kiểm tra cuối kỳ 75 phút chuyên nghiệp.' },
+  { id: 'k50-dot-2', title: 'Toán Cao Cấp K50 Đợt 2', date: 'FINAL 2807', hasDetailRoute: true, desc: 'Đề K50 đợt 2 trong FINAL 2807, luyện như bài kiểm tra 75 phút với timer, cắm cờ và nộp bài tự động khi hết giờ.' },
+  { id: 'ap1-f2', title: 'Toán Cao Cấp K50 Đợt 1', date: 'FINAL 2807', hasDetailRoute: true, desc: 'Đề K50 đợt 1 trong FINAL 2807, đã chuyển thành bài kiểm tra tương tác thay vì chỉ xem lời giải.' },
+  { id: 'ap1-f1', title: 'Toán Cao Cấp K50 Đợt 1 Mã Đề Khác', date: 'FINAL 2807', hasDetailRoute: true, desc: 'Mã đề khác của K50 đợt 1 trong FINAL 2807, có chấm điểm tự động và bảng phân tích câu trả lời.' },
+  { id: 'ap1-f3', title: 'Toán Cao Cấp K49 Mã Đề 1', date: 'FINAL 2807', hasDetailRoute: true, desc: 'Đề K49 mã đề 1 trong FINAL 2807, dùng để luyện phản xạ làm bài cuối kỳ theo cấu trúc đề thật.' },
+  { id: 'ap1-f4', title: 'Toán Cao Cấp K49 Mã Đề 2', date: 'FINAL 2807', hasDetailRoute: true, desc: 'Đề K49 mã đề 2 trong FINAL 2807, giữ đúng ghi chú đáp án của tài liệu nguồn khi luyện thi.' },
+  { id: 'ap1-f5', title: 'Toán Cao Cấp K48', date: 'Đang cập nhật', hasDetailRoute: false, desc: 'Chưa tìm thấy section đề K48 trong final 2807.pdf để chuyển thành bài kiểm tra tương tác.' },
+  { id: 'ap1-f6', title: 'Toán Cao Cấp K47', date: 'FINAL 2807', hasDetailRoute: true, desc: 'Đề K47 trong FINAL 2807, gồm 20 câu trắc nghiệm để luyện bài dài hơn trong phòng thi.' },
+  { id: 'ap1-f7', title: 'Toán Cao Cấp K46', date: 'FINAL 2807', hasDetailRoute: true, desc: 'Đề K46 trong FINAL 2807, chuyển từ tài liệu lời giải sang bài kiểm tra tương tác 75 phút.' }
 ];

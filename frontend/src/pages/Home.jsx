@@ -109,8 +109,11 @@ export default function Home() {
     ? docs
     : docs.filter(doc => doc.category === docCategoryTab);
 
-  const isPracticeExam = (exam) => exam.hasDetailRoute || exam.id === 'k50-dot-2';
-  const practiceFinalExams = finals.filter(isPracticeExam);
+  const finalExamOrder = new Map(localFinals.map((exam, index) => [exam.id, index]));
+  const isPracticeExam = (exam) => exam.hasDetailRoute;
+  const practiceFinalExams = finals
+    .filter(isPracticeExam)
+    .sort((a, b) => (finalExamOrder.get(a.id) ?? 999) - (finalExamOrder.get(b.id) ?? 999));
 
   const getPaginatedItems = (items, page) => {
     const startIndex = (page - 1) * itemsPerHomePage;
