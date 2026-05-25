@@ -16,7 +16,7 @@
 /* Breadcrumb Banner */
 .resources-banner {
   background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
-  padding: 4.5rem 0 3.5rem 0;
+  padding: 3.5rem 0 3rem 0;
   border-bottom: 1px solid var(--border-color);
   position: relative;
   overflow: hidden;
@@ -54,11 +54,34 @@
 }
 
 .resources-banner-title {
-  font-size: 2.5rem;
+  font-size: clamp(2.1rem, 4vw, 3.2rem);
   font-weight: 800;
   font-family: var(--font-heading);
   color: var(--text-primary);
   margin-bottom: 1rem;
+}
+
+.resource-quality-strip {
+  padding: 2rem 0 0;
+}
+
+.quality-strip-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 520px);
+  gap: 2rem;
+  align-items: end;
+}
+
+.quality-strip-grid h2 {
+  margin-top: 0.8rem;
+  color: var(--text-primary);
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  line-height: 1.15;
+}
+
+.quality-strip-grid p {
+  color: var(--text-secondary);
+  line-height: 1.7;
 }
 
 .resources-banner-desc {
@@ -256,12 +279,22 @@
 
 .list-category-badge {
   font-size: 0.7rem;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   color: var(--accent-teal);
-  margin-bottom: 0.35rem;
+  background: rgba(15, 118, 110, 0.1);
+  border: 1px solid rgba(15, 118, 110, 0.25);
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
   display: inline-block;
   letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+:root:not(.light-theme) .list-category-badge {
+  background: rgba(45, 212, 191, 0.1);
+  border-color: rgba(45, 212, 191, 0.25);
 }
 
 .list-title {

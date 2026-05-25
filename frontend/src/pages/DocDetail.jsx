@@ -37,15 +37,30 @@ export default function DocDetail() {
       try {
         const response = await fetch(`${API_BASE_URL}/api/resources`);
         const data = await response.json();
-        if (response.ok && data.success) {
+        if (response.ok && data.success && data.resources) {
           const apiDocs = mergeResourceItems(data.resources.documentsData || [], documentsData);
           const apiMidterms = mergeResourceItems(data.resources.midtermExams || [], midtermExams);
           resourcesList = [...apiDocs, ...apiMidterms];
+          const randomSidebarDocs = apiDocs
+            .filter(item => item.id !== id && !item.externalUrl)
+            .sort(() => Math.random() - 0.5)
+            .slice(0, 5);
+          setOtherDocs(randomSidebarDocs);
         } else {
           resourcesList = [...documentsData, ...midtermExams];
+          const randomSidebarDocs = documentsData
+            .filter(item => item.id !== id && !item.externalUrl)
+            .sort(() => Math.random() - 0.5)
+            .slice(0, 5);
+          setOtherDocs(randomSidebarDocs);
         }
       } catch (error) {
         resourcesList = [...documentsData, ...midtermExams];
+        const randomSidebarDocs = documentsData
+          .filter(item => item.id !== id && !item.externalUrl)
+          .sort(() => Math.random() - 0.5)
+          .slice(0, 5);
+        setOtherDocs(randomSidebarDocs);
       }
 
       const currentDoc = resourcesList.find(item => item.id === id);
@@ -56,9 +71,6 @@ export default function DocDetail() {
       }
       setDoc(currentDoc);
 
-      // List other publications in sidebar (excluding current)
-      const filtered = resourcesList.filter(item => item.id !== id && !item.externalUrl);
-      setOtherDocs(filtered.slice(0, 5));
       setLoading(false);
     };
 
@@ -127,7 +139,12 @@ export default function DocDetail() {
                     />
                     <div className="preview-details">
                       <h4>{doc.title}</h4>
-                      <p className="preview-desc">{doc.desc || 'Tài liệu ôn thi Toán Cao Cấp tuyển chọn kỹ lưỡng dành cho các bạn sinh viên UEH.'}</p>
+                      <p className="preview-desc">{doc.desc || (
+                        language === 'vi' ? 'Tài liệu ôn thi Toán Cao Cấp tuyển chọn kỹ lưỡng dành cho các bạn sinh viên UEH.' :
+                        language === 'en' ? 'Carefully selected Advanced Calculus study materials for UEH students.' :
+                        language === 'ja' ? 'UEH学生向けに厳選された高等微積分学習教材。' :
+                        '为UEH学生精选的高等微积分学习资料。'
+                      )}</p>
                       <a href={pdfUrl} target="_blank" rel="noopener noreferrer" className="btn btn-primary w-full">
                         <Download size={16} />
                         <span>{t.docDetail.mobileBtn}</span>

@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Menu, X, Mail, Phone, User, LogIn, Upload, PlusCircle, 
   CheckCircle, AlertCircle, Shield, Smartphone, 
-  KeyRound, ArrowLeft, PhoneCall, Lock, Sun, Moon, Globe
+  KeyRound, ArrowLeft, PhoneCall, Lock, Sun, Moon, Globe, Search
 } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 import '../assets/styles/Navbar.css';
@@ -27,6 +27,8 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [showLangMenu, setShowLangMenu] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const { language, changeLanguage } = useContext(LanguageContext);
   const { theme, toggleTheme } = useContext(ThemeContext);
@@ -140,18 +142,15 @@ export default function Navbar() {
     else if (uploadProf === 'ntvv') setUploadProfName('Thầy Nguyễn Thanh Vân');
   }, [uploadProf]);
 
-  const handleNavClick = (sectionId) => {
+  const isActivePath = (path) => location.pathname === path;
+
+  const handleGlobalSearch = (event) => {
+    event.preventDefault();
+    const query = searchQuery.trim();
+    if (!query) return;
+    setShowSearch(false);
     setIsOpen(false);
-    if (location.pathname !== '/') {
-      navigate('/');
-      setTimeout(() => {
-        const element = document.getElementById(sectionId);
-        if (element) element.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
-    } else {
-      const element = document.getElementById(sectionId);
-      if (element) element.scrollIntoView({ behavior: 'smooth' });
-    }
+    navigate(`/resources?category=all&q=${encodeURIComponent(query)}`);
   };
 
   const syncUserWithBackend = async (firebaseUser, customName = null) => {
@@ -724,9 +723,9 @@ export default function Navbar() {
                 <Mail size={14} />
                 <span>luphuc321@gmail.com</span>
               </a>
-              <a href="tel:0815451095" className="contact-item">
+              <a href="tel:0833830322" className="contact-item">
                 <Phone size={14} />
-                <span>0815451095</span>
+                <span>0833830322</span>
               </a>
             </div>
             <div className="author-badge">
@@ -746,16 +745,25 @@ export default function Navbar() {
 
             {/* Desktop Navigation Links */}
             <div className="nav-links">
-              <Link to="/" className={`nav-link-item ${location.pathname === '/' ? 'active' : ''}`} onClick={() => window.scrollTo(0, 0)}>{t.nav.home}</Link>
-              <button className="nav-link-item" onClick={() => handleNavClick('about')}>{t.nav.about}</button>
+              <Link to="/" className={`nav-link-item ${isActivePath('/') ? 'active' : ''}`} onClick={() => window.scrollTo(0, 0)}>{t.nav.home}</Link>
+              <Link to="/courses" className={`nav-link-item ${isActivePath('/courses') ? 'active' : ''}`}>{t.nav.courses}</Link>
               <Link to="/resources?category=all" className={`nav-link-item ${location.pathname === '/resources' ? 'active' : ''}`}>{t.nav.library}</Link>
-              <button className="nav-link-item" onClick={() => handleNavClick('exams')}>{t.nav.exams}</button>
-              <button className="nav-link-item" onClick={() => handleNavClick('midterm')}>{t.nav.midterm}</button>
+              <Link to="/exams" className={`nav-link-item ${isActivePath('/exams') ? 'active' : ''}`}>{t.nav.exams}</Link>
+              <Link to="/blog" className={`nav-link-item ${isActivePath('/blog') ? 'active' : ''}`}>{t.nav.blog}</Link>
               <Link to="/20-10" className={`nav-link-item rose-link ${location.pathname === '/20-10' ? 'active' : ''}`}>{t.nav.gift}</Link>
             </div>
 
             {/* Theme & Language Controls */}
             <div className="nav-controls">
+              <button 
+                type="button"
+                className="control-btn" 
+                onClick={() => setShowSearch(true)}
+                title="Tìm kiếm"
+              >
+                <Search size={18} />
+              </button>
+
               <button 
                 type="button"
                 className="control-btn theme-toggle-btn" 
@@ -837,14 +845,22 @@ export default function Navbar() {
             </div>
             <div className="mobile-links">
               <Link to="/" className="mobile-link-item" onClick={() => { setIsOpen(false); window.scrollTo(0, 0); }}>{t.nav.home}</Link>
-              <button className="mobile-link-item" onClick={() => handleNavClick('about')}>{t.nav.about}</button>
+              <Link to="/courses" className="mobile-link-item" onClick={() => setIsOpen(false)}>{t.nav.courses}</Link>
               <Link to="/resources?category=all" className="mobile-link-item" onClick={() => setIsOpen(false)}>{t.nav.library}</Link>
-              <button className="mobile-link-item" onClick={() => handleNavClick('exams')}>{t.nav.exams}</button>
-              <button className="mobile-link-item" onClick={() => handleNavClick('midterm')}>{t.nav.midterm}</button>
+              <Link to="/exams" className="mobile-link-item" onClick={() => setIsOpen(false)}>{t.nav.exams}</Link>
+              <Link to="/blog" className="mobile-link-item" onClick={() => setIsOpen(false)}>{t.nav.blog}</Link>
               <Link to="/20-10" className="mobile-link-item rose-link" onClick={() => setIsOpen(false)}>{t.nav.gift}</Link>
               
               {/* Mobile theme & language controls */}
               <div className="mobile-controls-row">
+                <button 
+                  type="button"
+                  className="mobile-control-btn"
+                  onClick={() => setShowSearch(true)}
+                >
+                  <Search size={18} />
+                  <span>TÃ¬m kiáº¿m</span>
+                </button>
                 <button 
                   type="button"
                   className="mobile-control-btn"
@@ -890,6 +906,35 @@ export default function Navbar() {
           </div>
         </div>
       </header>
+
+      {showSearch && (
+        <div className="search-overlay" role="dialog" aria-modal="true" onClick={() => setShowSearch(false)}>
+          <form className="search-modal glass-panel" onSubmit={handleGlobalSearch} onClick={(event) => event.stopPropagation()}>
+            <div className="search-modal-head">
+              <span>Tìm nhanh học liệu</span>
+              <button type="button" onClick={() => setShowSearch(false)} aria-label="Đóng tìm kiếm">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="search-modal-input">
+              <Search size={22} />
+              <input
+                autoFocus
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                placeholder="Nhập tên tài liệu, đề thi, chủ đề cần ôn..."
+              />
+            </div>
+            <div className="search-suggestions">
+              {['Giới hạn', 'Ma trận', 'Đề cuối kỳ', 'Tài liệu giữa kỳ'].map((item) => (
+                <button type="button" key={item} onClick={() => setSearchQuery(item)}>
+                  {item}
+                </button>
+              ))}
+            </div>
+          </form>
+        </div>
+      )}
 
       {/* Auth Modal (Login / Sign Up / Forgot Password) */}
       {showLoginModal && (

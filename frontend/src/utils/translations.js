@@ -10,7 +10,9 @@ export const translations = {
       login: "Đăng Nhập",
       welcome: "Chào, ",
       logout: "Thoát",
-      upload: "Đăng tài liệu"
+      upload: "Đăng tài liệu",
+      courses: "Khóa học",
+      blog: "Blog"
     },
     hero: {
       kicker: "Nền tảng hỗ trợ học tập số 1 UEH",
@@ -175,6 +177,180 @@ export const translations = {
       pageSummary: "Trang {current} / {total}",
       pagePrev: "Trang trước",
       pageNext: "Trang sau"
+    },
+    home: {
+      "heroKicker": "UEH TCC Learning Hub",
+      "heroTitle": "UEH TCC",
+      "heroDesc": "Học Toán Cao Cấp theo lộ trình rõ, có khóa học đăng ký, thư viện PDF, đề luyện và blog hướng dẫn. Mỗi phần được tách thành trang riêng để bạn vào đúng thứ mình cần.",
+      "btnEnroll": "Đăng ký học thử",
+      "btnSearch": "Tìm học liệu",
+      "badgeChapter": "Học theo chương",
+      "badgePdf": "Tài liệu PDF",
+      "badgeExam": "Thi thử tương tác",
+      "watchVideo": "Xem video hướng dẫn học",
+      "stats": {
+            "questions": "Câu hỏi luyện tập",
+            "exams": "Bộ đề thi thử",
+            "docs": "Tài liệu PDF",
+            "goal": "Mục tiêu điểm số"
+      },
+      "quickStart": {
+            "kicker": "Bắt đầu nhanh",
+            "title": "Chọn đúng khu vực cần dùng.",
+            "desc": "Trang chủ chỉ giữ các lối vào chính. Nội dung chi tiết nằm ở từng trang riêng để trải nghiệm gọn hơn.",
+            "courseTitle": "Khóa học video",
+            "courseDesc": "Đăng ký học thử trước, nhận lộ trình phù hợp rồi mới mở các video theo chương.",
+            "courseBtn": "Xem lộ trình",
+            "examTitle": "Phòng luyện thi",
+            "examDesc": "Làm đề có thời gian, chọn đáp án, nộp bài và xem lại phần cần ôn sau khi hoàn thành.",
+            "examBtn": "Luyện thi",
+            "libTitle": "Thư viện PDF",
+            "libDesc": "Giáo trình, bài tập chương, tài liệu giữa kỳ và các ấn phẩm ôn tập được lọc theo nhu cầu.",
+            "libBtn": "Mở thư viện"
+      },
+      "roadmap": {
+            "kicker": "Lộ trình học",
+            "title": "Đi từ nền tảng đến luyện thi.",
+            "desc": "Luồng học được sắp theo hành trình thực tế của sinh viên: hiểu kiến thức, luyện dạng bài, rồi thi thử để kiểm tra.",
+            "step1Title": "Nắm nền tảng",
+            "step1Desc": "Ma trận, hệ phương trình, không gian vector và các công thức cốt lõi.",
+            "step2Title": "Ôn theo dạng bài",
+            "step2Desc": "Giới hạn, đạo hàm, hàm nhiều biến và các bài toán kinh tế thường gặp.",
+            "step3Title": "Luyện trước kỳ thi",
+            "step3Desc": "Chuyển sang phòng thi thử, làm theo thời gian và xem lỗi sai."
+      },
+      "blogPreview": {
+            "kicker": "Blog học tập",
+            "title": "Bài viết mới",
+            "viewAll": "Xem tất cả bài viết",
+            "readPost": "Đọc bài viết",
+            "readMore": "Đọc tiếp"
+      }
+},
+    coursesPage: {
+      "kicker": "Khóa học video",
+      "title": "Đăng ký học thử trước.",
+      "desc": "Để lại thông tin, nhận bài học mẫu và lộ trình phù hợp. Video chi tiết được mở sau khi học viên đăng ký khóa học.",
+      "btnConsult": "Đăng ký tư vấn",
+      "btnRoadmap": "Xem lộ trình",
+      "sampleTitle": "Bài học mẫu",
+      "syllabus": [
+            "Học thử bài đầu trước khi đăng ký",
+            "Tài khoản học viên để lưu tiến độ",
+            "Video chỉ mở sau khi đăng ký khóa học",
+            "Tài liệu và đề luyện đi kèm từng module"
+      ],
+      "catalogSubtitle": "Lộ trình",
+      "catalogTitle": "Chọn khóa theo mục tiêu học.",
+      "catalogDesc": "Mỗi khóa có nội dung, thời lượng và tài liệu riêng. Video chi tiết được mở sau khi học viên đăng ký.",
+      "lockedBadge": "Cần đăng ký",
+      "hasTrial": "Có bài học thử",
+      "btnUnlock": "Đăng ký mở khóa",
+      "formSubtitle": "Đăng ký học thử",
+      "formTitle": "Nhận tư vấn lộ trình",
+      "formDesc": "Điền thông tin để nhận bài học mẫu và gợi ý khóa học phù hợp với kỳ thi của bạn.",
+      "placeholderName": "Họ và tên",
+      "placeholderContact": "Số điện thoại hoặc email",
+      "goalTitle": "Mục tiêu học",
+      "goals": [
+            "Ôn giữa kỳ",
+            "Ôn cuối kỳ",
+            "Học lại từ nền tảng"
+      ],
+      "timeTitle": "Thời gian muốn học",
+      "times": [
+            "Buổi tối trong tuần",
+            "Cuối tuần",
+            "Linh hoạt theo video"
+      ],
+      "placeholderNote": "Bạn đang yếu phần nào?",
+      "btnSubmit": "Gửi đăng ký tư vấn",
+      "benefits": [
+            "Học thử miễn phí bài đầu",
+            "Không mở video khóa khi chưa đăng ký",
+            "Gợi ý tài liệu và đề luyện theo mục tiêu"
+      ],
+      "ctaSubtitle": "Sau khi học",
+      "ctaTitle": "Hoàn thành module rồi chuyển sang phòng luyện thi.",
+      "ctaBtn": "Mở phòng luyện thi",
+      "list": [
+            {
+                  "id": "foundation",
+                  "title": "Nền tảng Toán Cao Cấp",
+                  "desc": "Ma trận, hệ phương trình, không gian vector và cách đọc đề nhanh.",
+                  "level": "Cơ bản",
+                  "duration": "8 giờ",
+                  "lessons": "24 bài"
+            },
+            {
+                  "id": "calculus",
+                  "title": "Giới hạn, đạo hàm và hàm nhiều biến",
+                  "desc": "Các dạng bài trọng tâm cho giữa kỳ và cuối kỳ, kèm quiz ngắn sau bài.",
+                  "level": "Trọng tâm",
+                  "duration": "10 giờ",
+                  "lessons": "31 bài"
+            },
+            {
+                  "id": "economic-models",
+                  "title": "Mô hình toán trong kinh tế",
+                  "desc": "Ứng dụng hàm số, cực trị và mô hình kinh tế để xử lý bài tự luận.",
+                  "level": "Ứng dụng",
+                  "duration": "6 giờ",
+                  "lessons": "18 bài"
+            }
+      ]
+},
+    examsPage: {
+      "kicker": "Phòng luyện thi",
+      "title": "Làm đề cuối kỳ tương tác và xem lại lỗi sai.",
+      "desc": "Trang luyện thi tách riêng khỏi trang chủ. Đề cuối kỳ dùng phòng thi có timer, còn tài liệu giữa kỳ được trình bày như học liệu trong thư viện.",
+      "statPractice": "đề tương tác",
+      "statMidterm": "bộ tài liệu giữa kỳ",
+      "statTime": "mô phỏng thời gian",
+      "finalSubtitle": "Đề cuối kỳ",
+      "finalTitle": "Phòng thi tương tác",
+      "finalDesc": "Chọn một đề, làm theo thời gian và xem phân tích kết quả sau khi nộp bài.",
+      "btnStart": "Làm bài",
+      "midtermSubtitle": "Tài liệu giữa kỳ",
+      "midtermTitle": "Đề giữa kỳ theo giảng viên",
+      "midtermDesc": "Hiển thị dạng thẻ tài liệu như mẫu: ảnh đại diện, badge tên giảng viên, mô tả ngắn và nút xem đề.",
+      "btnViewSolution": "Xem Đề & Lời Giải"
+},
+    blogPage: {
+      "kicker": "UEH TCC Blog",
+      "title": "Bài viết",
+      "desc": "Chuyên mục hướng dẫn học Toán Cao Cấp, chọn tài liệu và luyện đề theo từng giai đoạn.",
+      "searchPlaceholder": "Tìm bài viết, dạng bài, tài liệu...",
+      "emptyTitle": "Không tìm thấy bài viết",
+      "emptyDesc": "Thử tìm bằng từ khóa khác hoặc quay lại danh sách mới nhất.",
+      "readPost": "Đọc bài viết",
+      "readMore": "Đọc tiếp",
+      "tocTitle": "Nội dung bài viết",
+      "btnAll": "Xem tất cả",
+      "authorLabel": "Tác giả:",
+      "relatedTitle": "Bài viết liên quan"
+    },
+    consultForm: {
+      title: "Đăng kí tư vấn miễn phí",
+      subtitle: "Xây dựng lộ trình học TOÀN DIỆN, bằng cách đăng ký qua form hoặc liên hệ với chúng tôi qua email hoặc số điện thoại bên dưới",
+      greeting: "Xin chào! Mình là",
+      namePlaceholder: "Họ và tên",
+      interest: "quan tâm đến khoá học",
+      courseOpt1: "Nền tảng Toán Cao Cấp",
+      courseOpt2: "Giới hạn, đạo hàm & hàm nhiều biến",
+      courseOpt3: "Mô hình toán trong kinh tế",
+      contactVia: "Liên hệ với mình qua",
+      phonePlaceholder: "Số điện thoại",
+      or: "Hoặc",
+      emailPlaceholder: "Email",
+      btnSubmit: "Đăng ký tư vấn",
+      submitting: "Đang gửi...",
+      successTitle: "Đăng ký thành công!",
+      successDesc: "Cảm ơn bạn đã để lại thông tin. Chúng tôi sẽ liên hệ tư vấn trong thời gian sớm nhất.",
+      btnRegisterAgain: "Đăng ký lại",
+      validationError: "Vui lòng điền đầy đủ họ tên, số điện thoại và email!",
+      failError: "Gửi thông tin thất bại. Vui lòng thử lại!",
+      serverError: "Lỗi hệ thống khi kết nối server. Vui lòng thử lại!"
     }
   },
   en: {
@@ -188,7 +364,9 @@ export const translations = {
       login: "Log In",
       welcome: "Hi, ",
       logout: "Log Out",
-      upload: "Upload Doc"
+      upload: "Upload Doc",
+      courses: "Courses",
+      blog: "Blog"
     },
     hero: {
       kicker: "No. 1 learning platform for UEH students",
@@ -353,6 +531,180 @@ export const translations = {
       pageSummary: "Page {current} of {total}",
       pagePrev: "Previous Page",
       pageNext: "Next Page"
+    },
+    home: {
+      "heroKicker": "UEH TCC Learning Hub",
+      "heroTitle": "UEH TCC",
+      "heroDesc": "Study Advanced Calculus with a clear roadmap, register for video courses, access PDF library, practice exams, and tutorial blogs. Each section is separated into its own page so you can find exactly what you need.",
+      "btnEnroll": "Try Free Lesson",
+      "btnSearch": "Find Study Material",
+      "badgeChapter": "Chapter-based study",
+      "badgePdf": "PDF Materials",
+      "badgeExam": "Interactive Exams",
+      "watchVideo": "Watch tutorial video",
+      "stats": {
+            "questions": "Practice questions",
+            "exams": "Mock exam papers",
+            "docs": "PDF Documents",
+            "goal": "Score Target"
+      },
+      "quickStart": {
+            "kicker": "Quick Start",
+            "title": "Select the correct area.",
+            "desc": "The homepage only holds main entry points. Detailed contents are located on separate pages for a cleaner experience.",
+            "courseTitle": "Video Courses",
+            "courseDesc": "Register to study sample lessons first, receive a personalized roadmap, and unlock chapter-based videos.",
+            "courseBtn": "View Roadmap",
+            "examTitle": "Practice Exams",
+            "examDesc": "Take timed exams, select answers, submit, and review target topics after completion.",
+            "examBtn": "Start Practice",
+            "libTitle": "PDF Library",
+            "libDesc": "Textbooks, chapter exercises, midterm tests, and revision publications filtered by your needs.",
+            "libBtn": "Open Library"
+      },
+      "roadmap": {
+            "kicker": "Learning Roadmap",
+            "title": "Go from foundation to practice exams.",
+            "desc": "The study flow is arranged according to the actual student journey: understand core concepts, practice topics, and then take mock exams to test yourself.",
+            "step1Title": "Master Foundations",
+            "step1Desc": "Matrices, systems of linear equations, vector spaces, and core formulas.",
+            "step2Title": "Topic-based Review",
+            "step2Desc": "Limits, derivatives, multivariable functions, and common economic models.",
+            "step3Title": "Pre-exam Practice",
+            "step3Desc": "Switch to mock exam rooms, practice under real time constraints, and review mistakes."
+      },
+      "blogPreview": {
+            "kicker": "Study Blog",
+            "title": "New Articles",
+            "viewAll": "View all articles",
+            "readPost": "Read article",
+            "readMore": "Read more"
+      }
+},
+    coursesPage: {
+      "kicker": "Video Courses",
+      "title": "Try Free Lessons First.",
+      "desc": "Leave your information to receive a sample lesson and customized roadmap. Full videos are unlocked after enrolling.",
+      "btnConsult": "Request Consultation",
+      "btnRoadmap": "View Roadmap",
+      "sampleTitle": "Sample Lesson",
+      "syllabus": [
+            "Try the first lesson for free before registering",
+            "Student account to save study progress",
+            "Videos are unlocked only after course registration",
+            "Accompanying resources and practice tests per module"
+      ],
+      "catalogSubtitle": "Roadmap",
+      "catalogTitle": "Select Course by Target Goal",
+      "catalogDesc": "Each course has dedicated syllabus, duration, and resources. Full videos are unlocked after registering.",
+      "lockedBadge": "Enrollment Required",
+      "hasTrial": "Sample lesson available",
+      "btnUnlock": "Register to Unlock",
+      "formSubtitle": "Free Sample Lesson",
+      "formTitle": "Get Roadmap Advice",
+      "formDesc": "Fill in your details to receive sample lessons and course recommendations suited to your goals.",
+      "placeholderName": "Full Name",
+      "placeholderContact": "Phone number or email",
+      "goalTitle": "Learning Goal",
+      "goals": [
+            "Prepare for Midterms",
+            "Prepare for Finals",
+            "Rebuild from Foundation"
+      ],
+      "timeTitle": "Preferred Study Schedule",
+      "times": [
+            "Weekday Evenings",
+            "Weekends",
+            "Flexible with Videos"
+      ],
+      "placeholderNote": "Which topic are you struggling with?",
+      "btnSubmit": "Submit Consultation Request",
+      "benefits": [
+            "Try the first lesson for free",
+            "Syllabus videos locked until registration",
+            "Targeted document & practice questions recommendations"
+      ],
+      "ctaSubtitle": "After Studying",
+      "ctaTitle": "Complete modules then move to practice exams.",
+      "ctaBtn": "Start Practice Exams",
+      "list": [
+            {
+                  "id": "foundation",
+                  "title": "Advanced Calculus Foundations",
+                  "desc": "Matrices, systems of linear equations, vector spaces, and fast reading methods.",
+                  "level": "Basic",
+                  "duration": "8 hours",
+                  "lessons": "24 lessons"
+            },
+            {
+                  "id": "calculus",
+                  "title": "Limits, Derivatives & Multivariable Functions",
+                  "desc": "Core concepts for midterms and finals, with short quizzes after lectures.",
+                  "level": "Core",
+                  "duration": "10 hours",
+                  "lessons": "31 lessons"
+            },
+            {
+                  "id": "economic-models",
+                  "title": "Mathematical Models in Economics",
+                  "desc": "Application of functions, extrema, and economic models for descriptive questions.",
+                  "level": "Applied",
+                  "duration": "6 hours",
+                  "lessons": "18 lessons"
+            }
+      ]
+},
+    examsPage: {
+      "kicker": "Practice Exams",
+      "title": "Take interactive final exams and review mistakes.",
+      "desc": "The exam section is separated from the homepage. Finals are taken with a timer, while midterms are available as revision documents.",
+      "statPractice": "interactive exams",
+      "statMidterm": "midterm document sets",
+      "statTime": "timer simulation",
+      "finalSubtitle": "Final Exams",
+      "finalTitle": "Interactive Exam Room",
+      "finalDesc": "Select an exam, practice under real time constraints, and review results analysis after submitting.",
+      "btnStart": "Start Exam",
+      "midtermSubtitle": "Midterm Resources",
+      "midtermTitle": "Midterm Exams by Professor",
+      "midtermDesc": "Browse midterm papers compiled by famous lecturers, featuring professor tags and solution sheets.",
+      "btnViewSolution": "View Exam & Solution"
+},
+    blogPage: {
+      "kicker": "UEH TCC Blog",
+      "title": "Blog Articles",
+      "desc": "Calculus study guides, material selection advice, and revision strategies for every learning stage.",
+      "searchPlaceholder": "Search articles, topics, resources...",
+      "emptyTitle": "No articles found",
+      "emptyDesc": "Try using different keywords or return to the latest list.",
+      "readPost": "Read Article",
+      "readMore": "Read more",
+      "tocTitle": "Table of Contents",
+      "btnAll": "View All Articles",
+      "authorLabel": "Author:",
+      "relatedTitle": "Related Articles"
+    },
+    consultForm: {
+      title: "Register for Free Consultation",
+      subtitle: "Build a COMPREHENSIVE study roadmap by registering through the form or contacting us via email/phone below",
+      greeting: "Hello! I am",
+      namePlaceholder: "Full name",
+      interest: "interested in the course",
+      courseOpt1: "Advanced Calculus Foundations",
+      courseOpt2: "Limits, Derivatives & Multi-variable Functions",
+      courseOpt3: "Mathematical Models in Economics",
+      contactVia: "Contact me via",
+      phonePlaceholder: "Phone number",
+      or: "Or",
+      emailPlaceholder: "Email",
+      btnSubmit: "Register for consultation",
+      submitting: "Sending...",
+      successTitle: "Registration Successful!",
+      successDesc: "Thank you for your information. We will contact you for consultation as soon as possible.",
+      btnRegisterAgain: "Register Again",
+      validationError: "Please fill in your full name, phone number, and email!",
+      failError: "Submission failed. Please try again!",
+      serverError: "System error connecting to server. Please try again!"
     }
   },
   ja: {
@@ -366,7 +718,9 @@ export const translations = {
       login: "ログイン",
       welcome: "こんにちは、",
       logout: "ログアウト",
-      upload: "資料投稿"
+      upload: "資料投稿",
+      courses: "コース",
+      blog: "ブログ"
     },
     hero: {
       kicker: "UEH学生向けNo.1学習支援プラットフォーム",
@@ -531,6 +885,180 @@ export const translations = {
       pageSummary: "{current} / {total} ページ",
       pagePrev: "前のページ",
       pageNext: "次のページ"
+    },
+    home: {
+      "heroKicker": "UEH TCC ラーニングハブ",
+      "heroTitle": "UEH TCC",
+      "heroDesc": "明確な学習ルート、登録制のビデオコース、PDFライブラリ、練習用模擬試験、解説ブログなどを提供します。各機能が独立したページになっており、必要な情報へすぐにアクセスできます。",
+      "btnEnroll": "無料体験登録",
+      "btnSearch": "学習資料を探す",
+      "badgeChapter": "章ごとの学習",
+      "badgePdf": "PDF資料",
+      "badgeExam": "インタラクティブ模擬試験",
+      "watchVideo": "チュートリアル動画を見る",
+      "stats": {
+            "questions": "練習問題",
+            "exams": "模擬試験セット",
+            "docs": "PDF資料数",
+            "goal": "目標スコア"
+      },
+      "quickStart": {
+            "kicker": "クイックスタート",
+            "title": "必要なエリアを選択してください。",
+            "desc": "ホームページには主な入り口のみを配置しています。詳細は各専用ページに分かれており、すっきりとした操作性を実現しています。",
+            "courseTitle": "ビデオコース",
+            "courseDesc": "まずは無料体験レッスンを受講し、個別の学習ルートを受け取ってから、章ごとの詳細ビデオをアンロックします。",
+            "courseBtn": "学習ルートを見る",
+            "examTitle": "練習試験室",
+            "examDesc": "時間制限付きのテストを受け、解答を選択して提出し、完了後に見直すべき箇所を確認します。",
+            "examBtn": "模擬試験を受ける",
+            "libTitle": "PDFライブラリ",
+            "libDesc": "教科書、各章の演習問題、中間試験対策、復習用資料などをニーズに合わせて絞り込めます。",
+            "libBtn": "ライブラリを開く"
+      },
+      "roadmap": {
+            "kicker": "学習ルート",
+            "title": "基礎固めから模擬試験対策まで。",
+            "desc": "学習フローは学生の実際のステップに合わせて配置されています：概念の理解、形式別の演習、そして模擬試験での自己診断。",
+            "step1Title": "基礎をマスターする",
+            "step1Desc": "行列、連立方程式、ベクトル空間、および中心となる公式。",
+            "step2Title": "形式別の復習",
+            "step2Desc": "極限、微分、多変数関数、およびよくある経済モデル問題。",
+            "step3Title": "試験前の実戦演習",
+            "step3Desc": "模擬試験室に移動し、本番と同じ制限時間内で解答し、間違えた箇所を分析します。"
+      },
+      "blogPreview": {
+            "kicker": "学習ブログ",
+            "title": "最新記事",
+            "viewAll": "すべての記事を見る",
+            "readPost": "記事を読む",
+            "readMore": "もっと読む"
+      }
+},
+    coursesPage: {
+      "kicker": "ビデオコース",
+      "title": "まずは無料体験レッスンから。",
+      "desc": "連絡先を入力して、サンプルレッスンと最適な学習ルートを受け取ります。本編ビデオはコース登録後に視聴可能になります。",
+      "btnConsult": "無料相談に申し込む",
+      "btnRoadmap": "学習ルートを見る",
+      "sampleTitle": "体験レッスン",
+      "syllabus": [
+            "登録前に最初のレッスンを無料でお試し",
+            "学習の進捗を記録する受講生アカウント",
+            "本編ビデオはコース登録後に視聴可能",
+            "各モジュールに付属する教材と練習問題"
+      ],
+      "catalogSubtitle": "学習ルート",
+      "catalogTitle": "目的に合わせてコースを選択",
+      "catalogDesc": "各コースには専用の学習内容、時間、資料が用意されています。詳細ビデオはコース登録後に閲覧できます。",
+      "lockedBadge": "要登録",
+      "hasTrial": "体験レッスンあり",
+      "btnUnlock": "登録してアンロック",
+      "formSubtitle": "体験レッスン申込",
+      "formTitle": "学習計画のアドバイス",
+      "formDesc": "必要事項を入力し、サンプルレッスンと試験目標に合わせた推奨コースのアドバイスを受け取りましょう。",
+      "placeholderName": "氏名",
+      "placeholderContact": "電話番号またはメール",
+      "goalTitle": "学習目的",
+      "goals": [
+            "中間試験対策",
+            "期末試験対策",
+            "基礎から学び直し"
+      ],
+      "timeTitle": "希望の学習時間",
+      "times": [
+            "平日の夜間",
+            "週末・土日",
+            "ビデオで自由に進める"
+      ],
+      "placeholderNote": "苦手な分野やご要望を教えてください",
+      "btnSubmit": "無料相談を送信する",
+      "benefits": [
+            "最初のレッスンを無料体験",
+            "未登録の状態でビデオの無断公開はありません",
+            "目標に合わせた教材と練習問題の提案"
+      ],
+      "ctaSubtitle": "Sau khi học",
+      "ctaTitle": "Hoàn thành module rồi chuyển sang phòng luyện thi.",
+      "ctaBtn": "Mở phòng luyện thi",
+      "list": [
+            {
+                  "id": "foundation",
+                  "title": "高等数学の基礎",
+                  "desc": "行列、連立方程式、ベクトル空間、および問題文の素早い読解法。",
+                  "level": "基礎",
+                  "duration": "8時間",
+                  "lessons": "24レッスン"
+            },
+            {
+                  "id": "calculus",
+                  "title": "極限・微分と多変数関数",
+                  "desc": "中間・期末試験の頻出テーマをカバー。講義後に短いミニテスト付き。",
+                  "level": "重要",
+                  "duration": "10時間",
+                  "lessons": "31レッスン"
+            },
+            {
+                  "id": "economic-models",
+                  "title": "経済学における数学モデル",
+                  "desc": "関数、極値、および記述式問題に対応するための経済モデルの適用。",
+                  "level": "応用",
+                  "duration": "6時間",
+                  "lessons": "18レッスン"
+            }
+      ]
+},
+    examsPage: {
+      "kicker": "模擬試験室",
+      "title": "期末試験に挑戦し、解答後に誤りを見直す。",
+      "desc": "試験対策セクションはホームページから分離されています。期末試験にはタイマーが付き、中間試験は復習用ドキュメントとして提供されます。",
+      "statPractice": "インタラクティブ試験",
+      "statMidterm": "中間試験資料セット",
+      "statTime": "試験時間のシミュレーション",
+      "finalSubtitle": "期末試験",
+      "finalTitle": "インタラクティブ模擬試験室",
+      "finalDesc": "試験を選択し、時間制限の中で解答し、提出後に詳細な判定結果を確認します。",
+      "btnStart": "試験開始",
+      "midtermSubtitle": "中間試験対策",
+      "midtermTitle": "教員別の中間試験",
+      "midtermDesc": "教員別の特徴的な中間試験問題をカバー。解説シートと併せて閲覧できます。",
+      "btnViewSolution": "問題と解答を見る"
+},
+    blogPage: {
+      "kicker": "UEH TCC ブログ",
+      "title": "記事一覧",
+      "desc": "高等数学の学習ガイド、教材の選び方、時期に応じた模試対策のアドバイスをお届けします。",
+      "searchPlaceholder": "記事、テーマ、資料を検索...",
+      "emptyTitle": "記事が見つかりません",
+      "emptyDesc": "別のキーワードで検索するか、最新のリストに戻ってください。",
+      "readPost": "記事を読む",
+      "readMore": "続きを読む",
+      "tocTitle": "目次",
+      "btnAll": "すべての記事",
+      "authorLabel": "著者:",
+      "relatedTitle": "関連記事"
+    },
+    consultForm: {
+      title: "無料カウンセリング登録",
+      subtitle: "フォームから登録するか、以下のメール hoặc 電話でご連絡いただき、包括的な学習ロードマップを作成しましょう。",
+      greeting: "こんにちは！私は",
+      namePlaceholder: "氏名",
+      interest: "このコースに興味があります：",
+      courseOpt1: "高等微積分の基礎",
+      courseOpt2: "極限・微分・多変数関数",
+      courseOpt3: "経済学における数学モデル",
+      contactVia: "連絡先：",
+      phonePlaceholder: "電話番号",
+      or: "または",
+      emailPlaceholder: "メールアドレス",
+      btnSubmit: "カウンセリングを申し込む",
+      submitting: "送信中...",
+      successTitle: "登録が完了しました！",
+      successDesc: "情報を送信いただきありがとうございます。できるだけ早くカウンセリングのご連絡をいたします。",
+      btnRegisterAgain: "再登録する",
+      validationError: "氏名、電話番号、メールアドレスをすべて入力してください！",
+      failError: "送信に失敗しました。もう一度お試しください！",
+      serverError: "サーバー接続エラーが発生しました。もう一度お試しください！"
     }
   },
   zh: {
@@ -544,7 +1072,9 @@ export const translations = {
       login: "登录",
       welcome: "你好，",
       logout: "退出",
-      upload: "发布资料"
+      upload: "发布资料",
+      courses: "课程",
+      blog: "博客"
     },
     hero: {
       kicker: "UEH学生首选学习支持平台",
@@ -709,6 +1239,180 @@ export const translations = {
       pageSummary: "第 {current} / {total} 页",
       pagePrev: "上一页",
       pageNext: "下一页"
+    },
+    home: {
+      "heroKicker": "UEH TCC 学习中心",
+      "heroTitle": "UEH TCC",
+      "heroDesc": "提供明确的备考路线图、视频网课、PDF资料馆、模拟考场和学习指导博客。每个板块均有独立页面，助你快速找到所需内容。",
+      "btnEnroll": "注册免费试听",
+      "btnSearch": "查找学习资料",
+      "badgeChapter": "分章节学习",
+      "badgePdf": "PDF 备考资料",
+      "badgeExam": "互动式模拟考",
+      "watchVideo": "观看视频教程",
+      "stats": {
+            "questions": "练习题总量",
+            "exams": "精选模拟卷",
+            "docs": "PDF 资料数",
+            "goal": "冲刺目标分"
+      },
+      "quickStart": {
+            "kicker": "快速开始",
+            "title": "选择你需要的板块。",
+            "desc": "主页仅保留核心入口。详细内容请访问各个专用页面，以获得更清爽的使用体验。",
+            "courseTitle": "视频网课",
+            "courseDesc": "先试听首节样课，获取量身定制的学习方案，随后解锁各章节的详细解析视频。",
+            "courseBtn": "查看学习路径",
+            "examTitle": "模拟考场",
+            "examDesc": "在限定时间内答题并提交，交卷后可随时查看解析并分析薄弱环节。",
+            "examBtn": "开始模考",
+            "libTitle": "PDF 资料馆",
+            "libDesc": "汇集官方教材、课后练习、期中真题及高分学霸笔记，支持按需筛选下载。",
+            "libBtn": "进入资料馆"
+      },
+      "roadmap": {
+            "kicker": "学习路线图",
+            "title": "从零基础到模考提分。",
+            "desc": "学习路径根据真实备考环节设计：理解核心概念、进行题型专项训练，最后通过模考查漏补缺。",
+            "step1Title": "夯实基础",
+            "step1Desc": "矩阵、线性方程组、向量空间及核心公式汇总。",
+            "step2Title": "题型突破",
+            "step2Desc": "极限、导数、多元函数及常见经济模型应用题。",
+            "step3Title": "考前冲刺",
+            "step3Desc": "进入在线模拟考场，在实战时间压力下答题并纠错。"
+      },
+      "blogPreview": {
+            "kicker": "备考博客",
+            "title": "最新文章",
+            "viewAll": "查看全部文章",
+            "readPost": "阅读全文",
+            "readMore": "继续阅读"
+      }
+},
+    coursesPage: {
+      "kicker": "视频网课",
+      "title": "先试听，再报名。",
+      "desc": "留下您的联系方式，获取试听样课和量身定制的备考路线。系统网课视频将在正式报名后完整解锁。",
+      "btnConsult": "在线咨询",
+      "btnRoadmap": "查看路线图",
+      "sampleTitle": "试听样课",
+      "syllabus": [
+            "报名登记前可免费试听第一课",
+            "专属学生账号，实时记录学习进度",
+            "全套视频在正式解锁后可见",
+            "每章节均配有随堂资料和习题库"
+      ],
+      "catalogSubtitle": "课程大纲",
+      "catalogTitle": "根据备考目标选择课程",
+      "catalogDesc": "每门课程均有其独立的教学内容、时长和配套讲义。完整视频将在报名后开放。",
+      "lockedBadge": "需解锁",
+      "hasTrial": "支持样课试听",
+      "btnUnlock": "报名解锁课程",
+      "formSubtitle": "申请试听",
+      "formTitle": "获取路线规划咨询",
+      "formDesc": "请填写以下表单，以获取免费样课资源以及针对您考试目标的选课建议。",
+      "placeholderName": "您的姓名",
+      "placeholderContact": "手机号码或电子邮箱",
+      "goalTitle": "备考目标",
+      "goals": [
+            "期中备考冲刺",
+            "期末高分通关",
+            "零基础重温重修"
+      ],
+      "timeTitle": "期望上课时间",
+      "times": [
+            "周中晚上",
+            "周末双休",
+            "跟着网课自主安排"
+      ],
+      "placeholderNote": "您目前比较薄弱的板块是？",
+      "btnSubmit": "提交咨询申请",
+      "benefits": [
+            "免费试听首节样课",
+            "未报名用户无法查看未授权视频",
+            "根据备考目标推荐配套讲义与模拟题"
+      ],
+      "ctaSubtitle": "完成学习后",
+      "ctaTitle": "完成所有网课模块后，请前往模拟考场检测学习成效。",
+      "ctaBtn": "进入模拟考场",
+      "list": [
+            {
+                  "id": "foundation",
+                  "title": "高等数学基础精讲",
+                  "desc": "矩阵、线性方程组、向量空间及快速读题方法。",
+                  "level": "基础",
+                  "duration": "8小时",
+                  "lessons": "24课时"
+            },
+            {
+                  "id": "calculus",
+                  "title": "极限、导数与多元函数",
+                  "desc": "期中与期末高频考点透析，每节课后配有随堂小测。",
+                  "level": "核心",
+                  "duration": "10小时",
+                  "lessons": "31课时"
+            },
+            {
+                  "id": "economic-models",
+                  "title": "经济学中的数学模型",
+                  "desc": "函数应用、极值求法以及解答大题所需的经济学数学模型。",
+                  "level": "应用",
+                  "duration": "6小时",
+                  "lessons": "18课时"
+            }
+      ]
+},
+    examsPage: {
+      "kicker": "模拟考场",
+      "title": "在线模拟真实期末测试，随时复盘纠错。",
+      "desc": "模拟考板块现已与主页分离。期末试卷配有倒计时器，期中资料则可以像普通教材一样下载阅读。",
+      "statPractice": "套在线模拟卷",
+      "statMidterm": "期中名师真题",
+      "statTime": "分钟真实模考",
+      "finalSubtitle": "期末试卷",
+      "finalTitle": "在线互动考场",
+      "finalDesc": "任选一套试卷，在倒计时压力下作答，提交后即可查看错题分析及对错统计。",
+      "btnStart": "开始做题",
+      "midtermSubtitle": "期中资料",
+      "midtermTitle": "名师期中真题",
+      "midtermDesc": "提供名校名师的期中考试真题，包含教师标签、详细解答与自测卷。",
+      "btnViewSolution": "查看试题与解析"
+},
+    blogPage: {
+      "kicker": "UEH TCC 备考博客",
+      "title": "备考文章",
+      "desc": "高等数学备考指导专栏，涵盖教材选配、阶段性模拟题训练以及高分通关策略。",
+      "searchPlaceholder": "搜索文章、题型、资料...",
+      "emptyTitle": "未找到相关文章",
+      "emptyDesc": "请尝试使用其他关键词检索，或返回最新列表。",
+      "readPost": "阅读文章",
+      "readMore": "继续阅读",
+      "tocTitle": "文章目录",
+      "btnAll": "查看全部",
+      "authorLabel": "作者:",
+      "relatedTitle": "相关文章"
+    },
+    consultForm: {
+      title: "免费咨询登记",
+      subtitle: "通过填写表格或联系下方的邮箱/电话，量身定制您的全方位学习路线图",
+      greeting: "你好！我是",
+      namePlaceholder: "姓名",
+      interest: "想了解这门课程：",
+      courseOpt1: "高等微积分基础",
+      courseOpt2: "极限、导数与多元函数",
+      courseOpt3: "经济学中的数学模型",
+      contactVia: "联系我通过",
+      phonePlaceholder: "电话号码",
+      or: "或者",
+      emailPlaceholder: "电子邮箱",
+      btnSubmit: "提交咨询申请",
+      submitting: "发送中...",
+      successTitle: "登记成功！",
+      successDesc: "感谢您留下信息。我们将在第一时间与您联系并提供咨询服务。",
+      btnRegisterAgain: "重新登记",
+      validationError: "请填写完整的姓名、电话号码和电子邮箱！",
+      failError: "提交失败，请重试！",
+      serverError: "系统连接服务器出错，请重试！"
     }
   }
 };

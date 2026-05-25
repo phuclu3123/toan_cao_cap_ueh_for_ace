@@ -6,16 +6,16 @@
   overflow: hidden;
   border-radius: var(--radius-md);
   transition: var(--transition-normal);
-  background: rgba(18, 24, 36, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
 }
 
 .doc-card:hover {
-  transform: translateY(-6px);
-  border-color: rgba(64, 224, 208, 0.2);
-  background: rgba(18, 24, 36, 0.65);
-  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.3),
-              0 0 20px 0 rgba(64, 224, 208, 0.05);
+  transform: translateY(-4px);
+  border-color: rgba(15, 118, 110, 0.28);
+  background: var(--bg-secondary);
+  box-shadow: var(--shadow-lg);
 }
 
 /* Image Wrapper */
@@ -24,7 +24,7 @@
   width: 100%;
   padding-top: 56.25%; /* 16:9 Aspect Ratio */
   overflow: hidden;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--bg-tertiary);
 }
 
 .card-image {
@@ -46,16 +46,22 @@
   position: absolute;
   top: 14px;
   left: 14px;
-  background: rgba(10, 14, 23, 0.8);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(15, 118, 110, 0.15);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--accent-teal);
   color: var(--accent-teal);
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.72rem;
+  font-weight: 700;
   padding: 4px 10px;
   border-radius: var(--radius-full);
   z-index: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+:root:not(.light-theme) .card-category-tag {
+  background: rgba(45, 212, 191, 0.15);
 }
 
 /* Card Body */
@@ -108,7 +114,7 @@
 
 /* Card Footer */
 .card-footer {
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid var(--border-color);
   padding-top: 16px;
   display: flex;
   justify-content: flex-end;

@@ -206,6 +206,56 @@ const practiceExamsData = [
         ],
         "correct": "B",
         "explanation": "Đáp án theo phần lời giải trong MAIN K51: B."
+      },
+      {
+        "id": "k51-204-q9",
+        "section": "Trắc nghiệm",
+        "prompt": "Cho hàm sản lượng $Q(L, K) = 6 \\cdot L^{1/2} K^{1/4}$ với $L$ là lượng lao động, $K$ là lượng tiền vốn. Khi đó, sản lượng biên (biên tế riêng của sản lượng) theo vốn tại $L = 100, K = 10000$ là:",
+        "options": [
+          {
+            "id": "A",
+            "text": "$\\frac{1}{150}$"
+          },
+          {
+            "id": "B",
+            "text": "$6{,}8$"
+          },
+          {
+            "id": "C",
+            "text": "$0{,}25$"
+          },
+          {
+            "id": "D",
+            "text": "$\\frac{3}{200}$"
+          }
+        ],
+        "correct": "D",
+        "explanation": "Ta tính sản lượng biên theo vốn $Q'_K = \\frac{\\partial Q}{\\partial K} = \\frac{3}{2} L^{1/2} K^{-3/4}$. Tại $L = 100, K = 10000$, ta có: $Q'_K = \\frac{3}{2} \\cdot (100)^{1/2} \\cdot (10000)^{-3/4} = \\frac{3}{2} \\cdot 10 \\cdot 10^{-3} = \\frac{3}{200}$."
+      },
+      {
+        "id": "k51-204-q10",
+        "section": "Trắc nghiệm",
+        "prompt": "Cho hàm số $f(x, y)$ khả vi trên $\\mathbb{R}^2$. Biết $f(10, 5) = 1000$, $f'_x(10, 5) = 2$ và $f'_y(10, 5) = -3$. Sử dụng công thức xấp xỉ tuyến tính, tính gần đúng giá trị $f(10.1, 4.8)$.",
+        "options": [
+          {
+            "id": "A",
+            "text": "$1000{,}6$"
+          },
+          {
+            "id": "B",
+            "text": "$1000{,}1$"
+          },
+          {
+            "id": "C",
+            "text": "$1000{,}4$"
+          },
+          {
+            "id": "D",
+            "text": "$1000{,}8$"
+          }
+        ],
+        "correct": "D",
+        "explanation": "Ta chọn điểm gốc là $(x_0, y_0) = (10, 5)$ tương ứng với các giả thiết đề bài đã cho. Điểm cần tính xấp xỉ là $(x, y) = (10.1, 4.8)$. Từ đó, ta tính được số gia của các biến: $\\Delta x = x - x_0 = 10.1 - 10 = 0.1$ và $\\Delta y = y - y_0 = 4.8 - 5 = -0.2$. Áp dụng công thức xấp xỉ tuyến tính: $f(x, y) \\approx f(x_0, y_0) + f'_x(x_0, y_0)\\Delta x + f'_y(x_0, y_0)\\Delta y \\approx 1000 + 2 \\cdot (0.1) + (-3) \\cdot (-0.2) = 1000 + 0.2 + 0.6 = 1000.8$."
       }
     ]
   },

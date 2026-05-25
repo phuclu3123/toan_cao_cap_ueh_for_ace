@@ -166,9 +166,24 @@ export default function ExamDetail() {
     // A short timeout ensures that MathJax runs after React has committed the DOM changes
     const timer = setTimeout(() => {
       if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
-        window.MathJax.typesetPromise().catch((error) => {
-          console.warn('MathJax typesetting failed: ', error);
-        });
+        const container = document.querySelector('.exam-practice-page');
+        if (container) {
+          try {
+            window.MathJax.typesetClear([container]);
+            window.MathJax.typesetPromise([container]).catch((error) => {
+              console.warn('MathJax typesetting failed: ', error);
+            });
+          } catch (e) {
+            console.warn('MathJax clear or typeset failed, falling back: ', e);
+            window.MathJax.typesetPromise().catch((error) => {
+              console.warn('MathJax typesetting fallback failed: ', error);
+            });
+          }
+        } else {
+          window.MathJax.typesetPromise().catch((error) => {
+            console.warn('MathJax typesetting failed: ', error);
+          });
+        }
       }
     }, 60);
     return () => clearTimeout(timer);

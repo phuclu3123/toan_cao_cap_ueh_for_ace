@@ -1,56 +1,46 @@
-import React, { useState, useContext } from 'react';
-import { Mail, Phone, Send, CheckCircle, AlertCircle } from 'lucide-react';
-import '../assets/styles/Footer.css';
+import { useState, useContext } from 'react';
+import { Link } from 'react-router-dom';
+import { AlertCircle, CheckCircle, Mail, Phone, Send } from 'lucide-react';
 import { LanguageContext } from '../App';
 import { translations } from '../utils/translations';
+import '../assets/styles/Footer.css';
 
 export default function Footer() {
   const [email, setEmail] = useState('');
-  const [status, setStatus] = useState('idle'); // idle | loading | success | error
+  const [status, setStatus] = useState('idle');
   const [message, setMessage] = useState('');
 
   const { language } = useContext(LanguageContext);
   const t = translations[language];
 
-  const handleSubscribeSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubscribeSubmit = async (event) => {
+    event.preventDefault();
     if (!email) return;
 
     setStatus('loading');
     setMessage('');
 
     try {
-      const response = await fetch('http://localhost:3001/api/subscribe', {
+      const response = await fetch(`${API_BASE_URL}/api/subscribe`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
       });
-
       const data = await response.json();
+
       if (response.ok && data.success) {
         setStatus('success');
-        setMessage(data.message);
+        setMessage(data.message || (language === 'vi' ? 'Đã gửi đăng ký nhận bài viết mới.' : 'Successfully subscribed.'));
         setEmail('');
       } else {
         setStatus('error');
-        setMessage(data.message || 'Có lỗi xảy ra, vui lòng thử lại.');
+        setMessage(data.message || (language === 'vi' ? 'Không thể gửi đăng ký lúc này.' : 'Subscription failed.'));
       }
-    } catch (error) {
-      // Offline fallback success for demo
-      setTimeout(() => {
-        setStatus('success');
-        setMessage('Đăng ký nhận bài viết mới thành công! (Chế độ demo offline)');
-        setEmail('');
-      }, 1000);
-    }
-  };
-
-  const handleScrollToSection = (sectionId) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch {
+      setStatus('error');
+      setMessage(language === 'vi' 
+        ? 'Không thể gửi đăng ký lúc này. Vui lòng liên hệ Zalo 0833830322 hoặc email luphuc321@gmail.com.'
+        : 'Could not connect to server. Please try again later.');
     }
   };
 
@@ -58,65 +48,49 @@ export default function Footer() {
     <footer id="footer" className="footer">
       <div className="container footer-top">
         <div className="footer-grid">
-          {/* Info Area */}
           <div className="footer-about">
-            <a href="/" className="footer-logo" onClick={(e) => { e.preventDefault(); window.scrollTo(0, 0); }}>
+            <Link to="/" className="footer-logo">
               <span className="logo-helper">UEH</span> <span className="logo-main">TCC</span>
-            </a>
+            </Link>
             <p className="footer-desc">
               {t.footer.desc}
             </p>
             <div className="footer-contact">
-              <p className="contact-item">
+              <a className="contact-item" href="tel:0833830322">
                 <Phone size={15} />
-                <span>0815451095</span>
-              </p>
-              <p className="contact-item">
+                <span>0833830322</span>
+              </a>
+              <a className="contact-item" href="mailto:luphuc321@gmail.com">
                 <Mail size={15} />
                 <span>luphuc321@gmail.com</span>
-              </p>
+              </a>
             </div>
             <div className="social-links">
               <a href="https://www.facebook.com/Luphuc08092006/" target="_blank" rel="noopener noreferrer" className="social-icon" aria-label="Facebook">
                 <svg className="lucide-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+                  <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
                 </svg>
               </a>
-              <a href="#" className="social-icon" aria-label="Instagram">
-                <svg className="lucide-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
-                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-                  <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
-                </svg>
-              </a>
-              <a href="#" className="social-icon" aria-label="Linkedin">
-                <svg className="lucide-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
-                  <rect width="4" height="12" x="2" y="9"/>
-                  <circle cx="4" cy="4" r="2"/>
-                </svg>
+              <a href="https://zalo.me/0833830322" target="_blank" rel="noopener noreferrer" className="social-icon" aria-label="Zalo">
+                Z
               </a>
             </div>
           </div>
 
-          {/* Quick Links */}
           <div className="footer-links">
-            <h4>{t.nav.library}</h4>
+            <h4>{language === 'vi' ? 'Điều hướng' : (language === 'en' ? 'Navigation' : (language === 'ja' ? 'ナビゲーション' : '导航'))}</h4>
             <ul>
-              <li><button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>{t.nav.home}</button></li>
-              <li><button onClick={() => handleScrollToSection('about')}>{t.nav.about}</button></li>
-              <li><button onClick={() => handleScrollToSection('exams')}>{t.nav.exams}</button></li>
-              <li><button onClick={() => handleScrollToSection('midterm')}>{t.nav.midterm}</button></li>
-              <li><button onClick={() => handleScrollToSection('docs')}>{t.nav.library}</button></li>
+              <li><Link to="/">{t.nav.home}</Link></li>
+              <li><Link to="/courses">{t.nav.courses}</Link></li>
+              <li><Link to="/resources?category=all">{t.nav.library}</Link></li>
+              <li><Link to="/exams">{t.nav.exams}</Link></li>
+              <li><Link to="/blog">{t.nav.blog}</Link></li>
             </ul>
           </div>
 
-          {/* Donations */}
           <div className="footer-links">
             <h4>{t.footer.donateTitle}</h4>
-            <p className="donate-desc">
-              {t.footer.donateDesc}
-            </p>
+            <p className="donate-desc">{t.footer.donateDesc}</p>
             <ul className="donate-list">
               <li className="donate-item">
                 <span className="bank-name">MB-BANK:</span>
@@ -126,22 +100,20 @@ export default function Footer() {
                 <span className="bank-name">Sacombank:</span>
                 <span className="bank-number">070128368343</span>
               </li>
-              <li className="bank-owner">{t.footer.bankOwner}</li>
+              <li className="bank-owner">{language === 'vi' ? 'Lữ Phúc' : 'Lu Phuc'}</li>
             </ul>
           </div>
 
-          {/* Newsletter subscription form */}
           <div className="footer-newsletter">
             <h4>{t.footer.subscribeTitle}</h4>
             <p className="newsletter-desc">{t.footer.subscribeDesc}</p>
-            
             <form onSubmit={handleSubscribeSubmit} className="newsletter-form">
               <div className="input-group">
-                <input 
-                  type="email" 
-                  placeholder={t.footer.subscribePlaceholder} 
+                <input
+                  type="email"
+                  placeholder={t.footer.subscribePlaceholder}
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(event) => setEmail(event.target.value)}
                   disabled={status === 'loading'}
                   required
                 />
@@ -151,15 +123,13 @@ export default function Footer() {
               </div>
             </form>
 
-            {status === 'loading' && <div className="status-msg loading">Đang đăng ký nhận tin...</div>}
-            
+            {status === 'loading' && <div className="status-msg loading">{language === 'vi' ? 'Đang gửi...' : 'Sending...'}</div>}
             {status === 'success' && (
               <div className="status-msg success">
                 <CheckCircle size={15} />
                 <span>{message}</span>
               </div>
             )}
-            
             {status === 'error' && (
               <div className="status-msg error">
                 <AlertCircle size={15} />
@@ -173,10 +143,10 @@ export default function Footer() {
       <div className="footer-bottom">
         <div className="container footer-bottom-content">
           <p className="copyright">
-            © <span>{new Date().getFullYear()}</span> <strong className="logo-main">UEH TCC</strong> - {t.footer.copyright}
+            © <span>{new Date().getFullYear()}</span> <strong className="logo-main">UEH TCC</strong>. {language === 'vi' ? 'Hỗ Trợ Học Tập Toán Cao Cấp.' : 'Advanced Calculus Learning Support.'}
           </p>
           <div className="credits">
-            {t.footer.credits} <a href="https://www.facebook.com/Luphuc08092006/" target="_blank" rel="noopener noreferrer" className="author-link">Lữ Phúc</a>
+            {t.footer.credits} <a href="https://www.facebook.com/Luphuc08092006/" target="_blank" rel="noopener noreferrer" className="author-link">{language === 'vi' ? 'Lữ Phúc' : 'Lu Phuc'}</a>
           </div>
         </div>
       </div>

@@ -2,10 +2,15 @@ import React, { createContext, useContext, useState, useEffect, lazy, Suspense }
 import { createHashRouter, RouterProvider, Outlet, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import FloatingActions from './components/FloatingActions';
 import Home from './pages/Home';
 import DocDetail from './pages/DocDetail';
 import GiftPage from './pages/GiftPage';
 import ResourcesPage from './pages/ResourcesPage';
+import CoursesPage from './pages/CoursesPage';
+import ExamsPage from './pages/ExamsPage';
+import BlogPage from './pages/BlogPage';
+import BlogDetailPage from './pages/BlogDetailPage';
 import './App.css';
 
 // Create Global Contexts
@@ -45,6 +50,7 @@ function Layout() {
       <main className="main-content">
         <Outlet />
       </main>
+      {showHeaderFooter && <FloatingActions />}
       {showHeaderFooter && <Footer />}
     </div>
   );
@@ -58,6 +64,22 @@ const router = createHashRouter([
       {
         path: '',
         element: <Home />
+      },
+      {
+        path: 'courses',
+        element: <CoursesPage />
+      },
+      {
+        path: 'exams',
+        element: <ExamsPage />
+      },
+      {
+        path: 'blog',
+        element: <BlogPage />
+      },
+      {
+        path: 'blog/:slug',
+        element: <BlogDetailPage />
       },
       {
         path: 'resources',
@@ -85,7 +107,7 @@ const router = createHashRouter([
 
 export function AppProviders({ children }) {
   const [language, setLanguage] = useState(() => localStorage.getItem('ueh_tcc_lang') || 'vi');
-  const [theme, setTheme] = useState(() => localStorage.getItem('ueh_tcc_theme') || 'dark');
+  const [theme, setTheme] = useState(() => localStorage.getItem('ueh_tcc_theme') || 'light');
 
   useEffect(() => {
     localStorage.setItem('ueh_tcc_lang', language);

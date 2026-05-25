@@ -1,0 +1,127 @@
+.floating-actions {
+  position: fixed;
+  right: 18px;
+  bottom: 22px;
+  z-index: 900;
+  display: grid;
+  gap: 10px;
+}
+
+.floating-action {
+  width: 46px;
+  height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-lg);
+  font-size: 0.76rem;
+  font-weight: 900;
+}
+
+.floating-action:hover {
+  transform: translateY(-2px);
+}
+
+.floating-action.zalo {
+  background: #0068ff;
+  color: #ffffff;
+}
+
+.floating-action.messenger {
+  background: linear-gradient(135deg, #00b2ff, #7b2cff);
+  color: #ffffff;
+}
+
+.floating-action.telegram {
+  background: var(--accent-teal);
+  color: #ffffff;
+}
+
+.floating-action.back-top {
+  background: var(--text-primary);
+  color: var(--bg-secondary);
+}
+
+.consultation-ribbon {
+  position: fixed;
+  right: 0;
+  top: 50%;
+  z-index: 899;
+  transform: translateY(-50%);
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  padding: 16px 10px;
+  border-radius: 10px 0 0 10px;
+  background: #e54843;
+  color: #ffffff;
+  box-shadow: var(--shadow-lg);
+  font-size: 0.9rem;
+  font-weight: 900;
+  letter-spacing: 0;
+  /* Button overrides */
+  border: none;
+  cursor: pointer;
+  outline: none;
+  text-align: center;
+  font-family: inherit;
+}
+
+.consultation-ribbon:hover {
+  background: #d93b36;
+  color: #ffffff;
+}
+
+/* Consultation Modal Overlay and content wrapper */
+.consultation-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(17, 24, 39, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 20px;
+  box-sizing: border-box;
+  animation: modalFadeIn 0.25s ease-out;
+}
+
+.consultation-modal-content {
+  width: 100%;
+  max-width: 800px;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  animation: modalScaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow: hidden;
+  position: relative;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalScaleIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@media (max-width: 768px) {
+  .floating-actions {
+    right: 12px;
+    bottom: 14px;
+  }
+
+  .consultation-ribbon {
+    display: none;
+  }
+}

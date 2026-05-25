@@ -11,21 +11,24 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-    <!-- MathJax for rendering LaTeX formulas -->
+    <!-- MathJax for rendering LaTeX formulas (SVG mode for beautiful layout, no font-loading issues) -->
     <script>
       window.MathJax = {
         tex: {
-          inlineMath: [['\\(', '\\)'], ['$', '$']],
-          displayMath: [['\\[', '\\]'], ['$$', '$$']]
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']]
         },
         svg: {
           fontCache: 'global'
+        },
+        options: {
+          enableMenu: false
         }
       };
     </script>
-    <script id="MathJax-script" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
+    <script id="MathJax-script" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
   </head>
   <body>
     <div id="root"></div>
