@@ -37,8 +37,138 @@
       "category": "latest",
       "categoryLabel": "Tài liệu mới nhất",
       "image": "tccvang.jpg",
-      "pdf": "tccvang.pdf",
+      "pdf": "SLIDE_LXT/lecture01.pdf",
       "desc": "Hệ thống slide tóm tắt bài giảng lý thuyết Toán Cao Cấp của thầy Lê Xuân Trường, trình bày súc tích, dễ nhớ, tập trung vào trọng tâm kiến thức thi cử."
+    },
+    {
+      "id": "chuong-moi-tcc",
+      "title": "Chương Mới Toán Cao Cấp",
+      "date": "29/05/2026",
+      "category": "latest",
+      "categoryLabel": "Tài liệu mới nhất",
+      "image": "bg.jpg",
+      "pdf": "Chương_mới_tcc.pdf",
+      "desc": "Tài liệu chương mới Toán Cao Cấp, bổ sung nội dung ôn tập và hệ thống kiến thức mới cho sinh viên UEH."
+    },
+    {
+      "id": "gk-le-xuan-truong",
+      "title": "Tài Liệu Giữa Kỳ - Thầy Lê Xuân Trường",
+      "date": "29/05/2026",
+      "category": "support",
+      "categoryLabel": "Tài liệu giữa kỳ",
+      "image": "tccvang.jpg",
+      "pdf": "GK/Le_Xuan_Truong.pdf",
+      "desc": "Tài liệu ôn tập giữa kỳ của thầy Lê Xuân Trường, phù hợp để luyện nhanh các dạng bài trọng tâm trước kiểm tra."
+    },
+    {
+      "id": "gk-phan-ngo-tuan-anh",
+      "title": "Tài Liệu Giữa Kỳ - Thầy Phan Ngô Tuấn Anh",
+      "date": "29/05/2026",
+      "category": "support",
+      "categoryLabel": "Tài liệu giữa kỳ",
+      "image": "pnta.jpg",
+      "pdf": "GK/Phan_Ngo_Tuan_Anh.docx",
+      "desc": "Tài liệu giữa kỳ của thầy Phan Ngô Tuấn Anh ở định dạng DOCX, dùng để tải về và mở bằng trình soạn thảo văn bản."
+    },
+    {
+      "id": "lxt-cong-thuc-bien-doi",
+      "title": "Slide Lê Xuân Trường - Công Thức Biến Đổi Và Tích Phân Từng Phần",
+      "date": "29/05/2026",
+      "category": "support",
+      "categoryLabel": "Slide Lê Xuân Trường",
+      "image": "tccvang.jpg",
+      "pdf": "SLIDE_LXT/công thức biến đổi, tích phân từng phần.pdf",
+      "desc": "Slide tổng hợp công thức biến đổi và tích phân từng phần của thầy Lê Xuân Trường, hỗ trợ ôn nhanh phần giải tích."
+    },
+    {
+      "id": "lxt-lecture-01",
+      "title": "Slide Lê Xuân Trường - Lecture 01",
+      "date": "29/05/2026",
+      "category": "support",
+      "categoryLabel": "Slide Lê Xuân Trường",
+      "image": "tccvang.jpg",
+      "pdf": "SLIDE_LXT/lecture01.pdf",
+      "desc": "Bài giảng Lecture 01 trong bộ slide Toán Cao Cấp của thầy Lê Xuân Trường."
+    },
+    {
+      "id": "lxt-lecture-02",
+      "title": "Slide Lê Xuân Trường - Lecture 02",
+      "date": "29/05/2026",
+      "category": "support",
+      "categoryLabel": "Slide Lê Xuân Trường",
+      "image": "tccvang.jpg",
+      "pdf": "SLIDE_LXT/lecture02.pdf",
+      "desc": "Bài giảng Lecture 02 trong bộ slide Toán Cao Cấp của thầy Lê Xuân Trường."
+    },
+    {
+      "id": "lxt-lecture-03",
+      "title": "Slide Lê Xuân Trường - Lecture 03",
+      "date": "29/05/2026",
+      "category": "support",
+      "categoryLabel": "Slide Lê Xuân Trường",
+      "image": "tccvang.jpg",
+      "pdf": "SLIDE_LXT/lecture03.pdf",
+      "desc": "Bài giảng Lecture 03 trong bộ slide Toán Cao Cấp của thầy Lê Xuân Trường."
+    },
+    {
+      "id": "lxt-lecture-04",
+      "title": "Slide Lê Xuân Trường - Lecture 04",
+      "date": "29/05/2026",
+      "category": "support",
+      "categoryLabel": "Slide Lê Xuân Trường",
+      "image": "tccvang.jpg",
+      "pdf": "SLIDE_LXT/lecture04.pdf",
+      "desc": "Bài giảng Lecture 04 trong bộ slide Toán Cao Cấp của thầy Lê Xuân Trường."
+    },
+    {
+      "id": "lxt-lecture-05",
+      "title": "Slide Lê Xuân Trường - Lecture 05",
+      "date": "29/05/2026",
+      "category": "support",
+      "categoryLabel": "Slide Lê Xuân Trường",
+      "image": "tccvang.jpg",
+      "pdf": "SLIDE_LXT/lecture05.pdf",
+      "desc": "Bài giảng Lecture 05 trong bộ slide Toán Cao Cấp của thầy Lê Xuân Trường."
+    },
+    {
+      "id": "lxt-lecture-06",
+      "title": "Slide Lê Xuân Trường - Lecture 06",
+      "date": "29/05/2026",
+      "category": "support",
+      "categoryLabel": "Slide Lê Xuân Trường",
+      "image": "tccvang.jpg",
+      "pdf": "SLIDE_LXT/lecture06.pdf",
+      "desc": "Bài giảng Lecture 06 trong bộ slide Toán Cao Cấp của thầy Lê Xuân Trường."
+    },
+    {
+      "id": "lxt-lecture-07",
+      "title": "Slide Lê Xuân Trường - Lecture 07",
+      "date": "29/05/2026",
+      "category": "support",
+      "categoryLabel": "Slide Lê Xuân Trường",
+      "image": "tccvang.jpg",
+      "pdf": "SLIDE_LXT/lecture07.pdf",
+      "desc": "Bài giảng Lecture 07 trong bộ slide Toán Cao Cấp của thầy Lê Xuân Trường."
+    },
+    {
+      "id": "lxt-lecture-08",
+      "title": "Slide Lê Xuân Trường - Lecture 08",
+      "date": "29/05/2026",
+      "category": "support",
+      "categoryLabel": "Slide Lê Xuân Trường",
+      "image": "tccvang.jpg",
+      "pdf": "SLIDE_LXT/lecture08.pdf",
+      "desc": "Bài giảng Lecture 08 trong bộ slide Toán Cao Cấp của thầy Lê Xuân Trường."
+    },
+    {
+      "id": "lxt-lecture-09",
+      "title": "Slide Lê Xuân Trường - Lecture 09",
+      "date": "29/05/2026",
+      "category": "support",
+      "categoryLabel": "Slide Lê Xuân Trường",
+      "image": "tccvang.jpg",
+      "pdf": "SLIDE_LXT/slides-lec9[Vie].pdf",
+      "desc": "Bài giảng Lecture 09 bản tiếng Việt trong bộ slide Toán Cao Cấp của thầy Lê Xuân Trường."
     },
     {
       "id": "ap3",

@@ -318,8 +318,16 @@ const runAutoMigration = async () => {
           }
         });
 
-        if (seedItem.type === 'finalExams') {
+        if (seedItem.type === 'documentsData' || seedItem.type === 'finalExams') {
           ['title', 'date', 'desc', 'hasDetailRoute'].forEach(field => {
+            if (seedItem[field] !== undefined && existing[field] !== seedItem[field]) {
+              metadataUpdates[field] = seedItem[field];
+            }
+          });
+        }
+
+        if (seedItem.type === 'documentsData') {
+          ['category', 'categoryLabel', 'image', 'pdf', 'externalUrl'].forEach(field => {
             if (seedItem[field] !== undefined && existing[field] !== seedItem[field]) {
               metadataUpdates[field] = seedItem[field];
             }

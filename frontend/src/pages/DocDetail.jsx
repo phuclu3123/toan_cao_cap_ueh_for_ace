@@ -85,6 +85,8 @@ export default function DocDetail() {
   }
 
   const pdfUrl = `/docs/${doc.pdf}`;
+  const fileExtension = (doc.pdf || '').split('.').pop()?.toUpperCase() || 'PDF';
+  const isPdf = fileExtension === 'PDF';
   const coverImage = doc.image ? `/images/${doc.image}` : '/images/tccvang.jpg';
   const displayDate = formatResourceDate(doc, '09/08/2025');
 
@@ -110,7 +112,7 @@ export default function DocDetail() {
             </div>
             <div className="meta-item">
               <FileText size={14} />
-              <span>{t.docDetail.metaFormat} PDF</span>
+              <span>{t.docDetail.metaFormat} {fileExtension}</span>
             </div>
           </div>
         </div>
@@ -122,7 +124,19 @@ export default function DocDetail() {
             
             {/* LEFT AREA: PDF Viewer / Mobile Preview */}
             <div className="doc-main-content">
-              {isMobile ? (
+              {!isPdf ? (
+                <div className="mobile-pdf-preview glass-panel">
+                  <div className="preview-header">
+                    <FileText className="text-teal" size={24} />
+                    <h3>{doc.title}</h3>
+                    <p>{doc.desc}</p>
+                  </div>
+                  <a href={pdfUrl} target="_blank" rel="noopener noreferrer" className="btn btn-primary w-full">
+                    <Download size={16} />
+                    <span>{t.docDetail.mobileBtn}</span>
+                  </a>
+                </div>
+              ) : isMobile ? (
                 /* Mobile optimized layout (No heavy iframe) */
                 <div className="mobile-pdf-preview glass-panel">
                   <div className="preview-header">
