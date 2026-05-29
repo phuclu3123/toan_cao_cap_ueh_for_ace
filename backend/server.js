@@ -1150,7 +1150,21 @@ app.post('/api/payos/create-payment', async (req, res) => {
 });
 
 // Các endpoint redirect trang kết quả giao dịch
-app.get('/payment/success', (req, res) => {
+app.get('/payment/success', async (req, res) => {
+  const orderCode = Number(req.query.orderCode);
+  if (Number.isFinite(orderCode)) {
+    try {
+      if (isMongoDBConnected) {
+        await Payment.updateOne({ orderCode }, { $set: { status: 'PAID' } });
+      } else {
+        saveLocalPaymentFromWebhook({}, { orderCode, status: 'PAID' });
+      }
+      console.log(`Cập nhật trạng thái PAID cho đơn hàng ${orderCode} qua link redirect`);
+    } catch (err) {
+      console.error('Lỗi cập nhật status khi redirect success:', err);
+    }
+  }
+
   res.send(`
     <html>
       <head>
@@ -1178,7 +1192,21 @@ app.get('/payment/success', (req, res) => {
   `);
 });
 
-app.get('/payment/cancel', (req, res) => {
+app.get('/payment/cancel', async (req, res) => {
+  const orderCode = Number(req.query.orderCode);
+  if (Number.isFinite(orderCode)) {
+    try {
+      if (isMongoDBConnected) {
+        await Payment.updateOne({ orderCode }, { $set: { status: 'CANCELLED' } });
+      } else {
+        saveLocalPaymentFromWebhook({}, { orderCode, status: 'CANCELLED' });
+      }
+      console.log(`Cập nhật trạng thái CANCELLED cho đơn hàng ${orderCode} qua link redirect`);
+    } catch (err) {
+      console.error('Lỗi cập nhật status khi redirect cancel:', err);
+    }
+  }
+
   res.send(`
     <html>
       <head>
@@ -1315,21 +1343,57 @@ app.get(['/api/payments/:orderCode', '/api/payos/payments/:orderCode'], async (r
   }
 
   try {
+    let payment = null;
     if (isMongoDBConnected) {
-      const payment = await Payment.findOne({ orderCode })
+      payment = await Payment.findOne({ orderCode })
         .select('-_id orderCode amount description status paymentLinkId checkoutUrl qrCode reference paidAt createdAt updatedAt')
         .lean();
-      if (!payment) {
-        return res.status(404).json({ success: false, message: 'Payment not found' });
-      }
-
-      return res.json(normalizePaymentResponse(payment));
+    } else {
+      const payments = readJSONFile(paymentsFilePath, []);
+      payment = payments.find(item => Number(item.orderCode) === orderCode);
     }
 
-    const payments = readJSONFile(paymentsFilePath, []);
-    const payment = payments.find(item => Number(item.orderCode) === orderCode);
     if (!payment) {
       return res.status(404).json({ success: false, message: 'Payment not found' });
+    }
+
+    // Nếu trạng thái trong database là PENDING, gọi trực tiếp API PayOS để đối soát chính xác thời gian thực
+    if (payment.status === 'PENDING') {
+      const clientId = process.env.PAYOS_CLIENT_ID;
+      const apiKey = process.env.PAYOS_API_KEY;
+      if (clientId && apiKey) {
+        try {
+          const response = await fetch(`https://api-merchant.payos.vn/v2/payment-requests/${orderCode}`, {
+            headers: {
+              'x-client-id': clientId,
+              'x-api-key': apiKey
+            }
+          });
+          const result = await response.json();
+          if (response.ok && result.code === '00' && result.data) {
+            const payosStatus = result.data.status;
+            if (payosStatus && payosStatus !== payment.status) {
+              payment.status = payosStatus;
+              
+              const paymentUpdate = {
+                orderCode,
+                status: payosStatus,
+                amount: result.data.amount,
+                reference: result.data.transactions?.[0]?.reference || null,
+                paidAt: result.data.transactions?.[0]?.transactionDateTime || null
+              };
+
+              if (isMongoDBConnected) {
+                await Payment.updateOne({ orderCode }, { $set: { status: payosStatus } });
+              } else {
+                saveLocalPaymentFromWebhook({}, paymentUpdate);
+              }
+            }
+          }
+        } catch (apiErr) {
+          console.warn('Lỗi khi đối soát trực tiếp trạng thái với PayOS:', apiErr.message);
+        }
+      }
     }
 
     return res.json(normalizePaymentResponse(payment));
