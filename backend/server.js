@@ -1070,6 +1070,142 @@ app.get('/api/payos/webhook', (req, res) => {
   });
 });
 
+// Endpoint to create a payment request via backend (for production WinForms app)
+app.post('/api/payos/create-payment', async (req, res) => {
+  const { orderCode, amount, description, buyerName } = req.body;
+
+  if (!orderCode || !amount || !description) {
+    return res.status(400).json({ success: false, message: 'Thiếu thông tin đơn hàng bắt buộc: orderCode, amount, description' });
+  }
+
+  const clientId = process.env.PAYOS_CLIENT_ID;
+  const apiKey = process.env.PAYOS_API_KEY;
+  const checksumKey = process.env.PAYOS_CHECKSUM_KEY;
+
+  if (!clientId || !apiKey || !checksumKey) {
+    return res.status(500).json({ success: false, message: 'Hệ thống chưa cấu hình đầy đủ khoá PayOS (clientId, apiKey, checksumKey)!' });
+  }
+
+  // Lấy domain của backend đang chạy (tự động xử lý cả local và production)
+  const protocol = req.secure || req.headers['x-forwarded-proto'] === 'https' ? 'https' : 'http';
+  const host = req.get('host');
+  const returnUrl = `${protocol}://${host}/payment/success`;
+  const cancelUrl = `${protocol}://${host}/payment/cancel`;
+
+  const payload = {
+    orderCode: Number(orderCode),
+    amount: Number(amount),
+    description,
+    cancelUrl,
+    returnUrl
+  };
+
+  const signature = createPayOSSignature(payload, checksumKey);
+  payload.signature = signature;
+  payload.buyerName = buyerName || '';
+
+  try {
+    const response = await fetch('https://api-merchant.payos.vn/v2/payment-requests', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-client-id': clientId,
+        'x-api-key': apiKey
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const result = await response.json();
+
+    if (response.ok && result.code === '00') {
+      const paymentData = {
+        orderCode: Number(orderCode),
+        amount: Number(amount),
+        description,
+        status: 'PENDING',
+        paymentLinkId: result.data.paymentLinkId,
+        checkoutUrl: result.data.checkoutUrl,
+        qrCode: result.data.qrCode
+      };
+
+      if (isMongoDBConnected) {
+        await Payment.findOneAndUpdate(
+          { orderCode: Number(orderCode) },
+          { 
+            $set: paymentData,
+            $setOnInsert: { reference: null, paidAt: null }
+          },
+          { upsert: true, new: true }
+        );
+      } else {
+        saveLocalPaymentFromWebhook({}, paymentData);
+      }
+    }
+
+    return res.status(response.status).json(result);
+  } catch (error) {
+    console.error('Lỗi khi gọi API tạo thanh toán PayOS:', error);
+    return res.status(502).json({ success: false, message: 'Không thể kết nối đến máy chủ PayOS để tạo link thanh toán!' });
+  }
+});
+
+// Các endpoint redirect trang kết quả giao dịch
+app.get('/payment/success', (req, res) => {
+  res.send(`
+    <html>
+      <head>
+        <title>Thanh toán thành công</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; text-align: center; padding: 50px; background-color: #f8fafc; color: #334155; }
+          .card { max-width: 440px; margin: 0 auto; background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05); border-top: 6px solid #0d9488; }
+          h1 { color: #0d9488; margin-top: 15px; margin-bottom: 10px; font-size: 24px; font-weight: 700; }
+          p { color: #64748b; font-size: 15px; line-height: 1.6; margin-bottom: 30px; }
+          .btn { display: inline-block; padding: 12px 24px; color: white; background-color: #0d9488; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 15px; transition: background-color 0.2s; }
+          .btn:hover { background-color: #0f766e; }
+        </style>
+      </head>
+      <body>
+        <div class="card">
+          <div style="font-size: 56px; line-height: 1;">✅</div>
+          <h1>Thanh Toán Thành Công!</h1>
+          <p>Cảm ơn bạn đã hoàn tất thanh toán. Hệ thống đã ghi nhận giao dịch của bạn qua Webhook thành công.</p>
+          <a href="#" class="btn" onclick="window.close(); return false;">Đóng Cửa Sổ</a>
+        </div>
+      </body>
+    </html>
+  `);
+});
+
+app.get('/payment/cancel', (req, res) => {
+  res.send(`
+    <html>
+      <head>
+        <title>Hủy thanh toán</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; text-align: center; padding: 50px; background-color: #f8fafc; color: #334155; }
+          .card { max-width: 440px; margin: 0 auto; background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05); border-top: 6px solid #ef4444; }
+          h1 { color: #ef4444; margin-top: 15px; margin-bottom: 10px; font-size: 24px; font-weight: 700; }
+          p { color: #64748b; font-size: 15px; line-height: 1.6; margin-bottom: 30px; }
+          .btn { display: inline-block; padding: 12px 24px; color: white; background-color: #64748b; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 15px; transition: background-color 0.2s; }
+          .btn:hover { background-color: #475569; }
+        </style>
+      </head>
+      <body>
+        <div class="card">
+          <div style="font-size: 56px; line-height: 1;">❌</div>
+          <h1>Giao Dịch Đã Hủy</h1>
+          <p>Yêu cầu thanh toán này đã bị hủy. Bạn có thể đóng trình duyệt này và quay lại ứng dụng để thực hiện lại.</p>
+          <a href="#" class="btn" onclick="window.close(); return false;">Đóng Cửa Sổ</a>
+        </div>
+      </body>
+    </html>
+  `);
+});
+
 app.post('/api/payos/webhook', async (req, res) => {
   const body = req.body;
 
@@ -1171,7 +1307,7 @@ app.post('/api/payos/confirm-webhook', async (req, res) => {
 });
 
 // 11. Payment status lookup for future clients
-app.get('/api/payments/:orderCode', async (req, res) => {
+app.get(['/api/payments/:orderCode', '/api/payos/payments/:orderCode'], async (req, res) => {
   const orderCode = Number(req.params.orderCode);
 
   if (!Number.isFinite(orderCode)) {
