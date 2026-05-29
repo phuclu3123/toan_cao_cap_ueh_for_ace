@@ -1396,7 +1396,11 @@ app.get(['/api/payments/:orderCode', '/api/payos/payments/:orderCode'], async (r
       }
     }
 
-    return res.json(normalizePaymentResponse(payment));
+    return res.json({
+      code: "00",
+      desc: "success",
+      data: normalizePaymentResponse(payment)
+    });
   } catch (error) {
     console.error('Payment lookup error:', error);
     return res.status(500).json({ success: false, message: 'Could not load payment status' });
