@@ -139,6 +139,21 @@
   background: var(--accent-rose);
 }
 
+.api-nav-link {
+  color: #2563eb !important;
+}
+
+.api-nav-link:hover,
+.api-nav-link.active {
+  color: #2563eb !important;
+  background: rgba(37, 99, 235, 0.08) !important;
+}
+
+.api-mobile-link {
+  color: #2563eb;
+  font-weight: 800;
+}
+
 /* Actions */
 .auth-action {
   display: flex;
@@ -872,6 +887,23 @@
 
   .mobile-toggle {
     display: block;
+  }
+}
+
+@media (min-width: 1025px) and (max-width: 1220px) {
+  .nav-link-item {
+    padding: 8px 7px;
+    font-size: 0.82rem;
+  }
+
+  .nav-controls {
+    gap: 8px;
+    margin-left: 8px;
+    padding-left: 10px;
+  }
+
+  .btn-login-nav {
+    padding: 8px 14px !important;
   }
 }
 

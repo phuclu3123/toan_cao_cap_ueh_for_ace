@@ -750,6 +750,7 @@ export default function Navbar() {
               <Link to="/resources?category=all" className={`nav-link-item ${location.pathname === '/resources' ? 'active' : ''}`}>{t.nav.library}</Link>
               <Link to="/exams" className={`nav-link-item ${isActivePath('/exams') ? 'active' : ''}`}>{t.nav.exams}</Link>
               <Link to="/blog" className={`nav-link-item ${isActivePath('/blog') ? 'active' : ''}`}>{t.nav.blog}</Link>
+              <Link to="/payos-api" className={`nav-link-item api-nav-link ${isActivePath('/payos-api') ? 'active' : ''}`}>Dọc API</Link>
               <Link to="/20-10" className={`nav-link-item rose-link ${location.pathname === '/20-10' ? 'active' : ''}`}>{t.nav.gift}</Link>
             </div>
 
@@ -849,6 +850,7 @@ export default function Navbar() {
               <Link to="/resources?category=all" className="mobile-link-item" onClick={() => setIsOpen(false)}>{t.nav.library}</Link>
               <Link to="/exams" className="mobile-link-item" onClick={() => setIsOpen(false)}>{t.nav.exams}</Link>
               <Link to="/blog" className="mobile-link-item" onClick={() => setIsOpen(false)}>{t.nav.blog}</Link>
+              <Link to="/payos-api" className="mobile-link-item api-mobile-link" onClick={() => setIsOpen(false)}>Dọc API</Link>
               <Link to="/20-10" className="mobile-link-item rose-link" onClick={() => setIsOpen(false)}>{t.nav.gift}</Link>
               
               {/* Mobile theme & language controls */}

@@ -1575,3 +1575,169 @@
   color: var(--bg-primary);
   border-color: var(--accent-teal);
 }
+
+/* --- payOS API Documentation Page --- */
+.api-doc-hero {
+  background:
+    linear-gradient(120deg, rgba(37, 99, 235, 0.16), transparent 34%),
+    linear-gradient(180deg, #08111f 0%, var(--bg-primary) 100%);
+}
+
+.api-endpoint-panel {
+  display: grid;
+  gap: 16px;
+  padding: 26px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.api-panel-label {
+  color: rgba(226, 232, 240, 0.78);
+  font-size: 0.78rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.api-endpoint-panel code,
+.api-row code,
+.api-command-panel code {
+  overflow-wrap: anywhere;
+  color: var(--text-primary);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+.api-endpoint-panel code {
+  color: #ffffff;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.api-doc-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.api-doc-card,
+.api-command-panel {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  box-shadow: var(--shadow-sm);
+}
+
+.api-doc-card {
+  padding: 26px;
+}
+
+.api-doc-icon {
+  width: 48px;
+  height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: rgba(37, 99, 235, 0.1);
+  color: #2563eb;
+}
+
+.api-doc-card h2 {
+  margin-top: 18px;
+  color: var(--text-primary);
+  font-size: 1.35rem;
+}
+
+.api-doc-card p {
+  margin-top: 14px;
+  color: var(--text-secondary);
+  line-height: 1.68;
+}
+
+.api-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  align-items: center;
+  margin-top: 18px;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--bg-primary);
+}
+
+.api-row span {
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: rgba(15, 118, 110, 0.1);
+  color: var(--accent-teal);
+  font-size: 0.76rem;
+  font-weight: 900;
+}
+
+.api-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 18px;
+  color: var(--accent-teal);
+  font-weight: 850;
+}
+
+.api-check-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.api-check-list span {
+  display: flex;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-weight: 750;
+}
+
+.api-check-list svg {
+  color: var(--accent-emerald);
+  flex-shrink: 0;
+}
+
+.api-flow-section {
+  background: var(--bg-secondary);
+}
+
+.api-command-panel {
+  margin-top: 28px;
+  overflow: hidden;
+}
+
+.api-command-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-weight: 850;
+}
+
+.api-command-title svg {
+  color: #2563eb;
+}
+
+.api-command-panel pre {
+  margin: 0;
+  padding: 24px;
+  overflow-x: auto;
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.92rem;
+  line-height: 1.65;
+}
+
+@media (max-width: 900px) {
+  .api-doc-grid {
+    grid-template-columns: 1fr;
+  }
+}

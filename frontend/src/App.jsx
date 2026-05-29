@@ -11,6 +11,7 @@ import CoursesPage from './pages/CoursesPage';
 import ExamsPage from './pages/ExamsPage';
 import BlogPage from './pages/BlogPage';
 import BlogDetailPage from './pages/BlogDetailPage';
+import PayOSApiPage from './pages/PayOSApiPage';
 import './App.css';
 
 // Create Global Contexts
@@ -80,6 +81,10 @@ const router = createHashRouter([
       {
         path: 'blog/:slug',
         element: <BlogDetailPage />
+      },
+      {
+        path: 'payos-api',
+        element: <PayOSApiPage />
       },
       {
         path: 'resources',

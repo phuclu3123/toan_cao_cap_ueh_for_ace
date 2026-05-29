@@ -7,6 +7,7 @@ import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import dns from 'dns';
+import crypto from 'crypto';
 
 dotenv.config();
 
@@ -90,10 +91,25 @@ const subscriberSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true }
 }, { timestamps: true });
 
+// Payment Schema for payOS webhook tracking
+const paymentSchema = new mongoose.Schema({
+  orderCode: { type: Number, required: true, unique: true },
+  amount: { type: Number, default: 0 },
+  description: { type: String },
+  status: { type: String, default: 'PENDING' },
+  paymentLinkId: { type: String },
+  checkoutUrl: { type: String },
+  qrCode: { type: String },
+  reference: { type: String },
+  paidAt: { type: String },
+  webhookData: { type: mongoose.Schema.Types.Mixed }
+}, { timestamps: true });
+
 const User = mongoose.model('User', userSchema);
 const Resource = mongoose.model('Resource', resourceSchema);
 const Message = mongoose.model('Message', messageSchema);
 const Subscriber = mongoose.model('Subscriber', subscriberSchema);
+const Payment = mongoose.model('Payment', paymentSchema);
 
 // ==========================================
 // 2. MONGODB ATLAS CONNECTION & HYBRID STATUS
@@ -154,6 +170,93 @@ const getLocalResourceSeedItems = () => {
   });
 
   return seedItems;
+};
+
+const paymentsFilePath = path.join(dataDir, 'payments.json');
+
+const createPayOSSignature = (data, checksumKey) => {
+  const signedContent = Object.keys(data || {})
+    .sort()
+    .map((key) => {
+      const value = data[key];
+      const normalizedValue = value !== null && typeof value === 'object'
+        ? JSON.stringify(value)
+        : value;
+      return `${key}=${normalizedValue}`;
+    })
+    .join('&');
+
+  return crypto
+    .createHmac('sha256', checksumKey)
+    .update(signedContent)
+    .digest('hex');
+};
+
+const safeCompareSignature = (expected, received) => {
+  if (!expected || !received) return false;
+  const expectedBuffer = Buffer.from(expected, 'utf8');
+  const receivedBuffer = Buffer.from(received, 'utf8');
+  return expectedBuffer.length === receivedBuffer.length && crypto.timingSafeEqual(expectedBuffer, receivedBuffer);
+};
+
+const verifyPayOSWebhookSignature = (body) => {
+  const checksumKey = process.env.PAYOS_CHECKSUM_KEY;
+  if (!checksumKey) {
+    throw new Error('PAYOS_CHECKSUM_KEY is not configured');
+  }
+
+  if (!body?.data || !body.signature) {
+    return false;
+  }
+
+  const expectedSignature = createPayOSSignature(body.data, checksumKey);
+  return safeCompareSignature(expectedSignature, body.signature);
+};
+
+const normalizePaymentResponse = (payment) => ({
+  orderCode: payment.orderCode,
+  amount: payment.amount,
+  description: payment.description,
+  status: payment.status,
+  paymentLinkId: payment.paymentLinkId,
+  checkoutUrl: payment.checkoutUrl,
+  qrCode: payment.qrCode,
+  reference: payment.reference,
+  paidAt: payment.paidAt,
+  createdAt: payment.createdAt,
+  updatedAt: payment.updatedAt
+});
+
+const saveLocalPaymentFromWebhook = (body, paymentUpdate) => {
+  const payments = readJSONFile(paymentsFilePath, []);
+  const existingIndex = payments.findIndex(payment => Number(payment.orderCode) === paymentUpdate.orderCode);
+  const now = new Date().toISOString();
+
+  if (existingIndex >= 0) {
+    payments[existingIndex] = {
+      ...payments[existingIndex],
+      ...paymentUpdate,
+      webhookData: body,
+      updatedAt: now
+    };
+  } else {
+    payments.push({
+      orderCode: paymentUpdate.orderCode,
+      amount: paymentUpdate.amount || 0,
+      description: paymentUpdate.description || '',
+      status: paymentUpdate.status || 'PENDING',
+      paymentLinkId: paymentUpdate.paymentLinkId || null,
+      checkoutUrl: null,
+      qrCode: null,
+      reference: paymentUpdate.reference || null,
+      paidAt: paymentUpdate.paidAt || null,
+      createdAt: now,
+      updatedAt: now,
+      webhookData: body
+    });
+  }
+
+  writeJSONFile(paymentsFilePath, payments);
 };
 
 // Auto-Migration Function
@@ -946,6 +1049,140 @@ app.post('/api/auth/reset-password', async (req, res) => {
   } catch (error) {
     console.error("Lỗi đặt lại mật khẩu:", error);
     return res.status(500).json({ success: false, message: 'Lỗi hệ thống khi cập nhật mật khẩu mới.' });
+  }
+});
+
+// 9. payOS webhook receiver
+app.post('/api/payos/webhook', async (req, res) => {
+  const body = req.body;
+
+  try {
+    if (!body || !body.data) {
+      return res.status(400).json({ success: false, message: 'Invalid payOS webhook body' });
+    }
+
+    const isValidSignature = verifyPayOSWebhookSignature(body);
+    if (!isValidSignature) {
+      console.warn('Rejected payOS webhook because signature is invalid');
+      return res.status(400).json({ success: false, message: 'Invalid payOS signature' });
+    }
+
+    const orderCode = Number(body.data.orderCode);
+    if (!Number.isFinite(orderCode)) {
+      return res.status(400).json({ success: false, message: 'Invalid orderCode' });
+    }
+
+    const isPaid = body.success === true && body.code === '00';
+    const paymentUpdate = {
+      orderCode,
+      amount: Number(body.data.amount) || 0,
+      description: body.data.description || '',
+      status: isPaid ? 'PAID' : 'PENDING',
+      paymentLinkId: body.data.paymentLinkId || null,
+      reference: body.data.reference || null,
+      paidAt: body.data.transactionDateTime || null,
+      webhookData: body
+    };
+
+    if (isMongoDBConnected) {
+      await Payment.findOneAndUpdate(
+        { orderCode },
+        {
+          $set: paymentUpdate,
+          $setOnInsert: {
+            checkoutUrl: null,
+            qrCode: null
+          }
+        },
+        { upsert: true, new: true }
+      );
+    } else {
+      saveLocalPaymentFromWebhook(body, paymentUpdate);
+    }
+
+    return res.json({ success: true });
+  } catch (error) {
+    console.error('PayOS webhook error:', error);
+    return res.status(500).json({ success: false, message: 'PayOS webhook processing failed' });
+  }
+});
+
+// 10. Confirm payOS webhook URL with payOS merchant API
+app.post('/api/payos/confirm-webhook', async (req, res) => {
+  const { webhookUrl } = req.body;
+  const clientId = process.env.PAYOS_CLIENT_ID;
+  const apiKey = process.env.PAYOS_API_KEY;
+  const confirmToken = process.env.PAYOS_CONFIRM_TOKEN;
+
+  if (!clientId || !apiKey) {
+    return res.status(500).json({ success: false, message: 'PAYOS_CLIENT_ID or PAYOS_API_KEY is not configured' });
+  }
+
+  if (!confirmToken || req.get('x-payos-confirm-token') !== confirmToken) {
+    return res.status(401).json({ success: false, message: 'Unauthorized webhook confirmation request' });
+  }
+
+  try {
+    const parsedUrl = new URL(webhookUrl);
+    if (parsedUrl.protocol !== 'https:') {
+      return res.status(400).json({ success: false, message: 'Webhook URL must use HTTPS' });
+    }
+  } catch {
+    return res.status(400).json({ success: false, message: 'Webhook URL is invalid' });
+  }
+
+  try {
+    const response = await fetch('https://api-merchant.payos.vn/confirm-webhook', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-client-id': clientId,
+        'x-api-key': apiKey
+      },
+      body: JSON.stringify({ webhookUrl })
+    });
+
+    const result = await response.json().catch(() => ({}));
+    return res.status(response.status).json({
+      success: response.ok,
+      payos: result
+    });
+  } catch (error) {
+    console.error('PayOS confirm webhook error:', error);
+    return res.status(502).json({ success: false, message: 'Could not connect to payOS confirm-webhook API' });
+  }
+});
+
+// 11. Payment status lookup for future clients
+app.get('/api/payments/:orderCode', async (req, res) => {
+  const orderCode = Number(req.params.orderCode);
+
+  if (!Number.isFinite(orderCode)) {
+    return res.status(400).json({ success: false, message: 'Invalid orderCode' });
+  }
+
+  try {
+    if (isMongoDBConnected) {
+      const payment = await Payment.findOne({ orderCode })
+        .select('-_id orderCode amount description status paymentLinkId checkoutUrl qrCode reference paidAt createdAt updatedAt')
+        .lean();
+      if (!payment) {
+        return res.status(404).json({ success: false, message: 'Payment not found' });
+      }
+
+      return res.json(normalizePaymentResponse(payment));
+    }
+
+    const payments = readJSONFile(paymentsFilePath, []);
+    const payment = payments.find(item => Number(item.orderCode) === orderCode);
+    if (!payment) {
+      return res.status(404).json({ success: false, message: 'Payment not found' });
+    }
+
+    return res.json(normalizePaymentResponse(payment));
+  } catch (error) {
+    console.error('Payment lookup error:', error);
+    return res.status(500).json({ success: false, message: 'Could not load payment status' });
   }
 });
 
