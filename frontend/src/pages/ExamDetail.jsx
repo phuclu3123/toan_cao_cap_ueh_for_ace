@@ -42,6 +42,12 @@ const formatExamMath = (source, { displayStandalone = false } = {}) => {
   });
 };
 
+const stripQuestionNumberPrefix = (source, questionNumber) => {
+  if (typeof source !== 'string') return source;
+  const escapedNumber = String(questionNumber).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return source.replace(new RegExp(`^\\s*Câu\\s*${escapedNumber}\\s*[\\.:\\-)]\\s*`, 'i'), '');
+};
+
 const formatTime = (seconds) => {
   const minutes = Math.floor(seconds / 60).toString().padStart(2, '0');
   const remainSeconds = (seconds % 60).toString().padStart(2, '0');
@@ -361,7 +367,7 @@ export default function ExamDetail() {
             </div>
 
             <div className="question-card">
-              <p className="question-prompt">{formatExamMath(currentQuestion.prompt)}</p>
+              <p className="question-prompt">{formatExamMath(stripQuestionNumberPrefix(currentQuestion.prompt, currentIndex + 1))}</p>
 
               <div className="answer-options">
                 {currentQuestion.options.map((option) => {

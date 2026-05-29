@@ -309,9 +309,9 @@
 /* Question prompt */
 .question-prompt {
   font-size: 1.15rem;
-  line-height: 1.8;
+  line-height: 1.95;
   color: var(--text-primary);
-  margin-bottom: 35px;
+  margin-bottom: 38px;
   white-space: pre-wrap;
   word-break: break-word;
 }
