@@ -1053,6 +1053,15 @@ app.post('/api/auth/reset-password', async (req, res) => {
 });
 
 // 9. payOS webhook receiver
+app.get('/api/payos/webhook', (req, res) => {
+  res.json({
+    success: true,
+    message: 'payOS webhook endpoint is ready. payOS will call this URL with POST.',
+    method: 'POST',
+    path: '/api/payos/webhook'
+  });
+});
+
 app.post('/api/payos/webhook', async (req, res) => {
   const body = req.body;
 
