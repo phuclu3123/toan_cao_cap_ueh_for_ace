@@ -22,7 +22,25 @@ import { LanguageContext } from '../App';
 import { translations } from '../utils/translations';
 import '../assets/styles/ExamDetail.css';
 
-const DEFAULT_DURATION_MINUTES = 75;
+const DEFAULT_DURATION_MINUTES = 30;
+const DISPLAY_MATH_PATTERN = /\\(?:lim|sum|int|prod|frac|dfrac|sqrt|det|begin\{(?:bmatrix|pmatrix|vmatrix|Vmatrix|matrix|cases|array)\})/;
+
+const formatExamMath = (source, { displayStandalone = false } = {}) => {
+  if (typeof source !== 'string') return source;
+
+  return source.replace(/(^|[^\\])\$(?!\$)([^$]+?)\$(?!\$)/g, (match, prefix, rawMath) => {
+    const math = rawMath.trim();
+    if (!DISPLAY_MATH_PATTERN.test(math)) return match;
+
+    const entireTextIsFormula = source.trim() === `$${rawMath}$`;
+    if (displayStandalone && entireTextIsFormula) {
+      return `${prefix}$$${math}$$`;
+    }
+
+    const displayStyleMath = math.startsWith('\\displaystyle') ? math : `\\displaystyle ${math}`;
+    return `${prefix}$${displayStyleMath}$`;
+  });
+};
 
 const formatTime = (seconds) => {
   const minutes = Math.floor(seconds / 60).toString().padStart(2, '0');
@@ -343,7 +361,7 @@ export default function ExamDetail() {
             </div>
 
             <div className="question-card">
-              <p className="question-prompt">{currentQuestion.prompt}</p>
+              <p className="question-prompt">{formatExamMath(currentQuestion.prompt)}</p>
 
               <div className="answer-options">
                 {currentQuestion.options.map((option) => {
@@ -365,7 +383,7 @@ export default function ExamDetail() {
                       disabled={submitted}
                     >
                       <span className="option-key">{option.id}</span>
-                      <span className="option-text">{option.text}</span>
+                      <span className="option-text">{formatExamMath(option.text, { displayStandalone: true })}</span>
                       {isCorrect && <CheckCircle2 size={18} className="option-status-icon correct" />}
                       {isWrong && <XCircle size={18} className="option-status-icon wrong" />}
                     </button>
@@ -380,7 +398,7 @@ export default function ExamDetail() {
                     <h3>{t.exam.solutionTitle.replace('{correct}', currentQuestion.correct)}</h3>
                   </div>
                   <div className="explanation-body">
-                    {currentQuestion.explanation}
+                    {formatExamMath(currentQuestion.explanation)}
                   </div>
                 </div>
               )}
@@ -590,4 +608,3 @@ export default function ExamDetail() {
     </div>
   );
 }
-

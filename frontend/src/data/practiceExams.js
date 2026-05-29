@@ -4,8 +4,8 @@ const practiceExamsData = [
     "title": "Toán Cao Cấp K51 Mã Đề 204",
     "sourceLabel": "MAIN K51",
     "sourcePdf": "main.pdf",
-    "durationMinutes": 75,
-    "description": "Đề K51 mới nhất mã 204, chuyển thành bài kiểm tra 75 phút với chấm điểm tự động.",
+    "durationMinutes": 30,
+    "description": "Đề K51 mới nhất mã 204, chuyển thành bài kiểm tra 30 phút với chấm điểm tự động.",
     "questions": [
       {
         "id": "k51-204-q1",
@@ -264,7 +264,7 @@ const practiceExamsData = [
     "title": "Toán Cao Cấp K51 Mã Đề 118",
     "sourceLabel": "MAIN K51",
     "sourcePdf": "main.pdf",
-    "durationMinutes": 75,
+    "durationMinutes": 30,
     "description": "Đề K51 mới nhất mã 118, luyện theo cấu trúc phòng thi và xem đáp án sau khi nộp.",
     "questions": [
       {
@@ -524,7 +524,7 @@ const practiceExamsData = [
     "title": "Toán Cao Cấp K51 Mã Đề 354",
     "sourceLabel": "MAIN K51",
     "sourcePdf": "main.pdf",
-    "durationMinutes": 75,
+    "durationMinutes": 30,
     "description": "Đề K51 mới nhất mã 354, phù hợp luyện tốc độ xử lý câu trắc nghiệm Toán Cao Cấp.",
     "questions": [
       {
@@ -784,8 +784,8 @@ const practiceExamsData = [
     "title": "Toán Cao Cấp K51 Mã Đề 442",
     "sourceLabel": "MAIN K51",
     "sourcePdf": "main.pdf",
-    "durationMinutes": 75,
-    "description": "Đề K51 mới nhất mã 442, mô phỏng bài kiểm tra 75 phút kèm thống kê kết quả.",
+    "durationMinutes": 30,
+    "description": "Đề K51 mới nhất mã 442, mô phỏng bài kiểm tra 30 phút kèm thống kê kết quả.",
     "questions": [
       {
         "id": "k51-442-q1",
@@ -1044,8 +1044,8 @@ const practiceExamsData = [
     "title": "Toán Cao Cấp K50 Đợt 2",
     "sourceLabel": "FINAL 2807",
     "sourcePdf": "final 2807.pdf",
-    "durationMinutes": 75,
-    "description": "Đề K50 đợt 2 trong FINAL 2807, luyện như một bài kiểm tra 75 phút.",
+    "durationMinutes": 30,
+    "description": "Đề K50 đợt 2 trong FINAL 2807, luyện như một bài kiểm tra 30 phút.",
     "questions": [
       {
         "id": "k50-dot-2-q1",
@@ -1304,7 +1304,7 @@ const practiceExamsData = [
     "title": "Toán Cao Cấp K50 Đợt 1",
     "sourceLabel": "FINAL 2807",
     "sourcePdf": "final 2807.pdf",
-    "durationMinutes": 75,
+    "durationMinutes": 30,
     "description": "Đề K50 đợt 1 trong FINAL 2807, có cờ đánh dấu câu khó và nộp bài tự động khi hết giờ.",
     "questions": [
       {
@@ -1564,7 +1564,7 @@ const practiceExamsData = [
     "title": "Toán Cao Cấp K50 Đợt 1 Mã Đề Khác",
     "sourceLabel": "FINAL 2807",
     "sourcePdf": "final 2807.pdf",
-    "durationMinutes": 75,
+    "durationMinutes": 30,
     "description": "Mã đề khác của K50 đợt 1 trong FINAL 2807, đưa vào chế độ làm bài kiểm tra.",
     "questions": [
       {
@@ -1824,7 +1824,7 @@ const practiceExamsData = [
     "title": "Toán Cao Cấp K49 Mã Đề 1",
     "sourceLabel": "FINAL 2807",
     "sourcePdf": "final 2807.pdf",
-    "durationMinutes": 75,
+    "durationMinutes": 30,
     "description": "Đề K49 mã đề 1 trong FINAL 2807, dùng để luyện phản xạ làm bài cuối kỳ.",
     "questions": [
       {
@@ -2084,7 +2084,7 @@ const practiceExamsData = [
     "title": "Toán Cao Cấp K49 Mã Đề 2",
     "sourceLabel": "FINAL 2807",
     "sourcePdf": "final 2807.pdf",
-    "durationMinutes": 75,
+    "durationMinutes": 30,
     "description": "Đề K49 mã đề 2 trong FINAL 2807, có một câu được giữ đúng ghi chú đáp án của tài liệu nguồn.",
     "questions": [
       {
@@ -2348,7 +2348,7 @@ const practiceExamsData = [
     "title": "Toán Cao Cấp K47",
     "sourceLabel": "FINAL 2807",
     "sourcePdf": "final 2807.pdf",
-    "durationMinutes": 75,
+    "durationMinutes": 30,
     "description": "Đề K47 trong FINAL 2807, gồm 20 câu trắc nghiệm để luyện bài dài hơn.",
     "questions": [
       {
@@ -2858,7 +2858,7 @@ const practiceExamsData = [
     "title": "Toán Cao Cấp K46",
     "sourceLabel": "FINAL 2807",
     "sourcePdf": "final 2807.pdf",
-    "durationMinutes": 75,
+    "durationMinutes": 30,
     "description": "Đề K46 trong FINAL 2807, chuyển từ tài liệu lời giải sang bài kiểm tra tương tác.",
     "questions": [
       {

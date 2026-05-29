@@ -406,8 +406,29 @@
 
 .option-text {
   font-size: 1.05rem;
-  line-height: 1.5;
+  line-height: 1.65;
+  min-width: 0;
+  white-space: pre-wrap;
   word-break: break-word;
+}
+
+.question-prompt mjx-container[display="true"],
+.option-text mjx-container[display="true"],
+.explanation-body mjx-container[display="true"] {
+  margin: 0.45em 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  text-align: left !important;
+}
+
+.option-text mjx-container[display="true"] {
+  margin: 0;
+}
+
+.question-prompt mjx-container[jax="SVG"],
+.option-text mjx-container[jax="SVG"],
+.explanation-body mjx-container[jax="SVG"] {
+  max-width: 100%;
 }
 
 .option-status-icon {

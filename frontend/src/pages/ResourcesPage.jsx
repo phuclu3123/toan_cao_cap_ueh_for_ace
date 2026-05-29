@@ -131,8 +131,8 @@ export default function ResourcesPage() {
       if (language === 'en') {
         title = `Advanced Calculus ${kStr} ${codeStr || 'Practice Exam'}`;
         desc = f.desc
-          .replace('Đề K51 mới nhất mã 204 từ main.pdf, làm bài trong 75 phút với chấm điểm tự động, cắm cờ câu khó và thống kê sau khi nộp.', 'Latest K51 exam code 204 from main.pdf, practice in 75 minutes with auto-grading, flags and statistics after submission.')
-          .replace('mô phỏng bài kiểm tra cuối kỳ 75 phút chuyên nghiệp.', 'simulating a professional 75-minute final exam.')
+          .replace('Đề K51 mới nhất mã 204 từ main.pdf, làm bài trong 30 phút với chấm điểm tự động, cắm cờ câu khó và thống kê sau khi nộp.', 'Latest K51 exam code 204 from main.pdf, practice in 30 minutes with auto-grading, flags and statistics after submission.')
+          .replace('mô phỏng bài kiểm tra cuối kỳ 30 phút chuyên nghiệp.', 'simulating a professional 30-minute final exam.')
           .replace('chuyển thành phòng luyện thi tương tác theo nhịp bài thi thật.', 'converted to an interactive exam room mimicking real exam pacing.')
           .replace('dùng để luyện tốc độ làm trắc nghiệm và kiểm tra đáp án sau khi nộp.', 'used for speed training and checking answers after submission.')
           .replace('Timer, cắm cờ và nộp bài tự động khi hết giờ.', 'Timer, flagging, and auto-submission when time is up.')
@@ -142,7 +142,7 @@ export default function ResourcesPage() {
           .replace('giữ đúng ghi chú đáp án của tài liệu nguồn khi luyện thi.', 'retains original answer keys from source document for study.')
           .replace('Chưa tìm thấy section đề K48 trong final 2807.pdf để chuyển thành bài kiểm tra tương tác.', 'K48 exam section not yet found in final 2807.pdf for interactive conversion.')
           .replace('gồm 20 câu trắc nghiệm để luyện bài dài hơn trong phòng thi.', 'includes 20 multiple-choice questions for longer exam practice.')
-          .replace('chuyển từ tài liệu lời giải sang bài kiểm tra tương tác 75 phút.', 'converted from solution guide to interactive 75-minute exam.');
+          .replace('chuyển từ tài liệu lời giải sang bài kiểm tra tương tác 30 phút.', 'converted from solution guide to interactive 30-minute exam.');
       } else if (language === 'ja') {
         title = `高等微積分 ${kStr} ${codeStr ? '問題' + codeStr.replace('Code ', '') : '模擬試験'}`;
         desc = `75分間のインタラクティブ模擬試験。自動採点、問題フラグ、詳細な結果分析に対応しています。`;
