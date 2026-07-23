@@ -17,6 +17,7 @@
     radial-gradient(circle at 92% 7%, rgba(38, 113, 79, 0.08), transparent 23rem),
     var(--article-canvas);
   color: var(--article-ink);
+  overflow-x: clip;
 }
 
 :root:not(.light-theme) .forum-blog-page {
@@ -60,7 +61,7 @@
 }
 
 .forum-blog-page .forum-blog-hero .container {
-  width: min(100% - 32px, 1450px);
+  width: min(calc(100% - 32px), 1450px);
   max-width: 1450px;
   padding: 0;
 }
@@ -206,6 +207,7 @@
 
 .forum-blog-page .forum-article {
   width: 100%;
+  min-width: 0;
   max-width: none;
   padding: 0;
   overflow: hidden;
@@ -511,7 +513,13 @@
 
 .article-body {
   display: grid;
+  min-width: 0;
   gap: 22px;
+}
+
+.article-body > * {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .editorial-paragraph,
@@ -645,6 +653,8 @@
 }
 
 .editorial-table-wrap {
+  width: 100%;
+  max-width: 100%;
   margin: 2px 0;
   overflow-x: auto;
   border: 1px solid var(--article-line);
@@ -740,6 +750,460 @@
   font-weight: 850;
 }
 
+.worked-example {
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--article-accent) 25%, var(--article-line));
+  border-radius: 16px;
+  background: var(--article-paper);
+  box-shadow: 0 9px 24px color-mix(in srgb, var(--article-ink) 5%, transparent);
+}
+
+.worked-example summary {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr) 34px;
+  align-items: center;
+  gap: 13px;
+  padding: 18px 20px;
+  cursor: pointer;
+  list-style: none;
+  background:
+    linear-gradient(90deg, var(--article-accent-pale), transparent 55%),
+    var(--article-paper);
+}
+
+.worked-example summary::-webkit-details-marker {
+  display: none;
+}
+
+.worked-example summary:hover {
+  background: var(--article-accent-pale);
+}
+
+.worked-example-icon,
+.worked-example-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.worked-example-icon {
+  width: 38px;
+  height: 38px;
+  background: color-mix(in srgb, var(--article-accent) 13%, var(--article-paper));
+  color: var(--article-accent);
+}
+
+.worked-example-toggle {
+  width: 34px;
+  height: 34px;
+  background: var(--article-soft);
+  color: var(--article-muted);
+  transition: transform 180ms ease, color 180ms ease;
+}
+
+.worked-example[open] .worked-example-toggle {
+  color: var(--article-accent);
+  transform: rotate(180deg);
+}
+
+.worked-example-kicker {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--article-accent);
+  font-size: 0.63rem;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.worked-example h3 {
+  margin: 0;
+  color: var(--article-ink);
+  font-size: 0.96rem;
+  font-weight: 820;
+  letter-spacing: -0.012em;
+  line-height: 1.4;
+}
+
+.worked-example-body {
+  display: grid;
+  gap: 17px;
+  padding: 21px;
+  border-top: 1px solid var(--article-line);
+  background: color-mix(in srgb, var(--article-soft) 52%, var(--article-paper));
+}
+
+.worked-example-prompt {
+  padding: 16px 17px;
+  border-radius: 12px;
+  background: var(--article-paper);
+  color: var(--article-ink);
+  font-size: 0.85rem;
+  line-height: 1.7;
+}
+
+.worked-example-prompt > span,
+.worked-example-result > span {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--article-muted);
+  font-size: 0.61rem;
+  font-weight: 850;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.worked-example-method,
+.exam-method {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: 10px;
+  padding: 14px 16px;
+  border: 1px solid color-mix(in srgb, var(--article-accent) 20%, var(--article-line));
+  border-radius: 12px;
+  background: var(--article-accent-pale);
+  color: var(--article-accent-dark);
+  font-size: 0.8rem;
+  line-height: 1.65;
+}
+
+.worked-example-method svg,
+.exam-method svg {
+  margin-top: 2px;
+}
+
+.worked-example-method strong,
+.exam-method strong {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--article-accent-dark);
+  font-size: 0.69rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.worked-example-solution,
+.exam-solution {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.worked-example-solution li,
+.exam-solution li {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 12px;
+  padding: 14px 0;
+  border-top: 1px solid var(--article-line);
+  color: var(--article-muted);
+  font-size: 0.82rem;
+  line-height: 1.68;
+}
+
+.worked-example-solution li:first-child,
+.exam-solution li:first-child {
+  border-top: 0;
+}
+
+.solution-step-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid color-mix(in srgb, var(--article-accent) 24%, var(--article-line));
+  border-radius: 50%;
+  background: var(--article-paper);
+  color: var(--article-accent);
+  font-size: 0.63rem;
+  font-weight: 850;
+  font-variant-numeric: tabular-nums;
+}
+
+.worked-example-solution li strong,
+.exam-solution li strong {
+  display: block;
+  margin: 1px 0 4px;
+  color: var(--article-ink);
+  font-size: 0.76rem;
+}
+
+.worked-example-result {
+  padding: 15px 17px;
+  border: 1px solid color-mix(in srgb, var(--article-accent) 24%, var(--article-line));
+  border-radius: 12px;
+  background: var(--article-accent-pale);
+  color: var(--article-accent-dark);
+  font-size: 0.88rem;
+  font-weight: 820;
+}
+
+.worked-example-interpretation {
+  margin: 0;
+  padding-left: 14px;
+  border-left: 2px solid var(--article-warm);
+  color: var(--article-muted);
+  font-size: 0.78rem;
+  line-height: 1.65;
+}
+
+.worked-example-interpretation strong {
+  color: var(--article-warm);
+}
+
+.economic-diagram {
+  position: relative;
+  margin: 3px 0;
+  overflow: hidden;
+  border: 1px solid var(--article-line);
+  border-radius: 18px;
+  background: var(--article-paper);
+  box-shadow: 0 12px 30px color-mix(in srgb, var(--article-ink) 6%, transparent);
+}
+
+.economic-diagram.is-expanded {
+  position: fixed;
+  inset: 24px;
+  z-index: 2200;
+  width: min(1120px, calc(100vw - 48px));
+  max-height: calc(100vh - 48px);
+  margin: auto;
+  overflow: auto;
+  box-shadow:
+    0 0 0 100vmax rgba(4, 10, 7, 0.72),
+    0 35px 90px rgba(0, 0, 0, 0.4);
+}
+
+.economic-diagram-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 17px 19px;
+  border-bottom: 1px solid var(--article-line);
+}
+
+.economic-diagram-heading > div > span {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--article-accent);
+  font-size: 0.61rem;
+  font-weight: 850;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.economic-diagram-heading h3 {
+  margin: 0;
+  color: var(--article-ink);
+  font-size: 0.91rem;
+  font-weight: 810;
+  line-height: 1.4;
+}
+
+.economic-diagram-heading button {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 11px;
+  border: 1px solid var(--article-line);
+  border-radius: 10px;
+  background: var(--article-soft);
+  color: var(--article-muted);
+  font: inherit;
+  font-size: 0.68rem;
+  font-weight: 760;
+  cursor: pointer;
+}
+
+.economic-diagram-heading button:hover {
+  border-color: color-mix(in srgb, var(--article-accent) 35%, var(--article-line));
+  color: var(--article-accent);
+}
+
+.economic-diagram-canvas {
+  padding: 18px 22px 8px;
+  background:
+    linear-gradient(var(--article-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--article-line) 1px, transparent 1px),
+    var(--article-paper);
+  background-size: 28px 28px;
+  background-position: -1px -1px;
+}
+
+.economic-diagram.is-expanded .economic-diagram-canvas {
+  padding: 32px 5%;
+}
+
+.economic-diagram svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 250px;
+}
+
+.economic-diagram figcaption {
+  margin: 0;
+  padding: 14px 19px 17px;
+  border-top: 1px solid var(--article-line);
+  color: var(--article-muted);
+  font-size: 0.75rem;
+  line-height: 1.6;
+}
+
+.diagram-axis {
+  fill: none;
+  stroke: color-mix(in srgb, var(--article-ink) 70%, transparent);
+  stroke-linecap: round;
+  stroke-width: 2;
+}
+
+.diagram-line {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4;
+}
+
+.diagram-line-accent {
+  stroke: var(--article-accent);
+}
+
+.diagram-line-warm {
+  stroke: var(--article-warm);
+}
+
+.diagram-dashed,
+.diagram-guide {
+  stroke-dasharray: 7 7;
+}
+
+.diagram-guide {
+  fill: none;
+  stroke: color-mix(in srgb, var(--article-muted) 55%, transparent);
+  stroke-width: 1.5;
+}
+
+.diagram-point {
+  fill: var(--article-paper);
+  stroke: var(--article-accent);
+  stroke-width: 5;
+}
+
+.diagram-card {
+  stroke: var(--article-line);
+  stroke-width: 1.5;
+}
+
+.diagram-card-soft {
+  fill: var(--article-soft);
+}
+
+.diagram-card-accent {
+  fill: var(--article-accent-pale);
+}
+
+.diagram-card-warm {
+  fill: var(--article-warm-pale);
+}
+
+.diagram-flow-line,
+.diagram-brace {
+  fill: none;
+  stroke: color-mix(in srgb, var(--article-accent) 68%, var(--article-muted));
+  stroke-linecap: round;
+  stroke-width: 2.5;
+}
+
+.diagram-brace {
+  stroke-dasharray: 5 6;
+}
+
+.diagram-arrow-head {
+  fill: var(--article-accent);
+}
+
+.diagram-label-box {
+  fill: var(--article-paper);
+  stroke: var(--article-line);
+  stroke-width: 1.5;
+}
+
+.diagram-zone {
+  stroke: var(--article-line);
+  stroke-width: 1.5;
+}
+
+.diagram-zone-teal {
+  fill: var(--article-accent-pale);
+}
+
+.diagram-zone-neutral {
+  fill: var(--article-soft);
+}
+
+.diagram-zone-rose {
+  fill: var(--article-danger-pale);
+}
+
+.diagram-card-title,
+.diagram-small-label,
+.diagram-axis-label,
+.diagram-series-label,
+.diagram-zone-label,
+.diagram-equation,
+.diagram-card-value {
+  fill: var(--article-ink);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+.diagram-card-title {
+  font-size: 13px;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+}
+
+.diagram-card-value {
+  font-size: 22px;
+  font-weight: 780;
+}
+
+.diagram-small-label,
+.diagram-axis-label {
+  fill: var(--article-muted);
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.diagram-series-label {
+  font-size: 15px;
+  font-weight: 850;
+}
+
+.diagram-zone-label {
+  font-size: 13px;
+  font-weight: 720;
+}
+
+.diagram-equation {
+  fill: var(--article-accent-dark);
+  font-size: 15px;
+  font-weight: 850;
+}
+
+.diagram-accent-text {
+  fill: var(--article-accent);
+}
+
+.diagram-warm-text {
+  fill: var(--article-warm);
+}
+
 .source-note {
   display: grid;
   grid-template-columns: 25px 1fr;
@@ -768,6 +1232,63 @@
   line-height: 1.65;
 }
 
+.dossier-toolbar {
+  position: sticky;
+  top: 78px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 13px 15px;
+  border: 1px solid color-mix(in srgb, var(--article-accent) 24%, var(--article-line));
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--article-paper) 91%, transparent);
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--article-ink) 7%, transparent);
+  backdrop-filter: blur(14px);
+}
+
+.dossier-toolbar > div:first-child span {
+  display: block;
+  margin-bottom: 2px;
+  color: var(--article-accent);
+  font-size: 0.59rem;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.dossier-toolbar > div:first-child strong {
+  display: block;
+  color: var(--article-ink);
+  font-size: 0.77rem;
+}
+
+.dossier-toolbar-actions {
+  display: flex;
+  gap: 7px;
+}
+
+.dossier-toolbar button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border: 1px solid var(--article-line);
+  border-radius: 9px;
+  background: var(--article-soft);
+  color: var(--article-muted);
+  font: inherit;
+  font-size: 0.66rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.dossier-toolbar button:hover {
+  border-color: color-mix(in srgb, var(--article-accent) 35%, var(--article-line));
+  color: var(--article-accent);
+}
+
 .exam-dossier {
   overflow: hidden;
   border: 1px solid var(--article-line);
@@ -785,7 +1306,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  padding: 19px 21px;
+  padding: 21px;
   cursor: pointer;
   list-style: none;
   background: var(--article-paper);
@@ -822,6 +1343,23 @@
   line-height: 1.4;
 }
 
+.exam-dossier-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 9px;
+}
+
+.exam-dossier-chips span {
+  padding: 4px 7px;
+  border: 1px solid var(--article-line);
+  border-radius: 999px;
+  background: var(--article-soft);
+  color: var(--article-muted);
+  font-size: 0.59rem;
+  font-weight: 720;
+}
+
 .exam-dossier-toggle {
   display: flex;
   flex: 0 0 auto;
@@ -841,10 +1379,41 @@
 
 .exam-dossier-body {
   display: grid;
-  gap: 17px;
-  padding: 21px;
+  gap: 20px;
+  padding: 23px;
   border-top: 1px solid var(--article-line);
   background: color-mix(in srgb, var(--article-soft) 55%, var(--article-paper));
+}
+
+.exam-brief-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  overflow: hidden;
+  border: 1px solid var(--article-line);
+  border-radius: 12px;
+  background: var(--article-paper);
+}
+
+.exam-brief-grid > div {
+  min-width: 0;
+  padding: 14px 16px;
+  color: var(--article-ink);
+  font-size: 0.78rem;
+  line-height: 1.65;
+}
+
+.exam-brief-grid > div + div {
+  border-left: 1px solid var(--article-line);
+}
+
+.exam-brief-grid span {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--article-accent);
+  font-size: 0.59rem;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .exam-prompt {
@@ -867,36 +1436,66 @@
   text-transform: uppercase;
 }
 
-.exam-solution {
-  display: grid;
-  gap: 10px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.exam-solution li {
-  display: grid;
-  grid-template-columns: 21px minmax(0, 1fr);
-  gap: 9px;
-  color: var(--article-muted);
-  font-size: 0.82rem;
-  line-height: 1.65;
-}
-
-.exam-solution svg {
-  margin-top: 4px;
+.exam-solution-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   color: var(--article-accent);
+  font-size: 0.67rem;
+  font-weight: 850;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
 }
 
 .exam-result {
-  padding: 14px 16px;
+  padding: 16px 17px;
   border: 1px solid color-mix(in srgb, var(--article-accent) 22%, var(--article-line));
   border-radius: 11px;
   background: var(--article-accent-pale);
   color: var(--article-accent-dark);
   font-size: 0.9rem;
   font-weight: 800;
+}
+
+.exam-interpretation {
+  padding: 14px 16px;
+  border-left: 3px solid var(--article-warm);
+  border-radius: 0 11px 11px 0;
+  background: var(--article-warm-pale);
+  color: var(--article-warm);
+  font-size: 0.79rem;
+  line-height: 1.65;
+}
+
+.exam-interpretation strong,
+.exam-check strong {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 0.67rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.exam-check {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 9px;
+  padding: 13px 15px;
+  border: 1px solid color-mix(in srgb, var(--article-accent) 18%, var(--article-line));
+  border-radius: 11px;
+  background: var(--article-paper);
+  color: var(--article-muted);
+  font-size: 0.76rem;
+  line-height: 1.62;
+}
+
+.exam-check svg {
+  margin-top: 3px;
+  color: var(--article-accent);
+}
+
+.exam-check strong {
+  color: var(--article-accent-dark);
 }
 
 .exam-trap {
@@ -1101,7 +1700,10 @@
   }
 
   .forum-blog-page .forum-blog-hero .container {
-    width: min(100% - 20px, 1450px);
+    width: calc(100% - 20px);
+    max-width: calc(100% - 20px);
+    margin-right: auto;
+    margin-left: auto;
   }
 
   .forum-blog-page .article-toc {
@@ -1205,9 +1807,78 @@
     min-width: 580px;
   }
 
+  .worked-example summary {
+    grid-template-columns: minmax(0, 1fr) 32px;
+    padding: 16px;
+  }
+
+  .worked-example-icon {
+    display: none;
+  }
+
+  .worked-example-body {
+    padding: 16px;
+  }
+
+  .economic-diagram.is-expanded {
+    inset: 10px;
+    width: calc(100vw - 20px);
+    max-height: calc(100vh - 20px);
+  }
+
+  .economic-diagram-heading {
+    align-items: flex-start;
+    padding: 15px;
+  }
+
+  .economic-diagram-heading button span {
+    display: none;
+  }
+
+  .economic-diagram-canvas,
+  .economic-diagram.is-expanded .economic-diagram-canvas {
+    padding: 10px 6px 2px;
+  }
+
+  .economic-diagram svg {
+    min-height: 190px;
+  }
+
+  .dossier-toolbar {
+    top: 69px;
+    align-items: flex-start;
+    padding: 12px;
+  }
+
+  .dossier-toolbar > div:first-child {
+    display: none;
+  }
+
+  .dossier-toolbar-actions {
+    width: 100%;
+  }
+
+  .dossier-toolbar button {
+    flex: 1;
+    justify-content: center;
+  }
+
   .exam-dossier summary,
   .exam-dossier-body {
     padding: 16px;
+  }
+
+  .exam-brief-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .exam-brief-grid > div + div {
+    border-top: 1px solid var(--article-line);
+    border-left: 0;
+  }
+
+  .exam-dossier-chips {
+    margin-top: 8px;
   }
 
   .article-source-panel {

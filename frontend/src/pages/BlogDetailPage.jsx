@@ -5,6 +5,8 @@ import {
   BadgeCheck,
   CalendarDays,
   Check,
+  ChevronsDown,
+  ChevronsUp,
   Clock3,
   FileText,
   GraduationCap,
@@ -130,6 +132,14 @@ export default function BlogDetailPage() {
     navigator.clipboard.writeText(url).then(() => {
       setCopiedSectionId(id);
       setTimeout(() => setCopiedSectionId(''), 2500);
+    });
+  };
+
+  const setDossiersOpen = (sectionId, shouldOpen) => {
+    const sectionElement = document.getElementById(sectionId);
+    if (!sectionElement) return;
+    sectionElement.querySelectorAll('details.exam-dossier').forEach((details) => {
+      details.open = shouldOpen;
     });
   };
 
@@ -268,6 +278,7 @@ export default function BlogDetailPage() {
             {post.sections.map((section, sectionIndex) => {
               const sectionId = getSectionId(section.heading);
               const isCopied = copiedSectionId === sectionId;
+              const dossierCount = section.blocks?.filter((block) => block.type === 'exam').length || 0;
               return (
                 <section key={section.heading} id={sectionId} className="article-section">
                   <header className="article-section-header">
@@ -293,6 +304,24 @@ export default function BlogDetailPage() {
                   </header>
 
                   <div className="article-body">
+                    {dossierCount > 0 && (
+                      <div className="dossier-toolbar">
+                        <div>
+                          <span>Thư viện hồ sơ</span>
+                          <strong>{dossierCount} bài có lời giải chi tiết</strong>
+                        </div>
+                        <div className="dossier-toolbar-actions">
+                          <button type="button" onClick={() => setDossiersOpen(sectionId, true)}>
+                            <ChevronsDown size={17} />
+                            Mở tất cả
+                          </button>
+                          <button type="button" onClick={() => setDossiersOpen(sectionId, false)}>
+                            <ChevronsUp size={17} />
+                            Thu gọn
+                          </button>
+                        </div>
+                      </div>
+                    )}
                     {section.blocks
                       ? section.blocks.map((block, blockIndex) => (
                           <ArticleBlock
