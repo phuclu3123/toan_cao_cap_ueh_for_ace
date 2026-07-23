@@ -1009,20 +1009,20 @@
 }
 
 .forum-article {
-  color: #1a1a1a;
+  color: #1e293b;
   max-width: 960px;
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: 16px;
   padding: 44px 52px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
-  font-family: 'Latin Modern Roman', 'CMU Serif', 'Computer Modern', 'Georgia', 'Times New Roman', serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 :root.light-theme .forum-article {
   background: #ffffff;
   border-color: #e2e8f0;
-  color: #1a1a1a;
+  color: #1e293b;
 }
 
 .article-search {
@@ -1046,12 +1046,12 @@
 .forum-article h1.article-title {
   max-width: 880px;
   color: var(--text-primary);
-  font-size: clamp(2.1rem, 3.6vw, 2.85rem);
-  line-height: 1.25;
+  font-size: clamp(2rem, 3.5vw, 2.75rem);
+  line-height: 1.28;
   font-weight: 850;
   margin: 16px 0;
   letter-spacing: -0.02em;
-  font-family: 'Latin Modern Roman', 'CMU Serif', 'Computer Modern', 'Georgia', serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 :root.light-theme .forum-article h1.article-title {
@@ -1098,7 +1098,7 @@
   border: 1px solid rgba(6, 182, 212, 0.25);
 }
 
-/* Borderless, clean section flow like PDF LaTeX & AI Vietnam */
+/* Borderless, clean section flow like AI Vietnam */
 .article-section {
   margin-bottom: 40px;
   padding-bottom: 32px;
@@ -1112,13 +1112,13 @@
 .article-section h2.section-heading {
   margin: 0 0 22px;
   color: var(--text-primary);
-  font-size: clamp(1.45rem, 2.3vw, 1.9rem);
+  font-size: clamp(1.4rem, 2.2vw, 1.85rem);
   font-weight: 850;
   display: flex;
   align-items: center;
   justify-content: space-between;
   letter-spacing: -0.01em;
-  font-family: 'Latin Modern Roman', 'CMU Serif', 'Computer Modern', 'Georgia', serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 :root.light-theme .article-section h2.section-heading {
@@ -1163,14 +1163,14 @@
 
 .article-paragraph {
   color: var(--text-primary);
-  font-size: 1.08rem;
-  line-height: 1.88;
+  font-size: 1.05rem;
+  line-height: 1.85;
   margin-bottom: 16px;
   white-space: pre-wrap;
 }
 
 :root.light-theme .article-paragraph {
-  color: #1a1a1a;
+  color: #334155;
 }
 
 .article-paragraph:last-child {
@@ -1179,7 +1179,7 @@
 
 /* Indented Bullet List Items */
 .article-list-item {
-  margin-left: 2rem;
+  margin-left: 1.8rem;
   margin-top: 6px;
   margin-bottom: 6px;
   display: flex;
@@ -1193,7 +1193,7 @@
   font-size: 1.1rem;
 }
 
-/* KaTeX Math Formatting: Pure Centered PDF LaTeX Style (NO BOX, NO BORDER) */
+/* KaTeX Math Formatting: Completely unboxed, centered, NO SCROLLBAR */
 .math-block {
   display: flex;
   justify-content: center;
@@ -1205,7 +1205,9 @@
   border: none !important;
   box-shadow: none !important;
   border-radius: 0 !important;
-  overflow-x: auto;
+  overflow: visible !important;
+  overflow-x: visible !important;
+  overflow-y: visible !important;
   font-size: 1.14rem;
   width: 100%;
 }
@@ -1218,6 +1220,33 @@
 .math-block .katex-display {
   margin: 0 !important;
   background: transparent !important;
+  overflow: visible !important;
+}
+
+/* Figure styling: Clean, unboxed image display without outer frame card */
+.article-diagram-figure {
+  margin: 24px 0;
+  text-align: center;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.article-diagram-img {
+  max-width: 100%;
+  height: auto;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+}
+
+.article-diagram-caption {
+  margin-top: 8px;
+  font-size: 0.9rem;
+  color: #64748b;
+  font-style: italic;
 }
 
 .math-inline {

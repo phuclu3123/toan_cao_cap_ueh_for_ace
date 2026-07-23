@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="576pt" height="324pt" viewBox="0 0 576 324" xmlns="http://www.w3.org/2000/svg" version="1.1">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="576pt" height="302.4pt" viewBox="0 0 576 302.4" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-07-23T10:37:12.216070</dc:date>
+    <dc:date>2026-07-23T10:50:25.347183</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
@@ -21,17 +21,18 @@
  </defs>
  <g id="figure_1">
   <g id="patch_1">
-   <path d="M 0 324 
-L 576 324 
+   <path d="M 0 302.4 
+L 576 302.4 
 L 576 0 
 L 0 0 
+L 0 302.4 
 z
-" style="fill: #ffffff"/>
+" style="fill: none"/>
   </g>
   <g id="axes_1">
    <g id="text_1">
     <!-- SƠ ĐỒ CHU CHUYỂN VĨ MÔ: THU NHẬP (Y), TIÊU DÙNG (C) &amp; TIẾT KIỆM (S) -->
-    <g style="fill: #0f172a" transform="translate(-0.046484 41.754278) scale(0.13 -0.13)">
+    <g style="fill: #0f172a" transform="translate(-0.046484 40.026278) scale(0.13 -0.13)">
      <defs>
       <path id="DejaVuSerif-Bold-53" d="M 494 225 
 L 494 1331 
@@ -978,7 +979,7 @@ z
    </g>
    <g id="text_2">
     <!-- Đẳng thức phân bổ $Y = C(Y) + S(Y)$ và $MPC + MPS = 1$ -->
-    <g style="fill: #64748b" transform="translate(143.24 63.8784) scale(0.11 -0.11)">
+    <g style="fill: #64748b" transform="translate(143.24 60.4224) scale(0.11 -0.11)">
      <defs>
       <path id="DejaVuSerif-110" d="M 1606 331 
 L 2194 331 
@@ -1701,20 +1702,20 @@ z
    </g>
    <g id="text_3">
     <g id="patch_2">
-     <path d="M 106.986625 189.176094 
-L 215.195375 189.176094 
-Q 225.595375 189.176094 225.595375 178.776094 
-L 225.595375 145.1325 
-Q 225.595375 134.7325 215.195375 134.7325 
-L 106.986625 134.7325 
-Q 96.586625 134.7325 96.586625 145.1325 
-L 96.586625 178.776094 
-Q 96.586625 189.176094 106.986625 189.176094 
+     <path d="M 111.1485 173.885625 
+L 211.0335 173.885625 
+Q 218.2335 173.885625 218.2335 166.685625 
+L 218.2335 135.63 
+Q 218.2335 128.43 211.0335 128.43 
+L 111.1485 128.43 
+Q 103.9485 128.43 103.9485 135.63 
+L 103.9485 166.685625 
+Q 103.9485 173.885625 111.1485 173.885625 
 z
-" style="fill: #f0fdf4; stroke: #16a34a; stroke-width: 2; stroke-linejoin: miter"/>
+" style="fill: #f0fdf4; stroke: #16a34a; stroke-width: 1.5; stroke-linejoin: miter"/>
     </g>
     <!-- THU NHẬP -->
-    <g transform="translate(120.166391 157.250937) scale(0.13 -0.13)">
+    <g transform="translate(123.314438 146.81625) scale(0.12 -0.12)">
      <use xlink:href="#DejaVuSerif-Bold-54"/>
      <use xlink:href="#DejaVuSerif-Bold-48" transform="translate(74.414062 0)"/>
      <use xlink:href="#DejaVuSerif-Bold-55" transform="translate(168.896484 0)"/>
@@ -1725,7 +1726,7 @@ z
      <use xlink:href="#DejaVuSerif-Bold-50" transform="translate(554.394531 0)"/>
     </g>
     <!-- QUỐC DÂN (Y) -->
-    <g transform="translate(106.986625 176.0725) scale(0.13 -0.13)">
+    <g transform="translate(111.1485 164.19) scale(0.12 -0.12)">
      <defs>
       <path id="DejaVuSerif-Bold-51" d="M 2766 -91 
 Q 1584 -72 926 565 
@@ -1841,20 +1842,20 @@ z
    </g>
    <g id="text_4">
     <g id="patch_3">
-     <path d="M 362.156813 133.618425 
-L 467.661187 133.618425 
-Q 477.261188 133.618425 477.261188 124.018425 
-L 477.261188 94.43955 
-Q 477.261188 84.83955 467.661187 84.83955 
-L 362.156813 84.83955 
-Q 352.556812 84.83955 352.556812 94.43955 
-L 352.556812 124.018425 
-Q 352.556812 133.618425 362.156813 133.618425 
+     <path d="M 362.156813 124.306425 
+L 467.661187 124.306425 
+Q 474.861187 124.306425 474.861187 117.106425 
+L 474.861187 87.52755 
+Q 474.861187 80.32755 467.661187 80.32755 
+L 362.156813 80.32755 
+Q 354.956813 80.32755 354.956813 87.52755 
+L 354.956813 117.106425 
+Q 354.956813 124.306425 362.156813 124.306425 
 z
-" style="fill: #f0f9ff; stroke: #0284c7; stroke-width: 2; stroke-linejoin: miter"/>
+" style="fill: #f0f9ff; stroke: #0284c7; stroke-width: 1.5; stroke-linejoin: miter"/>
     </g>
     <!-- TIÊU DÙNG (C) -->
-    <g transform="translate(362.156813 102.3708) scale(0.12 -0.12)">
+    <g transform="translate(362.156813 95.4588) scale(0.12 -0.12)">
      <use xlink:href="#DejaVuSerif-Bold-54"/>
      <use xlink:href="#DejaVuSerif-Bold-49" transform="translate(74.414062 0)"/>
      <use xlink:href="#DejaVuSerif-Bold-ca" transform="translate(121.191406 0)"/>
@@ -1870,7 +1871,7 @@ z
      <use xlink:href="#DejaVuSerif-Bold-29" transform="translate(831.884766 0)"/>
     </g>
     <!-- $MPC = \frac{\mathrm{d}C}{\mathrm{d}Y}$ -->
-    <g transform="translate(388.209 118.978425) scale(0.12 -0.12)">
+    <g transform="translate(388.209 112.066425) scale(0.12 -0.12)">
      <defs>
       <path id="DejaVuSans-64" d="M 2906 2969 
 L 2906 4863 
@@ -1918,20 +1919,20 @@ z
    </g>
    <g id="text_5">
     <g id="patch_4">
-     <path d="M 357.309 242.840137 
-L 472.509 242.840137 
-Q 482.109 242.840137 482.109 233.240137 
-L 482.109 201.306262 
-Q 482.109 191.706262 472.509 191.706262 
-L 357.309 191.706262 
-Q 347.709 191.706262 347.709 201.306262 
-L 347.709 233.240137 
-Q 347.709 242.840137 357.309 242.840137 
+     <path d="M 357.309 225.752138 
+L 472.509 225.752138 
+Q 479.709 225.752138 479.709 218.552138 
+L 479.709 186.618263 
+Q 479.709 179.418263 472.509 179.418263 
+L 357.309 179.418263 
+Q 350.109 179.418263 350.109 186.618263 
+L 350.109 218.552138 
+Q 350.109 225.752138 357.309 225.752138 
 z
-" style="fill: #fffbeb; stroke: #d97706; stroke-width: 2; stroke-linejoin: miter"/>
+" style="fill: #fffbeb; stroke: #d97706; stroke-width: 1.5; stroke-linejoin: miter"/>
     </g>
     <!-- TIẾT KIỆM (S) -->
-    <g transform="translate(365.173687 211.508137) scale(0.12 -0.12)">
+    <g transform="translate(365.173687 196.820138) scale(0.12 -0.12)">
      <use xlink:href="#DejaVuSerif-Bold-54"/>
      <use xlink:href="#DejaVuSerif-Bold-49" transform="translate(74.414062 0)"/>
      <use xlink:href="#DejaVuSerif-Bold-1ebe" transform="translate(121.191406 0)"/>
@@ -1947,7 +1948,7 @@ z
      <use xlink:href="#DejaVuSerif-Bold-29" transform="translate(781.591797 0)"/>
     </g>
     <!-- $MPS = \frac{\mathrm{d}S}{\mathrm{d}Y} = 1 - MPC$ -->
-    <g transform="translate(357.309 228.200137) scale(0.12 -0.12)">
+    <g transform="translate(357.309 213.512138) scale(0.12 -0.12)">
      <defs>
       <path id="DejaVuSans-2212" d="M 678 2272 
 L 4684 2272 
@@ -1981,34 +1982,26 @@ z
     </g>
    </g>
    <g id="patch_5">
-    <path d="M 217.997624 149.39648 
-Q 283.770995 128.973198 346.875005 109.378778 
+    <path d="M 218.005886 139.500827 
+Q 283.771112 120.549193 346.850548 102.371526 
 " style="fill: none; stroke: #0284c7; stroke-width: 2.5; stroke-linecap: round"/>
-    <path d="M 342.020525 108.582525 
-L 346.875005 109.378778 
-L 343.325314 112.784611 
+    <path d="M 342.013411 101.475923 
+L 346.850548 102.371526 
+L 343.231784 105.703874 
 " style="fill: none; stroke: #0284c7; stroke-width: 2.5; stroke-linecap: round"/>
    </g>
    <g id="patch_6">
-    <path d="M 217.997624 174.60352 
-Q 283.770995 195.026802 346.875005 214.621222 
+    <path d="M 218.005886 162.899173 
+Q 283.771112 181.850807 346.850548 200.028474 
 " style="fill: none; stroke: #d97706; stroke-width: 2.5; stroke-linecap: round"/>
-    <path d="M 343.325314 211.215389 
-L 346.875005 214.621222 
-L 342.020525 215.417475 
+    <path d="M 343.231784 196.696126 
+L 346.850548 200.028474 
+L 342.013411 200.924077 
 " style="fill: none; stroke: #d97706; stroke-width: 2.5; stroke-linecap: round"/>
    </g>
    <g id="text_6">
-    <g id="patch_7">
-     <path d="M 155.7 298.176 
-L 420.3 298.176 
-L 420.3 266.016 
-L 155.7 266.016 
-z
-" style="fill: #f8fafc; stroke: #cbd5e1; stroke-width: 1.5; stroke-linejoin: miter"/>
-    </g>
     <!-- SỐ NHÂN ĐẦU TƯ: $k = \frac{\mathrm{d}Y}{\mathrm{d}I} = \frac{1}{1 - MPC} = \frac{1}{MPS}$ -->
-    <g transform="translate(162.9 285.936) scale(0.12 -0.12)">
+    <g transform="translate(162.9 266.496) scale(0.12 -0.12)">
      <defs>
       <path id="DejaVuSerif-Bold-1ea6" d="M 3630 6753 
 L 4199 5928 
