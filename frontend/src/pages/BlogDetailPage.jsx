@@ -4,6 +4,7 @@ import { ArrowLeft, CalendarDays, Link as LinkIcon, UserRound } from 'lucide-rea
 import { blogPosts, getBlogPostBySlug } from '../data/blogPosts';
 import { LanguageContext } from '../App';
 import { translations } from '../utils/translations';
+import MathRenderer from '../components/MathRenderer';
 import '../assets/styles/Home.css';
 
 export default function BlogDetailPage() {
@@ -87,7 +88,9 @@ export default function BlogDetailPage() {
             {post.sections.map((section) => (
               <section key={section.heading} id={section.heading.toLowerCase().replace(/\s+/g, '-')} className="article-section">
                 <h2>{section.heading} <LinkIcon size={18} /></h2>
-                <p>{section.body}</p>
+                <div className="article-body">
+                  <MathRenderer text={section.body} />
+                </div>
               </section>
             ))}
 

@@ -20,6 +20,7 @@ import {
 import { getPracticeExamById } from '../data/practiceExams';
 import { LanguageContext } from '../App';
 import { translations } from '../utils/translations';
+import MathRenderer from '../components/MathRenderer';
 import '../assets/styles/ExamDetail.css';
 
 const DEFAULT_DURATION_MINUTES = 30;
@@ -367,7 +368,9 @@ export default function ExamDetail() {
             </div>
 
             <div className="question-card">
-              <p className="question-prompt">{formatExamMath(stripQuestionNumberPrefix(currentQuestion.prompt, currentIndex + 1))}</p>
+              <div className="question-prompt">
+                <MathRenderer text={formatExamMath(stripQuestionNumberPrefix(currentQuestion.prompt, currentIndex + 1))} />
+              </div>
 
               <div className="answer-options">
                 {currentQuestion.options.map((option) => {
@@ -389,7 +392,9 @@ export default function ExamDetail() {
                       disabled={submitted}
                     >
                       <span className="option-key">{option.id}</span>
-                      <span className="option-text">{formatExamMath(option.text, { displayStandalone: true })}</span>
+                      <span className="option-text">
+                        <MathRenderer text={formatExamMath(option.text, { displayStandalone: true })} />
+                      </span>
                       {isCorrect && <CheckCircle2 size={18} className="option-status-icon correct" />}
                       {isWrong && <XCircle size={18} className="option-status-icon wrong" />}
                     </button>
@@ -404,7 +409,7 @@ export default function ExamDetail() {
                     <h3>{t.exam.solutionTitle.replace('{correct}', currentQuestion.correct)}</h3>
                   </div>
                   <div className="explanation-body">
-                    {formatExamMath(currentQuestion.explanation)}
+                    <MathRenderer text={formatExamMath(currentQuestion.explanation)} />
                   </div>
                 </div>
               )}

@@ -353,12 +353,12 @@ export const midtermExams = [
   },
   {
     id: 'gk-dna',
-    title: 'Đề Thi Giữa Kỳ - Đặng Ngọc Ánh (DNA)',
-    professor: 'dna',
-    professorName: 'Thầy/Cô Đặng Ngọc Ánh',
+    title: 'Đề Thi Giữa Kỳ - Thầy Sáng (GK_DNA)',
+    professor: 'sang',
+    professorName: 'Thầy Sáng',
     image: 'c123.jpg',
     pdf: 'GK_DNA/1c90828a-976e-4a2d-9e5a-c8c79000ce75.jpg',
-    desc: 'Bộ đề thi giữa kỳ môn Toán Cao Cấp cập nhật mới nhất từ giảng viên Đặng Ngọc Ánh (DNA).'
+    desc: 'Bộ đề thi giữa kỳ môn Toán Cao Cấp cập nhật mới nhất từ lớp Thầy Sáng (GK_DNA).'
   },
   {
     id: 'ndt',
