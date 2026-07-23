@@ -58,7 +58,23 @@ export default function MathRenderer({ text, className = '' }) {
         }
       }
 
-      return part;
+      // Plain text part: parse markdown bold (**text**) and italic (*text*)
+      const parseFormattedText = (str) => {
+        // Match **bold** or *italic*
+        const tokenRegex = /(\*\*.*?\*\*|\*.*?\*)/g;
+        const tokens = str.split(tokenRegex);
+        return tokens.map((token, tIdx) => {
+          if (token.startsWith('**') && token.endsWith('**') && token.length >= 4) {
+            return <strong key={tIdx}>{token.slice(2, -2)}</strong>;
+          }
+          if (token.startsWith('*') && token.endsWith('*') && token.length >= 2) {
+            return <em key={tIdx}>{token.slice(1, -1)}</em>;
+          }
+          return token;
+        });
+      };
+
+      return <span key={index}>{parseFormattedText(part)}</span>;
     });
   }, [text]);
 

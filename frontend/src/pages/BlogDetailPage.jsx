@@ -91,7 +91,7 @@ export default function BlogDetailPage() {
       <section className="forum-blog-hero">
         <div className="container forum-blog-grid">
           <aside className="article-toc">
-            <h3><BookOpen size={18} /> {t.blogPage.tocTitle}</h3>
+            <h3 className="toc-title">Nội dung bài viết</h3>
             <ul className="toc-list">
               {post.toc.map((item, idx) => {
                 const sectionId = item.toLowerCase().replace(/\s+/g, '-');
@@ -109,6 +109,9 @@ export default function BlogDetailPage() {
                 );
               })}
             </ul>
+            <div className="toc-footer">
+              <span>© 2026 UEH TCC. All rights reserved.</span>
+            </div>
           </aside>
 
           <article className="forum-article">
@@ -127,8 +130,6 @@ export default function BlogDetailPage() {
             <div className="article-meta">
               <span className="category-badge">{post.category}</span>
             </div>
-
-            <img src={post.image} alt={post.title} className="article-cover" />
 
             {post.sections.map((section) => {
               const sectionId = section.heading.toLowerCase().replace(/\s+/g, '-');
