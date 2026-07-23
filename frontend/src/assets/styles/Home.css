@@ -985,13 +985,13 @@
   color: var(--accent-teal);
   font-weight: 750;
   border-left-color: var(--accent-teal);
-  background: rgba(6, 182, 212, 0.06);
+  background: transparent !important;
 }
 
 :root.light-theme .toc-list li a.active {
   color: #0f766e;
   border-left-color: #0f766e;
-  background: #f0fdf4;
+  background: transparent !important;
 }
 
 .toc-footer {
@@ -1156,16 +1156,19 @@
   margin-bottom: 0;
 }
 
-/* KaTeX Math Formatting: Seamless & Non-cluttered */
+/* KaTeX Math Formatting: Clean, Centered Display Block */
 .math-block {
-  display: block;
-  margin: 22px 0;
-  padding: 16px 22px;
-  background: rgba(15, 118, 110, 0.04);
-  border-left: 3px solid var(--accent-teal);
-  border-radius: 0 8px 8px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  margin: 24px 0;
+  padding: 16px 0;
+  background: transparent;
+  border: none;
   overflow-x: auto;
-  font-size: 1.1rem;
+  font-size: 1.12rem;
+  width: 100%;
 }
 
 .math-inline {

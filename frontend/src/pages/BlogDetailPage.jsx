@@ -15,9 +15,35 @@ export default function BlogDetailPage() {
   const [activeSectionId, setActiveSectionId] = useState('');
   const [copiedSectionId, setCopiedSectionId] = useState('');
 
-  // Scroll to top when post slug changes
+  // Safe ASCII slug generator for section IDs
+  const getSectionId = (heading) => {
+    if (!heading) return '';
+    return heading
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/đ/g, 'd')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)+/g, '');
+  };
+
+  // Scroll to top or target query section when post slug changes
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'instant' });
+    const searchParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
+    const targetSection = searchParams.get('section');
+
+    if (targetSection) {
+      setTimeout(() => {
+        const el = document.getElementById(targetSection);
+        if (el) {
+          const topOffset = el.getBoundingClientRect().top + window.pageYOffset - 90;
+          window.scrollTo({ top: topOffset, behavior: 'smooth' });
+          setActiveSectionId(targetSection);
+        }
+      }, 200);
+    } else {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
   }, [slug]);
 
   // ScrollSpy using IntersectionObserver
@@ -48,7 +74,7 @@ export default function BlogDetailPage() {
   // Handle smooth scroll to section without breaking hash routing
   const scrollToSection = (e, heading) => {
     e.preventDefault();
-    const id = heading.toLowerCase().replace(/\s+/g, '-');
+    const id = getSectionId(heading);
     setActiveSectionId(id);
     const element = document.getElementById(id);
     if (element) {
@@ -57,11 +83,11 @@ export default function BlogDetailPage() {
     }
   };
 
-  // Copy section anchor link to clipboard
+  // Safe copy section link for HashRouter
   const copySectionLink = (e, heading) => {
     e.preventDefault();
-    const id = heading.toLowerCase().replace(/\s+/g, '-');
-    const url = `${window.location.origin}${window.location.pathname}#${id}`;
+    const id = getSectionId(heading);
+    const url = `${window.location.origin}/#/blog/${slug}?section=${id}`;
     navigator.clipboard.writeText(url).then(() => {
       setCopiedSectionId(id);
       setTimeout(() => setCopiedSectionId(''), 2500);
@@ -94,7 +120,7 @@ export default function BlogDetailPage() {
             <h3 className="toc-title">Nội dung bài viết</h3>
             <ul className="toc-list">
               {post.toc.map((item, idx) => {
-                const sectionId = item.toLowerCase().replace(/\s+/g, '-');
+                const sectionId = getSectionId(item);
                 const isActive = activeSectionId === sectionId;
                 return (
                   <li key={idx}>
@@ -132,7 +158,7 @@ export default function BlogDetailPage() {
             </div>
 
             {post.sections.map((section) => {
-              const sectionId = section.heading.toLowerCase().replace(/\s+/g, '-');
+              const sectionId = getSectionId(section.heading);
               const isCopied = copiedSectionId === sectionId;
               return (
                 <section key={section.heading} id={sectionId} className="article-section">

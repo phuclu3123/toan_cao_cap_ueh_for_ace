@@ -105,6 +105,10 @@ const router = createHashRouter([
       {
         path: '20-10',
         element: <GiftPage />
+      },
+      {
+        path: '*',
+        element: <Home />
       }
     ]
   }
