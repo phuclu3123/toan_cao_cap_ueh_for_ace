@@ -432,7 +432,7 @@ export default function ArticleBlock({ block }) {
         <figure className="formula-panel">
           <figcaption>{block.label}</figcaption>
           <div className="formula-panel-expression">{renderMath(block.content)}</div>
-          {block.note && <p>{block.note}</p>}
+          {block.note && <p>{renderMath(block.note)}</p>}
         </figure>
       );
 

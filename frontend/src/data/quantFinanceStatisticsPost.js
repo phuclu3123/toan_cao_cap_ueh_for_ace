@@ -458,7 +458,38 @@ portfolio_vol = np.sqrt(portfolio_var)`,
           label: 'Phân rã trị riêng của ma trận đối xứng',
           content: math`$$A=U\Lambda U^\top,\qquad \Lambda=\operatorname{diag}(\lambda_1,\ldots,\lambda_d),\qquad x^\top Ax=\sum_{k=1}^{d}\lambda_k(u_k^\top x)^2$$`,
           note:
-            'Mỗi eigenvector uk là một hướng rủi ro; eigenvalue λk là mức phạt hoặc variance theo hướng đó.',
+            'Trong đó: $\\Lambda$ (Lambda hoa) là ma trận đường chéo chứa các trị riêng $\\lambda_1,\\ldots,\\lambda_d$; ký hiệu $\\operatorname{diag}(\\lambda_1,\\ldots,\\lambda_d)$ thể hiện ma trận chỉ có các phần tử trên đường chéo chính khác 0.',
+        },
+        {
+          type: 'comparison',
+          columns: ['Ký hiệu trong phân rã', 'Tên gọi toán học', 'Ý nghĩa chi tiết trong bài toán'],
+          rows: [
+            [
+              '$\\Lambda$ (Lambda hoa)',
+              'Ma trận đường chéo (Diagonal Matrix)',
+              'Ma trận cấp $d \\times d$ chứa toàn bộ các trị riêng $(\\lambda_1, \\dots, \\lambda_d)$ trên đường chéo chính, các vị trí còn lại ngoài đường chéo đều bằng $0$.',
+            ],
+            [
+              '$\\operatorname{diag}(\\lambda_1, \\dots, \\lambda_d)$',
+              'Toán tử / Ký hiệu đường chéo',
+              'Ký hiệu thu gọn của ma trận đường chéo $\\begin{bmatrix}\\lambda_1 & 0 & \\dots & 0 \\\\ 0 & \\lambda_2 & \\dots & 0 \\\\ \\vdots & \\vdots & \\ddots & \\vdots \\\\ 0 & 0 & \\dots & \\lambda_d\\end{bmatrix}$.',
+            ],
+            [
+              '$U$',
+              'Ma trận trực giao (Orthogonal Matrix)',
+              'Ma trận cấp $d \\times d$ chứa các vector riêng chuẩn hóa $(u_1, \\dots, u_d)$ xếp theo cột, thỏa mãn $U^\\top U = I_d$.',
+            ],
+            [
+              '$\\lambda_k$',
+              'Trị riêng (Eigenvalue)',
+              'Mức phạt hoặc độ biến động (variance) tương ứng theo hướng rủi ro thứ $k$.',
+            ],
+            [
+              '$u_k$',
+              'Vector riêng (Eigenvector)',
+              'Hướng rủi ro chính (principal direction) thứ $k$, vuông góc với các hướng còn lại.',
+            ],
+          ],
         },
         {
           type: 'paragraph',
