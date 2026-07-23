@@ -1,5956 +1,0 @@
-
---- PAGE 1 ---
-rX
-k=0
- m
-k
- n
-r − k
-
-=
- m + n
-r
-
-φ (n ) = n
-Y
-p|n
-
-1 − 1
-p
-
-σ(n) =
-X
-d|n
-d =
-k
-Y
-i=1
-p
-α i+1
-i
-− 1
-p i − 1
-a p− 1
-≡ 1 ( mod
-p)
-lim
-n →∞
-
-1 +
-1
-n
- n
-= e
-M4A
-[ Ấ N P H Ẩ M Đ Ặ C B I Ệ T ]
-TOÁN ỨNG DỤNGTOÁN ỨNG DỤNG
-KHÓA K51KHÓA K51
-ĐỀ THI & LỜI GIẢI CHI TIẾT
-PHÂN TÍCH TƯ DUY , SÁNG TẠO & CÁC KỸ THUẬT NÂNG CAO
-BIÊN SOẠN BỞI
-LỮ VÕ HOÀNG PHÚC
-K51_EDITION // 2026
---- PAGE 2 ---
-LỜI NÓI ĐẦU
-Chào các tình yêu đang chinh phục môn T oán Ứng Dụng!
-T ài liệu này ra đời từ sự thấu hiểu những khó khăn mà mọi người thường gặp phải với
-môn T oán Ứng Dụng. Có người ngay từ đầu đã sợ toán, có người không yếu nhưng lại
-học không vào. Đây không chỉ là một tập tài liệu thông thường, mà là toàn bộ những
-tinh hoa kiến thức mà mình đã dày công thu thập được . Nội dung trọng tâm là toàn
-bộ đề thi K51 mới nhất mà mình có, được cấu trúc rõ ràng thành 2 phần chính:
-– Phần 1: Hệ thống đề thi T oán Ứng Dụng (cập nhật các đề K51 mới nhất).
-– Phần 2: Lời giải chi tiết cặn kẽ cho từng câu (bao gồm cả trắc nghiệm và tự luận).
-Đối tượng mà tài liệu hướng tới đặc biệt dành cho các bạn K51 trong mùa thi này ,
-cũng như các bạn, các anh/chị đang học cải thiện điểm số, hoặc mục tiêu cốt lõi là
-học qua môn .
-T ài liệu này không dài, không học thuật, không lý thuyết nặng. Nó được sinh ra để
-dành cho những ai đang cần ôn thi nhanh hoặc đang cảm thấy hoang mang. Đây là
-toàn bộ tâm huyết của mình , với mong muốn hỗ trợ phần nào gánh nặng học tập cho
-mọi người.
-Để tài liệu phát huy tối đa hiệu quả , mình có một lời khuyên nhỏ: Hãy cố gắng tự
-đặt bút giải trước khi đối chiếu với phần đáp án. Việc tự suy nghĩ sẽ giúp các bạn nhớ lâu
-hơn và nhận ra lỗ hổng kiến thức của bản thân. Đừng nản lòng nếu giải sai, vì mỗi lần
-sai là một lần mình tiến gần hơn đến điểm số an toàn.
-Nếu bạn đọc tới đây thì cảm ơn bạn đã dành thời gian. Chúc bạn ôn tập thật trơn tru,
-đi thi giữ cái đầu lạnh và đạt được điểm số như ý muốn nhé!
-Lữ Võ Hoàng Phúc
-Sinh viên K50 – UEH
-Trong quá trình sử dụng, nếu bạn phát hiện có bất kỳ lỗi sai nào, xin vui lòng quét mã
-QR bên dưới hoặc truy cập vào đường link để liệt kê giúp mình hoàn thiện tài liệu hơn
-nhé! Xin chân thành cảm ơn.
-Hoặc thông qua link dưới đây nhé: Nhấn vào đây
---- PAGE 3 ---
-Mục Lục
-1
-ĐỀ THI TOÁN CAO CẤP K51 MÃ ĐỀ 204 1
-1.1 PHẦN TRẮC NGHIỆM (5 điểm) . . . . . . . . . . . . . . . . . . . . 1
-1.2 PHẦN TỰ LUẬN (5 điểm) . . . . . . . . . . . . . . . . . . . . . . . 2
-2
-ĐỀ THI TOÁN CAO CẤP K51 MÃ ĐỀ 118 4
-2.1 PHẦN TRẮC NGHIỆM (5 điểm) . . . . . . . . . . . . . . . . . . . . 4
-2.2 PHẦN TỰ LUẬN (5 điểm) . . . . . . . . . . . . . . . . . . . . . . . 5
-3
-ĐỀ THI TOÁN CAO CẤP K51 MÃ ĐỀ 354 7
-3.1 PHẦN TRẮC NGHIỆM (5 điểm) . . . . . . . . . . . . . . . . . . . . 7
-3.2 PHẦN TỰ LUẬN (5 điểm) . . . . . . . . . . . . . . . . . . . . . . . 8
-4
-ĐỀ THI TOÁN CAO CẤP K51 MÃ ĐỀ 442 10
-4.1 PHẦN TRẮC NGHIỆM (5 điểm) . . . . . . . . . . . . . . . . . . . . 10
-4.2 PHẦN TỰ LUẬN (5 điểm) . . . . . . . . . . . . . . . . . . . . . . . 11
-5
-MATHEMATICS EXAM K51 (ENGLISH) 13
-5.1 MULTICHOICE QUESTIONS (5 points) . . . . . . . . . . . . . . . . 13
-5.2 WRITTEN QUESTIONS (5 points) . . . . . . . . . . . . . . . . . . . 14
-6
-LỜI GIẢI ĐỀ THI TOÁN CAO CẤP K51 (204) 16
-6.1 PHẦN TRẮC NGHIỆM . . . . . . . . . . . . . . . . . . . . . . . . . 16
-6.2 TỰ LUẬN . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 29
-7
-LỜI GIẢI ĐỀ THI TOÁN CAO CẤP K51 (118) 42
-7.1 PHẦN TRẮC NGHIỆM (5 điểm) . . . . . . . . . . . . . . . . . . . . 42
-7.2 TỰ LUẬN . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 50
---- PAGE 4 ---
-8
-LỜI GIẢI ĐỀ THI TOÁN CAO CẤP K51 (354) 55
-8.1 PHẦN TRẮC NGHIỆM . . . . . . . . . . . . . . . . . . . . . . . . . 55
-8.2 PHẦN TỰ LUẬN . . . . . . . . . . . . . . . . . . . . . . . . . . . . 73
-9
-LỜI GIẢI ĐỀ THI TOÁN CAO CẤP K51 (442) 78
-9.1 PHẦN TRẮC NGHIỆM (5 điểm) . . . . . . . . . . . . . . . . . . . . 78
-9.2 PHẦN TỰ LUẬN (5 điểm) . . . . . . . . . . . . . . . . . . . . . . . 95
-10
-MATHEMATICS EXAM K51 (ENGLISH) 100
-10.1 MULTICHOICE QUESTIONS (5 points) . . . . . . . . . . . . . . . . 100
-10.2 WRITTEN QUESTIONS (5 points) . . . . . . . . . . . . . . . . . . . 112
---- PAGE 5 ---
-1
-ĐỀ THI TOÁN CAO
-CẤP K51 MÃ ĐỀ 204
-1.1 PHẦN TRẮC NGHIỆM (5 điểm)
-Ghi chú: Trong đề thi, ta ký hiệu In là ma trận đơn vị cấp n
-Câu 1. Cho ma trận A vuông cấp 4. Hãy chọn phát biểu SAI:
-A Nếu r(A) = 3 thì |AT .A4| = 0.
-B Nếu r(A) = 4 thì hệ phương trình tuyến tính AX = B có vô số nghiệm.
-C Nếu r(A) = 1 thì ma trận A2 − 2A suy biến.
-D Nếu r(A) = 2 thì ma trận A3 + 3A không khả nghịch.
-Câu 2. Cho ma trận A khả nghịch có A−1 =
-2
-64
-1 0 m
-0 −1 1
-0 0 2
-3
-75 và B = 2 AT . Khi đó phần tử
-nằm trên hàng 3 cột 1 của B−1 là:
-A 0. B − m
-2 . C m
-2 . D m.
-Câu 3. Xét hệ
-8
->><
->>:
-mx + y + 2z = 1
-x + 2y + 3z = 2
-2x + 3y + 5z = 3
-với tham số m ∈ R. Khẳng định nào sau đây SAI:
-A Tồn tại m sao cho hệ vô nghiệm.
-B Tồn tại m sao cho hệ có vô số nghiệm.
-C Tồn tại m sao cho hệ có duy nhất nghiệm.
-D Với mọi m hệ luôn có nghiệm.
-Câu 4. Tiết kiệm S của một thành phố phụ thuộc vào thu nhập I của thành phố đó theo
-phương trình
-S2 + 1
-4 I 2 = SI + I
-và phần tiết kiệm không vượt quá 30% thu nhập. T ại mức thu nhập I = 16, tiết kiệm tăng
-thêm bao nhiêu khi thu nhập tăng 1% ?
-A 32
-5 %. B 32
-3 %. C 3
-2 %. D 5
-2 %.
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 1
---- PAGE 6 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-Câu 5. Cho A, B là các ma trận vuông cấp 3 không suy biến thỏa |PA| = 2 , trong đó PA
-là ma trận phụ hợp của A. Khi đó, giá trị của |2ABT AT B−1| là:
-A 32. B 8. C 16. D 4.
-Câu 6. Cho A là ma trận vuông cấp 3 khả nghịch và B = −A. Ký hiệu PA, PB lần lượt là
-ma trận phụ hợp của A, B. Chọn kết luận ĐÚNG:
-A PB = −PA. B |A| = |B|.
-C PA = PB. D Các câu kia đều sai.
-Câu 7. Giải phương trình vi phân y′ + 2y = 2x với điều kiện đầu y(0) = 3
-2 .
-A y = 2e2x + x + 1
-2 . B y = 2e−2x + x − 1
-2 .
-C y = 2e2x + x − 1
-2 . D y = 2e−2x + x + 1
-2 .
-Câu 8. Hàm số
-f (x, y) = x3
-3 + y3
-3 − x − 4y
-đạt cực tiểu địa phương tại
-A (−1, 2). B (1, 2). C (−1, −2). D (1, −2).
-1.2 PHẦN TỰ LUẬN (5 điểm)
-Câu 1. (1.5đ) Một công ty ô tô nhận thấy rằng doanh số bán xe hàng tháng tăng với tốc
-độ tỉ lệ thuận với số xe bán ra tại thời điểm đó (thỏa mô hình tăng trưởng mũ). Ban đầu
-doanh số là 500 xe/tháng và sau 10 tháng, doanh số tăng gấp đôi. Hãy ước lượng doanh
-số sau 24 tháng nếu biết tốc độ tăng doanh số không đổi.
-Câu 2. (1.5đ) Hàm sản xuất được cho bởi
-q = f (ℓ, k) = 8 ℓ0.5k0.5,
-trong đó q là sản lượng, ℓ là số đơn vị lao động và k là số đơn vị vốn. Giá mỗi đơn vị vốn
-là $12 và chi phí mỗi đơn vị lao động là $4. Với mức sản lượng mong muốn q = 200 , hãy
-tìm chi phí tối thiểu bằng phương pháp nhân tử Lagrange.
-Câu 3. (2.0đ) Trong mô hình Input-Output mở Leontief gồm ba ngành, cho ma trận hệ
-số đầu vào là
-A =
-2
-64
-0.1 0 .2 0 .2
-0.3 0 .2 0 .1
-0.2 0 .3 0 .3
-3
-75 .
-(i) Nếu nhu cầu cuối của ba ngành lần lượt là 113, 61 và 44, hãy tìm sản lượng của ba
-ngành.
-2 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 7 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-(ii) Nhờ cải tiến kỹ thuật, ngành 1 tiết kiệm được 1
-3 nguyên liệu từ ngành 2. Khi đó, hãy
-xác định sản lượng của ba ngành nếu nhu cầu cuối không đổi.
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 3
---- PAGE 8 ---
-2
-ĐỀ THI TOÁN CAO
-CẤP K51 MÃ ĐỀ 118
-2.1 PHẦN TRẮC NGHIỆM (5 điểm)
-Ghi chú: Trong đề thi, ta ký hiệu In là ma trận đơn vị cấp n
-Câu 1. Cho phương trình vi phân:
-y′ + y = αx − β,
-trong đó α ̸= 0 và β là các hằng số với α + β ̸= 0. Chọn phát biểu ĐÚNG:
-A lim
-x→+∞
-[y(x) − (αx + β)] = β.
-B lim
-x→+∞
-[y(x) − (αx + β)] = α.
-C Nghiệm tổng quát là y(x) = Ce −x + αx + (β − α).
-D Nghiệm tổng quát là y(x) = Ce −x + αx + β.
-Câu 2. Cho hàm y = y(x) thỏa exy + (x − 1)y3 + xy2 − 2y + 2 = 0 . Khi đó ta có y′(0) là:
-A −5/3. B 5/3. C −3/5. D 3/5.
-Câu 3. Xét hàm khả vi f : R → R có f ′(10) = − f (10)
-10 . Giả sử hàm cầu của một sản phẩm
-được cho bởi q = f (2p) với p là giá bán và q là lượng cầu của sản phẩm. Nếu tăng giá 4%
-từ mức giá p = 5 thì phát biểu nào sau đây là ĐÚNG?
-A Lượng cầu giảm xấp xỉ 5%. B Lượng cầu giảm xấp xỉ 2%.
-C Lượng cầu giảm xấp xỉ 4%. D Lượng cầu tăng xấp xỉ 4%.
-Câu 4. Cho A là ma trận vuông cấp 3. Ma trận B thu được từ ma trận A qua phép biến
-đổi thay dòng 2 của A bằng 5 lần dòng 2 trừ dòng 1 (d2 → 5d2 − d1). Tìm phát biểu ĐÚNG:
-A det(B) = 5 3 det(A). B det(A) = det(B).
-C det(A) = 5 det(B). D det(B) = 5 det(A).
-Câu 5. Hàm cầu của một sản phẩm được cho bởi P = 1000
-Q + 10 , trong đó P là giá bán
-và Q là số lượng sản phẩm bán ra. Hãy tìm doanh thu biên (biên tế của doanh thu) khi
-Q = 40.
-A 250. B 20. C 4. D 25.
-4 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 9 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-Câu 6. Cho A là ma trận vuông cấp 3 thỏa AT A2 = 3I3. Tính det
-" 1
-3 A
-−1#
-.
-A 1
-9 . B 1
-3 . C 3. D 9.
-Câu 7. Cho hệ
-8
->><
->>:
-x − y + z = 2m
-mx − 2y − 3z = −3
-2x − 3y − 2z = −m
-với m ∈ R là tham số. Hệ có nghiệm duy nhất nếu
-và chỉ nếu:
-A m ̸= 1. B m = 2. C m ̸= −4. D m ̸= 2.
-Câu 8. Cho ma trận A =
-2
-64
-m + 2 1 4
-3 −4 5
-−2 −1 2
-3
-75 với m ∈ R và đặt B = (2 I3 + A)4. Tìm m để
-hạng của ma trận B nhỏ hơn 3.
-A m = 4. B m = 23
-3 . C m = − 50
-3 . D m = − 62
-3 .
-Câu 9. Cho hàm lợi nhuận Π(L, K) = 3 · L
-1
-3 K
-1
-3 − L − 0, 01K, trong đó L là lượng lao động,
-K là lượng vốn. Để lợi nhuận lớn nhất thì
-A
-8
-<
-:
-L = 200
-K = 10000
-. B
-8
-<
-:
-L = 100
-K = 10000
-. C
-8
-<
-:
-L = 100
-K = 1000
-. D
-8
-<
-:
-L = 10
-K = 100
-.
-Câu 10. Cho ma trận B =
-2
-64
-1 2 4
-2 3 5
-3 m 7
-3
-75. Ma trận B2 không khả nghịch khi:
-A m = 13
-6 . B m = 13
-3 . C m = 13
-2 . D m = 13
-5 .
-2.2 PHẦN TỰ LUẬN (5 điểm)
-Câu 1. (2.0đ) Xét mô hình Input-Output mở gồm ba ngành với ma trận hệ số đầu vào là
-A =
-2
-64
-0, 1 0 , 4 0 , 2
-0, 3 0 , 2 m
-0, 2 0 , 1 0 , 3
-3
-75 .
-Cho biết giá trị nguyên liệu của ngành 1 cung cấp cho ngành 3 gấp hai lần giá trị nguyên
-liệu của ngành 2 cung cấp cho ngành 3 và nhu cầu cuối của ba ngành lần lượt là 77, 61
-và 80.
-(i) Tính tổng giá trị nguyên liệu mà ngành 2 cung cấp cho cả ba ngành.
-(ii) Tính tổng giá trị nguyên liệu đầu vào của ngành 3.
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 5
---- PAGE 10 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-Câu 2. (1.5đ) Một công ty muốn hoàn thành một đơn hàng gồm 200 đơn vị sản phẩm và
-muốn phân phối sản lượng giữa hai nhà máy: nhà máy 1 (sản xuất q1 đơn vị) and nhà
-máy 2 (sản xuất q2 đơn vị). Biết rằng hàm tổng chi phí cho trước bởi
-C(q1, q2) = 1
-2 q2
-1 + 10q1 + 20q2 + 800,
-hãy tìm chi phí tối thiểu bằng phương pháp nhân tử Lagrange.
-Câu 3. (1.5đ) Một khu vực kinh tế, giả sử số lượng doanh nghiệp có tốc độ tăng trưởng
-tỷ lệ thuận với số doanh nghiệp hiện có (thỏa mô hình tăng trưởng mũ). Biết rằng vào
-đầu năm 2020 khu vực có 1200 doanh nghiệp. Sau 5 năm, số doanh nghiệp tăng lên 1500.
-Hỏi vào đầu năm 2030 khu vực sẽ có bao nhiêu doanh nghiệp, giả sử tốc độ tăng trưởng
-không đổi?
-6 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 11 ---
-3
-ĐỀ THI TOÁN CAO
-CẤP K51 MÃ ĐỀ 354
-3.1 PHẦN TRẮC NGHIỆM (5 điểm)
-Ghi chú: Trong đề thi, ta ký hiệu In là ma trận đơn vị cấp n
-Câu 1. Một xí nghiệp sản xuất độc quyền một loại sản phẩm với hàm cầu của loại sản
-phẩm này là: QD = 1500 − 1
-2 P và hàm chi phí là C = C(Q). Biết xí nghiệp đạt lợi nhuận
-cao nhất khi Q = Q0 = 400. T a có chi phí biên tại Q0 là:
-A 1400. B 2000. C 3000. D 1600.
-Câu 2. Cho hàm số f (x, y) = ( y2 − 4)(ex − e). Chọn phát biểu ĐÚNG:
-A (1, 2) không phải là một điểm dừng của f .
-B f đạt cực đại địa phương tại (1, 2).
-C f có điểm yên ngựa tại (1, 2).
-D f đạt cực tiểu địa phương tại (1, 2).
-Câu 3. Xét các ma trận
-A =
-2
-64
-1 1 2
-1 2 −1
-m 1 1
-3
-75 và B =
-2
-64
-1 −1 2
-1 3 1
-2 −1 −2
-3
-75 .
-Ma trận A2 + AB không suy biến khi và chỉ khi:
-A m ̸= − 5
-2 và m ̸= 4
-5 . B m ̸= 5
-2 và m ̸= − 4
-5 .
-C m ̸= 5
-2 và m ̸= 4
-5 . D m ̸= − 5
-2 và m ̸= − 4
-5 .
-Câu 4. Cho A là một ma trận vuông cấp n ≥ 2. Ký hiệu P3A là ma trận phụ hợp của ma
-trận 3A. Cho biết |A| = 3 và |P3A| = 27. Hãy chọn kết quả ĐÚNG:
-A n = 5. B n = 4. C n = 3. D n = 2.
-Câu 5. Cho A và B là các ma trận vuông cấp 4 thỏa A−1B2A = 2I4. Chọn phát biểu SAI:
-A rank(A) = rank(B). B rank(B) = 4 .
-C (B + I4)−1 = B − I4. D det B = 4.
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 7
---- PAGE 12 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-Câu 6. Cho ma trận A =
-2
-6664
-1 2 1 4
-0 −5 4 5
-0 0 0 2
-0 0 0 6
-3
-7775. Chọn khẳng định ĐÚNG:
-A rank(A2) < 4. B A khả nghịch. C rank(A) = 2 . D rank(A) = 4 .
-Câu 7. Cho biết hàm cầu P = 250 − 0.5Q2, trong đó P là đơn giá bán và Q là lượng cầu.
-Khi đó, tại mức giá P = 50, nếu giá giảm 2% thì:
-A lượng cầu tăng xấp xỉ 0.5%. B lượng cầu tăng xấp xỉ 0.75%.
-C lượng cầu tăng xấp xỉ 0.05%. D lượng cầu tăng xấp xỉ 0.25%.
-Câu 8. Tìm dy
-dx biết x4 + x5 = (y − x2)2.
-A dy
-dx = 5x4 + 2xy − 4x3
-y − x2 . B dy
-dx = 5x4 + 4xy − 4x3
-y − x2 .
-C dy
-dx = 5x4 + 4xy − 2x3
-2(y − x2) . D dy
-dx = 5x4 + 4xy
-2(y − x2) .
-Câu 9. Xét hệ
-8
->><
->>:
-x + 2y + 3z = 2
-2x + 3y + 4z = 3
-3x + 3y + (m + 2)z = m
-với tham số thực m. Hệ có nghiệm nếu và chỉ
-nếu:
-A m ̸= 2. B m ̸= 1. C m ̸= 3. D m ̸= 4.
-Câu 10. Cho phương trình vi phân y′ + 2y = e5x. Nghiệm tổng quát của phương trình là:
-A y = 1
-7 e5x + Ce −2x. B y = 1
-7 e2x + Ce −5x.
-C y = − 1
-7 e5x + Ce −2x. D y = − 1
-7 e2x + Ce −5x.
-3.2 PHẦN TỰ LUẬN (5 điểm)
-Câu 1. (1.5đ) Hàm sản xuất được cho bởi
-q = f (ℓ, k) = 2 ℓ0.5k0.5,
-trong đó q là sản lượng, ℓ là số đơn vị lao động và k là số đơn vị vốn. Nếu giá của mỗi
-đơn vị vốn và mỗi đơn vị lao động lần lượt là 6 và 3 và doanh nghiệp dành 180 cho chi
-phí sản xuất, bằng phương pháp nhân tử Lagrange hãy xác định mức sản lượng tối đa
-mà doanh nghiệp có thể đạt được.
-Câu 2. (2.0đ) Trong mô hình Input-Output mở Leontief gồm ba ngành, cho ma trận hệ
-số đầu vào là
-A =
-2
-64
-0.1 0 .2 0 .3
-0.2 0 .3 0 .1
-0.3 m 0.1
-3
-75 .
-8 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 13 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-Biết giá trị sản lượng của ba ngành lần lượt là 150, 200 và 240, và tổng giá trị nguyên liệu
-đầu vào của ngành 2 là 140.
-(i) Tính tổng giá trị nguyên liệu của ngành 2 cung cấp cho ngành 1 và ngành 3 cung
-cấp cho ngành 2.
-(ii) Tính sản lượng thay đổi của ba ngành nếu nhu cầu cuối của ba ngành lần lượt tăng
-thêm là 5, 2 và 3.
-Câu 3. (1.5đ) Bắt đầu từ năm 1960, tốc độ tăng của GDP thực hàng năm, ký hiệu bởi G,
-của một quốc gia tỉ lệ thuận với chính G (thỏa mô hình tăng trưởng mũ). Nếu GDP của
-quốc gia đó năm 1960 là 2000000 (đơn vị: nghìn USD) và GDP tăng gấp đôi sau 25 năm,
-hãy ước lượng GDP của quốc gia đó ở năm 2000 nếu tốc độ tăng GDP là không đổi.
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 9
---- PAGE 14 ---
-4
-ĐỀ THI TOÁN CAO
-CẤP K51 MÃ ĐỀ 442
-4.1 PHẦN TRẮC NGHIỆM (5 điểm)
-Ghi chú: Trong đề thi, ta ký hiệu In là ma trận đơn vị cấp n
-Câu 1. Xét hàm sản xuất Q = 0.5K 0.25L0.75, trong đó Q là sản lượng, K là lượng vốn và L
-là lượng lao động. Ký hiệu EQK và EQL lần lượt là độ co dãn riêng của sản lượng theo
-vốn và theo lao động. Phát biểu nào sau đây là SAI:
-A EQK < EQ L. B 3EQK = EQL.
-C EQK + EQL = 1. D EQK > EQ L.
-Câu 2. Cho y = y(x) là hàm ẩn xác định bởi phương trình x3 + 3xy4 + 3x2y2 + 2y3ex −16 = 0 .
-Tính giá trị y′(0).
-A 2. B −2. C − 8
-3 . D 8
-3 .
-Câu 3. Cho A, B, C là các ma trận vuông cấp 3 thoả mãn AB = 2B2C. Nếu det B = 3 và
-det C = 2 thì khẳng định nào sau đây ĐÚNG:
-A A = 2BC và det A = 48. B A = 2B2CB −1 và det A = 12.
-C A = 2BC và det A = 12. D A = 2B2CB −1 và det A = 48.
-Câu 4. Hàm f (x, y) = x3
-3 + y3
-3 − x − 9y đạt cực tiểu địa phương tại:
-A (1, 3). B (−1, 3). C (1, −3). D (−1, −3).
-Câu 5. Cho A, B, C là các ma trận vuông cấp 3 có |A| = −2, |B| = 2 , |C| = 9 . Đặt D =
-3A−1B2C T . Khi đó định thức của D là:
-A −486. B 486. C −432. D 432.
-Câu 6. Cho y là nghiệm của phương trình vi phân
-y′ + 2xy
-1 + x2 = 0,
-với điều kiện y(2) = 10 . Tính y(−3).
-A −5. B 5.
-C 0. D Một kết quả khác.
-10 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 15 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-Câu 7. Cho hệ
-8
->><
->>:
-x − y + z = m
-2x + 2y + mz = −2
-3x + my + 2z = −1
-với tham số thực m. Tìm m để hệ đã cho vô nghiệm.
-A Cả ba mệnh đề đều sai. B m = −2, m = 1.
-C m = 1. D m = −2.
-Câu 8. Cho ma trận A =
-2
-64
-1 1 m
-2 1 1
-1 1 1
-3
-75. Khẳng định nào sau đây là SAI:
-A Với mọi m ∈ R để r(A) > 1. B Tồn tại m ∈ R để r(A) = 2 .
-C Tồn tại m ∈ R để r(A) = 3 . D Với mọi m ∈ R để r(A2) > 2.
-Câu 9. Cho ma trận A =
-2
-64
-−1 1 −1
-0 −1 −1
-0 0 −1
-3
-75. Khi đó giá trị định thức của A2026 − A2025 là:
-A 0. B −8. C −1. D 8.
-Câu 10. Cho hàm sản xuất Q = 1
-2 L + 1
-2 ln(2L + 1), trong đó Q là sản lượng và L là lượng
-lao động ( L ≥ 0). Chọn phát biểu ĐÚNG:
-A Khi L tăng dần ra +∞ thì biên tế (giá trị cận biên) của Q luôn bé hơn 1
-2 .
-B Khi L tăng dần ra +∞ thì biên tế (giá trị cận biên) của Q theo L tiến dần về một
-hằng số.
-C Biên tế (giá trị cận biên) của Q theo L khi L = 1 có giá trị là 7
-12 .
-D Khi L tăng dần ra +∞ thì biên tế (giá trị cận biên) của Q theo L tăng.
-4.2 PHẦN TỰ LUẬN (5 điểm)
-Câu 1. (1.5đ) T ừ năm 2000, lượng vốn của một tập đoàn kinh tế A tăng với tốc độ tỉ lệ
-thuận với lượng vốn hiện có (thỏa mô hình tăng trưởng mũ). Biết rằng lượng vốn của tập
-đoàn A ở năm 2000 là 1000000 (đơn vị 1000$) và vào năm 2015, lượng vốn tăng gấp ba.
-Ước lượng lượng vốn của tập đoàn A vào năm 2030 nếu tốc độ tăng vốn là không đổi.
-Câu 2. (2.0đ) Trong mô hình Input-Output mở Leontief gồm ba ngành, cho ma trận đầu
-vào
-A =
-2
-64
-0.1 0 .2 m
-0.3 0 .1 0 .2
-0.2 0 .4 0 .2
-3
-75 .
-Biết rằng tổng giá trị nguyên liệu đầu vào của ngành 3 bằng hai lần giá trị nguyên liệu
-mà ngành 1 cung cấp cho ngành 3 và nhu cầu cuối của ba ngành lần lượt là 73, 59 và 46.
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 11
---- PAGE 16 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-(i) Tính giá trị sản lượng của ba ngành.
-(ii) Tính tổng giá trị nguyên liệu đầu vào mà ngành 1 cung cấp cho ba ngành.
-Câu 3. (1.5đ) Giả sử hàm lợi ích đối với hai hàng hóa là
-U (x, y) = x1/2y1/2,
-trong đó x là lượng hàng thứ nhất và y là lượng hàng thứ hai. Đơn giá của hàng hóa thứ
-nhất là $2 và đơn giá của hàng hóa thứ hai là $3. Người mua có ngân sách $120 để chi
-cho hai loại hàng hóa này. Hãy xác định x và y đem lại lợi ích tối đa cho người mua bằng
-phương pháp nhân tử Lagrange.
-12 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 17 ---
-5
-MATHEMATICS EXAM
-K51 (ENGLISH)
-5.1 MUL TICHOICE QUESTIONS (5 points)
-Question 1. Consider the differential equation y′ − y = e−x. The general solution is of the
-form:
-A y = − 1
-2 e−x + Ce x. B y = e−x + Ce x.
-C y = −e−x + Ce −x. D y = 1
-2 e−x + Ce x.
-Question 2. Let A be a 3 × 3 matrix with rank (A) ≤ 2. Choose the false statement.
-A A is singular .
-B rank(A2) = 3 .
-C The linear system AX = 0 has a nontrivial solution.
-D det(A2 − A) = 0 .
-Question 3. Given a differentiable function f : R → R with f ′(4) = 1 . Suppose the pro-
-duction function is Q = f (K + 3
-√
-L), where Q is the output, K is the capital, and L is the
-labor . At the level L = K = 1 , if one additional unit of labor is added, the approximate
-increase in output is:
-A 3. B 1
-2 . C 1. D 3
-2 .
-Question 4. Let A be a square matrix of order 2 satisfying (3AT )−1 = B2, where B ="
-1 0
-−1 1
-#
-. Choose the correct statement.
-A A−1 =
-2
-64
-1
-3 0
-− 2
-3
-1
-3
-3
-75. B A−1 =
-2
-64
-1
-3 − 2
-3
-0 1
-3
-3
-75.
-C A−1 =
-"3 −6
-0 3
-#
-. D A−1 =
-" 3 0
-−6 3
-#
-.
-Question 5. Let y = y(x) be an implicit function defined by the equation x3+xy3+e2xy = 2.
-Find the derivative of y with respect to x at x = 0.
-A 12. B −10. C 0. D −12.
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 13
---- PAGE 18 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-Question 6. Let A, B be 3 × 3 matrices satisfying det (A) = 3 and det (B) = 2 . Then,
-det
-
-2A3(B−1)T 
-equals
-A 48. B 12. C 36. D 24.
-Question 7. The profit function of a product is given by π = Q3 − 9
-2 Q2 + 6Q, where Q is
-the output. At what level of output is the marginal profit minimized?
-A Q = 1. B Q = 0. C Q = 3
-2 . D Q = 2.
-Question 8. Let A, B be 3 × 3 matrices satisfying det (A) = 0 and det(B) = 2 . Choose the
-false statement.
-A A2 ̸= B.
-B rank(AB2) < 3.
-C rank(B) < rank(A2).
-D There is not a matrix C such that ACB = I.
-Question 9. The function f (x, y) = x3 + y3 − 6xy has two stationary points which are
-A = (0, 0) and B = (2, 2). Choose the correct statement.
-A A is not an extremum and B is a local maximum.
-B A is a local minimum and B is a local maximum.
-C A is a local maximum and B is a local minimum.
-D A is not an extremum and B is a local minimum.
-Question 10. Consider the linear system
-8
->><
->>:
-mx + y + 2z = 1
-x + 2y + 3z = 2
-2x + 3y + 5z = 4
-where m ∈ R is a parame-
-ter . Choose the false statement.
-A For all m, the system always has a solution.
-B There exists m such that the system has no solution.
-C There does not exist any m such that the system has infinitely many solutions.
-D There exists m such that the system has a unique solution.
-5.2 WRITTEN QUESTIONS (5 points)
-Question 1. (1.5 points) A country’s GDP grows at a rate proportional to its current GDP
-(satisfies the exponential growth model). If the GDP in 2005 was $800 billion and in 2015
-it was $1040 billion, find a function that models the GDP G(t), where t is the number of
-years after 2005. Then estimate the GDP in 2025.
-14 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 19 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-Question 2. (2 points) Consider an input-output model of three sectors with the Leontief
-matrix
-A =
-2
-64
-0.1 0 .5 0 .2
-0.3 0 .2 0 .4
-0.2 0 .1 0 .3
-3
-75
-a. Find the input value supplied by sector 2 to sector 3, given that the input value
-supplied by sector 1 to sector 3 is 400.
-b. If the final demand of the three sectors changes as follows: sector 1 increases by
-10, sector 2 decreases by 5, and sector 3 increases by 5, how will the output values
-of the three sectors change?
-Question 3. (1.5 points) The total production Q of a certain product depends on the
-amount L of labor used and the amount K of capital by the formula
-Q = 3L1/3K 2/3.
-If the cost of a unit of labor is 1 and the cost of a unit of capital is 2, and production is
-fixed at Q = 100 units, use the method of Lagrange multipliers to determine the values
-of L and K that minimize the total cost.
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 15
---- PAGE 20 ---
-6
-LỜI GIẢI ĐỀ THI
-TOÁN CAO CẤP K51
-(204)
-6.1 PHẦN TRẮC NGHIỆM
-Câu 1. Cho ma trận A vuông cấp 4. Hãy chọn phát biểu SAI:
-A Nếu r(A) = 3 thì |AT .A4| = 0.
-B Nếu r(A) = 4 thì hệ phương trình tuyến tính AX = B có vô số nghiệm.
-C Nếu r(A) = 1 thì ma trận A2 − 2A suy biến.
-D Nếu r(A) = 2 thì ma trận A3 + 3A không khả nghịch.
-Ƨ Lời giải.
-Cơ sở lý thuyết: với ma trận vuông A cấp n:
-r(A) = n ⇔ |A| ̸= 0 ⇔ Hệ AX = B có nghiệm duy nhất.
-r(A) < n ⇔ |A| = 0 ⇔ Hệ AX = B vô số nghiệm hoặc vô nghiệm.
-T a xét các đáp án:
-◦ Xét B : T a có r(A) = 4 = n ⇒ | A| ̸ = 0 . Do đó, hệ phương trình AX = B có nghiệm
-duy nhất, nên phát biểu B sai.
-◦ Xét các đáp án A , C , D : T a đều có r(A) < 4 = n ⇒ |A| = 0. Khi đó:
-◦ |AT · A4| = |A| · |A|4 = 0 nên A đúng.
-◦ |A2 − 2A| = |A| · |A − 2I| = 0 (ma trận suy biến) nên C đúng.
-◦ |A3 + 3A| = |A| · |A2 + 3I| = 0 (ma trận không khả nghịch) nên D đúng.
-Ʀ
-Câu 2. Cho ma trận A khả nghịch có A−1 =
-2
-64
-1 0 m
-0 −1 1
-0 0 2
-3
-75 và B = 2 AT . Khi đó phần tử
-nằm trên hàng 3 cột 1 của B−1 là:
-A 0. B − m
-2 . C m
-2 . D m.
-16 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 21 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-Cơ sở lý thuyết: Các tính chất của ma trận chuyển vị và
-ma trận nghịch đảo
-Để giải quyết bài toán trên, chúng ta cần vận dụng các tính chất cơ bản của phép nhân
-ma trận với một số vô hướng, ma trận chuyển vị và ma trận nghịch đảo. Dưới đây là các
-công thức tổng quát được sử dụng:
-◦ Nghịch đảo của một ma trận nhân với một số vô hướng: Cho ma trận vuông A
-khả nghịch và một hằng số thực k ̸= 0 . Nghịch đảo của ma trận kA bằng nghịch
-đảo của số k nhân với ma trận nghịch đảo của A:
-(kA)−1 = 1
-k A−1
-◦ Nghịch đảo của ma trận chuyển vị: Cho ma trận vuông A khả nghịch. Ma trận
-nghịch đảo của ma trận chuyển vị AT chính là ma trận chuyển vị của ma trận nghịch
-đảo A−1:
-(AT )−1 = (A−1)T
-◦ Hệ quả kết hợp (áp dụng trực tiếp vào bài toán): T ừ hai tính chất trên, đối với ma
-trận A khả nghịch và hằng số k ̸= 0, ta có công thức gộp:
-(kAT )−1 = 1
-k (AT )−1 = 1
-k (A−1)T
-(Trong bài toán trên, ta áp dụng công thức này với k = 2).
-◦ Vị trí phần tử của ma trận chuyển vị: Nếu gọi phần tử nằm ở hàng i, cột j của một
-ma trận M là mij, thì phần tử nằm ở hàng i, cột j của ma trận chuyển vị M T chính
-là phần tử nằm ở hàng j, cột i của ma trận gốc M :
-(M T )ij = Mji
-(Trong bài toán trên, phần tử hàng 3 cột 1 của (A−1)T chính là phần tử hàng 1 cột 3
-của A−1).
-Ƨ Lời giải.
-Cách 1: Giải tự luận (Sử dụng tính chất ma trận)
-Dựa vào tính chất của ma trận nghịch đảo và ma trận chuyển vị, ta biến đổi:
-B−1 = (2AT )−1 = 1
-2 (AT )−1 = 1
-2 (A−1)T
-T a có ma trận chuyển vị của A−1 là:
-(A−1)T =
-2
-64
-1 0 0
-0 −1 0
-m 1 2
-3
-75
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 17
---- PAGE 22 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-Phần tử nằm trên hàng 3, cột 1 của (A−1)T chính là m. Do đó, phần tử nằm trên hàng 3,
-cột 1 của B−1 là
-1
-2 · m = m
-2
-Cách 2: T ư duy bấm máy Casio fx-580VN X
-T ư duy theo đúng sơ đồ trên nháp của bạn: (Lưu ý: Amáy tính 580 = A−1
-đề bài)
-A−1 x−1
-− − →A
-Chuyển vị
-− − − − − →AT ×2
-− →B
-x−1
-− − →B−1
-T a dùng phương pháp ”gán giá trị”. Chọn m = 100
-◦ Bước 1: Nhập ma trận A−1 vào MatA
-- Bấm MENU 4 1 3 3 để tạo ma trận MatA kích thước 3 × 3.
-- Nhập các hệ số (với m = 100): MatA =
-2
-64
-1 0 100
-0 −1 1
-0 0 2
-3
-75
-- Bấm AC để lưu và thoát ra màn hình tính toán.
-◦ Bước 2: Viết biểu thức gộp
-Thay vì tính từng bước rồi lưu Ans rất dễ nhầm, ta gộp toàn bộ sơ đồ của bạn thành
-1 dòng duy nhất trên máy:
-(A−1)−1 = A − →2AT − →B − →B−1
-Hay ta có thể tóm tắt thành
-B−1 =
- 
-2 × Trn(A)
-−1
-=
- 
-2 × Trn(MatA−1)
-−1
-Thao tác bấm chi tiết: ( 2 × OPTN ↓ 3 (để gọi hàm Trn) OPTN 3 (gọi MatA) x−1 ) x−1
-◦ Bước 3: Chọn đáp án
-Khi này ta có
-B−1 =
-2
-64
-0.5 0 0
-0 −0.5 0
-50 0.5 1
-3
-75
-Ʀ
-Câu 3. Xét hệ
-8
->><
->>:
-mx + y + 2z = 1
-x + 2y + 3z = 2
-2x + 3y + 5z = 3
-với tham số m ∈ R. Khẳng định nào sau đây SAI:
-A Tồn tại m sao cho hệ vô nghiệm.
-B Tồn tại m sao cho hệ có vô số nghiệm.
-C Tồn tại m sao cho hệ có duy nhất nghiệm.
-D Với mọi m hệ luôn có nghiệm.
-18 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 23 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-T a có5 dạng bài toán liên quan tới hệ phương trình:
-I. NHÓM 2 DẠNG CƠ BẢN
-Nhóm này chỉ cần xét trực tiếp định thức của ma trận hệ số |A|.
-◦ Dạng 1: Hệ phương trình có nghiệm duy nhất
-⇒ Cách giải: Cho |A| ̸= 0 − →Giải bất phương trình tìm m.
-◦ Dạng 2: Hệ phương trình có vô số nghiệm HOẶC vô nghiệm
-⇒ Cách giải: Cho |A| = 0 − →Giải phương trình tìm m.
-II. NHÓM 3 DẠNG NÂNG CAO
-Nhóm này yêu cầu phải kết hợp giữa định thức và phương pháp thử lại (sử dụng máy
-tính Casio).
-◦ Dạng 3: Hệ phương trình có vô số nghiệm
-◦ Dạng 4: Hệ phương trình vô nghiệm Sơ đồ tư duy giải Dạng 3 & 4:
-− → Bước 1: Giải Trường hợp 2 (|A| = 0) để tìm ra các giá trị m cụ thể.
-− → Bước 2: Cụ thể hóa m (Thay từng giá trị 1m, 2m... vừa tìm được vào ma trận
-ban đầu).
-− → Bước 3: Bấm máy tính giải hệ phương trình với các hệ số cụ thể đó.
-- Nếu máy báo Infinite Solution − →Nhận m cho Dạng 3.
-- Nếu máy báo No Solution − →Nhận m cho Dạng 4.
-Lưu ý: nếu có một giá trị m thì chỉ có thể 1 trong 2 trường hợp xảy ra, nếu có cả 2
-giá trị m thì cả 2 trường hợp sẽ xảy ra.
-◦ Dạng 5: Hệ phương trình CÓ NGHIỆM
-− → T ư duy 1 (Phủ định): Dùng biến cố đối 4.
-Tìm m để hệ vô nghiệm (tức là giải Dạng 4), sau đó lấy phần bù (tất cả các số
-thực R bỏ đi kết quả của Dạng 4).
-− → T ư duy 2 (Hợp tập hợp): Là kết quả của Dạng 1 HOẶC Dạng 3.
-Hệ có nghiệm bao gồm hai trường hợp: hoặc ”có nghiệm duy nhất”, hoặc ”có
-vô số nghiệm”. Lấy hợp hai tập nghiệm của Dạng 1 và Dạng 3 ta sẽ có đáp án.
-Ƨ Lời giải.
-T a xét ma trận hệ số A và tính định thức:
-|A| =
-
-m 1 2
-1 2 3
-2 3 5
-
-= m − 1
-Phân tích các trường hợp của m:
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 19
---- PAGE 24 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-◦ Trường hợp 1: |A| ̸ = 0 ⇔ m − 1 ̸= 0 ⇔ m ̸= 1 . Khi đó, hệ phương trình có nghiệm
-duy nhất. ⇒ Khẳng định C ĐÚNG.
-◦ Trường hợp 2: |A| = 0 ⇔ m = 1 . Áp dụng tư duy ”cụ thể hóa m”, ta dùng máy tính
-Casio để kiểm tra nhanh hệ này:
-- Bấm MENU 9 1 3 để vào chế độ giải hệ phương trình bậc nhất 3 ẩn.
-- Thay m = 1 vào hệ ban đầu, ta được:
-8
->><
->>:
-x + y + 2z = 1
-x + 2y + 3z = 2
-2x + 3y + 5z = 3
-- Máy tính trả về thông báo Infinite Solution (Hệ có vô số nghiệm).
-Do đó, hệ có vô số nghiệm. ⇒ Khẳng định B ĐÚNG.
-Đánh giá chung: T ừ hai trường hợp trên, ta thấy với bất kỳ giá trị nào của m (m ̸= 1
-hay m = 1 ), hệ phương trình luôn có nghiệm . ⇒ Khẳng định D ĐÚNG. Do đó, không
-bao giờ xảy ra trường hợp hệ vô nghiệm. Khẳng định ”Tồn tại m sao cho hệ vô nghiệm”
-là SAI.
-Ʀ
-Câu 4. Tiết kiệm S của một thành phố phụ thuộc vào thu nhập I của thành phố đó theo
-phương trình
-S2 + 1
-4 I 2 = SI + I
-và phần tiết kiệm không vượt quá 30% thu nhập. T ại mức thu nhập I = 16, tiết kiệm tăng
-thêm bao nhiêu khi thu nhập tăng 1%?
-A 32
-5 %. B 32
-3 %. C 3
-2 %. D 5
-2 %.
-Dựa vào cách cho hàm số, ta chia bài toán tính Cận biên (Biên) và HSCD làm 2 dạng cơ
-bản:
-Dạng 1: Hàm số cho dưới dạng tường minh (Cụ thể)
-◦ Đề bài cho sẵn phương trình rút gọn y = f (x).
-◦ Cận biên: Tính đạo hàm trực tiếp Biên = y′(x).
-◦ Hệ số co giãn: HSCD = Biên · x
-y
-Dạng 2: Hàm số cho dưới dạng ẩn (Hàm hợp / Phương trình kèm theo)
-◦ Đề bài cho mối liên hệ giữa x và y (hàm y theo x, hàm y phụ thuộc vào x, y = f (x))
-thông qua một phương trình tổng quát: g(x, y) = 0 .
-20 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 25 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-◦ Cận biên: Sử dụng công thức đạo hàm hàm ẩn:
-Biên = dy
-dx = − gx
-gy
-(Trong đó gx, gy lần lượt là đạo hàm riêng của hàm g theo biến x và biến y).
-◦ Hệ số co giãn: HSCD = Biên · x
-y
-Ƨ Lời giải.
-Bài toán yêu cầu tính Hệ số co giãn (HSCD) của tiết kiệm S theo thu nhập I tại I = 16 .
-Công thức tổng quát:
-ε = S′(I) · I
-S
-◦ Bước 1: Tìm giá trị cụ thể của S tại I = 16
-Thay I = 16 vào phương trình ban đầu, ta có:
-S2 + 1
-4 (16)2 = S(16) + 16 ⇔ S2 − 16S + 48 = 0 ⇔
-" S = 12
-S = 4
-Theo giả thiết, phần tiết kiệm không vượt quá 30% thu nhập, tức là
-S ≤ 0, 3 · I ⇒ S ≤ 0, 3 · 16 = 4 , 8
-So sánh với điều kiện, ta chỉ nhận giá trị S(16) = 4 .
-◦ Bước 2: Tìm đạo hàm của hàm ẩn (Giá trị cận biên)
-Chuyển phương trình về dạng hàm ẩn g(I, S ) = 0 :
-g(I, S ) = S2 + 1
-4 I 2 − SI − I = 0
-Đạo hàm cận biên S′(I) = dS
-dI được tính bằng công thức: S′(I) = − gI
-gS
-. Do đó ta có
-S′(I) = −
-1
-2 I − S − 1
-2S − I
-Thay I = 16 và S = 4 vào biểu thức trên:
-S′(16) = −
-1
-2 · 16 − 4 − 1
-2 · 4 − 16 = − 8 − 5
-8 − 16 = − 3
-−8 = 3
-8
-◦ Bước 3: Tính Hệ số co giãn (HSCD)
-Do đó ta có hệ số co dãn bằng:
-HSCD = Biên · I
-S = 3
-8 · 16
-4 = 3
-8 · 4 = 3
-2
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 21
---- PAGE 26 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-Ý nghĩa kinh tế: T ại mức thu nhập I = 16 , khi thu nhập tăng 1% thì tiết kiệm sẽ tăng
-thêm 3
-2 %.
-Ʀ
-Câu 5. Cho A, B là các ma trận vuông cấp 3 không suy biến thỏa |PA| = 2 , trong đó PA
-là ma trận phụ hợp của A. Khi đó, giá trị của |2ABT AT B−1| là:
-A 32. B 8. C 16. D 4.
-Cơ sở lý thuyết: Các tính chất của ma trận và định thức
-Cho các ma trận A, B vuông cấp n và số thực k. T a có các tính chất sau:
-◦ Định thức của ma trận phụ hợp:
-|PA| = |A|n−1
-◦ Định thức của một tích:
-|AB| = |A| · |B|
-◦ Định thức của ma trận nhân với một số:
-|kA| = kn|A|
-◦ Định thức của ma trận chuyển vị:
-|AT | = |A|
-◦ Định thức của ma trận nghịch đảo:
-|B−1| = 1
-|B|
-Ƨ Lời giải.
-Theo tính chất định thức của ma trận phụ hợp với ma trận A vuông cấp n = 3, ta có:
-|PA| = |A|n−1 ⇒ 2 = |A|2
-Tiếp theo, áp dụng các tính chất của định thức gồm: đưa hằng số ra ngoài ( |kA| = kn|A|),
-định thức của một tích, định thức ma trận chuyển vị ( |AT | = |A|) và định thức ma trận
-nghịch đảo
-
-|B−1| = 1
-|B|
-
-, ta biến đổi biểu thức cần tính:
-2ABT AT B−1 = 2 3 · |A| ·
-BT  ·
-AT  ·
-B−1
-= 8 · |A| · |B| · |A| · 1
-|B|
-= 8 · |A|2
-22 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 27 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-Thay |A|2 = 2 vào biểu thức vừa rút gọn, ta thu được kết quả:
-2ABT AT B−1 = 8 · 2 = 16
-Ʀ
-Câu 6. Cho A là ma trận vuông cấp 3 khả nghịch và B = −A. Ký hiệu PA, PB lần lượt là
-ma trận phụ hợp của A, B. Chọn kết luận ĐÚNG:
-A PB = −PA. B |A| = |B|.
-C PA = PB. D Các câu kia đều sai.
-Cơ sở lý thuyết: Ma trận phụ hợp và ma trận nghịch đảo
-Cho ma trận A vuông cấp n, khả nghịch ( |A| ̸= 0) và số thực k ̸= 0. T a có các tính chất:
-◦ Mối liên hệ giữa ma trận phụ hợp và ma trận nghịch đảo:
-A · PA = |A| · I ⇒ PA = A−1 · |A|
-◦ Định thức của ma trận nhân với một số:
-|kA| = kn|A|
-◦ Nghịch đảo của ma trận nhân với một số:
-(kA)−1 = 1
-k A−1
-Ƨ Lời giải.
-Ma trận A vuông cấp n = 3 và khả nghịch ( |A| ̸ = 0 ). Theo giả thiết B = −A. T a xét từng
-đáp án:
-◦ Xét B : Theo tính chất định thức, ta có:
-|B| = | − A| = (−1)3|A| = −|A|
-Vì |A| ̸= 0 nên −|A| ̸= |A|, suy ra |B| ̸= |A|. Do đó phát biểu B SAI.
-◦ Xét A và C : Sử dụng tính chất của ma trận phụ hợp:
-A · PA = |A| · I ⇒ PA = A−1 · |A|
-T ương tự, áp dụng cho ma trận B, ta có:
-PB = B−1 · |B|
-Thế B = −A và |B| = −|A| (vừa chứng minh ở trên) vào biểu thức của PB:
-PB = (−A)−1 · (−|A|)
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 23
---- PAGE 28 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-Áp dụng tính chất ma trận nghịch đảo (k · A)−1 = 1
-k A−1 với k = −1, suy ra:
-PB =
- 
-−A−1
-· (−|A|) = A−1 · |A| = PA
-Vậy PB = PA. Do đó phát biểu C ĐÚNG và phát biểu A SAI.
-Ʀ
-Câu 7. Giải phương trình vi phân y′ + 2y = 2x với điều kiện đầu y(0) = 3
-2 .
-A y = 2e2x + x + 1
-2 . B y = 2e−2x + x − 1
-2 .
-C y = 2e2x + x − 1
-2 . D y = 2e−2x + x + 1
-2 .
-Ƨ Lời giải.
-Cách 1: Giải tự luận truyền thống (Nhân thừa số tích phân)
-Phương trình vi phân tuyến tính bậc nhất có dạng
-y′ + p(x)y = q(x),
-với p(x) = 2 và q(x) = 2 x. T a tính thừa số tích phân:
-e
-∫
-p(x)dx = e
-∫
-2dx = e2x
-Nhân cả hai vế của phương trình ban đầu với e2x, ta được:
-e2xy′ + 2e2xy = 2xe2x ⇔ (y · e2x)′ = 2xe2x
-Lấy tích phân hai vế:
-y · e2x =
-Z
-2xe2xdx
-Giải tích phân vế phải:
-I =
-Z
-2xe2xdx
-Sử dụng phương pháp tích phân từng phần với công thức:
-Z
-u dv = uv −
-Z
-v du
-◦ Cơ sở lý thuyết chọn ẩn: Áp dụng thần chú ”Nhất log, nhì đa, tam lượng, tứ mũ” . Trong
-biểu thức 2xe2x, ta có 2x là hàm đa thức (”nhì đa”) và e2x là hàm số mũ (”tứ mũ”). Do
-đa thức xếp trước mũ nên ta ưu tiên chọn u = 2x và toàn bộ còn lại ta đặt là dv
-◦ Tiến hành đặt ẩn:
-8
-<
-:
-u = 2x
-dv = e2xdx
-⇒
-8
-><
->:
-du = d(2x) = 2 dx
-v =
-R
-e2xdx = e2x
-2 (Sử dụng công thức nguyên hàm hàm hợp)
-24 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 29 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-◦ Ráp vào công thức:
-I =
-Z
-2xe2xdx = 2x · e2x
-2 −
-Z e2x
-2 · 2dx
-= xe2x −
-Z
-e2xdx
-= xe2x − 1
-2 e2x + C
-Thay kết quả tích phân I vừa tìm được vào phương trình (∗):
-y · e2x = xe2x − 1
-2 e2x + C
-Chia cả hai vế cho e2x, ta thu được nghiệm tổng quát :
-y = x − 1
-2 + Ce −2x
-Để tìm hằng số C, ta thay điều kiện đầu y(0) = 3
-2 vào nghiệm tổng quát:
-3
-2 = 0 − 1
-2 + C · e−2(0) ⇔ 3
-2 = − 1
-2 + C · 1 ⇒ C = 2
-Vậy nghiệm riêng của phương trình thỏa mãn điều kiện đầu là:
-y = 2e−2x + x − 1
-2
-Cách 2: Phương pháp thử đáp án (Mẹo trắc nghiệm)
-T ừ điều kiện đầu y(0) = 3
-2 , ta thay x = 0 vào các đáp án để kiểm tra:
-◦ A và D có y(0) = 2 e0 + 0 + 1
-2 = 5
-2 ̸= 3
-2 nên LOẠI.
-◦ B và C đều có y(0) = 2 e0 + 0 − 1
-2 = 3
-2 nên tạm giữ lại.
-Để phân biệt B và C , ta chọn thử đáp án B :
-y = 2e−2x + x − 1
-2
-Lấy đạo hàm hai vế ta được
-y′ = −4e−2x + 1
-Thế y và y′ vào vế trái của phương trình ban đầu:
-y′ + 2y = (−4e−2x + 1) + 2
-
-2e−2x + x − 1
-2
-
-= −4e−2x + 1 + 4e−2x + 2x − 1
-= 2x
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 25
---- PAGE 30 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-Kết quả thu được khớp chính xác với vế phải của phương trình. Do đó, phát biểu B đúng.
-Ʀ
-Câu 8. Hàm số
-f (x, y) = x3
-3 + y3
-3 − x − 4y
-đạt cực tiểu địa phương tại
-A (−1, 2). B (1, 2). C (−1, −2). D (1, −2).
-CƠ SỞ TƯ DUY: CỰC TRỊ TỰ DO HÀM HAI BIẾN
-1. Xác định điểm dừng
-Tìm các điểm dừng bằng cách giải hệ phương trình đạo hàm riêng bậc nhất:
-8
-<
-:
-f ′
-x(x, y) = 0
-f ′
-y(x, y) = 0
-2. Điều kiện đủ và phân loại Cực trị địa phương
-Tính các định thức con chính của ma trận Hessian:
-D1(x, y) = fxx(x, y), D 2(x, y) =
-
-fxx(x, y) fxy(x, y)
-fyx(x, y) fyy(x, y)
-
-T ại mỗi điểm dừng M , ta kiểm tra điều kiện đủ như sau:
-◦ Nếu D2(M ) < 0 thì f không đạt cực trị tại M .
-◦ Nếu D1(M ) < 0 và D2(M ) > 0 thì f đạt cực đại địa phương tại M .
-◦ Nếu D1(M ) > 0 và D2(M ) > 0 thì f đạt cực tiểu địa phương tại M .
-3. Đánh giá Cực trị toàn cục
-Để mở rộng thành cực trị toàn cục trên một miền D, ta cần xét dấu của D1, D2 tại mọi
-điểm thay vì chỉ tại điểm dừng:
-◦ Nếu D1 < 0 và D2 > 0 tại mọi M ∈ D thì f đạt cực đại toàn cục trên D tại điểm
-dừng.
-◦ Nếu D1 > 0 và D2 > 0 tại mọi M ∈ D thì f đạt cực tiểu toàn cục trên D tại điểm
-dừng.
-26 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 31 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-!
-Phân biệt Cực trị địa phương và Cực trị toàn cục
-– Dấu hiệu TOÀN CỤC (Nhìn vào biến x, y): Nếu vừa lập xong biểu thức
-D1(x, y) và D2(x, y) mà bạn thấy ngay nó luôn thỏa mãn điều kiện với
-mọi x, y (ví dụ: ra một hằng số dương, hoặc ra bình phương cộng hằng
-số như x2 + 3), thì điểm dừng bạn tìm được sẽ là Cực đại/Cực tiểu toàn
-cục. (Hiểu đơn giản: Vì biểu thức đúng ở mọi nơi, nên cực trị đó là ”trùm”
-của cả bài toán).
-– Dấu hiệu ĐỊA PHƯƠNG (Phải thay số điểm dừng): Nếu biểu thức D1, D2
-vẫn còn dính biến x, y lộn xộn (ví dụ: D2 = 4xy − 5) và ta không biết chắc
-nó âm hay dương, thì bạn bắt buộc phải thay tọa độ của điểm dừng
-(x0, y0) vào để tính ra một con số cụ thể. Vì ta chỉ mới kiểm tra dấu tại
-đúng cái điểm đó, nên ta chỉ dám kết luận nó là Cực đại/Cực tiểu địa
-phương mà thôi.
-Ƨ Lời giải.
-T a tính các đạo hàm riêng cấp 1 để tìm điểm dừng:
-8
-<
-:
-fx = x2 − 1 = 0
-fy = y2 − 4 = 0
-⇔
-8
-<
-:
-x = ±1
-y = ±2
-Hệ cho ta 4 điểm dừng: M1(1, 2), M2(1, −2), M3(−1, 2) và M4(−1, −2). Tiếp tục tính các
-đạo hàm riêng cấp 2:
-fxx = 2x, f xy = 0, f yy = 2y
-Ma trận Hessian và các định thức con có dạng:
-D1 = fxx = 2x
-D2 =
-
-fxx fxy
-fxy fyy
- =
-
-2x 0
-0 2 y
- = 4xy
-Để hàm số đạt cực tiểu địa phương , ta cần điều kiện:
-8
-<
-:
-D2 > 0
-D1 > 0
-⇔
-8
-<
-:
-4xy > 0 ( nghĩa là x và y cùng dấu)
-2x > 0 ( nghĩa là x > 0)
-T ừ hệ điều kiện trên, suy ra bắt buộc x > 0 và y > 0. Đối chiếu lại với 4 điểm dừng đã
-tìm được ở trên, ta thấy chỉ duy nhất điểm M1(1, 2) là thỏa mãn đồng thời x = 1 > 0 và
-y = 2 > 0. Các điểm còn lại đều bị loại. Vậy hàm số đạt cực tiểu địa phương tại (1, 2).
-Ʀ
-Câu 9. Cho hàm sản lượng Q(L, K) = 6 · L
-1
-2 K
-1
-4 với L là lượng lao động, K là lượng tiền
-vốn. Khi đó, sản lượng biên (biên tế riêng của sản lượng) theo vốn tại L = 100, K = 10000
-là:
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 27
---- PAGE 32 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-A 1
-150 . B 6, 8. C 0, 25. D 3
-200 .
-Ƨ Lời giải.
-Ʀ
-Câu 10. Cho hàm số f (x, y) khả vi trên R2. Biết f (10, 5) = 1000 , fx(10, 5) = 2 và fy(10, 5) =
-−3. Sử dụng công thức xấp xỉ tuyến tính, tính gần đúng giá trị f (10.1, 4.8).
-A 1000.6. B 1000.1. C 1000.4. D 1000.8.
-Lý thuyết cơ sở cho dạng tính gần đúng
-I. HÀM MỘT BIẾN (Cơ sở tư duy)
-Xuất phát từ định nghĩa đạo hàm tại một điểm: f (x0 + ∆x) − f (x0)
-∆x ≈ f ′(x0).
-◦ Công thức tính gần đúng:
-f (x0 + ∆x) ≈ f (x0) + f ′(x0) · ∆x
-II. HÀM HAI BIẾN (Trọng tâm T oán Cao Cấp)
-Mở rộng tư duy từ hàm 1 biến, đối với hàm 2 biến f (x, y), ta cộng dồn vi phân riêng phần
-theo từng biến.
-◦ Công thức xấp xỉ tuyến tính (Vi phân toàn phần):
-f (x, y) ≈ f (x0, y0) + fx(x0, y0)∆x + fy(x0, y0)∆y
-(Có thể viết dưới dạng ký hiệu ∂: f (x, y) ≈ f (x0, y0) + ∂f
-∂x (x0, y0)∆x + ∂f
-∂y (x0, y0)∆y)
-◦ Giải nghĩa các đại lượng trong công thức:
-- (x0, y0): Điểm gốc (Là các giá trị ”đẹp”, chẵn, đề thường cho sẵn giá trị hàm số và
-đạo hàm tại đây).
-- (x, y): Điểm cần tính (Là các giá trị ”lạ”, số thập phân lẻ).
-- ∆x = x − x0 (Số gia của x).
-28 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 33 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-- ∆y = y − y0 (Số gia của y).
-Ƨ Lời giải.
-T a chọn điểm gốc là (x0, y0) = (10 , 5) tương ứng với các giả thiết đề bài đã cho. Điểm cần
-tính xấp xỉ là (x, y) = (10 .1, 4.8). T ừ đó, ta tính được số gia của các biến (bằng giá trị lúc
-sau trừ giá trị ban đầu):
-∆x = x − x0 = 10.1 − 10 = 0 .1
-∆y = y − y0 = 4.8 − 5 = −0.2
-Áp dụng công thức xấp xỉ tuyến tính (phép tính vi phân) cho hàm hai biến:
-f (x, y) ≈ f (x0, y0) + fx(x0, y0)∆x + fy(x0, y0)∆y
-Thế các giá trị ∆x, ∆y vừa tìm được cùng với giả thiết f (10, 5) = 1000 , fx(10, 5) = 2 và
-fy(10, 5) = −3 vào biểu thức:
-f (10.1, 4.8) ≈ 1000 + 2 · (0.1) + (−3) · (−0.2)
-≈ 1000 + 0.2 + 0.6
-≈ 1000.8
-Vậy giá trị gần đúng của f (10.1, 4.8) là 1000.8.
-Ʀ
-6.2 TỰ LUẬN
-Câu 1. (1.5đ) Một công ty ô tô nhận thấy rằng doanh số bán xe hàng tháng tăng với tốc
-độ tỉ lệ thuận với số xe bán ra tại thời điểm đó (thỏa mô hình tăng trưởng mũ). Ban đầu
-doanh số là 500 xe/tháng và sau 10 tháng, doanh số tăng gấp đôi. Hãy ước lượng doanh
-số sau 24 tháng nếu biết tốc độ tăng doanh số không đổi.
-Mô hình tăng trưởng mũ & tắt dần
-Phương trình vi phân tổng quát:
-N ′(t) = k(t, N(t))N (t)
-Các ký hiệu của bài toán:
-n N (t): Dân số (quần thể) tại thời điểm t.
-n k: Tốc độ tăng trưởng.
-Mô hình Malthusian (T ăng trưởng mũ & Suy giảm/T ắt dần)
-n Giả định: k ≡ k0 (Tốc độ tăng trưởng là hằng số).
-n Phương trình bài toán trở thành:
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 29
---- PAGE 34 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-N ′(t) = k0N (t)
-Mô hình Verhulst (T ăng trưởng Logistic/Bão hòa)
-n Giả định: k(t, N(t)) ≡ k0(1 − αN (t))
-n Phương trình bài toán trở thành:
-N ′(t) = k0(1 − αN (t))N (t)
-n k0: Tốc độ tăng trưởng ban đầu.
-n M = α−1: Sức chứa (Carrying capacity). Khi dân số N (t) tiến gần đến mức sức chứa
-M , tốc độ tăng trưởng N ′(t) sẽ giảm dần về 0 (quần thể đạt trạng thái bão hòa).
-T a chỉ xét dạng bài toán Mô hình Malthusian :
-N ′(t) = k0N (t) ⇔ N ′(t)
-N (t) = k0
-Lấy nguyên hàm hai vế phương trình trên theo biến thời gian t, ta được:
-Z 1
-N (t) d(N (t)) =
-Z
-k0dt
-Điều này suy ra:
-ln N (t) = k0t + C
-Do đó, nghiệm tổng quát của phương trình là:
-N (t) = N (0)ek0t, t > 0
-Chú ý 2: Phân tích kết quả của Mô hình Malthusian
-Nghiên cứu hàm số N (t) = N (0)ek0t khi thời gian t → ∞ (tiến về vô tận):
-Kịch bản 1: k0 > 0 (T ăng trưởng dương - Bùng nổ)
-n Tốc độ tăng trưởng dương (ví dụ: +2%/năm).
-n Dân số tăng theo cấp số nhân (hàm mũ).
-n Kết quả: Dân số bùng nổ và tiến ra vô tận ( ∞).
-Kịch bản 2: k0 < 0 (T ăng trưởng âm - Suy giảm/T ắt dần)
-n Để thuận tiện trong tính toán, ta đặt k0 = −λ, với λ > 0.
-n Phương trình động lực học trở thành: N (t) = N (0)e−λt.
-n Kết quả: Dân số liên tục suy giảm theo hàm mũ và thực sự tiến về 0 (tắt dần hoàn
-toàn).
-30 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 35 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-n Hằng số λ quyết định tốc độ phân rã của quần thể, được gọi là hệ số tắt dần .
-Ƨ Lời giải.
-Gọi N (t) là doanh số bán xe của công ty sau t tháng (t > 0). Theo giả thiết, tốc độ tăng
-doanh số tỉ lệ thuận với số xe bán ra nên hàm N (t) tuân theo mô hình tăng trưởng mũ
-với phương trình tổng quát:
-N (t) = N (0)ek0t
-Trong đó, N (0) = 500 là doanh số ban đầu và k0 là hệ số tăng trưởng cần tìm. Đề bài
-cho biết sau 10 tháng doanh số tăng gấp đôi, tức là N (10) = 1000 . Thay dữ kiện này vào
-phương trình trên, ta thu được:
-500e10k0 = 1000 ⇔ e10k0 = 2
-Lấy logarit tự nhiên hai vế của phương trình, ta dễ dàng xác định được tốc độ tăng trưởng:
-k0 = ln 2
-10
-Để ước lượng doanh số sau 24 tháng, ta thế thời gian t = 24 và hằng số k0 vừa tìm được
-vào lại mô hình ban đầu. Khi đó, biểu thức tính doanh số trở thành:
-N (24) = 500 e
-ln 2
-10 ·24 = 500e2.4 ln 2
-Bằng cách áp dụng tính chất của hàm số mũ và logarit ( ea ln b = ba), ta có thể rút gọn và
-tính toán kết quả cuối cùng:
-N (24) = 500 · 22.4 ≈ 2639.015
-Vậy, nếu tốc độ tăng doanh số không đổi, ước lượng công ty sẽ bán được khoảng 2639
-chiếc xe sau 24 tháng.
-Ʀ
-Câu 2. (1.5đ) Hàm sản xuất được cho bởi
-q = f (ℓ, k) = 8 ℓ0.5k0.5,
-trong đó q là sản lượng, ℓ là số đơn vị lao động và k là số đơn vị vốn. Giá mỗi đơn vị vốn
-là $12 và chi phí mỗi đơn vị lao động là $4. Với mức sản lượng mong muốn q = 200 , hãy
-tìm chi phí tối thiểu bằng phương pháp nhân tử Lagrange.
-MỞ RỘNG: TỪ GIÁO TRÌNH ĐẾN THỰC CHIẾN
-Trong giáo trình T oán Cao Cấp dành cho khối ngành Kinh tế - Thương mại hoặc trên
-giảng đường, các thầy cô thường định nghĩa ma trận Hesse bao (Bordered Hessian) dựa
-trên dạng tổng quát của các đạo hàm riêng cấp 2 theo ba biến x, y, λ. Dưới đây là trích
-đoạn phổ biến trong tài liệu:
-Điều kiện cấp 2:
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 31
---- PAGE 36 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-T a định nghĩa Hesse bao như sau:
-H =
-2
-64
-L′′
-xx L′′
-xy L′′
-xλ
-L′′
-yx L′′
-yy L′′
-yλ
-L′′
-λx L′′
-λy L′′
-λλ
-3
-75
-Đặt
-|H 1| =
-
-L′′
-xx L′′
-xλ
-L′′
-λx L′′
-λλ
- , |H 2| = |H|
-T a có các định lý sau:
-◦ Nếu dL(xo, yo, λo) = 0 và |H 1| < 0 tại (xo, yo, λo), |H 2| > 0 tại (xo, yo, λo) thì L đạt cực
-đại địa phương tại (xo, yo, λo).
-◦ Nếu dL(xo, yo, λo) = 0 và |H 1| < 0 tại (xo, yo, λo), |H 2| < 0 tại (xo, yo, λo) thì L đạt cực
-tiểu địa phương tại (xo, yo, λo).
-◦ Nếu dL(xo, yo, λo) = 0 và |H 1| < 0, |H 2| > 0, ∀(x, y, λ) thì (xo, yo) là điểm cực đại toàn
-cục của f với ràng buộc g(xo, yo) = go.
-◦ Nếu dL(xo, yo, λo) = 0 và |H 1| < 0, |H 2| < 0, ∀(x, y, λ) thì (xo, yo) là điểm cực tiểu toàn
-cục của f với ràng buộc g(xo, yo) = go.
-Cách trình bày trên rất chuẩn chỉ về mặt toán học hàn lâm, nhưng khi áp dụng vào giải
-bài tập thực tế lại khá cồng kềnh. Để giúp các bạn sinh viên tăng tốc độ làm bài, chúng
-ta sẽ cùng chứng minh và rút gọn các định lý trên về một định thức thực duy nhất.
-CHỨNG MINH RÚT GỌN MA TRẬN HESSE
-Xét bài toán tìm cực trị của hàm f (x, y) với điều kiện ràng buộc g(x, y) = g0. T a lập hàm
-Lagrange:
-L(x, y, λ) = f (x, y) + λ
-
-g0 − g(x, y)
-
-◦ Điều số 1: Chứng minh L′′
-λλ = 0, ∀x, y
-T a tính đạo hàm riêng cấp 1 theo λ:
-L′
-λ = g0 − g(x, y)
-Tiếp tục đạo hàm cấp 2 theo λ, vì biểu thức của L′
-λ hoàn toàn không chứa biến λ nên
-hằng số đạo hàm bằng 0:
-L′′
-λλ = 0 (hoàn tất chứng minh)
-◦ Điều số 2: Chứng minh |H 1| < 0, ∀x, y
-32 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 37 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-Theo định nghĩa trong giáo trình, ta có định thức con:
-|H 1| =
-
-L′′
-xx L′′
-xλ
-L′′
-λx L′′
-λλ
-
-Gọi L′′
-xλ = L′′
-λx = T (với T ̸= 0). Kết hợp với L′′
-λλ = 0 (đã chứng minh ở Điều 1), ta thế vào
-định thức:
-|H 1| =
-
-L′′
-xx T
-T 0
- = (L′′
-xx · 0) − (T · T ) = −T 2
-Vì T ̸= 0 nên −T 2 < 0. Suy ra |H 1| < 0 luôn đúng.
-⇒ Đây là lý do khi làm bài tập, ta bỏ qua bước tính |H 1| và tiến thẳng tới bước xét dấu
-|H 2| để kết luận cực trị.
-◦ Điều số 3: Rút gọn định thức |H 2| về dạng thực chiến
-T ừ định nghĩa gốc của giáo trình:
-|H 2| =
-
-L′′
-xx L′′
-xy L′′
-xλ
-L′′
-yx L′′
-yy L′′
-yλ
-L′′
-λx L′′
-λy L′′
-λλ
-
-(∗)
-T a sẽ thực hiện quá trình ”thay tên đổi họ” các phần tử trong định thức:
-- Đặt L11 = L′′
-xx, L 22 = L′′
-yy, L 12 = L21 = L′′
-xy.
-- Đặt g1 = g′
-x và g2 = g′
-y. T ừ L′
-λ = g0 − g(x, y), ta lấy đạo hàm theo x và y, thu được:
-L′′
-λx = L′′
-xλ = −g′
-x = −g1
-L′′
-λy = L′′
-yλ = −g′
-y = −g2
-Thế tất cả dữ kiện cùng với L′′
-λλ = 0 vào phương trình (∗), ta có:
-|H 2| =
-
-L11 L12 −g1
-L21 L22 −g2
-−g1 −g2 0
-
-Bằng các phép biến đổi sơ cấp trên định thức (rút dấu trừ ra khỏi hàng 3 và cột 3,
-sau đó hoán vị đẩy hàng 3 lên đầu, cột 3 lên đầu), giá trị định thức được bảo toàn và
-chuyển đổi hoàn toàn về dạng công thức thực chiến mà ta hay dùng:
-|H 2| = |H| =
-
-0 g1 g2
-g1 L11 L12
-g2 L21 L22
-
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 33
---- PAGE 38 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-!
-Nhận xét: T ừ chứng minh trên, ta rút ra được hai lợi thế cực lớn khi làm bài:
-1. Bỏ qua định thức dư thừa: Định thức |H 1| luôn mang dấu âm (do bằng
-−T 2 < 0). Vì vậy, điều kiện |H 1| < 0 trong giáo trình là luôn tự động thỏa
-mãn. Chúng ta hoàn toàn không cần phải tốn thời gian tính toán nó nữa.
-2. Định dạng ma trận siêu dễ nhớ: Định thức |H 2| (nay gọi gọn là định thức
-Hesse bao |H|) được đưa về một cấu trúc vô cùng cân xứng và mang
-tính lặp lại:
-|H| =
-
-0 g1 g2
-g1 L11 L12
-g2 L21 L22
-
-- Góc trái trên cùng luôn luôn là số 0.
-- Hai cạnh viền (hàng 1 và cột 1) đối xứng nhau, chứa các đạo hàm bậc
-nhất của hàm điều kiện ( g1, g2).
-- Phần lõi 2 × 2 ở góc dưới phải chính là các đạo hàm riêng cấp 2 quen
-thuộc của hàm Lagrange ( L11, L12, L21, L22).
-Do đó, từ nay về sau khi giải bài toán cực trị có điều kiện, ta chỉ cần lập duy
-nhất ma trận đẹp mắt này và chốt hạ bằng cách xét dấu:
-⇒ Nếu |H| > 0: Hàm số đạt cực đại.
-⇒ Nếu |H| < 0: Hàm số đạt cực tiểu.
-T ư duy rút gọn này vừa đảm bảo độ chính xác tuyệt đối theo đúng lý thuyết,
-vừa giúp trình bày siêu nhanh và không bao giờ sợ quên công thức trong
-phòng thi!
-Cơ sở lý thuyết: cực trị có điều kiện
-Bài toán tổng quát: Tìm cực trị của hàm mục tiêu z = f (x, y) với điều kiện ràng buộc
-g(x, y) = b (hoặc dạng ẩn g(x, y) − b = 0).
-Bước 1: Lập hàm Lagrange
-Hàm Lagrange được xây dựng như sau:
-L(x, y, λ) = f (x, y) + λ
-
-g0 − g(x, y)
-
-(1)
-Trong đó, λ được gọi là nhân tử Lagrange.
-Bước 2: Tìm điểm dừng (Điều kiện cần)
-34 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 39 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-Giải hệ phương trình đạo hàm riêng cấp 1 để tìm các điểm dừng:
-8
->><
->>:
-L′
-x = f ′
-x(x, y) − λg′
-x(x, y) = 0 (1)
-L′
-y = f ′
-y(x, y) − λg′
-y(x, y) = 0 (2)
-L′
-λ = g0 − g(x, y) = 0 (3)
-(2)
-Mẹo giải hệ phương trình (1) và (2): Mục tiêu cốt lõi là tìm được mối quan hệ giữa x và
-y. T ùy vào cấu trúc của hàm số, ta có các chiến thuật xử lý tốc độ:
-◦ Trường hợp nhiều phép nhân (VD: Hàm Cobb-Douglas xαyβ): Đưa các số hạng
-chứa λ sang một vế. Sau đó, tiến hành chia hai phương trình vế theo vế . Cách này
-giúp triệt tiêu ngay lập tức λ và các lũy thừa phức tạp, trả về một tỉ lệ tuyến tính
-giữa x và y.
-◦ Trường hợp nhiều phép cộng, trừ (VD: Đa thức): T ừ phương trình (1) và (2), hãy
-rút λ ra biểu diễn theo x và y. Cho hai biểu thức của λ bằng nhau ( λ = · · · = . . . ) để
-giải ra mối quan hệ trực tiếp giữa x và y.
-Sau khi có mối quan hệ x, y, thế vào phương trình (3) để giải ra nghiệm cụ thể. Giả sử ta
-tìm được điểm dừng M (x0, y0) và nhân tử tương ứng λ0.
-Bước 3: Xét dấu và Kết luận (Điều kiện đủ)
-Tính các đạo hàm riêng cấp hai:
-g1 = g′
-x, g 2 = g′
-y
-L11 = L′′
-xx, L 22 = L′′
-yy, L 12 = L21 = L′′
-xy
-Lập ma trận Hessian viền (Bordered Hessian) và tính định thức |H|:
-|H| =
-
-0 g1 g2
-g1 L11 L12
-g2 L21 L22
-
-(3)
-Mẹo đánh giá định thức và tính chất cực trị:
-◦ Cực trị T oàn cục: Nếu các đạo hàm cấp hai ( L11, L22, L12) tính ra chỉ là các hằng
-số (không còn chứa biến x, y), định thức |H| sẽ là một hằng số cố định bất kể điểm
-dừng. T a trực tiếp xét dấu và kết luận hàm số đạt cực đại/cực tiểu toàn cục.
-◦ Cực trị Địa phương: Nếu các đạo hàm cấp hai vẫn còn chứa biến ( λ) x, y, λ, ta buộc
-phải thay tọa độ điểm dừng (x0, y0, λ0) vào định thức |H| để tính ra một giá trị số
-cụ thể. Trong trường hợp này, ta chỉ được phép kết luận hàm số đạt cực đại/cực
-tiểu địa phương tại M .
-◦ Cực trị T oàn cục / Địa phương (Trường hợp chứa biến): Nếu các giá trị đạo hàm
-cấp hai ráp vào làm cho định thức |H| chỉ còn chứa hai biến x, y , ta tiến hành tính
-tường minh biểu thức |H| theo x, y. Khi đó xảy ra hai khả năng:
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 35
---- PAGE 40 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-- Trường hợp T oàn cục: Nếu chứng minh được biểu thức |H| luôn giữ nguyên một
-dấu (luôn > 0 hoặc luôn < 0) với mọi x, y thỏa mãn điều kiện ràng buộc, ta được
-quyền kết luận hàm số đạt cực trị toàn cục.
-- Trường hợp Địa phương: Nếu biểu thức tổng quát của |H| có thể thay đổi dấu
-tùy thuộc vào giá trị của x, y, ta buộc phải thay tọa độ điểm dừng (x0, y0, λ0) vào
-để tính ra một giá trị số cụ thể. Trong trường hợp này, ta chỉ được phép kết luận
-hàm số đạt cực đại/cực tiểu địa phương tại điểm M đó.
-Quy tắc xét dấu:
-◦ Nếu |H| > 0: Hàm số đạt cực đại tại điểm dừng.
-◦ Nếu |H| < 0: Hàm số đạt cực tiểu tại điểm dừng.
-Ƨ Lời giải.
-Lập hàm Lagrange để tìm chi phí tối thiểu C(ℓ, k) = 4 ℓ + 12k, ta có:
-L(ℓ, k, λ) = 4 ℓ + 12k + λ(200 − 8ℓ1/2k1/2)
-Điều kiện cần, tính đạo hàm cấp 1:
-8
->>>><
->>>>:
-L′
-ℓ = 4 − 4λℓ−1/2k1/2 = 0 (1)
-L′
-k = 12 − 4λℓ1/2k−1/2 = 0 (2)
-L′
-λ = 200 − 8ℓ1/2k1/2 = 0 (3)
-T ừ hai phương trình (1) và (2) suy ra:
-8
-<
-:
-4 = 4 λℓ−1/2k1/2
-12 = 4 λℓ1/2k−1/2
-Chia hai vế của phương trình vế theo vế kết hợp với phương trình (3), ta có:
-12
-4 = 4λℓ1/2k−1/2
-4λℓ−1/2k1/2 ⇒ 3 = ℓ
-k ⇒ ℓ = 3k
-Thay ℓ = 3k vào phương trình (3):
-200 − 8(3k)1/2k1/2 = 0 ⇒ 200 = 8
-√
-3k ⇒ k = 25√
-3
-Suy ra ℓ = 3 · 25√
-3 = 25
-√
-3. Thay vào (1) ta có λ =
-√
-3. Vậy ta có điểm dừng M
-
-25
-√
-3, 25√
-3
-
-.
-Điều kiện đủ, tính các đạo hàm cấp hai, ta có:
-g1 = −4ℓ−1/2k1/2, g 2 = −4ℓ1/2k−1/2
-L11 = 2λℓ−3/2k1/2, L 22 = 2λℓ1/2k−3/2, L 12 = L21 = −2λℓ−1/2k−1/2
-36 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 41 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-Thay các giá trị tại điểm dừng M và λ =
-√
-3 vào định thức:
-|H| =
-0
-B@
-0 g1 g2
-g1 L11 L12
-g2 L21 L22
-1
-CA
-T a có ma trận định thức:
-|H| =
-
-0 − 4√
-3 −4
-√
-3
-− 4√
-3
-2
-√
-3
-75 − 2
-√
-3
-25
-−4
-√
-3 − 2
-√
-3
-25
-6
-√
-3
-25
-
-Vậy định thức bằng:
-|H| = − 128
-√
-3
-25
-Do các đạo hàm cấp hai vẫn còn chứa biến nên ta xét tại điểm dừng. Vì |H| < 0 nên hàm
-số đạt cực tiểu địa phương tại M
-
-25
-√
-3, 25√
-3
-
-. Chi phí tối thiểu khi này là:
-Cmin = 4(25
-√
-3) + 12
- 25√
-3
-
-= 200
-√
-3 ≈ 346.41
-Ʀ
-Câu 3. (2.0đ) Trong mô hình Input-Output mở Leontief gồm ba ngành, cho ma trận hệ
-số đầu vào là
-A =
-2
-64
-0.1 0 .2 0 .2
-0.3 0 .2 0 .1
-0.2 0 .3 0 .3
-3
-75 .
-(i) Nếu nhu cầu cuối của ba ngành lần lượt là 113, 61 và 44, hãy tìm sản lượng của ba
-ngành.
-(ii) Nhờ cải tiến kỹ thuật, ngành 1 tiết kiệm được 1
-3 nguyên liệu từ ngành 2. Khi đó, hãy
-xác định sản lượng của ba ngành nếu nhu cầu cuối không đổi.
-Một số nội dung
-Trong mô hình Input-Output của Leontief, phương trình cân bằng hiện vật được biểu diễn
-dưới dạng ma trận là X = AX + D, tương đương với:
-(I − A)X = D
-trong đó I là ma trận đơn vị cùng cấp với A, A là ma trận hệ số đầu vào, X là ma trận
-sản lượng và D là ma trận cầu cuối. Đặt B = I − A là ma trận Leontief. Hệ thức trên trở
-thành một phương trình ma trận cơ bản và ta có hai hướng tiếp cận chính để tìm lời giải
-cho ma trận sản lượng X.
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 37
---- PAGE 42 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-CÁCH 1: GIẢI BẰNG PHƯƠNG PHÁP MA TRẬN NGHỊCH ĐẢO
-Phương pháp này được xây dựng dựa trên phép biến đổi phương trình ma trận trực
-tiếp. Giả sử ma trận Leontief I − A là ma trận vuông không suy biến, tức là điều kiện định
-thức |I − A| ̸= 0 được thỏa mãn. Khi đó, ma trận nghịch đảo (I − A)−1 chắc chắn tồn tại.
-Thực hiện nhân cả hai vế của phương trình (I − A)X = D với ma trận (I − A)−1 từ bên
-trái, ta thu được nghiệm tổng quát của hệ:
-X = (I − A)−1D
-Về mặt tính toán lý thuyết, người học cần tìm ma trận nghịch đảo (I − A)−1 thông qua
-phương pháp ma trận phụ hợp hoặc các phép biến đổi sơ cấp trên dòng, sau đó thực
-hiện phép nhân ma trận với cột cầu cuối D. T uy nhiên, trong thực hành với sự hỗ trợ của
-máy tính cầm tay, ta chỉ cần nhập ma trận I − A để lấy nghịch đảo trực tiếp x−1 và nhân
-với ma trận D, từ đó xuất ra toàn bộ kết quả sản lượng X một cách nhanh chóng và
-chính xác.
-CÁCH 2: GIẢI BẰNG QUY TẮC CRAMER (CHUYỂN VỀ HỆ PHƯƠNG TRÌNH)
-Bản chất của phương trình ma trận (I − A)X = D chính là một hệ phương trình tuyến
-tính. Bằng cách khai triển phép nhân ma trận, ta đưa bài toán trừu tượng về dạng hệ
-phương trình đại số thông thường. Xét trường hợp phổ biến nhất là mô hình ba ngành,
-hệ phương trình có dạng tổng quát:
-8
->><
->>:
-a11x1 + a12x2 + a13x3 = b1
-a21x1 + a22x2 + a23x3 = b2
-a31x1 + a32x2 + a33x3 = b3
-với aij là các phần tử cấu thành của ma trận hệ số I − A, xj là các ẩn sản lượng tương
-ứng và bi là các thành phần của vector cầu cuối D. Thay vì tìm ma trận nghịch đảo, ta
-áp dụng Quy tắc Cramer để giải quyết trực tiếp từng ẩn số. Để thực hiện, ta cần tính định
-thức hệ số D (hay ∆) và các định thức phụ Dx1, Dx2, Dx3. Cụ thể, định thức hệ số D được
-lập từ các hệ số của các ẩn ở vế trái:
-D =
-
-a11 a12 a13
-a21 a22 a23
-a31 a32 a33
-
-Các định thức phụ được thiết lập bằng cách thay thế cột hệ số của ẩn tương ứng trong
-định thức D bằng cột hệ số tự do (b1, b2, b3)T :
-Dx1 =
-
-b1 a12 a13
-b2 a22 a23
-b3 a32 a33
-
-, D x2 =
-
-a11 b1 a13
-a21 b2 a23
-a31 b3 a33
-
-, D x3 =
-
-a11 a12 b1
-a21 a22 b2
-a31 a32 b3
-
-Nếu định thức hệ số D ̸= 0, hệ phương trình có nghiệm duy nhất được xác định bởi tỷ số
-38 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 43 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-giữa các định thức phụ và định thức hệ số:
-x1 = Dx1
-D , x 2 = Dx2
-D , x 3 = Dx3
-D
-Và hai phương pháp này hoàn toàn có thể ăn gian bằng cách tính định thức và ma trận
-nghịch đảo như hướng dẫn dưới đây.
-Cơ sở lý thuyết: ”Ăn gian” bằng bấm máy tính
-Hướng dẫn bấm máy tính:
-1. Chế độ Matrix: Bấm phím MENU → 4.
-2. Gọi hàm/Biến: Sau khi nhập xong ma trận và ấn AC,
-sử dụng phím OPTN để gọi ma trận ra tính toán.
-3. Lấy Nghịch đảo: Gọi ma trận ra màn hình (VD:
-MatA), sau đó ấn phím x−1 (phím màu đỏ trên hình)
-rồi ấn dấu =.
-4. Tính Định thức: Bấm phím OPTN → ∇ (mũi tên đi
-xuống) → 2 (Determinant), sau đó gọi ma trận cần
-tính (VD: MatA) ra màn hình rồi ấn dấu =.
-5. Lưu & Xóa màn hình: Phím AC dùng để xóa trắng
-màn hình hiện tại nhưng không xóa dữ liệu ma trận
-đã lưu trong bộ nhớ ngầm.
-Ƨ Lời giải.
-(i) Tìm sản lượng của ba ngành (Trình bày 2 cách)
-Gọi X =
-2
-64
-x1
-x2
-x3
-3
-75 là ma trận sản lượng của ba ngành. Mô hình Input-Output Leontief có
-phương trình tổng quát:
-X = AX + D ⇒ (I − A)X = D
-Với ma trận nhu cầu cuối D =
-2
-64
-113
-61
-44
-3
-75. T a lập ma trận Leontief I − A:
-I − A =
-2
-64
-1 0 0
-0 1 0
-0 0 1
-3
-75 −
-2
-64
-0.1 0 .2 0 .2
-0.3 0 .2 0 .1
-0.2 0 .3 0 .3
-3
-75 =
-2
-64
-0.9 −0.2 −0.2
-−0.3 0 .8 −0.1
-−0.2 −0.3 0 .7
-3
-75
-CÁCH 1: GIẢI BẰNG PHƯƠNG PHÁP MA TRẬN NGHỊCH ĐẢO
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 39
---- PAGE 44 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-T a cóX = (I − A)−1D. Sử dụng máy tính cầm tay, ta tìm được ma trận nghịch đảo:
-(I − A)−1 = 1
-381
-2
-64
-530 200 180
-230 590 150
-250 310 660
-3
-75
-Tính ma trận sản lượng X:
-X = 1
-381
-2
-64
-530 200 180
-230 590 150
-250 310 660
-3
-75
-2
-64
-113
-61
-44
-3
-75 =
-2
-64
-210
-180
-200
-3
-75
-Vậy sản lượng của ba ngành lần lượt là x1 = 210, x2 = 180 và x3 = 200.
-CÁCH 2: GIẢI BẰNG QUY TẮC CRAMER
-T a có hệ phương trình (I − A)X = D:
-8
->>>><
->>>>:
-0.9x1 − 0.2x2 − 0.2x3 = 113
-−0.3x1 + 0.8x2 − 0.1x3 = 61
-−0.2x1 − 0.3x2 + 0.7x3 = 44
-Sử dụng máy tính cầm tay, ta tính được định thức hệ số ∆ = |I − A| = 0 .381. T ương tự,
-tính các định thức phụ bằng cách thay cột nhu cầu vào từng cột tương ứng:
-∆1 =
-
-113 −0.2 −0.2
-61 0 .8 −0.1
-44 −0.3 0 .7
-
-= 80.01
-∆2 =
-
-0.9 113 −0.2
-−0.3 61 −0.1
-−0.2 44 0 .7
-
-= 68.58
-∆3 =
-
-0.9 −0.2 113
-−0.3 0 .8 61
-−0.2 −0.3 44
-
-= 76.20
-Tính nghiệm theo công thức Cramer:
-8
->>>>><
->>>>>:
-x1 = ∆1
-∆ = 80.01
-0.381 = 210
-x2 = ∆2
-∆ = 68.58
-0.381 = 180
-x3 = ∆3
-∆ = 76.20
-0.381 = 200
-(ii) Xác định sản lượng khi ngành 1 tiết kiệm 1
-3 nguyên liệu từ ngành 2.
-40 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 45 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-Hệ số đầu vào mới là a′
-21 = 0.3 − 1
-3 · 0.3 = 0 .2. Ma trận Leontief mới lúc này là:
-I − A′ =
-2
-64
-1 0 0
-0 1 0
-0 0 1
-3
-75 −
-2
-64
-0.1 0 .2 0 .2
-0.2 0 .2 0 .1
-0.2 0 .3 0 .3
-3
-75 =
-2
-64
-0.9 −0.2 −0.2
-−0.2 0 .8 −0.1
-−0.2 −0.3 0 .7
-3
-75
-T a giải hệ phương trình (I − A′)X ′ = D:
-8
->>>><
->>>>:
-0.9x′
-1 − 0.2x′
-2 − 0.2x′
-3 = 113
-−0.2x′
-1 + 0.8x′
-2 − 0.1x′
-3 = 61
-−0.2x′
-1 − 0.3x′
-2 + 0.7x′
-3 = 44
-Dùng máy tính tính các định thức Cramer, ta được:
-∆ =
-
-0.9 −0.2 −0.2
-−0.2 0 .8 −0.1
-−0.2 −0.3 0 .7
-
-= 0.401, ∆1 = 80.01, ∆2 = 59.79, ∆3 = 73.69
-Sản lượng mới của ba ngành là:
-8
->>>>><
->>>>>:
-x′
-1 = ∆1
-∆ = 80.01
-0.401 = 80010
-401 ≈ 199.53
-x′
-2 = ∆2
-∆ = 59.79
-0.401 = 59790
-401 ≈ 149.10
-x′
-3 = ∆3
-∆ = 73.69
-0.401 = 73690
-401 ≈ 183.77
-!
-Nhận xét: Cả hai phương pháp đều có ưu, nhược điểm tùy bài toán.
-• Cách 2 (Quy tắc Cramer): Thường được ưu tiên trình bày trong bài thi
-tự luận vì tính trực quan, diễn giải rõ ràng từng bước tính định thức để
-lấy trọn điểm. Nhược điểm là tốn thời gian tính nhiều định thức và bắt
-buộc phải giải lại từ đầu nếu ma trận cầu cuối D thay đổi.
-• Cách 1 (Ma trận nghịch đảo): Ít phổ biến khi tính tay do phức tạp,
-nhưng lại cực kỳ nhanh gọn khi bấm máy tính. Ưu điểm lớn nhất của
-cách này phát huy trong các bài toán dự báo nhiều kịch bản: khi D
-thay đổi, ta chỉ cần tính (I − A)−1 một lần duy nhất và nhân trực tiếp
-với D mới mà không phải thiết lập lại hệ phương trình.
-Tóm lại, bạn nên dùng Cách 2 để trình bày bài giải tự luận thật chặt chẽ, và
-tận dụng Cách 1 để tính nhanh kết quả hoặc khi bài toán yêu cầu tìm mức
-sản lượng cho nhiều mức cầu cuối khác nhau.
-Ʀ
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 41
---- PAGE 46 ---
-7
-LỜI GIẢI ĐỀ THI
-TOÁN CAO CẤP K51
-(118)
-7.1 PHẦN TRẮC NGHIỆM (5 điểm)
-Ghi chú: Trong đề thi, ta ký hiệu In là ma trận đơn vị cấp n
-Câu 1. Cho phương trình vi phân:
-y′ + y = αx + β,
-trong đó α ̸= 0 và β là các hằng số với α + β ̸= 0. Chọn phát biểu ĐÚNG:
-A lim
-x→+∞
-[y(x) − (αx + β)] = β.
-B lim
-x→+∞
-[y(x) − (αx + β)] = α.
-C Nghiệm tổng quát là y(x) = Ce −x + αx + (β − α).
-D Nghiệm tổng quát là y(x) = Ce −x + αx + β.
-Ƨ Lời giải.
-Phương trình vi phân tuyến tính bậc nhất có dạng
-y′ + p(x)y = q(x),
-với p(x) = 1 và q(x) = αx + β. T a tính thừa số tích phân:
-e
-∫
-p(x)dx = e
-∫
-1dx = ex
-Nhân cả hai vế của phương trình ban đầu với ex, ta được:
-exy′ + exy = (αx + β)ex ⇔ (y · ex)′ = (αx + β)ex
-Lấy tích phân hai vế:
-y · ex =
-Z
-(αx + β)exdx
-Giải tích phân vế phải:
-I =
-Z
-(αx + β)exdx
-42 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 47 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-Sử dụng phương pháp tích phân từng phần với công thức:
-Z
-u dv = uv −
-Z
-v du
-◦ Cơ sở lý thuyết chọn ẩn: Áp dụng quy tắc ”Nhất log, nhì đa, tam lượng, tứ mũ” . Trong
-biểu thức (αx + β)ex, ta có (αx + β) là hàm đa thức (”nhì đa”) và ex là hàm số mũ (”tứ
-mũ”). Do đa thức xếp trước hàm mũ nên ta ưu tiên chọn u = αx + β và toàn bộ phần
-còn lại ta đặt là dv.
-◦ Tiến hành đặt ẩn:
-8
-<
-:
-u = αx + β
-dv = exdx
-⇒
-8
-<
-:
-du = d(αx + β) = αdx
-v =
-R
-exdx = ex (Sử dụng công thức nguyên hàm cơ bản)
-◦ Ráp vào công thức:
-I =
-Z
-(αx + β)exdx = (αx + β)ex −
-Z
-ex · αdx
-= (αx + β)ex − αex + C
-= ex(αx + β − α) + C
-Thay kết quả tích phân I vừa tìm được vào phương trình:
-y · ex = ex(αx + β − α) + C
-Chia cả hai vế cho ex, ta thu được nghiệm tổng quát :
-y(x) = Ce −x + αx + (β − α)
-Nhận xét: Đối chiếu với các đáp án, ta thấy nghiệm tổng quát vừa tìm được khớp hoàn
-toàn với đáp án C. T a cũng có thể kiểm tra thêm các đáp án về giới hạn:
-lim
-x→+∞
-[y(x) − (αx + β)] = lim
-x→+∞
-[Ce −x + αx + β − α − (αx + β)] = lim
-x→+∞
-(Ce −x − α) = −α
-Do đó, cả hai phát biểu A và B đều không chính xác.
-Ʀ
-Câu 2. Câu 2. Cho hàm y = y(x) thỏa exy + (x − 1)3 + xy2 − 2y + 2 = 0 . Khi đó ta có y′(0) là:
-A −5/3. B 5/3. C −3/5. D 3/5.
-Ƨ Lời giải.
-Cơ sở lý thuyết: cho phương trình hàm ẩn g(x, y) = 0 . Giả sử y = y(x) là hàm số khả vi
-được xác định từ phương trình này, đạo hàm của y theo x được tính bởi công thức:
-y′(x) = − gx
-gy
-,
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 43
---- PAGE 48 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-với điều kiện gy(x, y) ̸= 0.
-Trở lại bài toán: xét phương trình hàm ẩn
-g = exy + (x − 1)3 + xy2 − 2y + 2 = 0
-Giả sử phương trình xác định một hàm số khả vi y = y(x), đạo hàm của hàm ẩn được tính
-theo công thức:
-y′(x) = − gx
-gy
-.
-Trước tiên, ta tính các đạo hàm riêng của g theo biến x và y:
-gx = yexy + 3(x − 1)2 + y2,
-gy = xexy + 2xy − 2.
-T ừ đó, ta thiết lập được biểu thức đạo hàm tổng quát:
-y′(x) = − yexy + 3(x − 1)2 + y2
-xexy + 2xy − 2 .
-T ạix = 0, ta xác định giá trị y(0) tương ứng bằng cách thay vào phương trình ban đầu:
-e0 + (−1)3 + 0 − 2y(0) + 2 = 0 ⇔ y(0) = 1 .
-Thay (x, y) = (0 , 1) vào biểu thức y′(x) ở trên, ta thu được:
-y′(0) = − 1 · e0 + 3(0 − 1)2 + 12
-0 · e0 + 0 − 2 = − 1 + 3 + 1
-−2 = 5
-2 .
-Ʀ
-Câu 3. Xét hàm khả vi f : R → R có f ′(10) = − f (10)
-10 . Giả sử hàm cầu của một sản phẩm
-được cho bởi q = f (2p) với p là giá bán và q là lượng cầu của sản phẩm. Nếu tăng giá 4%
-từ mức giá p = 5 thì phát biểu nào sau đây là ĐÚNG?
-A Lượng cầu giảm xấp xỉ 5%. B Lượng cầu giảm xấp xỉ 2%.
-C Lượng cầu giảm xấp xỉ 4%. D Lượng cầu tăng xấp xỉ 4%.
-Ƨ Lời giải.
-Cơ sở lý thuyết: Ứng dụng của Hệ số co giãn (HSCD)
-Hệ số co giãn của lượng cầu q theo giá p tại mức giá p0 được tính bằng công thức:
-εd = q′(p0) · p0
-q(p0)
-Ý nghĩa kinh tế: Khi giá p tăng 1% từ mức p0, thì lượng cầu q sẽ thay đổi tương ứng εd%.
-Trở lại bài toán: xét hàm số lượng cầu q(p) = f (2p). Áp dụng quy tắc đạo hàm của hàm
-hợp, ta tính được đạo hàm bậc nhất của lượng cầu theo giá là
-q′(p) = 2 f ′(2p)
-44 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 49 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-T ại mức giá khảo sát p = 5, lượng cầu và đạo hàm biên tương ứng lần lượt là:
-q(5) = f (10),
-q′(5) = 2 f ′(10).
-Kết hợp với giả thiết f ′(10) = − f (10)
-10 , biểu thức đạo hàm biên tại p = 5 được viết lại thành:
-q′(5) = 2 ·
-
-− f (10)
-10
-
-= − f (10)
-5 .
-Thay các kết quả vừa tìm được vào công thức hệ số co giãn ban đầu, ta thu được:
-εd = q′(5) · 5
-q(5) =
-
-− f (10)
-5
-
-· 5
-f (10) = −1.
-Về mặt ý nghĩa kinh tế, εd = −1 chỉ ra rằng tại phân khúc giá p = 5, biên độ tăng 1% của
-giá bán sẽ dẫn đến sự sụt giảm 1% của lượng cầu. T ừ quy luật này, ta suy luận được nếu
-giá bán tăng 4%, lượng cầu sẽ sụt giảm một tỷ lệ xấp xỉ tương ứng là 4%.
-Ʀ
-Câu 4. Cho A là ma trận vuông cấp 3. Ma trận B thu được từ ma trận A qua phép biến
-đổi thay dòng 2 của A bằng 5 lần dòng 2 trừ dòng 1 ( d2 → 5d2 − d1). Tìm phát biểu ĐÚNG:
-A det(B) = 5 3 det(A). B det(A) = det(B).
-C det(A) = 5 det(B). D det(B) = 5 det(A).
-Ƨ Lời giải.
-Cơ sở lý thuyết: Định thức và Phép biến đổi sơ cấp trên dòng
-Nhắc lại sự thay đổi của định thức khi thực hiện 3 phép biến đổi sơ cấp trên dòng (tương
-tự cho cột):
-◦ Loại 1: Đổi chỗ hai dòng cho nhau ( di ↔ dj) − →Định thức đổi dấu.
-◦ Loại 2: Nhân một dòng với số thực k ̸= 0 (di → k · di) − →Định thức được nhân lên
-k lần.
-◦ Loại 3: Cộng vào một dòng k lần một dòng khác ( di → di + k · dj) − →Định thức
-không đổi.
-Mở rộng: Phép biến đổi gộp (Kết hợp Loại 2 và Loại 3)
-Để trực quan hóa bằng công thức, khi ta thực hiện phép biến đổi thay dòng i bằng k lần
-dòng i cộng với h lần dòng j (di → k · di + h · dj, với k ̸= 0), ta có sơ đồ biến đổi định thức
-như sau:
-A
-di→k·di
-− − − − →A1
-di→di+h·dj
-− − − − − − − →B
-Biểu diễn qua định thức:
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 45
---- PAGE 50 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-◦ Giai đoạn 1: A1 là ma trận sau khi nhân dòng i với k.
-|A1| = k · |A|
-◦ Giai đoạn 2: B là ma trận sau khi lấy dòng i (của A1) cộng thêm h lần dòng j. Định
-thức không đổi.
-|B| = |A1|
-Hệ quả tổng quát: Nếu ma trận B thu được từ A qua phép biến đổi di → k · di + h · dj,
-ta có công thức trực tiếp:
-det(B) = k · det(A)
-Lưu ý cho học sinh: Hệ số h (đi kèm với dòng dj đem đi cộng) hoàn toàn không ảnh
-hưởng đến định thức. Chỉ có hệ số k (nhân trực tiếp với dòng di bị biến đổi) mới làm thay
-đổi định thức.
-Áp dụng nhanh vào bài toán trên:
-Phép biến đổi d2 → 5d2 − d1. Nhìn vào hệ quả tổng quát, ta có
-det(B) = 5 · det(A)
-Ʀ
-Câu 5. Hàm cầu của một sản phẩm được cho bởi P = 1000
-Q + 10 , trong đó P là giá bán và Q
-là số lượng sản phẩm bán ra. Hãy tìm doanh thu biên (biên tế của doanh thu) khi Q = 40.
-A 250. B 20. C 4. D 25.
-Ƨ Lời giải.
-T a có hàm doanh thu sẽ được tính bằng công thức
-R = P · Q = 1000
-Q + 10 · Q
-T ức ta cần tính R′(40), ta có thể sử dụng nhanh máy tính để tính đạo hàm tại điểm
-Ʀ
-Câu 6. Cho A là ma trận vuông cấp 3 thỏa AT A2 = 3I3. Tính det
-" 1
-3 A
-−1#
-.
-46 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 51 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-A 1
-9 . B 1
-3 . C 3. D 9.
-Ƨ Lời giải.
-Cơ sở lý thuyết: Đối với các bài toán cho trước phương trình ma trận mà hệ thức chỉ bao
-gồm ma trận A, ma trận đơn vị In, hoặc mở rộng có thêm ma trận phụ hợp PA, phương
-pháp giải quyết tối ưu và chắc chắn nhất là tiến hành lấy định thức hai vế. Kỹ thuật này
-sẽ triệt tiêu các ma trận và chuyển bài toán về một phương trình đại số để tìm det (A),
-thông qua các tính chất cơ bản và hệ thức det (PA) = ( det(A))n−1.
-Trở lại bài toán: vận dụng nguyên lý trên vào giả thiết AT A2 = 3 I3, ta lấy định thức hai
-vế của phương trình:
-det(AT A2) = det(3I3).
-Khai triển biểu thức dựa trên các tính chất của định thức, ta thu được:
-det(AT ) · det(A2) = 3 3 · det(I3).
-Do det(AT ) = det(A) và det(I3) = 1 , phương trình trên tương đương với:
-det(A) · (det(A))2 = 27 ⇔ (det(A))3 = 27 ⇒ det(A) = 3 .
-Tiếp theo, xét biểu thức cần tính, ta áp dụng tính chất định thức của ma trận nghịch đảo
-và phép nhân một vô hướng với ma trận cấp 3:
-det
-" 1
-3 A
-−1#
-= 1
-det
- 1
-3 A
- = 1 1
-3
-3
-det(A)
-.
-Thay giá trị det (A) = 3 vừa tìm được vào biểu thức trên, ta đi đến kết quả:
-det
-" 1
-3 A
-−1#
-= 1
-1
-27 · 3
-= 1
-1
-9
-= 9.
-Ʀ
-Câu 7. Cho hệ
-8
->><
->>:
-x − y + z = 2m
-mx − 2y − 3z = −3
-2x − 3y − 2z = −m
-với m ∈ R là tham số. Hệ có nghiệm duy nhất nếu
-và chỉ nếu:
-A m ̸= 1. B m = 2. C m ̸= −4. D m ̸= 2.
-Ƨ Lời giải.
-Cơ sở lý thuyết: hệ phương trình có nghiệm duy nhất khi và chỉ khi định thức khác 0.
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 47
---- PAGE 52 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-Trở lại bài toán: ta tiến hành khai triển định thức của ma trận A:
-det(A) =
-
-1 −1 1
-m −2 −3
-2 −3 −2
-
-= −5m + 5.
-Để hệ phương trình có nghiệm duy nhất, điều kiện cần và đủ là det (A) ̸= 0, tức là
-−5m + 5 ̸= 0 ⇔ m ̸= 1
-Ʀ
-Câu 8. Cho ma trận A =
-2
-64
-m + 2 1 4
-3 −4 5
-−2 −1 2
-3
-75 với m ∈ R và đặt B = (2I3 + A)4. Tìm m để hạng
-của ma trận B nhỏ hơn 3.
-A m = 4. B m = 23
-3 . C m = − 50
-3 . D m = − 62
-3 .
-Ƨ Lời giải.
-Cơ sở lý thuyết: với ma trận vuông A cấp n:
-r(A) = n ⇔ |A| ̸= 0 ⇔ Hệ AX = B có nghiệm duy nhất.
-r(A) < n ⇔ |A| = 0 ⇔ Hệ AX = B vô số nghiệm hoặc vô nghiệm.
-Trở lại bài toán: Xét ma trận
-B = (2I3 + A)4
-Do đó, hạng của ma trận B nhỏ hơn 3 khi và chỉ khi
-det
- 
-(2I3 + A)4
-= 0 ⇔ det(2I3 + A) = 0
-Trước tiên, ta tìm ma trận 2I3 + A:
-2I3 + A =
-2
-64
-2 0 0
-0 2 0
-0 0 2
-3
-75 +
-2
-64
-m + 2 1 4
-3 −4 5
-−2 −1 2
-3
-75 =
-2
-64
-m + 4 1 4
-3 −2 5
-−2 −1 4
-3
-75 .
-Định thức của ma trận này được tính thông qua khai triển theo hàng đầu tiên:
-det(2I3 + A) =
-
-m + 4 1 4
-3 −2 5
-−2 −1 4
-
-= −3m − 62.
-Ép điều kiện định thức bằng 0, ta thu được phương trình
-−3m − 62 = 0 ⇔ m = − 62
-3
-48 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 53 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-Ʀ
-Câu 9. Cho hàm lợi nhuận Π(L, K) = 3 · L
-1
-3 K
-1
-3 − L − 0, 01K, trong đó L là lượng lao động,
-K là lượng vốn. Để lợi nhuận lớn nhất thì
-A
-8
-<
-:
-L = 200
-K = 10000
-. B
-8
-<
-:
-L = 100
-K = 10000
-. C
-8
-<
-:
-L = 100
-K = 1000
-. D
-8
-<
-:
-L = 10
-K = 100
-.
-Ƨ Lời giải.
-Để lợi nhuận Π(L, K) đạt tối đa, bước đầu tiên ta cần tìm điểm dừng của hàm số bằng
-cách giải hệ phương trình đạo hàm riêng bậc nhất (điều kiện cần):
-8
-<
-:
-Π′
-L = 0
-Π′
-K = 0
-⇔
-8
-<
-:
-L− 2
-3 K
-1
-3 = 1 (1)
-L
-1
-3 K − 2
-3 = 0, 01 (2)
-Tips: Khi gặp hệ phương trình chứa toàn phép nhân và lũy thừa (như dạng hàm Cobb-
-Douglas này), cách ”phá giải” gọn gàng nhất là chia hai phương trình vế theo vế.
-Nếu gặp hệ phương trình có nhiều phép cộng thì ta mới nên rút về 1 ẩn và thay
-vào phương trình còn lại rồi thực hiện tìm nghiệm.
-Thực hiện chia (1) cho (2), ta có ngay mối liên hệ giữa K và L:
-L− 2
-3 K
-1
-3
-L
-1
-3 K − 2
-3
-= 1
-0, 01 ⇔ L−1K 1 = 100 ⇒ K = 100L.
-Thế K = 100L ngược lại vào phương trình (1) để tìm L:
-L− 2
-3 (100L)
-1
-3 = 1 ⇔ L− 2
-3 · 100
-1
-3 · L
-1
-3 = 1 ⇔ 100
-1
-3 · L− 1
-3 = 1.
-T ừ đây, ta dễ dàng suy ra:
-L− 1
-3 = 100 − 1
-3 ⇒ L = 100.
-T a tính được ngay lượng vốn cần thiết:
-K = 100 · 100 = 10000
-Nhận xét: Theo chuẩn tự luận, tìm xong điểm dừng ta phải kiểm tra thêm đạo hàm cấp
-2 (ma trận Hessian) để khẳng định đây là điểm cực đại. T uy nhiên, nhìn vào
-4 đáp án đều có con số cụ thể, ta ngầm hiểu đề bài chắc chắn tồn tại điểm
-tối ưu. Vì vậy, các em có thể mạnh dạn bỏ qua bước kiểm tra điều kiện đủ
-để tiết kiệm thời gian. Trừ khi đáp án có dòng ”Không tồn tại cực đại”, ta mới
-phải làm tới cùng nhé!
-Ʀ
-Câu 10. Cho ma trận B =
-2
-64
-1 2 4
-2 3 5
-3 m 7
-3
-75. Ma trận B2 không khả nghịch khi:
-A m = 13
-6 . B m = 13
-3 . C m = 13
-2 . D m = 13
-5 .
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 49
---- PAGE 54 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-Ƨ Lời giải.
-Cơ sở lý thuyết: T ương tự như nguyên lý ở các câu trên, một ma trận vuông bị coi là
-không khả nghịch khi định thức của nó triệt tiêu. Xét ma trận B2, áp dụng định lý nhân
-định thức det (B2) = ( det(B))2, ta kết luận ma trận B2 không khả nghịch khi và chỉ khi
-det(B) = 0 . Thực hiện khai triển định thức của ma trận B:
-det(B) =
-2
-64
-1 2 4
-2 3 5
-3 m 7
-3
-75
-= 3m − 13
-Giải phương trình det (B) = 0 , ta lập tức tìm được nghiệm:
-3m − 13 = 0 ⇔ m = 13
-3 .
-Ʀ
-7.2 TỰ LUẬN
-Câu 1. (2.0đ) Xét mô hình Input-Output mở gồm ba ngành với ma trận hệ số đầu vào là
-A =
-2
-64
-0, 1 0 , 4 0 , 2
-0, 3 0 , 2 m
-0, 2 0 , 1 0 , 3
-3
-75 .
-Cho biết giá trị nguyên liệu của ngành 1 cung cấp cho ngành 3 gấp hai lần giá trị nguyên
-liệu của ngành 2 cung cấp cho ngành 3 và nhu cầu cuối của ba ngành lần lượt là 77, 61
-và 80.
-(i) Tính tổng giá trị nguyên liệu mà ngành 2 cung cấp cho cả ba ngành.
-(ii) Tính tổng giá trị nguyên liệu đầu vào của ngành 3.
-Ƨ Lời giải.
-1. Cơ sở lý thuyết: Phương pháp ”Tỷ lệ luồng giá trị” (Quy tắc tam suất hai chiều)
-Điểm mấu chốt của mô hình Leontief không nằm ở việc học thuộc công thức, mà nằm
-ở ý nghĩa của tỷ lệ sản xuất. T a thiết lập sơ đồ tư duy gồm hai cột:
-◦ Cột phải (Ngành nhận): Điểm xuất phát luôn là 1 đơn vị sản phẩm gốc, sau đó được
-nhân bản (scale) lên thành quy mô thực tế là Tổng sản lượng Xj.
-◦ Cột trái (Ngành cung): Để sản xuất 1 đơn vị ở cột phải, ta cần aij nguyên liệu. Theo
-quy tắc tam suất, khi quy mô sản xuất nhân lên Xj lần, lượng nguyên liệu cũng phải
-nhân lên đúng Xj lần để ra giá trị luân chuyển thực tế xij.
-T ư duy giải toán hai chiều ở dòng thực tế:
-50 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 55 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-◦ Chiều xuôi (Mũi tên đỏ - Tìm xij): Nếu bài toán cho trước Tổng sản lượng Xj, ta
-tư duy theo chiều nhân: do quy mô tăng lên Xj lần, lượng nguyên liệu cũng tăng
-tương ứng Xj lần. T a có công thức xij = aij × Xj.
-◦ Chiều ngược (Mũi tên xanh - Tìm Xj): Trong thực tế thi cử, nhiều bài toán sẽ cho
-trước giá trị thực tế xij và yêu cầu tìm Tổng sản lượng. Nhờ sơ đồ hai chiều, ta dễ
-dàng suy ra phép chia ngược lại bằng quy tắc tam suất: Xj = xij
-aij
-.
-Ngành Cung ( i) Ngành Nhận ( j)
-aij 1
-xij Xj
-×Xj ×Xj
-Có Xj, tìm xij (×aij)
-Có xij, tìm Xj (÷aij)
-aij
-aij × Xj
-2. Ứng dụng để thiết lập thông số bài toán
-Tìm tham số m: Bài toán cho biết giá trị luồng (1 → 3) gấp đôi (2 → 3). Áp dụng mũi tên
-đỏ (từ X3 suy ngược về luồng thực tế):
-Cấp (1) Nhận (3)
-0.2 1
-0.2X3 X3
-×X3 ×X3
-Cấp (2) Nhận (3)
-m 1
-mX3 X3
-×X3 ×X3
-Dựa vào kết quả ở các hộp màu xanh, ta thiết lập phương trình đại số:
-0.2X3 = 2 · (mX3) ⇒ 0.2 = 2 m ⇒ m = 0.1
-Tìm ma trận sản lượng X: Với m = 0.1, ta giải hệ phương trình (I − A)X = D với vector
-cầu cuối D = (77, 61, 80)T :
-8
->><
->>:
-0.9X1 − 0.4X2 − 0.2X3 = 77
-−0.3X1 + 0.8X2 − 0.1X3 = 61
-−0.2X1 − 0.1X2 + 0.7X3 = 80
-⇒
-8
->><
->>:
-X1 = 210
-X2 = 180
-X3 = 200
-3. Giải quyết câu (i) & (ii) bằng sơ đồ thực tế
-(i) Tổng giá trị nguyên liệu ngành 2 cung cấp: Ngành 2 sẽ cung cấp cho cả 3 ngành.
-T a ráp Tổng sản lượng thực tế (X1, X2, X3) vào cột Nhận, sau đó dùng mũi tên đỏ hướng
-về cột Cung:
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 51
---- PAGE 56 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-Cấp (2) Nhận (1)
-0.3 1
-63 210
-×210 ×210
-Cấp (2) Nhận (2)
-0.2 1
-36 180
-×180 ×180
-Cấp (2) Nhận (3)
-0.1 1
-20 200
-×200 ×200
-Trình bày tự luận:
-Tổng cung ngành 2 = x21 + x22 + x23 = a21X1 + a22X2 + a23X3 = 63 + 36 + 20 = 119
-(ii) Tổng giá trị nguyên liệu đầu vào ngành 3: Ngành 3 thu nhận nguyên liệu từ cả 3
-ngành. Ở đây Tổng sản lượng cố định là X3 = 200:
-Cấp (1) Nhận (3)
-0.2 1
-40 200
-×200 ×200
-Cấp (2) Nhận (3)
-0.1 1
-20 200
-×200 ×200
-Cấp (3) Nhận (3)
-0.3 1
-60 200
-×200 ×200
-Trình bày tự luận:
-Tổng cầu ngành 3 = x13 + x23 + x33 = a13X3 + a23X3 + a33X3 = 40 + 20 + 60 = 120
-Ʀ
-Câu 2. (1.5đ) Một công ty muốn hoàn thành một đơn hàng gồm 200 đơn vị sản phẩm và
-muốn phân phối sản lượng giữa hai nhà máy: nhà máy 1 (sản xuất q1 đơn vị) and nhà
-máy 2 (sản xuất q2 đơn vị). Biết rằng hàm tổng chi phí cho trước bởi
-C(q1, q2) = 1
-2 q2
-1 + 10q1 + 20q2 + 800,
-hãy tìm chi phí tối thiểu bằng phương pháp nhân tử Lagrange.
-Ƨ Lời giải.
-Lập hàm Lagrange để tìm chi phí tối thiểu C(q1, q2) = 1
-2 q2
-1 + 10q1 + 20q2 + 800 với ràng buộc
-tổng sản lượng q1 + q2 = 200, ta có:
-L(q1, q2, λ) = 1
-2 q2
-1 + 10q1 + 20q2 + 800 + λ(200 − q1 − q2)
-Điều kiện cần, tính đạo hàm cấp 1:
-8
->>>><
->>>>:
-L′
-q1 = q1 + 10 − λ = 0 (1)
-L′
-q2 = 20 − λ = 0 (2)
-L′
-λ = 200 − q1 − q2 = 0 (3)
-52 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 57 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-T ừ hai phương trình (1) và (2), rút λ ta được:
-8
-<
-:
-λ = q1 + 10
-λ = 20
-Cho hai biểu thức của λ bằng nhau, ta dễ dàng tìm được q1:
-q1 + 10 = 20 ⇒ q1 = 10
-Thay q1 = 10 vào phương trình (3):
-200 − 10 − q2 = 0 ⇒ q2 = 190
-T a cũng xác định được λ = 20. Vậy ta có điểm dừng duy nhất M (10, 190).
-Điều kiện đủ, tính các đạo hàm cấp hai. T a có g(q1, q2) = q1 + q2, do đó:
-g1 = 1, g 2 = 1, L 11 = 1, L 22 = 0, L 12 = L21 = 0
-Lập ma trận Hessian viền:
-|H| =
-0
-B@
-0 g1 g2
-g1 L11 L12
-g2 L21 L22
-1
-CA
-Thay các giá trị hằng số vào định thức, ta có:
-|H| =
-
-0 1 1
-1 1 0
-1 0 0
-
-Khai triển định thức, ta được:
-|H| = −1
-Vì |H| = −1 < 0 và các đạo hàm cấp hai đều là các hằng số (không phụ thuộc vào q1, q2),
-định thức |H| luôn âm trên toàn miền. Do đó, hàm chi phí C đạt cực tiểu toàn cục tại
-điểm dừng M (10, 190). Chi phí tối thiểu toàn cục khi này là:
-Cmin = 1
-2 (10)2 + 10(10) + 20(190) + 800 = 50 + 100 + 3800 + 800 = $4750
-Ʀ
-Câu 3. (1.5đ) Một khu vực kinh tế, giả sử số lượng doanh nghiệp có tốc độ tăng trưởng
-tỷ lệ thuận với số doanh nghiệp hiện có (thỏa mô hình tăng trưởng mũ). Biết rằng vào
-đầu năm 2020 khu vực có 1200 doanh nghiệp. Sau 5 năm, số doanh nghiệp tăng lên 1500.
-Hỏi vào đầu năm 2030 khu vực sẽ có bao nhiêu doanh nghiệp, giả sử tốc độ tăng trưởng
-không đổi?
-Ƨ Lời giải.
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 53
---- PAGE 58 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-Gọi N (t) là số lượng doanh nghiệp của khu vực kinh tế sau t năm kể từ đầu năm 2020
-(t ≥ 0). Theo giả thiết, tốc độ tăng trưởng số lượng doanh nghiệp tỉ lệ thuận với số doanh
-nghiệp hiện có nên hàm N (t) tuân theo mô hình tăng trưởng mũ với phương trình tổng
-quát:
-N (t) = N (0)ekt
-Trong đó, N (0) = 1200 là số lượng doanh nghiệp ban đầu (vào đầu năm 2020) và k là hệ
-số tăng trưởng cần tìm. Đề bài cho biết sau 5 năm, số doanh nghiệp tăng lên 1500, tức là
-N (5) = 1500 . Thay dữ kiện này vào phương trình trên, ta thu được:
-1200e5k = 1500 ⇔ e5k = 1.25
-Lấy logarit tự nhiên hai vế của phương trình, ta dễ dàng xác định được tốc độ tăng trưởng:
-k = ln 1.25
-5
-Để tính số lượng doanh nghiệp vào đầu năm 2030, tức là sau 10 năm kể từ năm 2020, ta
-thế thời gian t = 10 và hằng số k vừa tìm được vào lại mô hình ban đầu. Khi đó, biểu thức
-tính số doanh nghiệp trở thành:
-N (10) = 1200 e
-ln 1.25
-5 ·10 = 1200e2 ln 1.25
-Bằng cách áp dụng tính chất của hàm số mũ và logarit ( ea ln b = ba), ta có thể rút gọn và
-tính toán kết quả cuối cùng:
-N (10) = 1200 · (1.25)2 = 1200 · 1.5625 = 1875
-Vậy, nếu tốc độ tăng trưởng không đổi, vào đầu năm 2030 khu vực này sẽ có 1875 doanh
-nghiệp.
-Ʀ
-54 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 59 ---
-8
-LỜI GIẢI ĐỀ THI
-TOÁN CAO CẤP K51
-(354)
-8.1 PHẦN TRẮC NGHIỆM
-Ghi chú: Trong đề thi, ta ký hiệu In là ma trận đơn vị cấp n
-Câu 1. Một xí nghiệp sản xuất độc quyền một loại sản phẩm với hàm cầu của loại sản
-phẩm này là: QD = 1500 − 1
-2 P và hàm chi phí là C = C(Q). Biết xí nghiệp đạt lợi nhuận
-cao nhất khi Q = Q0 = 400. T a có chi phí biên tại Q0 là:
-A 1400. B 2000. C 3000. D 1600.
-CƠ SỞ TƯ DUY: BÀI TOÁN TỐI ƯU HÓA DOANH NGHIỆP ĐỘC QUYỀN (VI MÔ)
-Mục tiêu của doanh nghiệp độc quyền là tối đa hóa hàm lợi nhuận: π(Q) = R(Q) − C(Q).
-Theo nguyên lý giải tích, trạng thái tối ưu đạt được khi thỏa mãn hai điều kiện cốt lõi:
-◦ Điều kiện cần: Đạo hàm bậc nhất triệt tiêu, tức là
-π′(Q) = 0 ⇔ R′(Q) = C ′(Q) ⇔ M R = M C
-◦ Điều kiện đủ: Đạo hàm bậc hai âm ( π′′(Q) < 0), nghĩa là tốc độ tăng của doanh
-thu biên ( M R) phải nhỏ hơn tốc độ tăng của chi phí biên ( M C).
-Ƨ Lời giải.
-T ừ hàm cầuQ = 1500 − 1
-2 P , ta suy ra:
-P = 3000 − 2Q
-Khi đó, hàm tổng doanh thu của xí nghiệp là:
-R(Q) = P · Q = (3000 − 2Q)Q = 3000Q − 2Q2
-T ừ đây ta có hàm doanh thu biên được tính bởi công thứ là:
-M R = R′(Q) = (3000 Q − 2Q2)′ = 3000 − 4Q
-Đến đây, ta có thể tiếp tục giải bài toán theo 2 cách:
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 55
---- PAGE 60 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-Cách 1: Tiếp cận theo nguyên lý tối ưu hóa vi mô ( M R = M C)
-Dựa vào cơ sở lý thuyết ở trên vì xí nghiệp đạt lợi nhuận cực đại tại mức sản lượng
-Q0 = 400, do đó đây chính là điểm cân bằng thỏa mãn điều kiện M R(Q0) = M C(Q0). Với
-doanh thu biên M R = R′(Q), ta thay trực tiếp Q0 = 400 vào hệ thức cân bằng:
-M C(400) = M R(400) = 3000 − 4(400) = 1400
-Cách 2: Tiếp cận theo bài toán tìm cực trị hàm số (T oán giải tích)
-Gọi π(Q) là hàm lợi nhuận của xí nghiệp. Lợi nhuận được tính bằng:
-π(Q) = R(Q) − C(Q) = 3000 Q − 2Q2 − C(Q)
-Theo điều kiện cần để hàm số đạt cực đại (Định lý Fermat), nếu hàm π(Q) đạt giá trị lớn
-nhất tại Q0 = 400 thì đạo hàm bậc nhất của nó tại điểm đó phải triệt tiêu, tức là π′(400) = 0 .
-T a có đạo hàm:
-π′(Q) = R′(Q) − C ′(Q) = 3000 − 4Q − C ′(Q)
-Thay Q0 = 400 vào phương trình π′(400) = 0 , ta thu được hệ thức:
-3000 − 4(400) − C ′(400) = 0 ⇔ C ′(400) = 1400
-Nhận xét: Thực chất, Cách 2 chính là bản chất toán học để chứng minh điều kiện cân
-bằng M R = M C. Các lý thuyết kinh tế chỉ đúc kết lại kết quả của quá trình
-đạo hàm này để ta áp dụng tính toán nhanh hơn.
-T uy nhiên, nắm vững tư duy giải tích luôn mang lại sự chủ động. Khi vào
-phòng thi, nếu lỡ quên lý thuyết hoặc gặp các bài toán biến thể (chứa tham
-số m, áp thuế, trợ cấp,...), bạn chỉ cần quay về điểm xuất phát gốc: lập hàm
-mục tiêu π(Q) và giải phương trình π′(Q) = 0 là sẽ xử lý được trọn vẹn bài
-toán.
-Ʀ
-!
-Trực quan hóa qua đồ thị vi mô: Bên cạnh phương pháp đại số, bài toán
-có thể được phân tích thông qua đồ thị các đường đơn vị của doanh nghiệp
-độc quyền. Điểm tối đa hóa lợi nhuận đạt được tại giao điểm M R = M C
-(điểm E). T ừ đó, doanh nghiệp chiếu lên đường cầu để ấn định giá bán
-(điểm N ) và đối chiếu với đường chi phí trung bình (điểm M ). Khoảng cách
-N M chính là lợi nhuận thu được trên mỗi đơn vị sản phẩm.
-56 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 61 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-Q
-P, C, M R, M C
-Hàm cầu (D)
-M R
-Chi phí biên (MC)
-Chi phí trung bình (AC)
-N
-M
-Q0 = 400
-P0 = 2200
-M C = 1400C
-Tối đa hóa
-lợi nhuận:
-Q : M R = M C
-Lợi nhuận πmax
-Figure 1: Đồ thị minh họa
-Câu 2. Cho hàm số f (x, y) = ( y2 − 4)(ex − e). Chọn phát biểu ĐÚNG:
-A (1, 2) không phải là một điểm dừng của f .
-B f đạt cực đại địa phương tại (1, 2).
-C f có điểm yên ngựa tại (1, 2).
-D f đạt cực tiểu địa phương tại (1, 2).
-CƠ SỞ TƯ DUY: CỰC TRỊ TỰ DO HÀM HAI BIẾN
-1. Xác định điểm dừng
-Tìm các điểm dừng bằng cách giải hệ phương trình đạo hàm riêng bậc nhất:
-8
-<
-:
-f ′
-x(x, y) = 0
-f ′
-y(x, y) = 0
-2. Điều kiện đủ và phân loại Cực trị địa phương
-Tính các định thức con chính của ma trận Hessian:
-D1(x, y) = fxx(x, y), D 2(x, y) =
-
-fxx(x, y) fxy(x, y)
-fyx(x, y) fyy(x, y)
-
-T ại mỗi điểm dừng M , ta kiểm tra điều kiện đủ như sau:
-◦ Nếu D2(M ) < 0 thì f không đạt cực trị tại M (Đây là điểm yên ngựa).
-◦ Nếu D1(M ) < 0 và D2(M ) > 0 thì f đạt cực đại địa phương tại M .
-◦ Nếu D1(M ) > 0 và D2(M ) > 0 thì f đạt cực tiểu địa phương tại M .
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 57
---- PAGE 62 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-3. Đánh giá Cực trị toàn cục
-Để mở rộng thành cực trị toàn cục trên một miền D, ta cần xét dấu của D1, D2 tại mọi
-điểm thay vì chỉ tại điểm dừng:
-◦ Nếu D1 < 0 và D2 > 0 tại mọi M ∈ D thì f đạt cực đại toàn cục trên D tại điểm
-dừng.
-◦ Nếu D1 > 0 và D2 > 0 tại mọi M ∈ D thì f đạt cực tiểu toàn cục trên D tại điểm
-dừng.
-!
-Phân biệt Cực trị địa phương và Cực trị toàn cục
-– Dấu hiệu TOÀN CỤC (Nhìn vào biến x, y): Nếu vừa lập xong biểu thức
-D1(x, y) và D2(x, y) mà bạn thấy ngay nó luôn thỏa mãn điều kiện với
-mọi x, y (ví dụ: ra một hằng số dương, hoặc ra bình phương cộng hằng
-số như x2 + 3), thì điểm dừng bạn tìm được sẽ là Cực đại/Cực tiểu toàn
-cục. (Hiểu đơn giản: Vì biểu thức đúng ở mọi nơi, nên cực trị đó là ”trùm”
-của cả bài toán).
-– Dấu hiệu ĐỊA PHƯƠNG (Phải thay số điểm dừng): Nếu biểu thức D1, D2
-vẫn còn dính biến x, y lộn xộn (ví dụ: D2 = 4xy − 5) và ta không biết chắc
-nó âm hay dương, thì bạn bắt buộc phải thay tọa độ của điểm dừng
-(x0, y0) vào để tính ra một con số cụ thể. Vì ta chỉ mới kiểm tra dấu tại
-đúng cái điểm đó, nên ta chỉ dám kết luận nó là Cực đại/Cực tiểu địa
-phương mà thôi.
-Ƨ Lời giải.
-T a tính các đạo hàm riêng cấp 1:
-8
-<
-:
-fx = (y2 − 4)ex
-fy = 2y(ex − e)
-T ại điểm(1, 2), ta có: 8
-<
-:
-fx(1, 2) = (2 2 − 4)e1 = 0
-fy(1, 2) = 2 · 2(e1 − e) = 0
-Suy ra (1, 2) là một điểm dừng của hàm số. Tiếp tục tính các đạo hàm riêng cấp 2:
-fxx = (y2 − 4)ex, f xy = 2yex, f yy = 2(ex − e)
-Ma trận Hessian và các định thức con tại điểm (1, 2) có dạng:
-D1 = fxx = (2 2 − 4)e1 = 0
-D2 =
-
-fxx fxy
-fyx fyy
- =
-
-0 4 e
-4e 0
- = −16e2 < 0
-58 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 63 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-Vì D2 < 0, nên theo lý thuyết ta có: hàm số không đạt cực trị mà có điểm yên ngựa tại
-(1, 2).
-Ʀ
-!
-Nhận xét: Bản chất của điểm dừng là nghiệm của hệ phương trình đạo hàm
-riêng. Do đó, khi bài toán đã cho sẵn tọa độ, việc giải hệ từ đầu là thao tác
-thừa thãi. Cách làm thông minh và tối ưu nhất ở đây là thử ngược điểm đó
-vào fx và fy. T ức ta hiểu cặp điểm thỏa mãn hệ phương trình thực chất là
-điểm dừng (chiều ngược lại).
-Câu 3. Xét các ma trận
-A =
-2
-64
-1 1 2
-1 2 −1
-m 1 1
-3
-75 và B =
-2
-64
-1 −1 2
-1 3 1
-2 −1 −2
-3
-75 .
-Ma trận A2 + AB không suy biến khi và chỉ khi:
-A m ̸= − 5
-2 và m ̸= 4
-5 . B m ̸= 5
-2 và m ̸= − 4
-5 .
-C m ̸= 5
-2 và m ̸= 4
-5 . D m ̸= − 5
-2 và m ̸= − 4
-5 .
-CƠ SỞ TƯ DUY: ĐIỀU KIỆN MA TRẬN KHÔNG SUY BIẾN
-◦ Một ma trận vuông X được gọi là không suy biến (hay khả nghịch) khi và chỉ khi
-định thức của nó khác 0, tức là det (X) ̸= 0.
-◦ Định thức của một tích: Với hai ma trận vuông X, Y cùng cấp, ta luôn có
-det(X · Y ) = det(X) · det(Y )
-◦ Phân phối của phép nhân ma trận:
-A2 + AB = A(A + B)
-Ƨ Lời giải.
-Yêu cầu bài toán là tìm m để ma trận A2 + AB không suy biến. Dựa vào các cơ sở lý
-thuyết trên, ta có điều kiện:
-det(A2 + AB) ̸= 0 ⇔ det[A(A + B)] ̸= 0 ⇔ det(A) · det(A + B) ̸= 0 ⇔
-8
-<
-:
-det(A) ̸= 0
-det(A + B) ̸= 0
-T a tiến hành tính trực tiếp định thức của từng ma trận:
-det(A) =
-
-1 1 2
-1 2 −1
-m 1 1
-
-= 4 − 5m.
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 59
---- PAGE 64 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-Ma trận tổng A + B có dạng:
-A + B =
-2
-64
-1 1 2
-1 2 −1
-m 1 1
-3
-75 +
-2
-64
-1 −1 2
-1 3 1
-2 −1 −2
-3
-75 =
-2
-64
-2 0 4
-2 5 0
-m + 2 0 −1
-3
-75
-Khi đó, định thức của A + B là:
-det(A + B) =
-
-2 0 4
-2 5 0
-m + 2 0 −1
-
-= −50 − 20m.
-Thay các kết quả vừa tìm được vào hệ điều kiện ban đầu, ta có:
-8
-<
-:
-4 − 5m ̸= 0
-−50 − 20m ̸= 0
-⇔
-8
-><
->:
-m ̸= 4
-5
-m ̸= − 5
-2
-Vậy ma trận A2 + AB không suy biến khi m ̸= 4
-5 và m ̸= − 5
-2 .
-Ʀ
-Câu 4. Cho A là một ma trận vuông cấp n ≥ 2. Ký hiệu P3A là ma trận phụ hợp của ma
-trận 3A. Cho biết |A| = 3 và |P3A| = 27. Hãy chọn kết quả ĐÚNG:
-A n = 5. B n = 4. C n = 3. D n = 2.
-CƠ SỞ TƯ DUY: TÍNH CHẤT ĐỊNH THỨC VÀ MA TRẬN PHỤ HỢP
-Giả sử A là một ma trận vuông cấp n và k là một hằng số thực:
-◦ Định thức của ma trận khi nhân với hằng số: |kA| = kn|A|.
-◦ Định thức của ma trận phụ hợp: |PA| = |A|n−1.
-Ngoài ra ta cũng có công thức biến đổi cơ bản:
-(ax)y = (ay)x = axy
-Ƨ Lời giải.
-Áp dụng tính chất hằng số nhân vào ma trận cộng với giả thiết |A| = 3, định thức của 3A
-khi này bằng:
-|3A| = 3 n|A| = 3 n · 3 = 3 n+1
-Tiếp tục áp dụng tính chất định thức của ma trận phụ hợp cho ma trận 3A, ta có:
-|P3A| = |3A|n−1 =
- 
-3n+1n−1
-= 3 n2−1
-Theo giả thiết |P3A| = 27 = 3 3, ta thiết lập được phương trình:
-3n2−1 = 3 3
-60 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 65 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-Lấy log 3 hai vế của phương trình, ta được:
-n2 − 1 = 3 ⇔ n2 = 4
-Do n là cấp của ma trận (điều kiện n ≥ 2), ta nhận n = 2.
-Ʀ
-Câu 5. Cho A và B là các ma trận vuông cấp 4 thỏa A−1B2A = 2I4. Chọn phát biểu SAI:
-A rank(A) = rank(B). B rank(B) = 4 .
-C (B + I4)−1 = B − I4. D det B = 4.
-Ƨ Lời giải.
-Cơ sở lý thuyết:
-◦ Đối với các bài toán cho trước phương trình ma trận mà hệ thức chỉ bao gồm ma
-trận A, ma trận đơn vị In, hoặc mở rộng có thêm ma trận phụ hợp PA, phương pháp
-giải quyết tối ưu và chắc chắn nhất là tiến hành lấy định thức hai vế. Kỹ thuật này sẽ
-triệt tiêu các ma trận và chuyển bài toán về một phương trình đại số để tìm det (A),
-thông qua các tính chất cơ bản và hệ thức det (PA) = ( det(A))n−1.
-◦ Các tính chất cốt lõi cần nhớ:
-|XY Z | = |X| · |Y | · |Z|, |A|−1 = 1
-|A| , |kIn| = kn
-Trở lại bài toán:
-T a xét phương trình ma trận giả thiết: A−1B2A = 2 I4. Tiến hành lấy định thức hai vế của
-phương trình:
-|A−1B2A| = |2I4|,
-mặt khác áp dụng các tính chất nhân ma trận và ma trận nghịch đảo, ta có vế trái bằng
-|A−1| · |B2| · |A| = 1
-|A| · |B|2 · |A| = |B|2
-Và do đó ta có
-|B|2 = |2I4| ⇔ | B|2 = 16 ⇔ |B| = ±4
-Do đó, đáp D là phát biểu sai.
-Kiểm tra tính đúng đắn của các phương án còn lại để củng cố lý thuyết:
-Cơ sở lý thuyết:
-- Với ma trận vuông A cấp n, ta có mối liên hệ:
-r(A) = n ⇔ |A| ̸= 0 ⇔ Hệ AX = B có nghiệm duy nhất.
-r(A) < n ⇔ |A| = 0 ⇔ Hệ AX = B vô số nghiệm hoặc vô nghiệm.
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 61
---- PAGE 66 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-- Định nghĩa ma trận nghịch đảo: Giả sử tồn tại hai ma trận vuông X, Y cùng cấp
-sao cho XY = In (với In là ma trận đơn vị) thì khi đó Y là ma trận nghịch đảo của
-X, ký hiệu X −1 = Y .
-- Mở rộng tính chất hoán vị: Nếu XY = kIn (k ̸= 0), ta có quyền hoán vị:
-XY = Y X = kIn
-Mở rộng cho 3 ma trận XY Z = kIn, ta chỉ được phép hoán vị vòng quanh (đẩy ma
-trận đầu xuống cuối hoặc ngược lại), không được đổi chỗ tùy ý . Cụ thể:
-XY Z = Y ZX = ZXY = kIn
-Áp dụng vào bài toán (với n = 4):
-◦ Xét B : Theo chứng minh trên, ta tính được |B| = ±4 ̸= 0 . Đối chiếu với cơ sở lý
-thuyết, suy ra rank (B) = 4 . Phát biểu này ĐÚNG.
-◦ Xét A : Đề bài có sự xuất hiện của A−1, tức là |A| ̸= 0. Áp dụng cơ sở lý thuyết, ta có
-rank(A) = 4 . Kết hợp với kết quả trên, ta có rank (A) = rank(B) = 4 . Phát biểu này
-ĐÚNG.
-◦ Xét C : Biến đổi giả thiết A−1B2A = 2I4 bằng cách nhân ma trận A vào bên trái và
-A−1 vào bên phải:
-A(A−1B2A)A−1 = A(2I4)A−1 ⇒ I4B2I4 = 2(AI4A−1) ⇒ B2 = 2I4
-Tinh ý trừ cả hai vế cho ma trận đơn vị I 2
-4 (lưu ý I = I 2 = . . . = I n), ta được:
-B2 − I 2
-4 = 2I4 − I 2
-4 = 2I4 − I4 ⇒ B2 − I 2
-4 = I4
-Bình thường trong ma trận không được dùng hằng đẳng thức do không có tính giao
-hoán. T uy nhiên, vì ma trận đơn vị luôn giao hoán với mọi ma trận (B·I4 = I4·B = B),
-ta hoàn toàn được phép áp dụng hằng đẳng thức x2 − y2 tại đây:
-(B − I4)(B + I4) = I4
-Dựa vào định nghĩa ma trận nghịch đảo ở phần lý thuyết (tích hai ma trận bằng ma
-trận đơn vị), ta có ngay kết luận (B + I4)−1 = B − I4. Phát biểu này ĐÚNG.
-Nhận xét 1: T ư duy gom cụm (Xét lại C ): Dùng tính chất mở rộng hoán vị ta có:
-2I4 = A−1 (B2A) = (B2A) · A−1 = B2 · (A · A−1) = B2
-X Y Y X I4
-Hoán vị cụm (XY = Y X )
-62 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 67 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-T ư duy ”hoán vị vòng quanh” này cực kỳ an toàn và tối ưu. Thực chất, nó chính là hệ quả
-từ tính chất hoán vị hai ma trận: ta chỉ cần gom cụm (XY ) hoặc (Y Z) thành một khối
-(coi như một ma trận duy nhất) rồi tiến hành đổi chỗ. Một góc nhìn đơn giản nhưng giải
-quyết vấn đề rất tinh tế!
-Nhận xét 2: Cạm bẫy hằng đẳng thức ma trận: Đừng mang nguyên xi tư duy của số
-thực áp vào ma trận. Hãy nhìn vào khai triển sau:
-(A − B)(A + B) = A2 + AB − BA − B2
-Ở số thực, do giao hoán được ( ab = ba) nên cụm ở giữa triệt tiêu. Nhưng ma trận thì
-không có tính giao hoán (AB ̸= BA), nên phần giữa vẫn còn nguyên. T a chỉ được phép
-rút gọn thành A2 − B2 trong trường hợp hiếm hoi hai ma trận giao hoán được với nhau
-(như bài này là B và I4).
-Ʀ
-Câu 6. Cho ma trận A =
-2
-6664
-1 2 1 4
-0 −5 4 5
-0 0 0 2
-0 0 0 6
-3
-7775. Chọn khẳng định ĐÚNG:
-A rank(A2) < 4. B A khả nghịch. C rank(A) = 2 . D rank(A) = 4 .
-Ƨ Lời giải.
-Cơ sở lý thuyết:
-Cho A là một ma trận cấp m × n. T a nói hạng của A là r ∈ N nếu:
-◦ tồn tại một định thức con cấp r của A khác 0,
-◦ mọi định thức con cấp cao hơn r của A đều bằng 0.
-(định thức con cấp k của A là định thức của một ma trận được tạo thành từ các phần tử
-nằm trên giao của k dòng và k cột nào đó của A)
-Các tính chất bổ trợ:
-◦ Ma trận vuông A cấp n: |A| ̸= 0 ⇔ r(A) = n
-◦ |A| = 0 ⇔ r(A) < n .
-◦ Hạng của tích ma trận: r(AB) ≤ min{r(A), r(B)} ⇒ r(A2) ≤ r(A).
-Cách 1: Dùng định thức con
-Quan sát A, ta thấy d4 = 3d3 ⇒ |A| = 0 (hoặc ma trận tam giác). Suy ra A là ma trận suy
-biến và r(A) < 4, loại đáp án B và D . Trích một định thức con cấp 3 (bằng cách xóa
-dòng 4, cột 3):
-∆3 =
-
-1 2 4
-0 −5 5
-0 0 2
-
-= 1 · (−5) · 2 = −10 ̸= 0
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 63
---- PAGE 68 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-Vì tồn tại định thức con ∆3 ̸= 0 và mọi định thức con cấp cao hơn đều bằng 0, suy ra
-chính xác r(A) = 3 . Bác bỏ đáp án C . Mặt khác, do |A| = 0 ⇒ |A2| = |A| · |A| = 0 , do đó
-rank(A2) < 4.
-Cách 2: Biến đổi sơ cấp
-Thực hiện phép biến đổi dòng d4 → d4 − 3d3 để đưa A về dạng bậc thang:
-A ∼
-2
-6664
-1 2 1 4
-0 −5 4 5
-0 0 0 2
-0 0 0 0
-3
-7775
-Ma trận bậc thang có đúng 3 dòng khác 0 nên r(A) = 3 . Kết hợp với 3 < 4, suy ra A là
-ma trận suy biến. T a loại ngay các đáp án B , C , D . Áp dụng tính chất hạng, ta có
-r(A2) ≤ r(A) = 3 ⇒ rank(A2) < 4
-Ʀ
-Câu 7. Cho biết hàm cầu P = 250 − 0.5Q2, trong đó P là đơn giá bán và Q là lượng cầu.
-Khi đó, tại mức giá P = 50, nếu giá giảm 2% thì:
-A lượng cầu tăng xấp xỉ 0.5%. B lượng cầu tăng xấp xỉ 0.75%.
-C lượng cầu tăng xấp xỉ 0.05%. D lượng cầu tăng xấp xỉ 0.25%.
-CƠ SỞ TƯ DUY: HỆ SỐ CO GIÃN CỦA CẦU THEO GIÁ ( εP )
-Độ co giãn εP cho biết khi giá thay đổi 1% thì lượng cầu thay đổi xấp xỉ bao nhiêu phần
-trăm.
-◦ Công thức gốc: εP = dQ
-dP · P
-Q .
-◦ Nếu đề bài cho hàm giá theo sản lượng P = f (Q), ta dùng công thức ngược:
-εP = 1
-dP
-dQ
-· P
-Q = 1
-P ′(Q) · P
-Q
-◦ Ứng dụng kinh tế: Sự thay đổi phần trăm của Q xấp xỉ bằng độ co giãn nhân với
-sự thay đổi phần trăm của P :
-∆Q
-Q ≈ εP · ∆P
-P
-Trong T oán học, đạo hàm của một hàm số tại một điểm chính là hệ số góc (slope) của
-tiếp tuyến với đồ thị tại điểm đó. Hình ảnh trực quan hóa qua Tiếp tuyến:
-64 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 69 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-Q (Trục hoành)
-P (Trục tung)
-O
-P = f (Q)
-A(Q0, P0)
-Tiếp tuyến (Slope k)
-Q0
-P0
-dQ
-dP
-T ại điểm A:
-Hệ số góc k = dP
-dQ = P ′(Q)
-Thành phần dQ
-dP trong độ co
-giãn chính là 1
-k .
-Ƨ Lời giải.
-Cách 1: Sử dụng công thức ngược
-Thay mức giá P = 50 vào hàm số:
-50 = 250 − 0.5Q2 ⇔ 0.5Q2 = 200 ⇔ Q2 = 400 ⇒ Q = 20 (do Q > 0)
-Sử dụng máy tính cầm tay FX 580 để tính hệ số co dãn:
-ε = 1
-P ′(Q) · P
-Q = 1
-d
-dx (250 − 0.5x2)
-
-x=20
-· 50
-20 = − 1
-8
-Do giá giảm 2% nên ta có lượng cầu tăng xấp xỉ 1
-4 = 0.25%
-Cách 2: T ư duy như bình thường
-T ừ hàm cầu, ta sẽ biến đổi biểu thức về hàm Q ẩn P :
-Q = ±
-»
-2(250 − P )
-Sử dụng máy tính cầm tay FX 580 để tính hệ số co dãn:
-ε = dQ
-dP · P
-Q = d
-dx
-»
-2(250 − x)
- 
-x=50
-· 50p
-2(250 − 50)
-= − 1
-8
-Do giá giảm 2% nên ta có lượng cầu tăng xấp xỉ 1
-4 = 0.25%
-Ʀ
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 65
---- PAGE 70 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-!
-Về mặt T oán học khắt khe, công thức ngược đạo hàm dx
-dy = 1
-dy
-dx
-bắt buộc
-phải thỏa mãn 2 điều kiện:
-◦ Điều kiện 1: Đạo hàm tại điểm đang xét phải KHÁC KHÔNG ( y′ ̸= 0)
-Nếu tại một điểm đồ thị có tiếp tuyến nằm ngang ( y′ = 0), việc nghịch đảo
-sẽ vướng phép chia cho 0. Khi đó hàm ngược (nếu có) sẽ có tiếp tuyến
-thẳng đứng (đạo hàm ra vô cực).
-Ví dụ: Với parabol y = x2, tại đỉnh x = 0 thì y′ = 0, hoàn toàn không thể áp
-dụng công thức.
-◦ Điều kiện 2: Hàm số phải tồn tại hàm ngược (Tính đơn điệu ngặt)
-Đồ thị hàm số phải có tính đơn ánh. T ức mở rộng hơn đơn điệu ngặt trên
-khoảng đang xét.
-!
-VẬY TẠI SAO TRONG KINH TẾ HỌC TA LẠI DÙNG VÔ TƯ NHƯ VẬY?
-Trong Kinh tế vi mô (đặc biệt là bài toán hàm Cầu), việc áp dụng công thức
-trở nên cực kỳ trơn tru nhờ các đặc tính tự nhiên của thị trường:
-Đường cầu luôn dốc xuống: Theo ”Quy luật Cầu”, giá tăng thì lượng cầu
-giảm. Điều này vô tình ép hàm số luôn ở trạng thái nghịch biến ngặt .
-Thỏa mãn hoàn hảo điều kiện T oán học: Vì hàm Cầu luôn nghịch biến
-trên toàn miền kinh tế ( Q > 0, P > 0) nên đạo hàm P ′(Q) luôn mang dấu
-âm (P ′(Q) < 0).
-⇒ Kết luận: Nhờ việc tự động né được ”đạo hàm bằng 0” và luôn đảm bảo
-tính đơn điệu, sinh viên Kinh tế được quyền áp dụng công thức nghịch đảo
-mà không cần tốn giấy mực chứng minh điều kiện rườm rà !
-Câu 8. Tìm dy
-dx biết x4 + x5 = (y − x2)2.
-A dy
-dx = 5x4 + 2xy − 4x3
-y − x2 . B dy
-dx = 5x4 + 4xy − 4x3
-y − x2 .
-C dy
-dx = 5x4 + 4xy − 2x3
-2(y − x2) . D dy
-dx = 5x4 + 4xy
-2(y − x2) .
-CƠ SỞ TƯ DUY: ĐẠO HÀM HÀM ẨN
-Hàm ẩn thường được cho dưới dạng phương trình chứa cả x và y. T a có ba tư duy giải,
-trong đó ưu tiên dùng công thức để hạn chế sai sót biến đổi đại số:
-66 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 71 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-◦ Cách 1 (Sử dụng công thức - Khuyên dùng): Gom hết phương trình về một vế để
-tạo hàm F (x, y) = 0 . Sau đó tính các đạo hàm riêng F ′
-x, F ′
-y và áp dụng công thức
-y′ = dy
-dx = − F ′
-x
-F ′
-y
-◦ Cách 2 (Đạo hàm trực tiếp 2 vế): Xem y là hàm số của x, tiến hành đạo hàm 2 vế
-theo biến x. Đặc biệt lưu ý quy tắc chuỗi: khi đạo hàm một cụm chứa y, bắt buộc
-phải nhân thêm y′. Sau đó khai triển, nhóm nhân tử chung để cô lập y′.
-◦ Cách 3 (Sử dụng máy tính Casio): Áp dụng tư duy ”đạo hàm tại một điểm”, ta dùng
-máy tính Casio để kiểm tra nhanh như sau:
-- Rút y theo x từ phương trình ban đầu để tạo nhánh hàm y = f (x).
-- Chọn một giá trị x = x0 đủ lớn (ví dụ x0 = 100) để tính y0 = f (x0) và lưu vào biến y.
-- Sử dụng chức năng d
-dx để tính đạo hàm tại x0.
-- Thay bộ số (x0, y0) vào các đáp án để đối chiếu.
-Ƨ Lời giải.
-Giải chi tiết:
-Cách 1: Sử dụng công thức đạo hàm hàm ẩn
-Chuyển vế phương trình ban đầu, ta xét hàm số
-F (x, y) = x4 + x5 − (y − x2)2 = 0
-Tiến hành tính lần lượt các đạo hàm riêng cấp một của hàm F :
-F ′
-x = 4x3 + 5x4 − 2(y − x2) · (−2x) = 5 x4 + 4xy
-F ′
-y = −2(y − x2)
-Áp dụng công thức tính đạo hàm của hàm ẩn, ta có ngay:
-y′ = dy
-dx = − F ′
-x
-F ′
-y
-= 5x4 + 4xy
-2(y − x2)
-Cách 2: Đạo hàm trực tiếp hai vế
-Tiến hành đạo hàm hai vế phương trình x4 + x5 = (y − x2)2 theo biến x:
-(x4 + x5)′ =
- 
-(y − x2)2′
-⇒ 4x3 + 5x4 = 2(y − x2)(y′ − 2x)
-Biến đổi để cô lập y′:
-4x3 + 5x4 = 2(y − x2)y′ − 4x(y − x2) ⇒ 4x3 + 5x4 = 2(y − x2)y′ − 4xy + 4x3
-Thực hiện rút gọn biểu thức ta được:
-5x4 = 2(y − x2)y′ − 4xy ⇒ 2(y − x2)y′ = 5x4 + 4xy
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 67
---- PAGE 72 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-T ừ đó, rút ra được đạo hàm:
-y′ = 5x4 + 4xy
-2(y − x2)
-Cách 3: Sử dụng máy tính Casio
-T ừ phương trình ban đầu, ta rút y theo x:
-(y − x2)2 = x4 + x5 ⇒ y = x2 ±
-√
-x4 + x5
-T a chọn nhánh dương để tiến hành tà đạo:
-y = x2 +
-√
-x4 + x5
-T a tiến hành dùng máy tính CASIO để xử lý:
-◦ Tính giá trị y tại x = 100 : Nhập 1002 +
-√
-1004 + 1005, máy trả về xấp xỉ 110498.7562.
-Bấm STO → y để lưu giá trị vào biến y (T ứcy(100) ≈ 110498.7562.).
-◦ Sử dụng chức năng d
-dx để tính đạo hàm tại x = 100:
-d
-dx
-
-x2 +
-√
-x4 + x5
- 
-x=100
-Máy tính trả về kết quả 2707.493781.
-◦ Lần lượt thử các đáp án bằng cách nhập biểu thức vào máy tính, bấm CALC, thay
-x = 100 và nhấn = để gọi y đã lưu:
-- Thử đáp án A : Nhập 5x4 + 4xy
-−2(y − x2)
-CALC
-− − − →Máy trả về ≈ −2707.493781.
-- Thử đáp án B : Nhập 5x4 − 4xy
-2(y − x2)
-CALC
-− − − →Máy trả về ≈ 2267.69.
-- Thử đáp án C : Nhập 5x4 + 4y
-2(y − x2)
-CALC
-− − − →Máy trả về ≈ 2489.79.
-- Thử đáp án D : Nhập 5x4 + 4xy
-2(y − x2)
-CALC
-− − − →Máy tính trả về kết quả 2707.493781.
-T a thực hiện đối chiếu với kết quả d
-dx thì D là kết quả chính xác.
-!
-Đánh giá chung: Cả ba cách giải đều cho ra cùng một kết quả, nhưng cách
-1 nên là cách được ưu tiên nhất.
-Ʀ
-Câu 9. Xét hệ
-8
->><
->>:
-x + 2y + 3z = 2
-2x + 3y + 4z = 3
-3x + 3y + (m + 2)z = m
-với tham số thực m. Hệ có nghiệm nếu và chỉ
-nếu:
-68 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 73 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-A m ̸= 2. B m ̸= 1. C m ̸= 3. D m ̸= 4.
-T a có5 dạng bài toán liên quan tới hệ phương trình:
-I. NHÓM 2 DẠNG CƠ BẢN
-Nhóm này chỉ cần xét trực tiếp định thức của ma trận hệ số |A|.
-◦ Dạng 1: Hệ phương trình có nghiệm duy nhất
-⇒ Cách giải: Cho |A| ̸= 0 − →Giải bất phương trình tìm m.
-◦ Dạng 2: Hệ phương trình có vô số nghiệm HOẶC vô nghiệm
-⇒ Cách giải: Cho |A| = 0 − →Giải phương trình tìm m.
-II. NHÓM 3 DẠNG NÂNG CAO
-Nhóm này yêu cầu phải kết hợp giữa định thức và phương pháp thử lại (sử dụng máy
-tính Casio).
-◦ Dạng 3: Hệ phương trình có vô số nghiệm
-◦ Dạng 4: Hệ phương trình vô nghiệm Sơ đồ tư duy giải Dạng 3 & 4:
-− → Bước 1: Giải Trường hợp 2 (|A| = 0) để tìm ra các giá trị m cụ thể.
-− → Bước 2: Cụ thể hóa m (Thay từng giá trị 1m, 2m... vừa tìm được vào ma trận
-ban đầu).
-− → Bước 3: Bấm máy tính giải hệ phương trình với các hệ số cụ thể đó.
-- Nếu máy báo Infinite Solution − →Nhận m cho Dạng 3.
-- Nếu máy báo No Solution − →Nhận m cho Dạng 4.
-Lưu ý: nếu có một giá trị m thì chỉ có thể 1 trong 2 trường hợp xảy ra, nếu có cả 2
-giá trị m thì cả 2 trường hợp sẽ xảy ra.
-◦ Dạng 5: Hệ phương trình CÓ NGHIỆM
-− → T ư duy 1 (Phủ định): Dùng biến cố đối 4.
-Tìm m để hệ vô nghiệm (tức là giải Dạng 4), sau đó lấy phần bù (tất cả các số
-thực R bỏ đi kết quả của Dạng 4).
-− → T ư duy 2 (Hợp tập hợp): Là kết quả của Dạng 1 HOẶC Dạng 3.
-Hệ có nghiệm bao gồm hai trường hợp: hoặc ”có nghiệm duy nhất”, hoặc ”có
-vô số nghiệm”. Lấy hợp hai tập nghiệm của Dạng 1 và Dạng 3 ta sẽ có đáp án.
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 69
---- PAGE 74 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-Ƨ Lời giải.
-T a xét ma trận hệ số A và tính định thức:
-|A| =
-
-1 2 3
-2 3 4
-3 3 m + 2
-
-= 1 − m
-Phân tích các trường hợp của m:
-◦ Trường hợp 1: |A| ̸ = 0 ⇔ 1 − m ̸= 0 ⇔ m ̸= 1 . Khi đó, hệ phương trình có nghiệm
-duy nhất. ⇒ Hệ có nghiệm, nhận m ̸= 1.
-◦ Trường hợp 2: |A| = 0 ⇔ 1 − m = 0 ⇔ m = 1 . Áp dụng tư duy ”cụ thể hóa m”, ta
-dùng máy tính Casio để kiểm tra nhanh hệ này:
-- Bấm MENU 9 1 3 để vào chế độ giải hệ phương trình bậc nhất 3 ẩn.
-- Thay m = 1 vào hệ ban đầu, ta được:
-8
->><
->>:
-x + 2y + 3z = 2
-2x + 3y + 4z = 3
-3x + 3y + 3z = 1
-- Máy tính trả về thông báo No Solution (Hệ vô nghiệm).
-Do đó, với m = 1 hệ vô nghiệm. ⇒ Loại m = 1.
-Đánh giá chung: T ừ hai trường hợp trên, ta thấy hệ phương trình chỉ có nghiệm (cụ
-thể là nghiệm duy nhất) khi và chỉ khi m ̸= 1 . Khẳng định hệ có nghiệm nếu và chỉ nếu
-m ̸= 1 là ĐÚNG. ⇒ Chọn đáp án B .
-Ʀ
-Câu 10. Cho phương trình vi phân y′ + 2y = e5x. Nghiệm tổng quát của phương trình là:
-A y = 1
-7 e5x + Ce −2x. B y = 1
-7 e2x + Ce −5x.
-C y = − 1
-7 e5x + Ce −2x. D y = − 1
-7 e2x + Ce −5x.
-Ƨ Lời giải.
-Cách 1: Phương pháp giải tự luận truyền thống
-Đây là phương trình vi phân tuyến tính bậc nhất có dạng
-y′ + p(x)y = q(x),
-với p(x) = 2 và q(x) = e5x. T a tính thừa số tích phân
-µ(x) = e
-∫
-p(x)dx = e
-∫
-2dx = e2x
-Nhân cả hai vế của phương trình ban đầu cho e2x, ta được
-y′e2x + 2ye2x = e5x · e2x ⇔ (ye2x)′ = e7x
-70 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 75 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-Lấy tích phân hai vế:
-ye2x =
-Z
-e7xdx = 1
-7 e7x + C
-Chia cả hai vế cho e2x, ta thu được nghiệm tổng quát:
-y = 1
-7
-e7x
-e2x + C
-e2x = 1
-7 e5x + Ce −2x
-Cách 2: Phương pháp thử đáp án (Mẹo trắc nghiệm)
-Vì bài toán cho phương trình y′ + 2y = e5x, ta hoàn toàn có thể lấy đạo hàm y′ từ các đáp
-án và thế ngược lại xem có ra đúng vế phải hay không.
-Nhược điểm: Phương pháp thử ngược này sẽ mất nhiều thời gian biến đổi đại số nếu xui
-xẻo đáp án đúng nằm ở C hoặc D . T ương tự, lưu ý do đây là ”tà đạo” nên cách xử lý
-tùy thuộc vào từng bài toán, không có form làm cố định.
-Mẹo tối ưu (Thử tại một điểm): Để khắc phục, ta chọn x = 0 thế vào phương trình gốc,
-ta được điều kiện:
-y′(0) + 2y(0) = e0 = 1
-T a sẽ đạo hàm và nhẩm nhanh biểu thức y′(0) + 2y(0) ở từng đáp án, nếu kết quả không
-ra 1 thì loại ngay lập tức. Ví dụ thử đáp án B :
-y = 1
-7 e2x + Ce −5x ⇒ y(0) = 1
-7 + C
-Lấy đạo hàm:
-y′ = 2
-7 e2x − 5Ce −5x ⇒ y′(0) = 2
-7 − 5C
-Thay vào điều kiện, ta có:
-y′(0) + 2y(0) =
- 2
-7 − 5C
-
-+ 2
- 1
-7 + C
-
-= 4
-7 − 3C ̸= 1
-⇒ Loại ngay đáp án B mà không cần thế biến x dài dòng.
-Kiểm tra đáp án A :
-y = 1
-7 e5x + Ce −2x ⇒ y(0) = 1
-7 + C
-Lấy đạo hàm:
-y′ = 5
-7 e5x − 2Ce −2x ⇒ y′(0) = 5
-7 − 2C
-Thay vào điều kiện, ta có:
-y′(0) + 2y(0) =
- 5
-7 − 2C
-
-+ 2
- 1
-7 + C
-
-= 7
-7 = 1 (Thỏa mãn)
-Để chắc chắn 100%, ta thế y và y′ của A vào vế trái của phương trình gốc:
-y′ + 2y = 5
-7 e5x − 2Ce −2x + 2
-7 e5x + 2Ce −2x
-= e5x (Khớp hoàn toàn với vế phải đề bài )
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 71
---- PAGE 76 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-Tôi lại tham lam, nghĩ ra cách tốt hơn
-Phát triển từ tư duy thử tại một điểm, ta có thể dùng máy tính Casio để xử lý toàn bộ đạo
-hàm mà không cần nhẩm. Bằng cách ”cụ thể hóa”, ta chọn bừa hằng số C = 1 . Đồng
-thời, chọn một giá trị x đủ lớn nhưng không làm máy tính tràn bộ nhớ (chọn x = 100 máy
-sẽ báo Math ERROR do e500 quá lớn), ta sẽ chọn x = 10.
-Bước 1: Tính giá trị vế phải tại x = 10: Nhập
-e5×10 = e50
-máy tính lưu trữ ngầm kết quả (xấp xỉ 5.1847 × 1021).
-Bước 2: Thử đáp án A , ta nhập thẳng biểu thức vế trái y′(10) + 2y(10) vào máy tính dưới
-dạng:
-d
-dx
- 1
-7 e5x + 1e−2x
- 
-x=10
-+ 2
- 1
-7 e5×10 + 1e−2×10
-
-Bước 3: Bấm phím =. Máy tính trả về kết quả khớp hoàn toàn 100% với số e50 ban đầu.
-Các đáp án khác thay vào sẽ lệch số ngay. ⇒ T ự tin khoanh A !
-Ʀ
-!
-Tôi hoàn toàn không cổ súy hay khuyến khích các bạn lạm dụng ”tà đạo”
-bấm máy. Dù các thủ thuật này mang lại tốc độ giải bài đáng kinh ngạc,
-nhưng đằng sau nó là những rủi ro rất lớn đối với quá trình học toán.
-- Bạn điều khiển công cụ, hay công cụ điều khiển bạn? Mẹo bấm máy
-tính chỉ thực sự là một ”công cụ” đắc lực khi bạn đã am hiểu tường tận
-bản chất toán học của vấn đề (ví dụ: hiểu tại sao lại đạo hàm tại điểm, tại
-sao lại chọn x = 10). Còn nếu chưa thật sự hiểu gì mà đã vội áp dụng, thì
-chính bạn đang trở thành công cụ của cái máy tính . Đề thi thực chiến chỉ
-cần gài một chút bẫy, toàn bộ bí kíp học vẹt sẽ trở nên vô dụng.
-- Sự ”tham lam” tai hại: Như các bạn thấy ở ví dụ trên, khi đã biết một
-mẹo, con người ta rất dễ sinh lòng tham. Tôi ngày càng tham lam, ngày
-càng muốn tìm ra những cách bấm nhanh hơn nữa để né việc tính toán.
-Việc mù quáng chạy theo tốc độ này sinh ra tâm lý lười suy nghĩ, lười đặt
-bút, và thực sự là một thói quen cực kỳ tai hại tước đi của bạn cơ hội rèn
-luyện tư duy biến đổi đại số cốt lõi.
-Lời khuyên: Hãy đi lên từ ”Chính đạo” (tư duy bản chất) trước. Khi cái nền của bạn đã
-vững vàng, bạn hoàn toàn có thể tự do sáng tạo và biến ”T à đạo” thành vũ khí tối thượng
-của riêng mình để bức tốc trong phòng thi.
-72 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 77 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-8.2 PHẦN TỰ LUẬN
-Câu 1. (1.5đ) Hàm sản xuất được cho bởi
-q = f (ℓ, k) = 2 ℓ0.5k0.5,
-trong đó q là sản lượng, ℓ là số đơn vị lao động và k là số đơn vị vốn. Nếu giá của mỗi
-đơn vị vốn và mỗi đơn vị lao động lần lượt là 6 và 3 và doanh nghiệp dành 180 cho chi
-phí sản xuất, bằng phương pháp nhân tử Lagrange hãy xác định mức sản lượng tối đa
-mà doanh nghiệp có thể đạt được.
-Ƨ Lời giải.
-Lập hàm Lagrange để tìm mức sản lượng tối đaq = 2ℓ1/2k1/2 với ràng buộc chi phí 3ℓ+6k =
-180, ta có:
-L(ℓ, k, λ) = 2 ℓ1/2k1/2 + λ(180 − 3ℓ − 6k)
-Điều kiện cần, tính đạo hàm cấp 1:
-8
->>>><
->>>>:
-L′
-ℓ = ℓ−1/2k1/2 − 3λ = 0 (1)
-L′
-k = ℓ1/2k−1/2 − 6λ = 0 (2)
-L′
-λ = 180 − 3ℓ − 6k = 0 (3)
-T ừ hai phương trình (1) và (2) suy ra:
-8
-<
-:
-3λ = ℓ−1/2k1/2
-6λ = ℓ1/2k−1/2
-Chia phương trình (2) cho (1) vế theo vế, ta có:
-6λ
-3λ = ℓ1/2k−1/2
-ℓ−1/2k1/2 ⇒ 2 = ℓ
-k ⇒ ℓ = 2k
-Thay ℓ = 2k vào phương trình (3):
-180 − 3(2k) − 6k = 0 ⇒ 180 = 12 k ⇒ k = 15
-Suy ra ℓ = 2 · 15 = 30 . T ừ (1) ta dễ dàng suy ra λ =
-√
-2
-6 > 0. Vậy ta có điểm dừng M (30, 15).
-Điều kiện đủ, tính các đạo hàm cấp hai, ta có:
-g1 = 3, g 2 = 6
-L11 = − 1
-2 ℓ−3/2k1/2, L 22 = − 1
-2 ℓ1/2k−3/2, L 12 = L21 = 1
-2 ℓ−1/2k−1/2
-Nhận thấy các biểu thức đạo hàm cấp hai chỉ chứa ℓ và k, ta lập ma trận Hessian viền
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 73
---- PAGE 78 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-tổng quát:
-|H| =
-
-0 3 6
-3 − 1
-2 ℓ−3/2k1/2 1
-2 ℓ−1/2k−1/2
-6 1
-2 ℓ−1/2k−1/2 − 1
-2 ℓ1/2k−3/2
-
-Khai triển định thức này, ta được:
-|H| = −3
-
-3
-
-− 1
-2 ℓ1/2k−3/2
-
-− 6
- 1
-2 ℓ−1/2k−1/2
-
-+ 6
-
-3
- 1
-2 ℓ−1/2k−1/2
-
-− 6
-
-− 1
-2 ℓ−3/2k1/2
-
-= −3
-
-− 3
-2 ℓ1/2k−3/2 − 3ℓ−1/2k−1/2
-
-+ 6
- 3
-2 ℓ−1/2k−1/2 + 3ℓ−3/2k1/2
-
-= 9
-2 ℓ1/2k−3/2 + 9ℓ−1/2k−1/2 + 9ℓ−1/2k−1/2 + 18ℓ−3/2k1/2
-= 9
-2 ℓ1/2k−3/2 + 18ℓ−1/2k−1/2 + 18ℓ−3/2k1/2
-Vì ℓ > 0 và k > 0 nên các biểu thức lũy thừa của ℓ và k đều mang giá trị dương. Do đó:
-|H| > 0, ∀ℓ, k > 0
-Vì định thức luôn dương trên toàn miền ℓ, k > 0, nên hàm số đạt cực đại toàn cục tại
-điểm dừng M (30, 15). Mức sản lượng tối đa toàn cục khi này là:
-qmax = 2(30) 1/2(15)1/2 = 30
-√
-2 ≈ 42.43
-Ʀ
-Câu 2. (2.0đ) Trong mô hình Input-Output mở Leontief gồm ba ngành, cho ma trận hệ
-số đầu vào là
-A =
-2
-64
-0.1 0 .2 0 .3
-0.2 0 .3 0 .1
-0.3 m 0.1
-3
-75 .
-Biết giá trị sản lượng của ba ngành lần lượt là 150, 200 và 240, và tổng giá trị nguyên liệu
-đầu vào của ngành 2 là 140.
-(i) Tính tổng giá trị nguyên liệu của ngành 2 cung cấp cho ngành 1 và ngành 3 cung
-cấp cho ngành 2.
-(ii) Tính sản lượng thay đổi của ba ngành nếu nhu cầu cuối của ba ngành lần lượt tăng
-thêm là 5, 2 và 3.
-Ƨ Lời giải.
-1. Thiết lập thông số bài toán (Tìm tham số m)
-Bài toán cho biết tổng giá trị nguyên liệu đầu vào của ngành 2 là 140. Bản chất đây là
-tổng các luồng nguyên liệu đổ về ngành 2 từ cả 3 ngành. T a áp dụng sơ đồ luồng với
-Tổng sản lượng ngành 2 là X2 = 200, dùng mũi tên đỏ suy ngược về luồng thực tế:
-74 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 79 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-Cấp (1) Nhận (2)
-0.2 1
-40 200
-×200 ×200
-Cấp (2) Nhận (2)
-0.3 1
-60 200
-×200 ×200
-Cấp (3) Nhận (2)
-m 1
-200m 200
-×200 ×200
-Dựa vào kết quả ở các hộp màu cam, ta thiết lập phương trình tổng đầu vào của ngành
-2:
-40 + 60 + 200m = 140 ⇒ 200m = 40 ⇒ m = 0.2
-Vậy ma trận hệ số đầu vào là A =
-2
-64
-0.1 0 .2 0 .3
-0.2 0 .3 0 .1
-0.3 0 .2 0 .1
-3
-75.
-2. Giải quyết câu (i)
-Đề yêu cầu tính tổng giá trị của hai luồng riêng biệt: (2 → 1) và (3 → 2). T a lập sơ đồ cho
-hai luồng này tương ứng với Tổng sản lượng X1 = 150 và X2 = 200:
-Cấp (2) Nhận (1)
-0.2 1
-30 150
-×150 ×150
-Cấp (3) Nhận (2)
-0.2 1
-40 200
-×200 ×200
-Tổng giá trị nguyên liệu cần tìm là:
-x21 + x32 = 30 + 40 = 70
-3. Giải quyết câu (ii) bằng Quy tắc Cramer
-Gọi ∆X =
-2
-64
-∆x1
-∆x2
-∆x3
-3
-75 là ma trận sản lượng thay đổi và ∆D =
-2
-64
-5
-2
-3
-3
-75 là ma trận nhu cầu cuối
-thay đổi. Theo mô hình Leontief, sự thay đổi này tuân theo phương trình:
-(I − A)∆X = ∆D
-Với ma trận Leontief I − A đã biết, ta có hệ phương trình tuyến tính:
-8
->>><
->>>:
-0.9∆x1 − 0.2∆x2 − 0.3∆x3 = 5
-−0.2∆x1 + 0.7∆x2 − 0.1∆x3 = 2
-−0.3∆x1 − 0.2∆x2 + 0.9∆x3 = 3
-Áp dụng Quy tắc Cramer, ta lần lượt tính định thức hệ số ∆ và các định thức phụ:
-∆ =
-
-0.9 −0.2 −0.3
-−0.2 0 .7 −0.1
-−0.3 −0.2 0 .9
-
-= 0.432
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 75
---- PAGE 80 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-∆1 =
-
-5 −0.2 −0.3
-2 0 .7 −0.1
-3 −0.2 0 .9
-
-= 4.22
-∆2 =
-
-0.9 5 −0.3
-−0.2 2 −0.1
-−0.3 3 0 .9
-
-= 2.94
-∆3 =
-
-0.9 −0.2 5
-−0.2 0 .7 2
-−0.3 −0.2 3
-
-= 3.5
-Suy ra lượng sản lượng cần thay đổi của từng ngành là tỷ số giữa định thức phụ và định
-thức hệ số: 8
->>>>>><
->>>>>>:
-∆x1 = ∆1
-∆ = 4.22
-0.432 = 1055
-108 ≈ 9.77
-∆x2 = ∆2
-∆ = 2.94
-0.432 = 245
-36 ≈ 6.81
-∆x3 = ∆3
-∆ = 3.5
-0.432 = 875
-108 ≈ 8.10
-Vậy để đáp ứng nhu cầu cuối tăng thêm, sản lượng của ba ngành cần tăng tương ứng
-xấp xỉ 9.77, 6.81 và 8.10 đơn vị.
-Ʀ
-Câu 3. (1.5đ) Bắt đầu từ năm 1960, tốc độ tăng của GDP thực hàng năm, ký hiệu bởi G,
-của một quốc gia tỉ lệ thuận với chính G (thỏa mô hình tăng trưởng mũ). Nếu GDP của
-quốc gia đó năm 1960 là 2000000 (đơn vị: nghìn USD) và GDP tăng gấp đôi sau 25 năm,
-hãy ước lượng GDP của quốc gia đó ở năm 2000 nếu tốc độ tăng GDP là không đổi.
-Ƨ Lời giải.
-Gọi G(t) là GDP thực của quốc gia sau t năm kể từ năm 1960 ( t ≥ 0). Theo giả thiết, tốc
-độ tăng GDP tỉ lệ thuận với chính nó nên hàm G(t) tuân theo mô hình tăng trưởng mũ với
-phương trình tổng quát:
-G(t) = G(0)ek0t
-Trong đó, G(0) = 2000000 là GDP ban đầu tại thời điểm mốc năm 1960 và k0 là hệ số tăng
-trưởng. Đề bài cho biết sau 25 năm GDP tăng gấp đôi, tức là G(25) = 4000000 . Thay dữ
-kiện này vào phương trình trên, ta thu được:
-2000000e25k0 = 4000000 ⇔ e25k0 = 2
-Lấy logarit tự nhiên hai vế của phương trình, ta dễ dàng xác định được tốc độ tăng trưởng:
-k0 = ln 2
-25
-Để ước lượng GDP vào năm 2000, tương ứng với khoảng thời gian t = 2000 − 1960 = 40
-năm, ta thế t = 40 và hằng số k0 vào mô hình ban đầu. Khi đó, biểu thức tính GDP trở
-76 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 81 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-thành:
-G(40) = 2000000 e
-ln 2
-25 ·40 = 2000000e1.6 ln 2
-Bằng cách áp dụng tính chất của hàm số mũ và logarit ( ea ln b = ba), ta có thể rút gọn và
-tính toán kết quả cuối cùng:
-G(40) = 2000000 · 21.6 ≈ 6062866.266
-Vậy, nếu tốc độ tăng trưởng không đổi, ước lượng GDP của quốc gia đó ở năm 2000 là
-khoảng 6062866 (nghìn USD).
-Ʀ
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 77
---- PAGE 82 ---
-9
-LỜI GIẢI ĐỀ THI
-TOÁN CAO CẤP K51
-(442)
-9.1 PHẦN TRẮC NGHIỆM (5 điểm)
-Ghi chú: Trong đề thi, ta ký hiệu In là ma trận đơn vị cấp n
-Câu 1. Xét hàm sản xuất Q = 0.5K 0.25L0.75, trong đó Q là sản lượng, K là lượng vốn và L
-là lượng lao động. Ký hiệu EQK và EQL lần lượt là độ co dãn riêng của sản lượng theo
-vốn và theo lao động. Phát biểu nào sau đây là SAI:
-A EQK < EQ L. B 3EQK = EQL.
-C EQK + EQL = 1. D EQK > EQ L.
-CƠ SỞ TƯ DUY: HỆ SỐ CO GIÃN CỦA HÀM NHIỀU BIẾN VÀ HÀM COBB-DOUGLAS
-Độ co giãn riêng của hàm sản xuất Q(K, L) phản ánh tỷ lệ phần trăm thay đổi của sản
-lượng khi một yếu tố đầu vào thay đổi 1% (trong điều kiện cố định yếu tố còn lại). Theo
-định nghĩa giải tích, ta có:
-◦ Độ co giãn theo vốn ( K):
-εK = EQK = ∂Q
-∂K · K
-Q
-◦ Độ co giãn theo lao động ( L):
-εL = EQL = ∂Q
-∂L · L
-Q
-Và dựa vào công thức trên ta sẽ có công thức được rút gọn K và theo L lần lượt là
-εK = EQK = α và εL = EQL = β
-Chứng minh bổ sung đối với hàm Cobb-Douglas:
-Xét hàm sản xuất Cobb-Douglas tổng quát có dạng Q = A · K α · Lβ (với A, α, β > 0). T a
-tiến hành tính đạo hàm riêng theo từng biến:
-∂Q
-∂K = A · α · K α−1 · Lβ = α · A · K α · Lβ
-K = α · Q
-K
-78 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 83 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-T ừ đó, thay vào công thức hệ số co giãn, ta được:
-EQK =
-
-α · Q
-K
-
-· K
-Q = α
-Hoàn toàn tương tự đối với biến L, ta tính được đạo hàm riêng:
-∂Q
-∂L = A · K α · β · Lβ−1 = β · Q
-L
-Dẫn đến hệ số co giãn theo lao động là:
-EQL =
-
-β · Q
-L
-
-· L
-Q = β
-Như vậy, đối với hàm Cobb-Douglas, hệ số co giãn riêng chính là số mũ của từng biến
-tương ứng.
-!
-Ý nghĩa kinh tế học của tổng hệ số co giãn ( α + β):
-– Nếu α + β = 1 : Doanh nghiệp có hiệu suất không đổi theo quy mô
-(Constant returns to scale). Nếu tăng cả K và L lên m lần thì sản lượng
-cũng tăng đúng m lần.
-– Nếu α + β > 1: Doanh nghiệp có hiệu suất tăng theo quy mô (Increasing
-returns to scale). T ăng đầu vào m lần sẽ làm sản lượng tăng nhiều hơn m
-lần.
-– Nếu α+β < 1: Doanh nghiệp có hiệu suất giảm theo quy mô (Decreasing
-returns to scale). T ăng đầu vào m lần sẽ làm sản lượng tăng ít hơn m lần.
-Ƨ Lời giải.
-T ừ hàm sản xuất Q = 0 .5K 0.25L0.75, áp dụng hệ quả đã chứng minh ở trên đối với hàm
-Cobb-Douglas, ta có thể suy ra ngay các hệ số co giãn riêng chính là phần hệ số mũ của
-các biến:
-EQK = α = 0.25 và EQL = β = 0.75
-Đối chiếu các phương án của bài toán:
-◦ A : EQK < EQ L ⇔ 0.25 < 0.75. Đây là một mệnh đề Đúng.
-◦ B : 3EQK = EQL ⇔ 3(0.25) = 0 .75 ⇔ 0.75 = 0 .75. Đây là một mệnh đề Đúng.
-◦ C : EQK + EQL = 1 ⇔ 0.25 + 0.75 = 1 . Đây là một mệnh đề Đúng. Đồng thời cho
-thấy doanh nghiệp này đang hoạt động với hiệu suất không đổi theo quy mô.
-◦ D : EQK > EQ L ⇔ 0.25 > 0.75. Đây rõ ràng là một mệnh đề Sai.
-Vì yêu cầu bài toán là tìm phát biểu SAI, do đó ta chọn D . Ʀ
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 79
---- PAGE 84 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-Câu 2. Cho y = y(x) là hàm ẩn xác định bởi phương trình x3 + 3xy4 + 3x2y2 + 2y3ex − 16 = 0 .
-Tính giá trị y′(0).
-A 2. B −2. C − 8
-3 . D 8
-3 .
-CƠ SỞ TƯ DUY: LÝ THUYẾT VÀ CHỨNG MINH ĐẠO HÀM HÀM ẨN
-Xét phương trình F (x, y) = 0 xác định một hàm ẩn y = y(x). Theo định lý về vi phân toàn
-phần (T otal Differential), nếu ta lấy vi phân hai vế của phương trình F (x, y) = 0 , ta sẽ có:
-dF = ∂F
-∂x dx + ∂F
-∂y dy = 0
-Chia cả hai vế cho đại lượng vi phân dx, ta thu được biểu thức:
-∂F
-∂x + ∂F
-∂y · dy
-dx = 0
-T ừ đây, ta rút ra được công thức tính đạo hàm của hàm ẩn y theo x (với điều kiện F ′
-y ̸= 0):
-y′ = dy
-dx = −
-∂F
-∂x
-∂F
-∂y
-= − F ′
-x
-F ′
-y
-Quy trình thực chiến tính đạo hàm hàm ẩn tại một điểm (x0, y0):
-◦ Bước 1: Đề bài thường chỉ cho x0. Bắt buộc phải thay x = x0 vào phương trình gốc
-F (x0, y) = 0 để giải tìm giá trị tung độ y0 tương ứng.
-◦ Bước 2: Tính các đạo hàm riêng F ′
-x và F ′
-y.
-◦ Bước 3: Thay tọa độ (x0, y0) vào công thức
-y′(x0) = − F ′
-x(x0, y0)
-F ′
-y(x0, y0)
-Ƨ Lời giải.
-Xét hàm số hai biến
-F (x, y) = x3 + 3xy4 + 3x2y2 + 2y3ex − 16 = 0
-T ạix = 0, ta thay trực tiếp vào phương trình để tìm giá trị y(0):
-03 + 3(0)y4 + 3(02)y2 + 2y3e0 − 16 = 0 ⇔ 2y3 = 16 ⇔ y3 = 8 ⇒ y(0) = 2
-Vậy ta đang cần tính đạo hàm tại tiếp điểm M (0, 2)
-T a có biểu thức đạo hàm riêng theo x, y là:
-F ′
-x = 3x2 + 3y4 + 6xy2 + 2y3ex
-F ′
-y = 12xy3 + 6x2y + 6y2ex
-80 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 85 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-Sử dụng công thức lý thuyết ở trên ta có
-y′(x) = − F ′
-x
-F ′
-y
-= − 3x2 + 3y4 + 6xy2 + 2y3ex
-12xy3 + 6x2y + 6y2ex
-Thay x = 0 và y = 2 vào biểu thức trên ta có:
-y′(0) = − 3(0)2 + 3(2)4 + 6(0)(2)2 + 2(2)3e0
-12(0)(2)3 + 6(0)2(2) + 6(2)2e0 = − 64
-24 = − 8
-3
-Ʀ
-!
-Nhận xét bài toán:
-– Bài toán quen thuộc: như đã đề cập rất nhiều lần đây chỉ là một bài toán
-cơ bản khi cho hàm ẩn và một phương trình kèm theo. Cách giải ở đây ta
-sẽ sử dụng công thức riêng, ngoài dạng tìm đạo hàm tại điểm thì bài toán
-còn có thể tùy chỉnh thành bài toán tìm hệ số co dãn hoặc nhiều dạng
-khác nhau.
-Câu 3. Cho A, B, C là các ma trận vuông cấp 3 thoả mãn AB = 2B2C. Nếu det B = 3 và
-det C = 2 thì khẳng định nào sau đây ĐÚNG:
-A A = 2BC và det A = 48. B A = 2B2CB −1 và det A = 12.
-C A = 2BC và det A = 12. D A = 2B2CB −1 và det A = 48.
-CƠ SỞ TƯ DUY: BIẾN ĐỔI ĐẠI SỐ MA TRẬN VÀ ĐỊNH THỨC
-◦ Khử ma trận bằng Ma trận nghịch đảo: Nếu một ma trận vuông X có det(X) ̸= 0
-thì X khả nghịch, tức là tồn tại X −1 sao cho X · X −1 = X −1 · X = In. T uy nhiên, vì
-phép nhân ma trận không có tính giao hoán (AB ̸= BA), nên khi muốn khử ma
-trận, ta phải nhân X −1 vào cùng một phía (trái hoặc phải) của cả hai vế phương
-trình.
-◦ Định thức của tích: Với các ma trận vuông cùng cấp, ta có:
-det(XY Z ) = det(X) · det(Y ) · det(Z)
-◦ Định thức của ma trận nhân với vô hướng: Nếu nhân một số thực k vào ma trận
-vuông cấp n, định thức mới sẽ bằng:
-det(k · M ) = kn · det(M )
-Ƨ Lời giải.
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 81
---- PAGE 86 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-Theo giả thiết, ta có |B| = 3 ̸= 0 , do đó ma trận B là ma trận không suy biến và chắc
-chắn tồn tại ma trận nghịch đảo B−1. Xét phương trình:
-AB = 2B2C
-Để cô lập ma trận A, ta cần triệt tiêu ma trận B ở vế trái. Vì B nằm bên phải của A, ta
-bắt buộc phải nhân B−1 vào bên phải của cả hai vế:
-(AB)B−1 = (2B2C)B−1
-Sử dụng tính chất kết hợp của phép nhân ma trận:
-A(BB −1) = 2 B2CB −1 ⇔ A · I3 = 2B2CB −1 ⇔ A = 2B2CB −1
-Điều này giúp ta loại ngay được các đáp án A và C vì biểu thức A = 2 BC là sai lầm
-nghiêm trọng trong đại số ma trận. Để tìm định thức của A, thay vì tính trên biểu thức
-vừa rút ra (khá phức tạp vì chứa B−1), ta lấy định thức trực tiếp hai vế của phương trình
-gốc AB = 2B2C. Áp dụng tính chất định thức của tích các ma trận:
-|AB| = |2B2C| ⇔ | A| · |B| = |2I3| · |B2| · |C|
-Chú ý rằng đây là các ma trận cấp 3 ( n = 3), nên |2I3| = 2 3 = 8. Đồng thời
-|B2| = |B|2
-Phương trình trở thành:
-|A| · |B| = 2 3 · |B|2 · |C|
-Thay số |B| = 3 và |C| = 2 do đề bài cung cấp vào biểu thức ta có:
-|A| · 3 = 8 · (3)2 · 2 ⇒ |A| = 48
-Vậy ta có kết luận A = 2B2CB −1 và det A = 48
-Ʀ
-Câu 4. Hàm f (x, y) = x3
-3 + y3
-3 − x − 9y đạt cực tiểu địa phương tại:
-A (1, 3). B (−1, 3). C (1, −3). D (−1, −3).
-CƠ SỞ TƯ DUY: CỰC TRỊ TỰ DO HÀM HAI BIẾN
-1. Xác định điểm dừng
-Tìm các điểm dừng bằng cách giải hệ phương trình đạo hàm riêng bậc nhất:
-8
-<
-:
-f ′
-x(x, y) = 0
-f ′
-y(x, y) = 0
-2. Điều kiện đủ và phân loại Cực trị địa phương
-82 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 87 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-Tính các định thức con chính của ma trận Hessian:
-D1(x, y) = fxx(x, y), D 2(x, y) =
-
-fxx(x, y) fxy(x, y)
-fyx(x, y) fyy(x, y)
-
-T ại mỗi điểm dừng M , ta kiểm tra điều kiện đủ như sau:
-◦ Nếu D2(M ) < 0 thì f không đạt cực trị tại M .
-◦ Nếu D1(M ) < 0 và D2(M ) > 0 thì f đạt cực đại địa phương tại M .
-◦ Nếu D1(M ) > 0 và D2(M ) > 0 thì f đạt cực tiểu địa phương tại M .
-3. Đánh giá Cực trị toàn cục
-Để mở rộng thành cực trị toàn cục trên một miền D, ta cần xét dấu của D1, D2 tại mọi
-điểm thay vì chỉ tại điểm dừng:
-◦ Nếu D1 < 0 và D2 > 0 tại mọi M ∈ D thì f đạt cực đại toàn cục trên D tại điểm
-dừng.
-◦ Nếu D1 > 0 và D2 > 0 tại mọi M ∈ D thì f đạt cực tiểu toàn cục trên D tại điểm
-dừng.
-!
-Phân biệt Cực trị địa phương và Cực trị toàn cục
-– Dấu hiệu TOÀN CỤC (Nhìn vào biến x, y): Nếu vừa lập xong biểu thức
-D1(x, y) và D2(x, y) mà bạn thấy ngay nó luôn thỏa mãn điều kiện với
-mọi x, y (ví dụ: ra một hằng số dương, hoặc ra bình phương cộng hằng
-số như x2 + 3), thì điểm dừng bạn tìm được sẽ là Cực đại/Cực tiểu toàn
-cục. (Hiểu đơn giản: Vì biểu thức đúng ở mọi nơi, nên cực trị đó là ”trùm”
-của cả bài toán).
-– Dấu hiệu ĐỊA PHƯƠNG (Phải thay số điểm dừng): Nếu biểu thức D1, D2
-vẫn còn dính biến x, y lộn xộn (ví dụ: D2 = 4xy − 5) và ta không biết chắc
-nó âm hay dương, thì bạn bắt buộc phải thay tọa độ của điểm dừng
-(x0, y0) vào để tính ra một con số cụ thể. Vì ta chỉ mới kiểm tra dấu tại
-đúng cái điểm đó, nên ta chỉ dám kết luận nó là Cực đại/Cực tiểu địa
-phương mà thôi.
-Ƨ Lời giải.
-Hệ phương trình đạo hàm riêng cấp 1 của hàm f (x, y):
-8
-<
-:
-f ′
-x = x2 − 1 = 0
-f ′
-y = y2 − 9 = 0
-⇔
-8
-<
-:
-x2 = 1
-y2 = 9
-⇔
-8
-<
-:
-x = ±1
-y = ±3
-Hệ này cung cấp cho ta 4 điểm dừng độc lập: M1(1, 3), M2(1, −3), M3(−1, 3), M4(−1, −3).
-Các đáp án A, B, C, D đều tương ứng với 4 điểm dừng này. Tiếp tục tính các đạo hàm
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 83
---- PAGE 88 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-riêng cấp 2:
-f ′′
-xx = 2x, f ′′
-xy = 0, f ′′
-yy = 2y
-T ừ đó, ta thiết lập biểu thức của các định thức con D1, D2:
-D1 = f ′′
-xx = 2x
-D2 = f ′′
-xx · f ′′
-yy − (f ′′
-xy)2 = (2x)(2y) − 0 = 4 xy
-Theo cơ sở lý thuyết, để hàm số đạt cực tiểu địa phương tại một điểm thì tại điểm đó phải
-thỏa mãn đồng thời hai điều kiện:
-8
-<
-:
-D1 > 0
-D2 > 0
-⇔
-8
-<
-:
-2x > 0
-4xy > 0
-⇔
-8
-<
-:
-x > 0
-y > 0
-Kiểm tra 4 điểm dừng tìm được ở trên với điều kiện trên:
-- Điểm (1, 3): Có x = 1 > 0 và y = 3 > 0. (Thỏa mãn)
-- Điểm (−1, 3): Có x = −1 < 0. (Loại)
-- Điểm (1, −3): Có y = −3 < 0. (Loại)
-- Điểm (−1, −3): Có x = −1 < 0 và y = −3 < 0. (Loại)
-Cẩn thận kiểm tra lại tại (1, 3), ta có D1 = 2 > 0 và D2 = 12 > 0. Vậy hàm số chắc chắn
-đạt cực tiểu địa phương tại điểm (1, 3).
-Ʀ
-Câu 5. Cho A, B, C là các ma trận vuông cấp 3 có |A| = −2, |B| = 2 , |C| = 9 . Đặt D =
-3A−1B2C T . Khi đó định thức của D là:
-A −486. B 486. C −432. D 432.
-CƠ SỞ TƯ DUY: CÁC TÍNH CHẤT ĐỊNH THỨC CỦA MA TRẬN
-Bài toán yêu cầu tính định thức của một biểu thức ma trận phức tạp. T a cần huy động
-các hệ quả quan trọng của định thức:
-◦ Định thức của ma trận chuyển vị:
-|C T | = |C|
-◦ Định thức của ma trận nghịch đảo:
-|A−1| = 1
-|A|
-◦ Định thức của ma trận nhân với hằng số: với n là cấp của ma trận vuông A:
-|kA| = kn|A|
-84 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 89 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-Ƨ Lời giải.
-T a tiến hành lấy định thức hai vế của hệ thức D = 3A−1B2C T
-|D| = det(3A−1B2C T )
-Áp dụng tính chất hằng số nhân vào ma trận (với cấp n = 3), ta đưa số 3 ra ngoài:
-|D| = 3 3 · |A−1B2C T |
-Tiếp tục áp dụng phân rã định thức tích thành tích các định thức:
-|D| = 27 · |A−1| · |B2| · |C T |
-Khai triển các định thức thành phần dựa vào các tính chất nghịch đảo, lũy thừa và chuyển
-vị:
-|D| = 27 · 1
-|A| · |B|2 · |C|
-Thay các số liệu |A| = −2, |B| = 2, |C| = 9 do đề bài cung cấp vào phương trình:
-|D| = 27 ·
- 1
-−2
-
-· (2)2 · 9 = 27 ·
-
-− 1
-2
-
-· 4 · 9 = −486
-Ʀ
-Câu 6. Cho y là nghiệm của phương trình vi phân
-y′ + 2xy
-1 + x2 = 0,
-với điều kiện y(2) = 10 . Tính y(−3).
-A −5. B 5.
-C 0. D Một kết quả khác.
-CƠ SỞ TƯ DUY: PHÂN LOẠI VÀ PHƯƠNG PHÁP GIẢI PHƯƠNG TRÌNH VI PHÂN BẬC
-NHẤT
-Phương trình đã cho có dạng tổng quát là y′ + p(x)y = q(x) (với q(x) = 0 ). Đây thực chất
-là một phương trình vi phân tuyến tính bậc nhất thuần nhất . Nhờ đặc điểm thuần nhất
-(q(x) = 0 ), phương trình này đồng thời cũng là phương trình vi phân tách biến . T a có
-thể giải nó bằng cả hai cách tiếp cận:
-◦ Cách 1: T ư duy T ách biến (Separation of Variables): Chuyển y′ thành dy
-dx . Dùng
-các phép nhân chia đại số để dồn toàn bộ x và dx về một vế, toàn bộ y và dy về vế
-còn lại. Sau đó lấy nguyên hàm hai vế.
-◦ Cách 2: T ư duy T uyến tính (Integrating Factor): Sử dụng thừa số tích phân µ(x) =
-e
-∫
-p(x)dx nhân vào hai vế để biến vế trái thành đạo hàm của một tích (µ(x) · y)′, từ đó
-giải ra nghiệm.
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 85
---- PAGE 90 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-Ƨ Lời giải.
-Cách 1: Sử dụng phương pháp tách biến (Nhanh và trực quan nhất)
-Biến đổi phương trình đã cho về dạng phân kỳ vi phân:
-dy
-dx = − 2xy
-1 + x2 ⇔ dy
-y = − 2x
-1 + x2 dx (Giả sử y ̸= 0)
-Lấy tích phân bất định cả hai vế:
-Z 1
-y dy = −
-Z 2x
-1 + x2 dx
-Nhận thấy ở vế phải, tử số 2x chính là đạo hàm của mẫu số 1 +x2, nên ta có nguyên hàm:
-ln |y| = − ln |1 + x2| + C
-Sử dụng tính chất logarit − ln A = ln(A−1), phương trình tương đương:
-ln |y| = ln
- 1
-1 + x2
-
-+ C
-Mũ hóa hai vế cơ số e, ta thu được nghiệm tổng quát của phương trình:
-|y| = e
-ln
-
-
-1
-1 + x2
-
-+C
-= eC · 1
-1 + x2 ⇒ y(x) = K
-1 + x2 (Với K = ±eC)
-Cách 2: Sử dụng phương pháp thừa số tích phân (Bài bản)
-T a xác định p(x) = 2x
-1 + x2 . Tính thừa số tích phân µ(x):
-µ(x) = e
-∫ 2x
-1 + x2 dx
-= eln(1+x2) = 1 + x2
-Nhân cả hai vế của phương trình gốc với µ(x) = 1 + x2:
-y′(1 + x2) + y · 2x(1 + x2)
-1 + x2 = 0 ⇔ y′(1 + x2) + y(2x) = 0
-Nhận thấy vế trái chính là khai triển đạo hàm của tích số [y(1 + x2)]′:
-[y(1 + x2)]′ = 0
-Lấy nguyên hàm hai vế:
-y(1 + x2) = K ⇒ y(x) = K
-1 + x2
-Cả hai cách đều cho cùng một cấu trúc nghiệm tổng quát. T a tiếp tục giải bài toán
-Cauchy bằng cách thay điều kiện ban đầu y(2) = 10 :
-10 = K
-1 + (2)2 ⇔ 10 = K
-5 ⇒ K = 50
-86 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 91 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-Vậy nghiệm riêng thỏa mãn điều kiện đề bài là hàm số y(x) = 50
-1 + x2 .
-Cuối cùng, tính giá trị của hàm số tại x = −3:
-y(−3) = 50
-1 + (−3)2 = 50
-1 + 9 = 50
-10 = 5
-Ʀ
-Câu 7. Cho hệ
-8
->><
->>:
-x − y + z = m
-2x + 2y + mz = −2
-3x + my + 2z = −1
-với tham số thực m. Tìm m để hệ đã cho vô nghiệm.
-A Cả ba mệnh đề đều sai. B m = −2, m = 1.
-C m = 1. D m = −2.
-T a có5 dạng bài toán liên quan tới hệ phương trình:
-I. NHÓM 2 DẠNG CƠ BẢN
-Nhóm này chỉ cần xét trực tiếp định thức của ma trận hệ số |A|.
-◦ Dạng 1: Hệ phương trình có nghiệm duy nhất
-⇒ Cách giải: Cho |A| ̸= 0 − →Giải bất phương trình tìm m.
-◦ Dạng 2: Hệ phương trình có vô số nghiệm HOẶC vô nghiệm
-⇒ Cách giải: Cho |A| = 0 − →Giải phương trình tìm m.
-II. NHÓM 3 DẠNG NÂNG CAO
-Nhóm này yêu cầu phải kết hợp giữa định thức và phương pháp thử lại (sử dụng máy
-tính Casio).
-◦ Dạng 3: Hệ phương trình có vô số nghiệm
-◦ Dạng 4: Hệ phương trình vô nghiệm Sơ đồ tư duy giải Dạng 3 & 4:
-− → Bước 1: Giải Trường hợp 2 (|A| = 0) để tìm ra các giá trị m cụ thể.
-− → Bước 2: Cụ thể hóa m (Thay từng giá trị 1m, 2m... vừa tìm được vào ma trận
-ban đầu).
-− → Bước 3: Bấm máy tính giải hệ phương trình với các hệ số cụ thể đó.
-- Nếu máy báo Infinite Solution − →Nhận m cho Dạng 3.
-- Nếu máy báo No Solution − →Nhận m cho Dạng 4.
-Lưu ý: nếu có một giá trị m thì chỉ có thể 1 trong 2 trường hợp xảy ra, nếu có cả 2
-giá trị m thì cả 2 trường hợp sẽ xảy ra.
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 87
---- PAGE 92 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-◦ Dạng 5: Hệ phương trình CÓ NGHIỆM
-− → T ư duy 1 (Phủ định): Dùng biến cố đối 4.
-Tìm m để hệ vô nghiệm (tức là giải Dạng 4), sau đó lấy phần bù (tất cả các số
-thực R bỏ đi kết quả của Dạng 4).
-− → T ư duy 2 (Hợp tập hợp): Là kết quả của Dạng 1 HOẶC Dạng 3.
-Hệ có nghiệm bao gồm hai trường hợp: hoặc ”có nghiệm duy nhất”, hoặc ”có
-vô số nghiệm”. Lấy hợp hai tập nghiệm của Dạng 1 và Dạng 3 ta sẽ có đáp án.
-Ƨ Lời giải.
-Đề bài yêu cầu tìm m để hệ phương trình vô nghiệm (T ương ứng vớiDạng 4 trong cơ sở
-lý thuyết). T a Lập ma trận hệ số A và tiến hành tính định thức:
-|A| =
-
-1 −1 1
-2 2 m
-3 m 2
-
-= −m2 − m + 2
-Cho |A| = 0, ta được:
-−m2 − m + 2 = 0 ⇔
-"
-m = 1
-m = −2
-T a sẽ cụ thể hóa m bằng cách sử dụng Casio FX-580
-◦ Trường hợp m = 1: thay m = 1 vào hệ, ta được hệ phương trình với các hệ số thực:
-8
->><
->>:
-x − y + z = 1
-2x + 2y + z = −2
-3x + y + 2z = −1
-Sử dụng máy tính Casio MENU 9 1 3 , nhập các hệ số vào. Máy tính trả về kết quả
-Infinite Solution. Vậy với m = 1 hệ có vô số nghiệm.
-◦ Trường hợp m = −2: thay m = −2 vào hệ, ta được:
-8
->><
->>:
-x − y + z = −2
-2x + 2y − 2z = −2
-3x − 2y + 2z = −1
-Tiếp tục sử dụng máy tính Casio MENU 9 1 3 , nhập các hệ số vào. Máy tính trả về
-kết quả No Solution. Vậy với m = −2 hệ vô nghiệm.
-Vậy hệ phương trình đã cho vô nghiệm khi và chỉ khi m = −2 Ʀ
-Câu 8. Cho ma trận A =
-2
-64
-1 1 m
-2 1 1
-1 1 1
-3
-75. Khẳng định nào sau đây là SAI:
-A Với mọi m ∈ R để r(A) > 1. B Tồn tại m ∈ R để r(A) = 2 .
-88 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 93 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-C Tồn tại m ∈ R để r(A) = 3 . D Với mọi m ∈ R để r(A2) > 2.
-CƠ SỞ TƯ DUY: HẠNG CỦA MA TRẬN VÀ BẤT ĐẲNG THỨC HẠNG TÍCH SYLVESTER
-Hạng của ma trận A, ký hiệu là r(A), là cấp cao nhất của một định thức con khác 0 được
-rút ra từ A. Đối với ma trận vuông cấp n:
-◦ Nếu |A| ̸= 0 thì r(A) = n (hạng tối đa).
-◦ Nếu |A| = 0 thì r(A) < n. T a phải xét tiếp các định thức con cấp nhỏ hơn để kết luận
-chính xác.
-Với hai ma trận A, B có thể nhân được với nhau, hạng của ma trận tích không bao giờ
-vượt quá hạng của các ma trận thành phần:
-r(AB) ≤ min{r(A), r(B)}
-Hệ quả đặc biệt quan trọng đối với lũy thừa ma trận:
-r(A2) ≤ r(A)
-Ƨ Lời giải.
-T a tính được định thức của ma trận A là
-|A| =
-
-1 1 m
-2 1 1
-1 1 1
-
-= m − 1
-Dựa vào kết quả định thức, ta chia thành 2 trường hợp:
-◦ Trường hợp m ̸= 1: |A| ̸= 0. Theo cơ sở lý thuyết, ma trận A đạt hạng tối đa r(A) = 3 .
-T ừ đó suy ra, khẳng định C ”Tồn tại m ∈ R để r(A) = 3 ” là ĐÚNG.
-◦ Trường hợp m = 1: |A| = 0 ⇒ r(A) < 3. Thay m = 1 vào A:
-A =
-2
-64
-1 1 1
-2 1 1
-1 1 1
-3
-75
-T a thấy dòng 1 và dòng 3 tỷ lệ với nhau (giống nhau y hệt). T uy nhiên, nếu trích một
-định thức con cấp 2 ở góc trên bên trái:
-∆2 =
-
-1 1
-2 1
- = 1 − 2 = −1 ̸= 0
-Vì tồn tại một định thức con cấp 2 khác 0, nên r(A) chính xác bằng 2. T ừ đó suy ra,
-phát biểu B ”Tồn tại m ∈ R để r(A) = 2 ” là ĐÚNG.
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 89
---- PAGE 94 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-Tổng hợp cả hai trường hợp trên, r(A) chỉ nhận giá trị bằng 2 hoặc bằng 3. Do đó, hiển
-nhiên r(A) > 1 với mọi m. Khẳng định A là ĐÚNG. Và với m = 1 ta kết hợp với hệ quả
-đặc biệt, ta thu được
-r(A2) ≤ r(A) = 2
-Khẳng định D là Sai.
-Ʀ
-!
-Nhận xét bài toán: cách làm như trên là một cách làm tối ưu và chuẩn mực
-nhất. Những bài toán thông thường khi r(A) < n ta không thường tìm cụ
-thể hạng, nhưng vẫn có một số bài toán ngoại lệ như bài này buộc ta phải
-tìm cụ thể giá trị. Và để làm được điều này ta cần nắm vững lý thuyết từ đó
-vận dụng để tìm một cách chính xác. Cụ thể là kiến thức sau đây: Cho A là
-một ma trận cấp m × n. T a nói hạng của A là r ∈ N nếu:
-◦ tồn tại một định thức con cấp r của A khác 0,
-◦ mọi định thức con cấp cao hơn r của A đều bằng 0.
-(định thức con cấp k của A là định thức của một ma trận được tạo thành từ
-các phần tử nằm trên giao của k dòng và k cột nào đó của A)
-Câu 9. Cho ma trận A =
-2
-64
-−1 1 −1
-0 −1 −1
-0 0 −1
-3
-75. Khi đó giá trị định thức của A2026 − A2025 là:
-A 0. B −8. C −1. D 8.
-CƠ SỞ TƯ DUY: ĐỊNH THỨC CỦA MA TRẬN TAM GIÁC VÀ PHÂN TÍCH ĐA THỨC MA
-TRẬN
-◦ Định thức của ma trận tam giác: Nếu một ma trận vuông có các phần tử nằm dưới
-(hoặc trên) đường chéo chính đều bằng 0, thì nó là ma trận tam giác. Định thức của
-ma trận tam giác bằng tích của tất cả các phần tử nằm trên đường chéo chính .
-◦ Đa thức ma trận: T a có thể phân tích nhân tử các biểu thức ma trận tương tự như
-đa thức số thực, với điều kiện các ma trận trong biểu thức phải giao hoán được với
-nhau. Trong bài toán này, A2026 và A2025 hiển nhiên giao hoán với nhau (do cùng cơ
-số A). T a có thể rút nhân tử chung A2025 ra ngoài:
-A2026 − A2025 = A2025(A − I3)
-Ƨ Lời giải.
-T ừ biểu thức cần tính, ta đặt nhân tử chung:
-A2026 − A2025 = A2025(A − I3)
-90 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 95 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-Tiến hành lấy định thức toàn bộ biểu thức:
-|A2026 − A2025| = |A2025 · (A − I3)| = |A2025| · |A − I3| = |A|2025 · |A − I3|
-Quan sát ma trận
-A =
-2
-64
-−1 1 −1
-0 −1 −1
-0 0 −1
-3
-75
-Vì tất cả các phần tử nằm dưới đường chéo chính đều bằng 0, A là một ma trận tam
-giác trên. Định thức của A được tính bằng tích các phần tử trên đường chéo chính:
-|A| = (−1) · (−1) · (−1) = −1
-T ừ đó suy ra:
-|A|2025 = (−1)2025 = −1
-Thiết lập ma trận A − I3 bằng cách trừ đi 1 ở các phần tử trên đường chéo chính của A:
-A − I3 =
-2
-64
-−1 1 −1
-0 −1 −1
-0 0 −1
-3
-75 −
-2
-64
-1 0 0
-0 1 0
-0 0 1
-3
-75 =
-2
-64
-−2 1 −1
-0 −2 −1
-0 0 −2
-3
-75
-Ma trận A − I3 vẫn bảo toàn cấu trúc là một ma trận tam giác trên . Do đó, định thức
-của nó tiếp tục bằng tích các phần tử trên đường chéo chính mới:
-|A − I3| = (−2) · (−2) · (−2) = −8
-Ráp các kết quả vừa tính toán được vào phương trình định thức ở Bước 1:
-|A2026 − A2025| = (−1) · (−8) = 8
-Vậy giá trị định thức cần tìm là 8.
-Ʀ
-Câu 10. Cho hàm sản xuất Q = 1
-2 L + 1
-2 ln(2L + 1), trong đó Q là sản lượng và L là lượng
-lao động ( L ≥ 0). Chọn phát biểu ĐÚNG:
-A Khi L tăng dần ra +∞ thì biên tế (giá trị cận biên) của Q luôn bé hơn 1
-2 .
-B Khi L tăng dần ra +∞ thì biên tế (giá trị cận biên) của Q theo L tiến dần về một
-hằng số.
-C Biên tế (giá trị cận biên) của Q theo L khi L = 1 có giá trị là 7
-12 .
-D Khi L tăng dần ra +∞ thì biên tế (giá trị cận biên) của Q theo L tăng.
-CƠ SỞ TƯ DUY: PHÂN TÍCH HÀM CẬN BIÊN VÀ GIỚI HẠN TRONG KINH TẾ HỌC
-Trong kinh tế học vi mô, giá trị cận biên (Marginal Value) của một đại lượng đo lường
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 91
---- PAGE 96 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-sự thay đổi của đại lượng đó khi biến độc lập tăng thêm một đơn vị vô cùng bé. Về mặt
-toán học, giá trị cận biên chính là đạo hàm bậc nhất của hàm số tổng.
-◦ Sản lượng cận biên của lao động ( M PL): M PL = dQ
-dL = Q′(L). Hàm này cho biết
-nếu thuê thêm 1 nhân công thì sản lượng sẽ tăng thêm bao nhiêu.
-◦ Quy luật năng suất cận biên giảm dần: Ở đa số các mô hình sản xuất thực tế, khi
-không gian vốn ( K) bị giới hạn, việc nhồi nhét thêm lao động ( L) sẽ làm cho hiệu
-quả của mỗi lao động mới kém dần đi. Điều này biểu hiện qua đạo hàm bậc hai
-của hàm sản xuất âm: M P′
-L = Q′′(L) < 0, tức là hàm cận biên nghịch biến.
-◦ Hành vi tiệm cận (Giới hạn): Khi L → +∞, ta dùng phép tính lim
-L→+∞
-M PL để đánh
-giá hành vi cực hạn của hàm sản xuất xem nó sẽ sụp đổ về 0 hay hội tụ về một hằng
-số giới hạn nào đó.
-Ƨ Lời giải.
-T ừ hàm sản xuất Q(L) = 1
-2 L + 1
-2 ln(2L + 1), tiến hành lấy đạo hàm theo biến L:
-M PL = Q′(L) = 1
-2 + 1
-2 · (2L + 1)′
-2L + 1 = 1
-2 + 1
-2 · 2
-2L + 1
-T a sử dụng biểu thức M PL vừa tìm được để kiểm chứng tính đúng đắn của 4 đáp án:
-◦ Phát biểu A : ”Khi L tăng dần ra +∞ thì biên tế luôn bé hơn 1
-2 ”.
-Vì điều kiện lao động L ≥ 0, nên cụm phân thức 1
-2L + 1 luôn mang giá trị dương
-(> 0). Do đó:
-M PL = 1
-2 + 1
-2L + 1 > 1
-2
-Biên tế luôn lớn hơn 1
-2 với mọi L ≥ 0. Phát biểu này SAI.
-◦ Phát biểu B : ”Khi L tăng dần ra +∞ thì biên tế tiến dần về một hằng số”.
-Xét bài toán giới hạn:
-lim
-L→+∞
-M PL = lim
-L→+∞
- 1
-2 + 1
-2L + 1
-
-= 1
-2 + 0 = 1
-2
-Rõ ràng khi L tiến ra vô cực, mẫu số 2L + 1 tiến ra vô cực, làm cho phân thức 1
-2L + 1
-triệt tiêu về 0. Đồ thị của M PL sẽ nhận đường thẳng y = 0 .5 làm tiệm cận ngang.
-T ức là biên tế hội tụ về hằng số 0.5. Phát biểu này ĐÚNG.
-◦ Phát biểu C : ”Biên tế khi L = 1 có giá trị là 7
-12 ”.
-Thay L = 1 trực tiếp vào biểu thức M PL:
-M PL(1) = 1
-2 + 1
-2(1) + 1 = 1
-2 + 1
-3 = 3
-6 + 2
-6 = 5
-6
-Kết quả là 5
-6 , khác với 7
-12 . Phát biểu này SAI.
-92 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 97 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-◦ Phát biểu D : ”Khi L tăng dần ra +∞ thì biên tế tăng”.
-Để khảo sát tính đồng biến/nghịch biến của hàm biên tế, ta lấy đạo hàm cấp hai
-(tức là đạo hàm của hàm biên tế):
-(M PL)′ = Q′′(L) =
- 1
-2 + (2L + 1)−1
-′
-= 0 − 1 · (2L + 1)−2 · 2 = − 2
-(2L + 1)2
-Vì (2L + 1)2 > 0 nên (M PL)′ < 0 với mọi L ≥ 0. Hàm cận biên là hàm nghịch biến
-(phản ánh đúng quy luật năng suất cận biên giảm dần). Khi L tăng, biên tế phải
-GIẢM. Phát biểu này SAI.
-Ʀ
-!
-Ý nghĩa kinh tế học của tổng hệ số co giãn ( α + β):
-– Nếu α + β = 1 : Doanh nghiệp có hiệu suất không đổi theo quy mô
-(Constant returns to scale). Nếu tăng cả K và L lên m lần thì sản lượng
-cũng tăng đúng m lần.
-– Nếu α + β > 1: Doanh nghiệp có hiệu suất tăng theo quy mô (Increasing
-returns to scale). T ăng đầu vào m lần sẽ làm sản lượng tăng nhiều hơn m
-lần.
-– Nếu α+β < 1: Doanh nghiệp có hiệu suất giảm theo quy mô (Decreasing
-returns to scale). T ăng đầu vào m lần sẽ làm sản lượng tăng ít hơn m lần.
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 93
---- PAGE 98 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-Fx
-MẸO THỰC CHIẾN: TÌM GIỚI HẠN (LIMIT) TỔNG QUÁT BẰNG PHÍM CALC
-Để kiểm tra nhanh giới hạn của một hàm số f (X) bất kỳ bằng máy tính
-Casio/Vinacal, ta nhập trực tiếp biểu thức f (X) vào máy, sau đó sử dụng
-phím CALC để gán giá trị cho biến X tiến cực sát đến điểm cần xét. Cụ thể:
-1. Kỹ năng gán giá trị (Quy tắc CALC):
-◦ Khi X → +∞ (Tiến ra Dương vô cùng): Cần gán một số dương khổng
-lồ.
-⇒ Bấm CALC X = 10 9 (hoặc nhập dãy 999999999).
-◦ Khi X → −∞ (Tiến ra Âm vô cùng): Cần gán một số âm khổng lồ.
-⇒ Bấm CALC X = −109 (hoặc nhập dãy −999999999).
-◦ Khi X → x0 (Tiến đến một hằng số cụ thể): T uyệt đối không gán
-thẳng x0 (vì dễ dính lỗi chia cho 0 gây Math ERROR ). T a phải gán con số
-”xấp xỉ” nó:
-– Giới hạn phải ( x+
-0 ): Bấm CALC X = x0 + 0.0000001.
-(Ví dụ bài toán tìm lim khi X → 1+ thì CALC X = 1.0000001).
-– Giới hạn trái ( x−
-0 ): Bấm CALC X = x0 − 0.0000001.
-(Ví dụ bài toán tìm lim khi X → 1− thì CALC X = 0.9999999).
-2. Bí quyết đọc hiểu kết quả máy tính trả về:
-◦ Ra số hữu tỉ/thập phân bình thường: Kết quả chính là giá trị giới hạn.
-(Ví dụ: Máy hiện 0.49999998 thì ta mạnh dạn làm tròn giới hạn là 0.5
-hay 1
-2 ).
-◦ Ra một số DƯƠNG khổng lồ: (Ví dụ: 1.25 × 1024 hoặc 98765432)
-⇒ Giới hạn đang bùng nổ, kết quả là +∞.
-◦ Ra một số ÂM khổng lồ: (Ví dụ: −5.4 × 1015)
-⇒ Giới hạn sụp đổ về −∞.
-◦ Ra một số có đuôi ” ×10 MŨ ÂM”: (Ví dụ: 3.14 × 10−12)
-Đây là dạng ký hiệu khoa học của một số vô cùng bé
-(0.00000000000314). Nó tiệm cận sát mặt đất. ⇒ Giới hạn bằng
-0.
-*Lưu ý an toàn: Nhiều bạn có thói quen CALC số mũ quá to (như 1099), điều
-này rất dễ khiến máy tính bị tràn bộ nhớ và báo Math ERROR . Khoảng 106
-đến 109 là mức an toàn và mang lại độ chính xác lý tưởng nhất đối với đa
-số các hàm vi mô/vĩ mô trong kinh tế học.
-94 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 99 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-9.2 PHẦN TỰ LUẬN (5 điểm)
-Câu 1. (1.5đ) T ừ năm 2000, lượng vốn của một tập đoàn kinh tế A tăng với tốc độ tỉ lệ
-thuận với lượng vốn hiện có (thỏa mô hình tăng trưởng mũ). Biết rằng lượng vốn của tập
-đoàn A ở năm 2000 là 1000000 (đơn vị 1000$) và vào năm 2015, lượng vốn tăng gấp ba.
-Ước lượng lượng vốn của tập đoàn A vào năm 2030 nếu tốc độ tăng vốn là không đổi.
-Ƨ Lời giải.
-Gọi V (t) là lượng vốn của tập đoàn A sau t năm kể từ năm 2000 ( t ≥ 0). Vì tốc độ tăng
-vốn tỉ lệ thuận với lượng vốn hiện có, hàm V (t) thỏa mãn mô hình tăng trưởng mũ với
-phương trình tổng quát:
-V (t) = V (0)ek0t
-T ại thời điểm ban đầu (năm 2000), lượng vốn là V (0) = 1000000 . Đến năm 2015, tương
-ứng với khoảng thời gian t = 15 năm, lượng vốn tăng gấp ba, tức là V (15) = 3000000 .
-Thay các giá trị này vào phương trình, ta được:
-1000000e15k0 = 3000000 ⇔ e15k0 = 3
-Thực hiện lấy logarit tự nhiên hai vế, ta giải tìm được hệ số tăng trưởng k0:
-k0 = ln 3
-15
-Bài toán yêu cầu ước lượng lượng vốn vào năm 2030, tức là sau khoảng thời gian t =
-2030 − 2000 = 30 năm. Thay thời gian và k0 vào mô hình, ta có biểu thức:
-V (30) = 1000000 e
-ln 3
-15 ·30 = 1000000e2 ln 3
-Sử dụng tính chất của logarit để khử số mũ cơ số e, biểu thức được tính toán một cách
-chính xác hoàn toàn:
-V (30) = 1000000 · 32 = 9000000
-Vậy, nếu tốc độ tăng vốn là không đổi, lượng vốn của tập đoàn A vào năm 2030 ước
-lượng sẽ đạt mức 9000000 (đơn vị 1000$). Ʀ
-Câu 2. (2.0đ) Trong mô hình Input-Output mở Leontief gồm ba ngành, cho ma trận đầu
-vào
-A =
-2
-64
-0.1 0 .2 m
-0.3 0 .1 0 .2
-0.2 0 .4 0 .2
-3
-75 .
-Biết rằng tổng giá trị nguyên liệu đầu vào của ngành 3 bằng hai lần giá trị nguyên liệu
-mà ngành 1 cung cấp cho ngành 3 và nhu cầu cuối của ba ngành lần lượt là 73, 59 và 46.
-(i) Tính giá trị sản lượng của ba ngành.
-(ii) Tính tổng giá trị nguyên liệu đầu vào mà ngành 1 cung cấp cho ba ngành.
-Ƨ Lời giải.
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 95
---- PAGE 100 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-1. Thiết lập thông số bài toán (Tìm tham số m)
-Bài toán cho biết tổng giá trị nguyên liệu đầu vào của ngành 3 gấp hai lần giá trị nguyên
-liệu ngành 1 cung cấp cho ngành 3. T a áp dụng sơ đồ luồng tại ngành nhận (3) với Tổng
-sản lượng là X3:
-Cấp (1) Nhận (3)
-m 1
-mX3 X3
-×X3 ×X3
-Cấp (2) Nhận (3)
-0.2 1
-0.2X3 X3
-×X3 ×X3
-Cấp (3) Nhận (3)
-0.2 1
-0.2X3 X3
-×X3 ×X3
-Dựa vào các giá trị thực tế ở hộp màu cam, ta thiết lập phương trình theo dữ kiện bài
-toán:
-mX3 + 0.2X3 + 0.2X3 = 2 · (mX3)
-(m + 0.4)X3 = 2mX3 ⇒ m + 0.4 = 2 m ⇒ m = 0.4
-Vậy ma trận hệ số đầu vào là A =
-2
-64
-0.1 0 .2 0 .4
-0.3 0 .1 0 .2
-0.2 0 .4 0 .2
-3
-75.
-2. Giải quyết câu (i): Tính giá trị sản lượng của ba ngành
-T a lập ma trận Leontief I − A:
-I − A =
-2
-64
-0.9 −0.2 −0.4
-−0.3 0 .9 −0.2
-−0.2 −0.4 0 .8
-3
-75
-Giải hệ phương trình (I − A)X = D với vector nhu cầu cuối D = (73, 59, 46)T :
-8
->><
->>:
-0.9X1 − 0.2X2 − 0.4X3 = 73
-−0.3X1 + 0.9X2 − 0.2X3 = 59
-−0.2X1 − 0.4X2 + 0.8X3 = 46
-Áp dụng Quy tắc Cramer, ta lần lượt tính định thức hệ số ∆ và các định thức phụ ∆1, ∆2, ∆3
-(bằng cách thay cột hệ số tự do vào từng cột tương ứng):
-∆ =
-
-0.9 −0.2 −0.4
-−0.3 0 .9 −0.2
-−0.2 −0.4 0 .8
-
-= 0.4
-∆1 =
-
-73 −0.2 −0.4
-59 0 .9 −0.2
-46 −0.4 0 .8
-
-= 84
-∆2 =
-
-0.9 73 −0.4
-−0.3 59 −0.2
-−0.2 46 0 .8
-
-= 72
-96 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 101 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-∆3 =
-
-0.9 −0.2 73
-−0.3 0 .9 59
-−0.2 −0.4 46
-
-= 80
-Giá trị sản lượng của ba ngành được xác định bằng tỷ số giữa định thức phụ tương ứng
-và định thức hệ số: 8
->>>>>><
->>>>>>:
-X1 = ∆1
-∆ = 84
-0.4 = 210
-X2 = ∆2
-∆ = 72
-0.4 = 180
-X3 = ∆3
-∆ = 80
-0.4 = 200
-3. Giải quyết câu (ii): Tổng giá trị nguyên liệu ngành 1 cung cấp cho ba ngành
-Ngành 1 đóng vai trò là bên cung cấp cho cả ba ngành trong nền kinh tế. T a áp dụng
-sơ đồ luồng xuôi (mũi tên đỏ) bằng cách nhân hệ số đầu vào với Tổng sản lượng thực tế
-của từng ngành nhận:
-Cấp (1) Nhận (1)
-0.1 1
-21 210
-×210 ×210
-Cấp (1) Nhận (2)
-0.2 1
-36 180
-×180 ×180
-Cấp (1) Nhận (3)
-0.4 1
-80 200
-×200 ×200
-Dựa vào các hộp màu xanh, ta tính được tổng giá trị nguyên liệu ngành 1 đã cung cấp:
-Tổng cung ngành 1 = x11 + x12 + x13 = 21 + 36 + 80 = 137
-Ʀ
-Câu 3. (1.5đ) Giả sử hàm lợi ích đối với hai hàng hóa là
-U (x, y) = x1/2y1/2,
-trong đó x là lượng hàng thứ nhất và y là lượng hàng thứ hai. Đơn giá của hàng hóa thứ
-nhất là $2 và đơn giá của hàng hóa thứ hai là $3. Người mua có ngân sách $120 để chi
-cho hai loại hàng hóa này. Hãy xác định x và y đem lại lợi ích tối đa cho người mua bằng
-phương pháp nhân tử Lagrange.
-Ƨ Lời giải.
-Lập hàm Lagrange để tìm lợi ích tối đaU (x, y) = x1/2y1/2 với ràng buộc ngân sách 2x+3y =
-120, ta có:
-L(x, y, λ) = x1/2y1/2 + λ(120 − 2x − 3y)
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 97
---- PAGE 102 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-Điều kiện cần, tính đạo hàm cấp 1:
-8
->>>>><
->>>>>:
-L′
-x = 1
-2 x−1/2y1/2 − 2λ = 0 (1)
-L′
-y = 1
-2 x1/2y−1/2 − 3λ = 0 (2)
-L′
-λ = 120 − 2x − 3y = 0 (3)
-T ừ hai phương trình (1) và (2) suy ra:
-8
-><
->:
-2λ = 1
-2 x−1/2y1/2
-3λ = 1
-2 x1/2y−1/2
-Chia phương trình (2) cho (1) vế theo vế, ta có:
-3λ
-2λ =
-1
-2 x1/2y−1/2
-1
-2 x−1/2y1/2
-⇒ 3
-2 = x
-y ⇒ 2x = 3y
-Thay 2x = 3y vào phương trình (3):
-120 − 3y − 3y = 0 ⇒ 120 = 6 y ⇒ y = 20
-Suy ra 2x = 3(20) = 60 ⇒ x = 30. T ừ (1) ta dễ dàng suy ra λ = 1
-4 (30)−1/2(20)1/2 =
-√
-6
-12 > 0.
-Vậy ta có điểm dừng M (30, 20). Điều kiện đủ, tính các đạo hàm cấp hai, ta có:
-g1 = 2, g 2 = 3, L 11 = − 1
-4 x−3/2y1/2, L 22 = − 1
-4 x1/2y−3/2, L 12 = L21 = 1
-4 x−1/2y−1/2
-Nhận thấy các biểu thức đạo hàm cấp hai chỉ chứa x và y (không có λ), ta lập ma trận
-Hessian viền tổng quát:
-|H| =
-
-0 2 3
-2 − 1
-4 x−3/2y1/2 1
-4 x−1/2y−1/2
-3 1
-4 x−1/2y−1/2 − 1
-4 x1/2y−3/2
-
-Khai triển định thức này, ta được:
-|H| = −2
-
-2
-
-− 1
-4 x1/2y−3/2
-
-− 3
- 1
-4 x−1/2y−1/2
-
-+ 3
-
-2
- 1
-4 x−1/2y−1/2
-
-− 3
-
-− 1
-4 x−3/2y1/2
-
-= x1/2y−3/2 + 3
-2 x−1/2y−1/2 + 3
-2 x−1/2y−1/2 + 9
-4 x−3/2y1/2
-= x1/2y−3/2 + 3x−1/2y−1/2 + 9
-4 x−3/2y1/2
-Vì x > 0 và y > 0 nên tất cả các số hạng mang lũy thừa của x, y đều có giá trị dương. Do
-98 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 103 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-đó:
-|H| > 0, ∀x, y > 0
-Vì định thức luôn dương trên toàn miền x, y > 0, nên hàm số đạt cực đại toàn cục tại
-điểm dừng M (30, 20). Vậy người mua cần mua lượng hàng hóa thứ nhất là x = 30 và
-lượng hàng hóa thứ hai là y = 20 để đạt lợi ích tối đa. Lợi ích tối đa khi này là:
-Umax = (30) 1/2(20)1/2 =
-√
-600 = 10
-√
-6
-Ʀ
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 99
---- PAGE 104 ---
-10
-MATHEMATICS EXAM
-K51 (ENGLISH)
-10.1 MUL TICHOICE QUESTIONS (5 points)
-Note: In the exam, In denotes the identity matrix of order n.
-Question 1. Consider the differential equation y′ − y = e−x. The general solution is of the
-form:
-A y = − 1
-2 e−x + Ce x. B y = e−x + Ce x.
-C y = −e−x + Ce −x. D y = 1
-2 e−x + Ce x.
-FUNDAMENTAL CONCEPT: FIRST-ORDER LINEAR DIFFERENTIAL EQUATIONS
-A first-order linear differential equation has the standard form:
-y′ + p(x)y = q(x)
-T o solve this, we use the Integrating Factor method. The integrating factor µ(x) is defined
-as:
-µ(x) = e
-∫
-p(x)dx
-By multiplying both sides of the standard equation by µ(x), the left side perfectly col-
-lapses into the derivative of a product:
-(µ(x) · y)′ = µ(x) · q(x)
-From here, we obtain the general solution by simply integrating both sides.
-Ƨ Lời giải.
-Step 1: Identify components and compute the integrating factor
-The given equation
-y′ − y = e−x
-is already in the standard form with p(x) = −1 and q(x) = e−x. We calculate the integrat-
-ing factor µ(x):
-µ(x) = e
-∫
-(−1)dx = e−x
-Step 2: Multiply and collapse the left side
-100 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 105 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-Multiplying both sides of the original equation by e−x, we get:
-y′e−x − ye−x = e−x · e−x
-⇔ (y · e−x)′ = e−2x
-Step 3: Integrate and isolate y
-T aking the integral of both sides with respect to x:
-y · e−x =
-Z
-e−2xdx
-⇔ y · e−x = − 1
-2 e−2x + C
-Dividing both sides by e−x (which is equivalent to multiplying by ex), we obtain the general
-solution:
-y =
-
-− 1
-2 e−2x + C
-
-ex = − 1
-2 e−x + Ce x
-Comparing this result with the given options, we conclude that option A is correct.
-Ʀ
-Question 2. Let A be a 3 × 3 matrix with rank (A) ≤ 2. Choose the false statement.
-A A is singular .
-B rank(A2) = 3 .
-C The linear system AX = 0 has a nontrivial solution.
-D det(A2 − A) = 0 .
-FUNDAMENTAL CONCEPT: MATRIX RANK, DETERMINANT, AND HOMOGENEOUS
-SYSTEMS
-Let A be a square matrix of order n. The following statements are mathematically equiv-
-alent:
-◦ A has full rank, i.e., rank (A) = n.
-◦ A is non-singular (invertible), meaning det (A) ̸= 0.
-◦ The homogeneous system AX = 0 has only the trivial solution (the zero solution
-X = 0).
-Conversely, if rank (A) < n , then det (A) = 0 (A is singular), and the system AX = 0 has
-infinitely many solutions (nontrivial solutions). Furthermore, Sylvester’s rank inequality
-guarantees that matrix multiplication cannot increase the rank:
-rank(AB) ≤ min{rank(A), rank(B)} ⇒ rank(A2) ≤ rank(A)
-Ƨ Lời giải.
-Since A is a 3 × 3 matrix ( n = 3 ) and rank (A) ≤ 2 < 3, A does not have full rank. We
-evaluate each option based on this core fact:
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 101
---- PAGE 106 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-- Option A (A is singular): Since rank(A) < 3, its determinant is zero (det (A) = 0 ). Thus,
-A is indeed a singular matrix. This statement is TRUE.
-- Option C (AX = 0 has a nontrivial solution): A homogeneous system with a singular
-coefficient matrix always has infinitely many solutions (including non-zero vectors).
-This statement is TRUE.
-- Option D (det(A2 − A) = 0 ): We can factor the matrix polynomial:
-det(A2 − A) = det(A · (A − I)) = det(A) · det(A − I)
-Since det(A) = 0 , the product evaluates to 0. This statement is TRUE.
-- Option B (rank(A2) = 3 ): According to the rank inequality property, rank (A2) ≤
-rank(A) ≤ 2. Therefore, it is impossible for rank (A2) to be 3. This statement is FALSE.
-Ʀ
-Question 3. Given a differentiable function f : R → R with f ′(4) = 1 . Suppose the pro-
-duction function is Q = f (K + 3
-√
-L), where Q is the output, K is the capital, and L is the
-labor . At the level L = K = 1 , if one additional unit of labor is added, the approximate
-increase in output is:
-A 3. B 1
-2 . C 1. D 3
-2 .
-FUNDAMENTAL CONCEPT: MARGINAL PRODUCT AND THE CHAIN RULE
-In economics, the ”approximate increase in output when one additional unit of labor is
-added” is the exact definition of the Marginal Product of Labor ( M PL). Mathematically,
-this is the partial derivative of the production function with respect to L:
-M PL = ∂Q
-∂L
-T o compute this, we must apply the Chain Rule for multivariable composite functions. If
-Q = f (u) where u = g(K, L), then:
-∂Q
-∂L = f ′(u) · ∂u
-∂L
-Ƨ Lời giải.
-Detailed Solution:
-We are given the production function Q = f (K + 3
-√
-L). Let the inner argument be u =
-K + 3
-√
-L. Applying the chain rule, we find the marginal product of labor:
-M PL = ∂Q
-∂L = f ′(K + 3
-√
-L) · ∂
-∂L (K + 3L1/2)
-= f ′(K + 3
-√
-L) ·
-
-0 + 3 · 1
-2 L−1/2
-
-= f ′(K + 3
-√
-L) · 3
-2
-√
-L
-102 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 107 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-Now, we evaluate this marginal product at the specific level K = 1 and L = 1:
-M PL(1, 1) = f ′(1 + 3
-√
-1) · 3
-2
-√
-1
-= f ′(4) · 3
-2
-We are given the premise that f ′(4) = 1 . Substituting this value into our expression:
-M PL(1, 1) = 1 · 3
-2 = 3
-2
-Thus, an additional unit of labor increases the output by approximately 3
-2 . The correct
-choice is D .
-Ʀ
-Question 4. Let A be a square matrix of order 2 satisfying (3AT )−1 = B2, where B ="
-1 0
-−1 1
-#
-. Choose the correct statement.
-A A−1 =
-2
-64
-1
-3 0
-− 2
-3
-1
-3
-3
-75. B A−1 =
-2
-64
-1
-3 − 2
-3
-0 1
-3
-3
-75.
-C A−1 =
-"3 −6
-0 3
-#
-. D A−1 =
-" 3 0
-−6 3
-#
-.
-FUNDAMENTAL CONCEPT: PROPERTIES OF MATRIX OPERATIONS
-T o extract the unknown matrix A from a complex algebraic equation, we must rigidly
-adhere to the following properties:
-◦ Inverse of a scalar multiple: (k · M )−1 = 1
-k · M −1. (Many students mistakenly write
-kM −1).
-◦ Transpose and Inverse commutativity: (M T )−1 = (M −1)T .
-◦ Double Transpose: (M T )T = M .
-!
-CRITICAL WARNING: The Scalar Trap
-When dealing with the inverse of (3AT ), the scalar 3 must be inverted along-
-side the matrix. Just like in real numbers where (3x)−1 = 1
-3x , for matrices,
-(3AT )−1 = 1
-3 (AT )−1. Forgetting to invert the scalar will immediately lead you
-to a trap answer designed by the examiners.
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 103
---- PAGE 108 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-Ƨ Lời giải.
-Step 1: Isolate the target matrix algebra
-We begin with the given equation and apply the scalar inverse property:
-(3AT )−1 = B2 ⇔ 1
-3 (AT )−1 = B2
-Multiply both sides by 3 to remove the fraction:
-(AT )−1 = 3B2
-By applying the commutativity property of transpose and inverse, we rewrite the left
-side:
-(A−1)T = 3B2
-T o isolateA−1, we transpose both sides of the equation. Note that transposing a scalar
-leaves it unchanged:  
-(A−1)T T
-= (3B2)T
-⇔ A−1 = 3(B2)T
-Step 2: Matrix Computation
-First, we calculate the matrix square B2 = B · B:
-B2 =
-"
-1 0
-−1 1
-# "
-1 0
-−1 1
-#
-=
-"
-1 0
-−2 1
-#
-Next, we take the transpose of B2 (swap rows into columns):
-(B2)T =
-"
-1 −2
-0 1
-#
-Finally, we scale the matrix by 3 to find A−1:
-A−1 = 3
-"
-1 −2
-0 1
-#
-=
-"
-3 −6
-0 3
-#
-This matches option C .
-Ʀ
-Question 5. Let y = y(x) be an implicit function defined by the equation x3+xy3+e2xy = 2.
-Find the derivative of y with respect to x at x = 0.
-A 12. B −10. C 0. D −12.
-FUNDAMENTAL CONCEPT: IMPLICIT DIFFERENTIATION AT A POINT
-When dealing with an implicit function F (x, y) = 0 , finding y′(x0) requires a highly struc-
-tured approach to prevent algebraic errors:
-104 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 109 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-◦ Coordinate Completion: Always substitute x0 into the original equation first to find
-the corresponding y0. You cannot compute the derivative without the full coordinate
-pair (x0, y0).
-◦ The Formulaic Approach: Instead of taking the direct derivative, define F (x, y) = 0
-by moving everything to one side. Then, compute the partial derivatives and use:
-y′ = − F ′
-x
-F ′
-y
-Ƨ Lời giải.
-We establish our multi-variable function by moving the constant to the left:
-F (x, y) = x3 + xy3 + e2xy − 2 = 0
-Step 1: Finding y(0)
-Substitute x = 0 directly into the equation:
-03 + 0 · y3 + e2(0)y − 2 = 0 ⇒ 1 · y = 2 ⇒ y0 = 2
-We now know the tangency point is (0, 2).
-Step 2: Compute Partial Derivatives
-T ake the partial derivative with respect to x (treating y as a constant):
-F ′
-x = 3x2 + y3 + 2e2xy
-T ake the partial derivative with respect to y (treating x as a constant):
-F ′
-y = 0 + 3 xy2 + e2x = 3xy2 + e2x
-Step 3: Evaluate and conclude
-Applying the formula compute the partial derivatives:
-y′(x) = − 3x2 + y3 + 2e2xy
-3xy2 + e2x
-Now, substitute x = 0 and y = 2 into the expression:
-y′(0) = − 3(0)2 + (2)3 + 2e2(0)(2)
-3(0)(2)2 + e2(0) = − 0 + 8 + 4
-0 + 1 = −12
-The answer is −12, making option D correct.
-Ʀ
-Question 6. Let A, B be 3 × 3 matrices satisfying det (A) = 3 and det (B) = 2 . Then,
-det
-
-2A3(B−1)T 
-equals
-A 48. B 12. C 36. D 24.
-FUNDAMENTAL CONCEPT: DETERMINANT EXPANSION RULES
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 105
---- PAGE 110 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-The determinant acts as a volume scaling factor in linear algebra. When evaluating
-the determinant of a complex matrix product, break it down layer by layer using these
-immutable rules:
-◦ Scalar Rule: det(k · M ) = kn · det(M ), where n is the order of the matrix. (Pulling a
-scalar out of a 3 × 3 matrix cubes the scalar).
-◦ Product Rule: det(XY Z ) = det(X) · det(Y ) · det(Z).
-◦ Power Rule: det(M k) = ( det(M ))k.
-◦ Inverse & Transpose Rule: det(M −1) = 1
-det(M ) and det(M T ) = det(M ).
-!
-Remark on Exam Typos
-If we rigorously compute det
-
-2A3(B−1)T 
-as written, the result is:
-23 · |A|3 · |B|−1 = 8 · 33 · 0.5 = 8 · 27 · 0.5 = 108
-However, 108 does not appear in the options. This strongly implies a typo-
-graphical error in the test generation where A3 was printed instead of A2.
-If we assume the intended expression was 2A2(B−1)T , the math perfectly
-yields 36. Thus, we will proceed by evaluating it under this logical assump-
-tion to match the intended test key.
-Ƨ Lời giải.
-Assuming the intended expression is det
-
-2A2(B−1)T 
-(based on our analysis), we deploy
-the scalar rule first. Since the matrices are 3 × 3 (n = 3), the scalar 2 is pulled out as 23:
-det
-
-2A2(B−1)T 
-= 2 3 · det
- 
-A2(B−1)T 
-= 8 · det(A2) · det
- 
-(B−1)T 
-Applying the power, inverse, and transpose properties:
-det
-
-2A2(B−1)T 
-= 8 · (det A)2 · det(B−1)
-= 8 · (det A)2 · 1
-det B
-Substitute the given values det (A) = 3 and det(B) = 2 :
-det
-
-2A2(B−1)T 
-= 8 · (3)2 · 1
-2
-= 8 · 9 · 1
-2 = 36
-The logical choice is C .
-Ʀ
-106 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 111 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-Question 7. The profit function of a product is given by π = Q3 − 9
-2 Q2 + 6Q, where Q is
-the output. At what level of output is the marginal profit minimized?
-A Q = 1. B Q = 0. C Q = 3
-2 . D Q = 2.
-FUNDAMENTAL CONCEPT: MARGINAL FUNCTIONS AND OPTIMIZATION
-I. Methods for Finding Extrema of a Single-Variable Function y = f (x)
-Consider a function y = f (x) defined on a domain D. T o analyze its extrema, it is essen-
-tial to understand its geometric properties and the rules for determining the sign of its
-derivatives.
-1. Definition of Convex and Concave Functions
-The convexity or concavity of a single-variable function is determined by the sign of its
-second derivative:
-◦ A function f (x) is considered convex (concave upward) on domain D if its second
-derivative is strictly positive over the entire domain, meaning f ′′(x) > 0, ∀x ∈ D.
-◦ A function f (x) is considered concave (concave downward) on domain D if its sec-
-ond derivative is strictly negative over the entire domain, meaning f ′′(x) < 0, ∀x ∈
-D.
-2. Critical Points and the Rule of Sign Change (Root Multiplicity)
-A critical point (or stationary point) x0 is a root of the equation f ′(x) = 0 . When factoring
-f ′(x) into terms containing (x − x0)k, the degree k determines whether the derivative
-changes sign:
-◦ Odd multiplicity root ( k = 1 , 3, 5, . . .): When passing through x0, the derivative
-f ′(x) definitely changes sign (from + to − or from − to +). Therefore, the function
-attains a local extremum at x0.
-◦ Even multiplicity root ( k = 2 , 4, 6, . . .): When passing through x0, the derivative
-f ′(x) does not change sign (it retains the + or − sign). Therefore, the function
-does not attain an extremum at x0.
-Specifically, when setting up a sign chart for f ′(x):
-- If f ′(x) changes sign from − to + when passing through x0, then f attains a local
-minimum at x0.
-- If f ′(x) changes sign from + to − when passing through x0, then f attains a local
-maximum at x0.
-3. Using Higher-Order Derivatives at x0
-Suppose a function has vanishing derivatives up to order n − 1, specifically:
-f ′(x0) = f ′′(x0) = · · · = f (n−1)(x0) = 0 and f (n)(x0) ̸= 0
-Based on whether n is even or odd, we have the following rules:
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 107
---- PAGE 112 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-◦ If n is odd, f does not attain an extremum at x0.
-◦ If n is even and f (n)(x0) > 0, f attains a local minimum at x0.
-◦ If n is even and f (n)(x0) < 0, f attains a local maximum at x0.
-4. Evaluating Global Extrema
-◦ If f is a convex function on D (f ′′(x) > 0, ∀x ∈ D), then the critical point x0 is the
-global minimum on D.
-◦ If f is a concave function on D (f ′′(x) < 0, ∀x ∈ D), then the critical point x0 is the
-global maximum on D.
-II. Fundamental Concept: Marginal Functions in Economics
-The prefix ”Marginal” in economics always implies the first derivative of the total func-
-tion. Therefore, Marginal Profit ( M π) is the derivative of T otal Profit ( π).
-T o minimize this marginal function, we must treat M π as a completely new objec-
-tive function and apply the standard calculus optimization methods outlined above: find
-where its derivative (M π)′ equals zero, and verify its nature using the second derivative
-test or convexity.
-Ƨ Lời giải.
-Step 1: Construct the Marginal Profit function
-T ake the first derivative of the total profit function π(Q) with respect to output Q:
-M π = π′(Q) = 3 Q2 − 2 · 9
-2 Q + 6 = 3 Q2 − 9Q + 6
-Step 2: Minimize the Marginal Profit
-We need to find the absolute minimum of the new objective function, M π(Q). First, we
-find its derivative:
-(M π)′ = 6Q − 9
-Setting this derivative to 0 to find the critical point, we get:
-6Q − 9 = 0 ⇒ Q = 9
-6 = 3
-2
-Step 3: Verify the Global Minimum using the New Theory
-T o confirm that this critical point is indeed a global minimum, we can evaluate the second
-derivative of the marginal profit function (which represents the convexity of M π):
-(M π)′′ = 6
-Since (M π)′′ = 6 > 0 for all Q, the marginal profit function M π(Q) is a strictly convex
-function everywhere (an upward-opening parabola). According to Theory Section 4
-(Evaluating Global Extrema) , a critical point of a globally convex function is strictly a
-global minimum. Thus, the marginal profit is globally minimized at an output level of
-Q = 3
-2 . Option C is correct.
-Ʀ
-108 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 113 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-Question 8. Let A, B be 3 × 3 matrices satisfying det (A) = 0 and det(B) = 2 . Choose the
-false statement.
-A A2 ̸= B.
-B rank(AB2) < 3.
-C rank(B) < rank(A2).
-D There is not a matrix C such that ACB = I.
-FUNDAMENTAL CONCEPT: DETERMINANT PROOFS AND MATRIX INVERTIBILITY
-When examining theoretical propositions about matrices, rely heavily on evaluating the
-determinant of both sides of an equation to detect contradictions. If matrix X = Y , then
-necessarily det (X) = det(Y ). If their determinants differ, the matrices cannot possibly
-be equal. Furthermore, an equation XY Z = I implies that all matrices X, Y, Z must be
-invertible (have non-zero determinants).
-Ƨ Lời giải.
-We systematically test the logical validity of each option:
-- Check A (A2 ̸= B): Let’s assume the opposite, that A2 = B. T aking the determinant
-of both sides yields |A2| = |B| ⇒ | A|2 = |B| ⇒ 02 = 2 ⇒ 0 = 2 . This is a severe
-mathematical contradiction. Thus, A2 can never equal B. The statement A2 ̸= B is
-TRUE.
-- Check B (rank(AB2) < 3): We compute the determinant of the product:
-det(AB2) = det(A) det(B)2 = 0 · (2)2 = 0
-Since the determinant is 0, the 3 × 3 matrix AB2 is singular and cannot have full rank.
-Hence, rank(AB2) < 3. This statement is TRUE.
-- Check D (No matrix C satisfies ACB = I): Suppose such a matrix C exists. T aking
-determinants gives:
-det(ACB ) = det(I) ⇒ det(A) det(C) det(B) = 1 ⇒ 0 · det(C) · 2 = 1 ⇒ 0 = 1
-This contradiction proves that no such matrix C can exist. The statement is TRUE.
-- Check C (rank(B) < rank(A2)): Since det (B) = 2 ̸= 0 , matrix B has full rank, so
-rank(B) = 3 . Since det (A) = 0 , rank(A) ≤ 2, which implies rank (A2) ≤ 2. The inequality
-given translates to 3 < (a value ≤ 2), which is absurd. Thus, this statement is FALSE.
-We select option C.
-Ʀ
-Question 9. The function f (x, y) = x3 + y3 − 6xy has two stationary points which are
-A = (0, 0) and B = (2, 2). Choose the correct statement.
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 109
---- PAGE 114 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-A A is not an extremum and B is a local maximum.
-B A is a local minimum and B is a local maximum.
-C A is a local maximum and B is a local minimum.
-D A is not an extremum and B is a local minimum.
-Ƨ Lời giải.
-Step 1: Compute Second-Order Partial Derivatives
-First, we determine the first-order derivatives (to pave the way for the second order):
-f ′
-x = 3x2 − 6y and f ′
-y = 3y2 − 6x
-Now, we find the second-order partial derivatives to construct the Hessian matrix com-
-ponents:
-f ′′
-xx = 6x, f ′′
-yy = 6y, f ′′
-xy = −6
-Step 2: Apply the Second Derivative T est (Sylvester’s Criterion)
-We evaluate the determinants D1 = f ′′
-xx and D2 = f ′′
-xxf ′′
-yy − (f ′′
-xy)2 at each stationary point.
-◦ T est at point A(0, 0):
-D1 = 6 · 0 = 0
-D2 = (6 · 0) · (6 · 0) − (−6)2 = 0 − 36 = −36
-Since D2 < 0, the Hessian matrix is indefinite. Point A(0, 0) is a saddle point (not an
-extremum).
-◦ T est at point B(2, 2):
-D1 = 6 · 2 = 12
-D2 = (6 · 2) · (6 · 2) − (−6)2 = 144 − 36 = 108
-Since both D1 > 0 and D2 > 0, the Hessian matrix is positive definite. The surface forms
-a convex ”bowl” shape, indicating that point B(2, 2) is a local minimum.
-Matching our findings, option D is the correct statement.
-Ʀ
-Question 10. Consider the linear system
-8
->><
->>:
-mx + y + 2z = 1
-x + 2y + 3z = 2
-2x + 3y + 5z = 4
-where m ∈ R is a parame-
-ter . Choose the false statement.
-A For all m, the system always has a solution.
-B There exists m such that the system has no solution.
-C There does not exist any m such that the system has infinitely many solutions.
-D There exists m such that the system has a unique solution.
-110 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 115 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-I. BASIC GROUP (Determinant Only)
-This group relies strictly on the determinant of the coefficient matrix, |A|.
-◦ Type 1: Unique Solution
-⇒ Approach: Set |A| ̸= 0 − →Solve for m.
-◦ Type 2: Infinitely Many OR No Solution
-⇒ Approach: Set |A| = 0 − →Solve for m.
-II. ADVANCED GROUP (Determinant + Casio Calculator)
-This group requires finding specificm values and testing them using a scientific calculator .
-◦ Type 3: Infinitely Many Solutions
-◦ Type 4: No Solution
-Execution Steps for Types 3 & 4:
-− → Step 1: Solve for m using the Type 2 condition ( |A| = 0).
-− → Step 2: Substitute each found value of m back into the original numerical ma-
-trix.
-− → Step 3: Input the system into your Casio calculator (Press Menu 9 1 3 for a
-3-variable system).
-- If the calculator displays Infinite Solution − →Accept m for Type 3.
-- If the calculator displays No Solution − →Accept m for Type 4.
-Note: If there is only one specific value for m, only one scenario will occur . If there
-are multiple m values, both scenarios might happen.
-◦ Type 5: The System has Solutions (Consistent)
-− → Approach 1 (Complement): Find m for ”No Solution” (Type 4), then take the
-complement set (all real numbers R excluding the Type 4 results).
-− → Approach 2 (Union): T ake the union of the results from Type 1 and Type 3.
-Ƨ Lời giải.
-Step 1: Solve for Type 2 scenarios ( |A| = 0)
-We extract the coefficient matrix A and compute its determinant directly:
-|A| =
-
-m 1 2
-1 2 3
-2 3 5
-
-= m − 1
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 111
---- PAGE 116 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-Setting |A| = 0 to find our critical points, we get:
-m − 1 = 0 ⇒ m = 1
-Step 2: Specific evaluation using the Casio Method
-We only have one candidate, m = 1 . We plug this specific value back into the original
-system: 8
->><
->>:
-1x + 1y + 2z = 1
-1x + 2y + 3z = 2
-2x + 3y + 5z = 4
-Now, grab your Casio calculator and press Menu 9 1 3 to open the 3-variable linear equa-
-tion solver . The calculator screen explicitly displays No Solution.
-System Discussion Summary:
-- If m = 1 : The system has no solution (Type 4). Because this was our only singular
-point, there are no values of m that can create an ”Infinite Solution” scenario.
-- If m ̸= 1: |A| ̸= 0, the system guarantees a unique solution (Type 1).
-Step 3: Evaluate the given options
-- ”There exists m such that the system has no solution” is TRUE (we just proved m = 1
-does exactly this).
-- ”There does not exist any m such that the system has infinitely many solutions” is TRUE
-(our only singular point m = 1 led to no solution, meaning an infinite scenario is impossible
-here).
-- ”There exists m such that the system has a unique solution” is TRUE (happens for literally
-any real number other than 1).
-- ”For all m, the system always has a solution” is FALSE (because it breaks down and has
-no solution when m = 1). Therefore, the false statement is A .
-Ʀ
-10.2 WRITTEN QUESTIONS (5 points)
-Question 1. (1.5 points) A country’s GDP grows at a rate proportional to its current GDP
-(satisfies the exponential growth model). If the GDP in 2005 was $800 billion and in 2015
-it was $1040 billion, find a function that models the GDP G(t), where t is the number of
-years after 2005. Then estimate the GDP in 2025.
-Ƨ Lời giải.
-Let G(t) be the GDP of the country (in billions of dollars) after t years since 2005 ( t ≥ 0).
-Since the GDP grows at a rate proportional to its current GDP , the function G(t) follows
-an exponential growth model with the general equation:
-G(t) = G(0)ekt
-112 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 117 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-Here, G(0) = 800 is the initial GDP in 2005 and k is the growth rate constant. The problem
-states that the GDP in 2015 ( t = 10 ) was $1040 billion, so G(10) = 1040 . Substitute this
-information into the equation:
-800e10k = 1040 ⇒ e10k = 1.3
-T aking the natural logarithm of both sides, we can determine the growth rate:
-10k = ln 1.3 ⇒ k = ln 1.3
-10
-Thus, the function that models the GDP is:
-G(t) = 800 e
-ln 1.3
-10 t
-T o estimate the GDP in 2025, which corresponds to t = 20 years after 2005, we substitute
-t = 20 into the model:
-G(20) = 800 e
-ln 1.3
-10 ·20 = 800e2 ln 1.3
-Applying the properties of exponential and logarithmic functions ( ea ln b = ba), we can
-simplify and calculate the final result:
-G(20) = 800 · (1.3)2 = 800 · 1.69 = 1352
-Therefore, the estimated GDP of the country in 2025 is $1352 billion.
-Ʀ
-Question 2. (2 points) Consider an input-output model of three sectors with the Leontief
-matrix
-A =
-2
-64
-0.1 0 .5 0 .2
-0.3 0 .2 0 .4
-0.2 0 .1 0 .3
-3
-75
-a. Find the input value supplied by sector 2 to sector 3, given that the input value
-supplied by sector 1 to sector 3 is 400.
-b. If the final demand of the three sectors changes as follows: sector 1 increases by
-10, sector 2 decreases by 5, and sector 3 increases by 5, how will the output values
-of the three sectors change?
-Ƨ Lời giải.
-a. Calculating the input value supplied by sector 2 to sector 3
-We are given the input value supplied by sector 1 to sector 3 as x13 = 400. We can break
-the problem down into two steps using the value flow diagrams:
-Step 1 (Inverse calculation): From the actual value x13 = 400 , we divide by the input
-coefficient a13 = 0.2 to deduce the total output of sector 3 ( X3). Step 2 (Forward calcu-
-lation): Having found X3, we multiply it by the coefficient a23 = 0.4 to find the input value
-supplied by sector 2 to sector 3 ( x23).
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 113
---- PAGE 118 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-Supply (1) Receive (3)
-0.2 1
-400 X3
-×X3 ×X3
-÷0.2
-Supply (2) Receive (3)
-0.4 1
-x23 2000
-×2000 ×2000
-From the Step 1 diagram, we have: X3 = 400
-0.2 = 2000 . Substituting this into Step 2, the
-input value supplied by sector 2 to sector 3 is:
-x23 = 0.4 × 2000 = 800
-b. Calculating the changes in the output values of the three sectors
-Let ∆X =
-2
-64
-∆x1
-∆x2
-∆x3
-3
-75 be the change in the output matrix and ∆D =
-2
-64
-10
-−5
-5
-3
-75 be the change
-in the final demand matrix. According to the Leontief model, we have the equation (I −
-A)∆X = ∆D. The Leontief matrix I − A of the system is:
-I − A =
-2
-64
-1 0 0
-0 1 0
-0 0 1
-3
-75 −
-2
-64
-0.1 0 .5 0 .2
-0.3 0 .2 0 .4
-0.2 0 .1 0 .3
-3
-75 =
-2
-64
-0.9 −0.5 −0.2
-−0.3 0 .8 −0.4
-−0.2 −0.1 0 .7
-3
-75
-This yields the following system of linear equations:
-8
->>><
->>>:
-0.9∆x1 − 0.5∆x2 − 0.2∆x3 = 10
-−0.3∆x1 + 0.8∆x2 − 0.4∆x3 = −5
-−0.2∆x1 − 0.1∆x2 + 0.7∆x3 = 5
-Applying Cramer’s Rule, we calculate the main determinant ∆ and the secondary deter-
-minants:
-∆ =
-
-0.9 −0.5 −0.2
-−0.3 0 .8 −0.4
-−0.2 −0.1 0 .7
-
-= 0.285
-∆1 =
-
-10 −0.5 −0.2
-−5 0 .8 −0.4
-5 −0.1 0 .7
-
-= 5.15
-∆2 =
-
-0.9 10 −0.2
-−0.3 −5 −0.4
-−0.2 5 0 .7
-
-= 2.05
-∆3 =
-
-0.9 −0.5 10
-−0.3 0 .8 −5
-−0.2 −0.1 5
-
-= 3.8
-The change in output for each sector is the ratio of the corresponding secondary deter-
-114 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 119 ---
-̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA  ĐỀ THI VÀ LỜI GIẢI
-minant to the main determinant:
-8
->>>>>><
->>>>>>:
-∆x1 = ∆1
-∆ = 5.15
-0.285 = 1030
-57 ≈ 18.07
-∆x2 = ∆2
-∆ = 2.05
-0.285 = 410
-57 ≈ 7.19
-∆x3 = ∆3
-∆ = 3.8
-0.285 = 760
-57 ≈ 13.33
-Therefore, given the changes in final demand, the output values of sectors 1, 2, and 3 will
-increase by approximately 18.07, 7.19, and 13.33 units, respectively.
-Ʀ
-Question 3. (1.5 points) The total production Q of a certain product depends on the
-amount L of labor used and the amount K of capital by the formula
-Q = 3L1/3K 2/3.
-If the cost of a unit of labor is 1 and the cost of a unit of capital is 2, and production is
-fixed at Q = 100 units, use the method of Lagrange multipliers to determine the values
-of L and K that minimize the total cost.
-Ƨ Lời giải.
-Set up the Lagrange function to minimize the total cost C(L, K) = L + 2K subject to the
-production constraint 3L1/3K 2/3 = 100, we have:
-L(L, K, λ) = L + 2K + λ(100 − 3L1/3K 2/3)
-Necessary condition, compute the first-order partial derivatives:
-8
->>>><
->>>>:
-L′
-L = 1 − λL−2/3K 2/3 = 0 (1)
-L′
-K = 2 − 2λL1/3K −1/3 = 0 (2)
-L′
-λ = 100 − 3L1/3K 2/3 = 0 (3)
-From equations (1) and (2), we have:
-8
-<
-:
-1 = λL−2/3K 2/3
-2 = 2 λL1/3K −1/3 ⇒ 1 = λL1/3K −1/3
-Divide the two equations side by side, we get:
-1
-1 = λL−2/3K 2/3
-λL1/3K −1/3 ⇒ 1 = L−1K ⇒ K = L
-Substitute K = L into equation (3):
-100 − 3L1/3L2/3 = 0 ⇒ 100 = 3 L ⇒ L = 100
-3
-NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH 115
---- PAGE 120 ---
- ĐỀ THI VÀ LỜI GIẢI ̗ SỐNG MỘT CÁCH CÓ Ý NGHĨA
-Hence K = 100
-3 . Substitute L, K into (1), we easily get λ = 1. Thus, we have the stationary
-point M
- 100
-3 , 100
-3
-
-. Sufficient condition, calculate the second-order partial derivatives:
-gL = L−2/3K 2/3, g K = 2L1/3K −1/3
-LLL = 2
-3 λL−5/3K 2/3, LKK = 2
-3 λL1/3K −4/3, LLK = LKL = − 2
-3 λL−2/3K −1/3
-Substitute the values at the stationary point M
- 100
-3 , 100
-3
-
-and λ = 1 into the derivatives:
-gL = 1, g K = 2
-LLL = 2
-3 (1)
- 100
-3
-−1
-= 1
-50 , LKK = 2
-3 (1)
- 100
-3
-−1
-= 1
-50 , LLK = LKL = − 2
-3 (1)
- 100
-3
-−1
-= − 1
-50
-Set up the Bordered Hessian matrix at M :
-|H| =
-
-0 1 2
-1 1
-50 − 1
-50
-2 − 1
-50
-1
-50
-
-Expand this determinant, we obtain:
-|H| = 0 − 1
- 1
-50 −
-
-− 2
-50
-
-+ 2
-
-− 1
-50 − 2
-50
-
-= −1
- 3
-50
-
-+ 2
-
-− 3
-50
-
-= − 9
-50
-Since the second-order derivatives contain variables and λ, we evaluate the determinant
-at the stationary point. Because |H| < 0, the cost function achieves a local minimum at
-M
- 100
-3 , 100
-3
-
-. The minimum total cost is:
-Cmin = 100
-3 + 2
- 100
-3
-
-= 100
-Ʀ
-116 NHÌN LẠI ĐỀ THI TOÁN ỨNG DỤNG UEH
---- PAGE 121 ---
-Z ∞
-−∞
-e
-− x
-2
-dx =
-√ π
-∇ · E = ρ
-ε 0
-M4A
-TÀI LIỆU LƯU HÀNH NỘI BỘ
-Ấn phẩm được biên soạn với trọn vẹn tâm
-huyết dành riêng cho sinh viên khóa K51. T ài
-liệu không chỉ mang đến những lời giải chi tiết,
-mà quan trọng hơn, trang bị cho bạn hệ thống
-tư duy mạch lạc để tiếp cận mọi bài toán ứng
-dụng thực tế.
-"Mathematics is not about numbers,
-equations, computations, or
-algorithms: it is about understanding."
-— W I L L I A M P . T H U R S T O N —
-TOGETHER WE ADVANCE. LEAVE NO ONE BEHIND.
-© 2026 Lữ Võ Hoàng Phúc
-Ấn phẩm lưu hành nội bộ phục vụ học tập.
-Không sử dụng cho mục đích thương mại.

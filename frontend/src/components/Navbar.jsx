@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
-  Menu, X, Mail, Phone, User, LogIn, Upload, PlusCircle, 
-  CheckCircle, AlertCircle, Shield, Smartphone, 
-  KeyRound, ArrowLeft, PhoneCall, Lock, Sun, Moon, Globe, Search
+  Menu, X, Mail, Phone, User, LogIn, PlusCircle, 
+  Sun, Moon, Globe, Search 
 } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 import '../assets/styles/Navbar.css';
@@ -22,6 +21,9 @@ import {
 import { LanguageContext, ThemeContext } from '../App';
 import { translations } from '../utils/translations';
 
+import SearchModal from './modals/SearchModal';
+import UploadModal from './modals/UploadModal';
+import AuthModal from './modals/AuthModal';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -51,7 +53,7 @@ export default function Navbar() {
   // Forgot Password input
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotLoading, setForgotLoading] = useState(false);
-  const [forgotStep, setForgotStep] = useState(1); // 1: Enter email, 2: Enter OTP & new password
+  const [forgotStep, setForgotStep] = useState(1);
   const [forgotOtp, setForgotOtp] = useState('');
   const [forgotNewPassword, setForgotNewPassword] = useState('');
   const [forgotConfirmNewPassword, setForgotConfirmNewPassword] = useState('');
@@ -69,7 +71,7 @@ export default function Navbar() {
 
   // Upload Modal States (Admin Only)
   const [showUploadModal, setShowUploadModal] = useState(false);
-  const [uploadType, setUploadType] = useState('documentsData'); // documentsData | midtermExams | finalExams
+  const [uploadType, setUploadType] = useState('documentsData');
   const [uploadTitle, setUploadTitle] = useState('');
   const [uploadDesc, setUploadDesc] = useState('');
   const [uploadImage, setUploadImage] = useState('tccvang.jpg');
@@ -77,7 +79,7 @@ export default function Navbar() {
   const [uploadProf, setUploadProf] = useState('pnta');
   const [uploadProfName, setUploadProfName] = useState('Thầy Phan Ngô Tuấn Anh');
   const [uploadExternalUrl, setUploadExternalUrl] = useState('');
-  const [uploadStatus, setUploadStatus] = useState('idle'); // idle | loading | success | error
+  const [uploadStatus, setUploadStatus] = useState('idle');
   const [uploadMsg, setUploadMsg] = useState('');
   
   const location = useLocation();
@@ -96,64 +98,43 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Restore session from localStorage & Listen to Firebase auth changes
+  // Restore session & listen to Firebase auth
   useEffect(() => {
     const savedUser = localStorage.getItem('ueh_tcc_user');
     if (savedUser) {
       try {
         setLoggedInUser(JSON.parse(savedUser));
-      } catch (e) {
-        localStorage.removeItem('ueh_tcc_user');
-      }
+      } catch(e) {}
     }
 
     if (isFirebaseConfigured && auth) {
       const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
         if (firebaseUser) {
-          // Synchronize with server JSON database
-          const dbUser = await syncUserWithBackend(firebaseUser);
-          setLoggedInUser(dbUser);
-          localStorage.setItem('ueh_tcc_user', JSON.stringify(dbUser));
-        } else {
-          // Clear state only if it was logged in via a Firebase UID account
-          setLoggedInUser((curr) => {
-            if (curr && curr.uid) {
-              localStorage.removeItem('ueh_tcc_user');
-              return null;
-            }
-            return curr;
-          });
+          try {
+            const dbUser = await syncUserWithBackend(firebaseUser);
+            setLoggedInUser(dbUser);
+            localStorage.setItem('ueh_tcc_user', JSON.stringify(dbUser));
+          } catch(err) {
+            console.error("Lỗi đồng bộ Firebase user với Backend:", err);
+          }
         }
       });
       return () => unsubscribe();
     }
   }, []);
 
-  // Close mobile menu when changing route
+  // Sync Prof Name based on Prof ID
   useEffect(() => {
-    setIsOpen(false);
-  }, [location]);
-
-  // Synchronize professor names when selection changes
-  useEffect(() => {
-    if (uploadProf === 'pnta') setUploadProfName('Thầy Phan Ngô Tuấn Anh');
-    else if (uploadProf === 'ndt') setUploadProfName('Thầy Nguyễn Đình Tuấn');
-    else if (uploadProf === 'ntv') setUploadProfName('Thầy Ngô Trấn Vũ');
-    else if (uploadProf === 'ntvv') setUploadProfName('Thầy Nguyễn Thanh Vân');
+    const profMap = {
+      pnta: 'Thầy Phan Ngô Tuấn Anh',
+      ndt: 'Thầy Nguyễn Đình Tuấn',
+      ntv: 'Thầy Ngô Trấn Vũ',
+      ntvv: 'Thầy Nguyễn Thanh Vân'
+    };
+    setUploadProfName(profMap[uploadProf] || 'Giảng viên UEH');
   }, [uploadProf]);
 
-  const isActivePath = (path) => location.pathname === path;
-
-  const handleGlobalSearch = (event) => {
-    event.preventDefault();
-    const query = searchQuery.trim();
-    if (!query) return;
-    setShowSearch(false);
-    setIsOpen(false);
-    navigate(`/resources?category=all&q=${encodeURIComponent(query)}`);
-  };
-
-  const syncUserWithBackend = async (firebaseUser, customName = null) => {
+  const syncUserWithBackend = async (firebaseUser) => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/auth/sync`, {
         method: 'POST',
@@ -161,7 +142,7 @@ export default function Navbar() {
         body: JSON.stringify({
           uid: firebaseUser.uid,
           email: firebaseUser.email,
-          name: customName || firebaseUser.displayName || (firebaseUser.email ? firebaseUser.email.split('@')[0] : 'Sinh viên UEH'),
+          name: firebaseUser.displayName,
           phoneNumber: firebaseUser.phoneNumber
         })
       });
@@ -170,27 +151,25 @@ export default function Navbar() {
         return data.user;
       }
     } catch (error) {
-      console.error("Lỗi đồng bộ với Backend:", error);
+      console.error("Lỗi kết nối API Backend /api/auth/sync:", error);
     }
-    // Fallback offline session
     return {
-      id: 'u-' + firebaseUser.uid.substring(0, 8),
+      id: firebaseUser.uid,
       uid: firebaseUser.uid,
+      name: firebaseUser.displayName || (firebaseUser.email ? firebaseUser.email.split('@')[0] : 'Người dùng OTP'),
       username: firebaseUser.email || firebaseUser.phoneNumber || firebaseUser.uid,
-      name: customName || firebaseUser.displayName || (firebaseUser.email ? firebaseUser.email.split('@')[0] : 'Sinh viên UEH'),
-      role: (firebaseUser.email === 'admin@ueh.edu.vn') ? 'Admin' : 'Student',
-      phoneNumber: firebaseUser.phoneNumber
+      role: (firebaseUser.email && firebaseUser.email.toLowerCase() === 'admin@ueh.edu.vn') ? 'Admin' : 'Student'
     };
   };
 
-  const clearFirebaseSessionIfNeeded = async () => {
-    if (isFirebaseConfigured && auth?.currentUser) {
-      try {
-        await firebaseSignOut(auth);
-      } catch (error) {
-        console.error("Lỗi đăng xuất phiên Firebase trước khi dùng MongoDB:", error);
-      }
-    }
+  const isActivePath = (path) => location.pathname === path;
+
+  const handleGlobalSearch = (event) => {
+    event.preventDefault();
+    const query = searchQuery.trim();
+    if (!query) return;
+    setShowSearch(false);
+    navigate(`/resources?search=${encodeURIComponent(query)}`);
   };
 
   const handleLoginSubmit = async (e) => {
@@ -198,19 +177,16 @@ export default function Navbar() {
     setAuthError('');
     setAuthSuccessMsg('');
     if (!username || !password) {
-      setAuthError('Vui lòng nhập đầy đủ email và mật khẩu!');
+      setAuthError('Vui lòng nhập tên đăng nhập và mật khẩu!');
       return;
     }
 
-    // Email/password accounts are owned by the backend MongoDB database.
     try {
-      await clearFirebaseSessionIfNeeded();
       const response = await fetch(`${API_BASE_URL}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
       });
-      
       const data = await response.json();
       if (response.ok && data.success) {
         setLoggedInUser(data.user);
@@ -219,11 +195,10 @@ export default function Navbar() {
         setUsername('');
         setPassword('');
       } else {
-        setAuthError(data.message || 'Đăng nhập thất bại.');
+        setAuthError(data.message || 'Tên đăng nhập hoặc mật khẩu không chính xác!');
       }
     } catch (error) {
-      console.error("MongoDB Login Error:", error);
-      setAuthError('Không thể kết nối đến máy chủ Backend để đăng nhập. Hãy chạy backend!');
+      setAuthError('Không thể kết nối đến máy chủ Backend!');
     }
   };
 
@@ -233,56 +208,49 @@ export default function Navbar() {
     setAuthSuccessMsg('');
 
     if (!signupName || !signupUsername || !signupPassword) {
-      setAuthError('Vui lòng điền đầy đủ thông tin đăng ký!');
+      setAuthError('Vui lòng điền đầy đủ thông tin!');
       return;
     }
-
-    if (signupPassword !== signupConfirmPassword) {
-      setAuthError('Mật khẩu nhập lại không khớp!');
-      return;
-    }
-
     if (signupPassword.length < 6) {
-      setAuthError('Mật khẩu phải tối thiểu 6 ký tự để bảo mật!');
+      setAuthError('Mật khẩu phải chứa ít nhất 6 ký tự!');
+      return;
+    }
+    if (signupPassword !== signupConfirmPassword) {
+      setAuthError('Mật khẩu nhập lại không trùng khớp!');
       return;
     }
 
-    // Email/password registration is stored directly in MongoDB.
     try {
-      await clearFirebaseSessionIfNeeded();
       const response = await fetch(`${API_BASE_URL}/api/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: signupName,
           username: signupUsername,
-          password: signupPassword
+          password: signupPassword,
+          name: signupName
         })
       });
-
       const data = await response.json();
       if (response.ok && data.success) {
-        setAuthSuccessMsg('Đăng ký thành công! Hãy đăng nhập bằng tài khoản mới.');
-        setUsername(signupUsername);
-        setAuthMode('login');
+        setLoggedInUser(data.user);
+        localStorage.setItem('ueh_tcc_user', JSON.stringify(data.user));
+        setShowLoginModal(false);
         setSignupName('');
         setSignupUsername('');
         setSignupPassword('');
         setSignupConfirmPassword('');
       } else {
-        setAuthError(data.message || 'Đăng ký thất bại.');
+        setAuthError(data.message || 'Không thể tạo tài khoản!');
       }
     } catch (error) {
-      console.error("MongoDB Signup Error:", error);
-      setAuthError('Không thể kết nối đến máy chủ Backend để đăng ký. Hãy chạy backend!');
+      setAuthError('Không thể kết nối đến máy chủ Backend!');
     }
   };
 
   const handleGoogleLogin = async () => {
     setAuthError('');
     setAuthSuccessMsg('');
-    
-    if (isFirebaseConfigured && auth) {
+    if (isFirebaseConfigured && auth && googleProvider) {
       try {
         const userCredential = await signInWithPopup(auth, googleProvider);
         const dbUser = await syncUserWithBackend(userCredential.user);
@@ -294,12 +262,9 @@ export default function Navbar() {
           setAuthSuccessMsg('');
         }, 1500);
       } catch (error) {
-        console.error("Google Sign-In Error:", error);
         let msg = 'Đăng nhập Google thất bại.';
         if (error.code === 'auth/popup-closed-by-user') {
           msg = 'Cửa sổ đăng nhập Google đã bị đóng.';
-        } else if (error.code === 'auth/cancelled-popup-request') {
-          msg = 'Yêu cầu popup bị hủy.';
         } else {
           msg = `Lỗi: ${error.message}`;
         }
@@ -324,7 +289,6 @@ export default function Navbar() {
           setAuthSuccessMsg('');
         }, 1000);
       } catch (error) {
-        console.error("Google sync error:", error);
         setAuthError('Không thể đăng nhập bằng tài khoản Google.');
       }
     }
@@ -333,7 +297,6 @@ export default function Navbar() {
   const handleFacebookLogin = async () => {
     setAuthError('');
     setAuthSuccessMsg('');
-    
     if (isFirebaseConfigured && auth && facebookProvider) {
       try {
         const userCredential = await signInWithPopup(auth, facebookProvider);
@@ -346,12 +309,9 @@ export default function Navbar() {
           setAuthSuccessMsg('');
         }, 1500);
       } catch (error) {
-        console.error("Facebook Sign-In Error:", error);
         let msg = 'Đăng nhập Facebook thất bại.';
         if (error.code === 'auth/popup-closed-by-user') {
           msg = 'Cửa sổ đăng nhập Facebook đã bị đóng.';
-        } else if (error.code === 'auth/cancelled-popup-request') {
-          msg = 'Yêu cầu popup bị hủy.';
         } else {
           msg = `Lỗi: ${error.message}`;
         }
@@ -376,7 +336,6 @@ export default function Navbar() {
           setAuthSuccessMsg('');
         }, 1000);
       } catch (error) {
-        console.error("Facebook sync error:", error);
         setAuthError('Không thể đăng nhập bằng tài khoản Facebook.');
       }
     }
@@ -385,7 +344,6 @@ export default function Navbar() {
   const handleGithubLogin = async () => {
     setAuthError('');
     setAuthSuccessMsg('');
-    
     if (isFirebaseConfigured && auth && githubProvider) {
       try {
         const userCredential = await signInWithPopup(auth, githubProvider);
@@ -398,12 +356,9 @@ export default function Navbar() {
           setAuthSuccessMsg('');
         }, 1500);
       } catch (error) {
-        console.error("GitHub Sign-In Error:", error);
         let msg = 'Đăng nhập GitHub thất bại.';
         if (error.code === 'auth/popup-closed-by-user') {
           msg = 'Cửa sổ đăng nhập GitHub đã bị đóng.';
-        } else if (error.code === 'auth/cancelled-popup-request') {
-          msg = 'Yêu cầu popup bị hủy.';
         } else {
           msg = `Lỗi: ${error.message}`;
         }
@@ -428,12 +383,10 @@ export default function Navbar() {
           setAuthSuccessMsg('');
         }, 1000);
       } catch (error) {
-        console.error("GitHub sync error:", error);
         setAuthError('Không thể đăng nhập bằng tài khoản GitHub.');
       }
     }
   };
-
 
   const handleForgotPasswordSubmit = async (e) => {
     e.preventDefault();
@@ -443,8 +396,6 @@ export default function Navbar() {
       setAuthError('Vui lòng nhập địa chỉ email!');
       return;
     }
-
-    // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(forgotEmail)) {
       setAuthError('Địa chỉ email không đúng định dạng!');
@@ -452,8 +403,6 @@ export default function Navbar() {
     }
 
     setForgotLoading(true);
-
-    // MongoDB email/password accounts reset password through backend OTP.
     try {
       const response = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
         method: 'POST',
@@ -468,8 +417,7 @@ export default function Navbar() {
         setAuthError(data.message || 'Không thể yêu cầu khôi phục mật khẩu.');
       }
     } catch (error) {
-      console.error("Backend Forgot Password Error:", error);
-      setAuthError('Không thể kết nối tới Backend để gửi OTP. Hãy bật backend server!');
+      setAuthError('Không thể kết nối tới Backend để gửi OTP.');
     } finally {
       setForgotLoading(false);
     }
@@ -480,16 +428,8 @@ export default function Navbar() {
     setAuthError('');
     setAuthSuccessMsg('');
 
-    if (!forgotEmail) {
-      setAuthError('Vui lòng nhập địa chỉ email!');
-      return;
-    }
-    if (!forgotOtp || forgotOtp.trim().length !== 6) {
-      setAuthError('Vui lòng nhập chính xác mã OTP gồm 6 chữ số!');
-      return;
-    }
-    if (!forgotNewPassword) {
-      setAuthError('Vui lòng nhập mật khẩu mới!');
+    if (!forgotEmail || !forgotOtp || forgotOtp.trim().length !== 6 || !forgotNewPassword) {
+      setAuthError('Vui lòng nhập đầy đủ thông tin!');
       return;
     }
     if (forgotNewPassword.length < 3) {
@@ -524,10 +464,9 @@ export default function Navbar() {
           setAuthSuccessMsg('');
         }, 4000);
       } else {
-        setAuthError(data.message || 'Mã xác thực OTP không chính xác hoặc đã hết hạn!');
+        setAuthError(data.message || 'Mã xác thực OTP không chính xác!');
       }
     } catch (error) {
-      console.error("Backend Reset Password Error:", error);
       setAuthError('Không thể kết nối đến backend để xác thực OTP.');
     } finally {
       setForgotLoading(false);
@@ -539,9 +478,6 @@ export default function Navbar() {
       try {
         window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
           size: 'invisible',
-          callback: (response) => {
-            // Completed
-          },
           'expired-callback': () => {
             setAuthError('reCAPTCHA đã hết hạn, vui lòng gửi lại mã OTP.');
           }
@@ -561,7 +497,7 @@ export default function Navbar() {
       return;
     }
     if (!isFirebaseConfigured) {
-      setAuthError('Tính năng Phone OTP yêu cầu cấu hình Firebase Auth. Vui lòng cấu hình file .env!');
+      setAuthError('Tính năng Phone OTP yêu cầu cấu hình Firebase Auth!');
       return;
     }
 
@@ -570,7 +506,7 @@ export default function Navbar() {
       formattedPhone = '+84' + formattedPhone.substring(1);
     }
     if (!formattedPhone.startsWith('+')) {
-      setAuthError('Số điện thoại phải bắt đầu bằng mã quốc gia (e.g. +84 cho Việt Nam hoặc dạng 09xxxxxx)');
+      setAuthError('Số điện thoại phải bắt đầu bằng mã quốc gia (+84 cho VN)');
       return;
     }
 
@@ -583,20 +519,11 @@ export default function Navbar() {
       setIsOtpSent(true);
       setAuthSuccessMsg('Mã OTP đã được gửi về số điện thoại của bạn!');
     } catch (error) {
-      console.error("Lỗi gửi SMS OTP:", error);
       let msg = error.message;
       if (error.code === 'auth/invalid-phone-number') {
         msg = 'Số điện thoại không đúng định dạng quốc tế!';
-      } else if (error.code === 'auth/too-many-requests') {
-        msg = 'Hệ thống tạm khóa do gửi quá nhiều SMS. Vui lòng thử lại sau!';
       }
-      setAuthError(msg || 'Lỗi gửi mã OTP. Đảm bảo số điện thoại hợp lệ và Captcha hoạt động.');
-      if (window.recaptchaVerifier) {
-        try {
-          window.recaptchaVerifier.clear();
-          window.recaptchaVerifier = null;
-        } catch(e) {}
-      }
+      setAuthError(msg || 'Lỗi gửi mã OTP.');
     } finally {
       setOtpLoading(false);
     }
@@ -618,13 +545,11 @@ export default function Navbar() {
       setLoggedInUser(dbUser);
       localStorage.setItem('ueh_tcc_user', JSON.stringify(dbUser));
       setShowLoginModal(false);
-      
       setIsOtpSent(false);
       setPhoneInput('');
       setVerificationCode('');
       setConfirmationResult(null);
     } catch (error) {
-      console.error("Lỗi xác nhận mã OTP:", error);
       setAuthError('Mã OTP chưa chính xác hoặc đã hết hạn!');
     } finally {
       setOtpLoading(false);
@@ -635,9 +560,7 @@ export default function Navbar() {
     if (isFirebaseConfigured && auth) {
       try {
         await firebaseSignOut(auth);
-      } catch (error) {
-        console.error("Lỗi đăng xuất Firebase:", error);
-      }
+      } catch (error) {}
     }
     setLoggedInUser(null);
     localStorage.removeItem('ueh_tcc_user');
@@ -691,7 +614,6 @@ export default function Navbar() {
       if (response.ok && data.success) {
         setUploadStatus('success');
         setUploadMsg(data.message || 'Đăng tải thành công!');
-        
         setUploadTitle('');
         setUploadDesc('');
         setUploadExternalUrl('');
@@ -861,7 +783,7 @@ export default function Navbar() {
                   onClick={() => setShowSearch(true)}
                 >
                   <Search size={18} />
-                  <span>TÃ¬m kiáº¿m</span>
+                  <span>Tìm kiếm</span>
                 </button>
                 <button 
                   type="button"
@@ -909,579 +831,89 @@ export default function Navbar() {
         </div>
       </header>
 
-      {showSearch && (
-        <div className="search-overlay" role="dialog" aria-modal="true" onClick={() => setShowSearch(false)}>
-          <form className="search-modal glass-panel" onSubmit={handleGlobalSearch} onClick={(event) => event.stopPropagation()}>
-            <div className="search-modal-head">
-              <span>Tìm nhanh học liệu</span>
-              <button type="button" onClick={() => setShowSearch(false)} aria-label="Đóng tìm kiếm">
-                <X size={20} />
-              </button>
-            </div>
-            <div className="search-modal-input">
-              <Search size={22} />
-              <input
-                autoFocus
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder="Nhập tên tài liệu, đề thi, chủ đề cần ôn..."
-              />
-            </div>
-            <div className="search-suggestions">
-              {['Giới hạn', 'Ma trận', 'Đề cuối kỳ', 'Tài liệu giữa kỳ'].map((item) => (
-                <button type="button" key={item} onClick={() => setSearchQuery(item)}>
-                  {item}
-                </button>
-              ))}
-            </div>
-          </form>
-        </div>
-      )}
+      {/* Subcomponents Modals */}
+      <SearchModal 
+        showSearch={showSearch}
+        setShowSearch={setShowSearch}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        handleGlobalSearch={handleGlobalSearch}
+      />
 
-      {/* Auth Modal (Login / Sign Up / Forgot Password) */}
-      {showLoginModal && (
-        <div className="modal-overlay" onClick={() => setShowLoginModal(false)}>
-          <div className="modal-content glass-panel" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setShowLoginModal(false)}>
-              <X size={20} />
-            </button>
-            
-            <div className="modal-header">
-              {authMode === 'login' && <User size={32} className="modal-icon text-teal animate-pulse" />}
-              {authMode === 'signup' && <User size={32} className="modal-icon text-teal animate-pulse" />}
-              {authMode === 'forgot' && <KeyRound size={32} className="modal-icon text-rose animate-pulse" />}
-              
-              <h3>
-                {authMode === 'login' && 'Đăng Nhập UEH TCC'}
-                {authMode === 'signup' && 'Đăng Ký Thành Viên'}
-                {authMode === 'forgot' && 'Khôi Phục Mật Khẩu'}
-              </h3>
-              <p>
-                {authMode === 'login' && 'Hệ thống hỗ trợ lưu lịch sử học tập'}
-                {authMode === 'signup' && 'Tạo tài khoản học tập cá nhân'}
-                {authMode === 'forgot' && 'Nhập email để nhận liên kết khôi phục mật khẩu'}
-              </p>
-            </div>
+      <UploadModal 
+        showUploadModal={showUploadModal}
+        setShowUploadModal={setShowUploadModal}
+        loggedInUser={loggedInUser}
+        uploadType={uploadType}
+        setUploadType={setUploadType}
+        uploadTitle={uploadTitle}
+        setUploadTitle={setUploadTitle}
+        uploadDesc={uploadDesc}
+        setUploadDesc={setUploadDesc}
+        uploadProf={uploadProf}
+        setUploadProf={setUploadProf}
+        uploadProfName={uploadProfName}
+        uploadImage={uploadImage}
+        setUploadImage={setUploadImage}
+        uploadPdf={uploadPdf}
+        setUploadPdf={setUploadPdf}
+        uploadExternalUrl={uploadExternalUrl}
+        setUploadExternalUrl={setUploadExternalUrl}
+        uploadStatus={uploadStatus}
+        uploadMsg={uploadMsg}
+        handleUploadSubmit={handleUploadSubmit}
+      />
 
-            {authError && <div className="error-alert">{authError}</div>}
-            {authSuccessMsg && <div className="success-alert">{authSuccessMsg}</div>}
-
-            {/* 1. LOGIN FORM */}
-            {authMode === 'login' && (
-              <form className="modal-form" onSubmit={handleLoginSubmit}>
-                <div className="form-group">
-                  <label htmlFor="username">Email đăng nhập / Tài khoản</label>
-                  <div className="input-with-icon">
-                    <Mail size={18} className="input-icon" />
-                    <input
-                      type="text"
-                      id="username"
-                      className="form-input"
-                      placeholder="Email hoặc tài khoản đăng nhập"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
-                
-                <div className="form-group">
-                  <div className="form-group-header">
-                    <label htmlFor="password">Mật khẩu</label>
-                    <button 
-                      type="button" 
-                      className="forgot-password-link" 
-                      onClick={() => { setAuthMode('forgot'); setAuthError(''); setAuthSuccessMsg(''); }}
-                    >
-                      Quên mật khẩu?
-                    </button>
-                  </div>
-                  <div className="input-with-icon">
-                    <Lock size={18} className="input-icon" />
-                    <input
-                      type="password"
-                      id="password"
-                      className="form-input"
-                      placeholder="Nhập mật khẩu của bạn"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <button type="submit" className="btn btn-primary w-full" style={{ marginTop: '10px' }}>Đăng Nhập</button>
-                
-                <div className="auth-divider">hoặc đăng nhập bằng</div>
-
-                <div className="social-login-grid">
-                  {/* Google Button */}
-                  <button 
-                    type="button" 
-                    className="btn-social google" 
-                    onClick={handleGoogleLogin} 
-                    title="Đăng nhập qua Google"
-                  >
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
-                      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
-                    </svg>
-                  </button>
-
-                  {/* Facebook Button */}
-                  <button 
-                    type="button" 
-                    className="btn-social facebook" 
-                    onClick={handleFacebookLogin} 
-                    title="Đăng nhập qua Facebook"
-                  >
-                    <svg viewBox="0 0 24 24" fill="currentColor" style={{ color: '#1877F2' }}>
-                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                    </svg>
-                  </button>
-
-                  {/* GitHub Button */}
-                  <button 
-                    type="button" 
-                    className="btn-social github" 
-                    onClick={handleGithubLogin} 
-                    title="Đăng nhập qua GitHub"
-                  >
-                    <svg viewBox="0 0 24 24" fill="currentColor" style={{ color: '#F8FAFC' }}>
-                      <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.579.688.481C19.137 20.162 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
-                    </svg>
-                  </button>
-                </div>
-
-                <div className="auth-modal-switch mt-4 text-center text-sm text-gray-400">
-                  <span>Chưa có tài khoản? </span>
-                  <button type="button" className="text-teal font-semibold hover:underline" onClick={() => { setAuthMode('signup'); setAuthError(''); setAuthSuccessMsg(''); }}>Đăng ký ngay</button>
-                </div>
-
-                <div className="auth-footer-note">
-                  🔒 Dữ liệu lưu trữ đám mây MongoDB Atlas bảo mật tuyệt đối.
-                </div>
-              </form>
-            )}
-
-            {/* 2. SIGN UP FORM */}
-            {authMode === 'signup' && (
-              <form className="modal-form" onSubmit={handleSignupSubmit}>
-                <div className="form-group">
-                  <label htmlFor="signupName">Họ và Tên của bạn</label>
-                  <div className="input-with-icon">
-                    <User size={17} className="input-icon" />
-                    <input
-                      type="text"
-                      id="signupName"
-                      className="form-input"
-                      placeholder="Nguyễn Văn A"
-                      value={signupName}
-                      onChange={(e) => setSignupName(e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="form-group">
-                  <label htmlFor="signupUsername">Địa chỉ Email</label>
-                  <div className="input-with-icon">
-                    <Mail size={17} className="input-icon" />
-                    <input
-                      type="email"
-                      id="signupUsername"
-                      className="form-input"
-                      placeholder="sinhvien@ueh.edu.vn"
-                      value={signupUsername}
-                      onChange={(e) => setSignupUsername(e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="form-group">
-                  <label htmlFor="signupPassword">Mật khẩu</label>
-                  <div className="input-with-icon">
-                    <Lock size={17} className="input-icon" />
-                    <input
-                      type="password"
-                      id="signupPassword"
-                      className="form-input"
-                      placeholder="Tối thiểu 6 ký tự"
-                      value={signupPassword}
-                      onChange={(e) => setSignupPassword(e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="form-group">
-                  <label htmlFor="signupConfirmPassword">Nhập lại mật khẩu</label>
-                  <div className="input-with-icon">
-                    <Lock size={17} className="input-icon" />
-                    <input
-                      type="password"
-                      id="signupConfirmPassword"
-                      className="form-input"
-                      placeholder="Xác nhận mật khẩu"
-                      value={signupConfirmPassword}
-                      onChange={(e) => setSignupConfirmPassword(e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
-                <button type="submit" className="btn btn-primary w-full">Đăng Ký Tài Khoản</button>
-                
-                <div className="auth-modal-switch mt-4 text-center text-sm">
-                  <span>Đã có tài khoản? </span>
-                  <button type="button" className="text-teal font-semibold hover:underline" onClick={() => { setAuthMode('login'); setAuthError(''); setAuthSuccessMsg(''); }}>Đăng nhập ngay</button>
-                </div>
-              </form>
-            )}
-
-            {/* 3. FORGOT PASSWORD FORM */}
-            {authMode === 'forgot' && (
-              forgotStep === 1 ? (
-                <form className="modal-form" onSubmit={handleForgotPasswordSubmit}>
-                  <div className="form-group">
-                    <label htmlFor="forgotEmail">Email đã đăng ký tài khoản</label>
-                    <div className="input-with-icon">
-                      <Mail size={17} className="input-icon" />
-                      <input
-                        type="email"
-                        id="forgotEmail"
-                        className="form-input"
-                        placeholder="sinhvien@ueh.edu.vn"
-                        value={forgotEmail}
-                        onChange={(e) => setForgotEmail(e.target.value)}
-                        required
-                        autoComplete="email"
-                      />
-                    </div>
-                  </div>
-                  
-                  <button type="submit" className="btn btn-primary w-full" disabled={forgotLoading}>
-                    {forgotLoading ? (
-                      <span>⏳ Đang gửi email...</span>
-                    ) : (
-                      'Gửi Mã OTP Xác Thực'
-                    )}
-                  </button>
-
-                  <p style={{ textAlign: 'center', fontSize: '0.8rem', color: '#64748b', lineHeight: '1.5' }}>
-                    Tài khoản email/password dùng mã OTP từ backend MongoDB.<br/>Nhớ kiểm tra cả thư mục Spam!
-                  </p>
-
-                  <div className="text-center mt-3">
-                    <button 
-                      type="button" 
-                      className="btn-back-link" 
-                      onClick={() => { setAuthMode('login'); setAuthError(''); setAuthSuccessMsg(''); setForgotStep(1); }}
-                    >
-                      <ArrowLeft size={16} />
-                      <span>Quay lại Đăng nhập</span>
-                    </button>
-                  </div>
-                </form>
-              ) : (
-                <form className="modal-form" onSubmit={handleResetPasswordSubmit}>
-                  <div className="form-group">
-                    <label htmlFor="forgotOtp">Nhập mã OTP (6 chữ số)</label>
-                    <div className="input-with-icon">
-                      <Shield size={17} className="input-icon" />
-                      <input
-                        type="text"
-                        id="forgotOtp"
-                        className="form-input"
-                        placeholder="123456"
-                        maxLength="6"
-                        value={forgotOtp}
-                        onChange={(e) => setForgotOtp(e.target.value)}
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="forgotNewPassword">Mật khẩu mới</label>
-                    <div className="input-with-icon">
-                      <Lock size={17} className="input-icon" />
-                      <input
-                        type="password"
-                        id="forgotNewPassword"
-                        className="form-input"
-                        placeholder="Tối thiểu 3 ký tự"
-                        value={forgotNewPassword}
-                        onChange={(e) => setForgotNewPassword(e.target.value)}
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="forgotConfirmNewPassword">Xác nhận mật khẩu mới</label>
-                    <div className="input-with-icon">
-                      <Lock size={17} className="input-icon" />
-                      <input
-                        type="password"
-                        id="forgotConfirmNewPassword"
-                        className="form-input"
-                        placeholder="Nhập lại mật khẩu mới"
-                        value={forgotConfirmNewPassword}
-                        onChange={(e) => setForgotConfirmNewPassword(e.target.value)}
-                        required
-                      />
-                    </div>
-                  </div>
-                  
-                  <button type="submit" className="btn btn-primary w-full" disabled={forgotLoading}>
-                    {forgotLoading ? 'Đang xử lý...' : 'Xác Nhận Đổi Mật Khẩu'}
-                  </button>
-
-                  <div className="text-center mt-3" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <button 
-                      type="button" 
-                      className="btn-back-link" 
-                      onClick={() => { setForgotStep(1); setAuthError(''); setAuthSuccessMsg(''); }}
-                    >
-                      <ArrowLeft size={16} />
-                      <span>Quay lại</span>
-                    </button>
-                    <button 
-                      type="button" 
-                      className="text-teal text-sm font-semibold hover:underline" 
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-                      onClick={handleForgotPasswordSubmit}
-                      disabled={forgotLoading}
-                    >
-                      Gửi lại mã OTP
-                    </button>
-                  </div>
-                </form>
-              )
-            )}
-
-            {/* 4. SMS OTP FORM */}
-            {authMode === 'phone' && (
-              <form className="modal-form" onSubmit={isOtpSent ? handleVerifyOtp : handleSendOtp}>
-                {!isOtpSent ? (
-                  <>
-                    <div className="form-group">
-                      <label htmlFor="phoneInput">Số điện thoại của bạn</label>
-                      <div className="input-with-icon">
-                        <Smartphone size={17} className="input-icon" />
-                        <input
-                          type="tel"
-                          id="phoneInput"
-                          className="form-input"
-                          placeholder="+84912345678"
-                          value={phoneInput}
-                          onChange={(e) => setPhoneInput(e.target.value)}
-                          required
-                        />
-                      </div>
-                    </div>
-                    <div id="recaptcha-container"></div>
-                    
-                    <button type="submit" className="btn btn-primary w-full" disabled={otpLoading}>
-                      <PhoneCall size={16} />
-                      <span>{otpLoading ? 'Đang gửi mã...' : 'Gửi mã xác thực OTP'}</span>
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <div className="form-group">
-                      <label htmlFor="verificationCode">Nhập mã OTP gồm 6 chữ số</label>
-                      <div className="input-with-icon">
-                        <Shield size={17} className="input-icon" />
-                        <input
-                          type="text"
-                          id="verificationCode"
-                          className="form-input"
-                          placeholder="123456"
-                          maxLength="6"
-                          value={verificationCode}
-                          onChange={(e) => setVerificationCode(e.target.value)}
-                          required
-                        />
-                      </div>
-                    </div>
-                    
-                    <button type="submit" className="btn btn-primary w-full" disabled={otpLoading}>
-                      <span>{otpLoading ? 'Đang xác thực...' : 'Xác nhận Đăng Nhập'}</span>
-                    </button>
-                    
-                    <div className="auth-modal-switch mt-2 text-sm">
-                      <span>Không nhận được mã? </span>
-                      <button 
-                        type="button" 
-                        className="text-teal font-semibold hover:underline" 
-                        onClick={handleSendOtp} 
-                        disabled={otpLoading}
-                      >
-                        Gửi lại mã
-                      </button>
-                    </div>
-                  </>
-                )}
-
-                <div className="text-center mt-3">
-                  <button 
-                    type="button" 
-                    className="btn-back-link" 
-                    onClick={() => { setAuthMode('login'); setAuthError(''); setAuthSuccessMsg(''); setIsOtpSent(false); setConfirmationResult(null); }}
-                  >
-                    <ArrowLeft size={16} />
-                    <span>Quay lại Đăng nhập</span>
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Admin Upload Modal */}
-      {showUploadModal && loggedInUser?.role === 'Admin' && (
-        <div className="modal-overlay" onClick={() => setShowUploadModal(false)}>
-          <div className="modal-content glass-panel" style={{ maxWidth: '600px' }} onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setShowUploadModal(false)}>
-              <X size={20} />
-            </button>
-            
-            <div className="modal-header">
-              <Shield size={32} className="modal-icon text-teal" />
-              <h3>Đăng Tải Tài Liệu Mới</h3>
-              <p>Hệ thống tự động phát hành Real-time lên trang chủ và thư viện</p>
-            </div>
-
-            <form className="modal-form" onSubmit={handleUploadSubmit}>
-              <div className="form-group">
-                <label htmlFor="up-type">Phân loại học liệu</label>
-                <select 
-                  id="up-type" 
-                  className="form-input select-input"
-                  value={uploadType}
-                  onChange={(e) => setUploadType(e.target.value)}
-                >
-                  <option value="documentsData">Ấn phẩm & Tài liệu ôn tập</option>
-                  <option value="midtermExams">Đề thi giữa kỳ của giảng viên</option>
-                  <option value="finalExams">Đề thi cuối kỳ chính thức</option>
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="up-title">Tiêu đề tài liệu</label>
-                <input 
-                  type="text" 
-                  id="up-title" 
-                  className="form-input" 
-                  placeholder="e.g. Tuyển tập 50 câu trắc nghiệm giới hạn" 
-                  value={uploadTitle}
-                  onChange={(e) => setUploadTitle(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="up-desc">Mô tả tóm tắt nội dung</label>
-                <textarea 
-                  id="up-desc" 
-                  className="form-input text-area" 
-                  rows="3" 
-                  placeholder="e.g. Tài liệu gồm các câu trắc nghiệm giới hạn chọn lọc kèm lời giải thích chương 4..." 
-                  value={uploadDesc}
-                  onChange={(e) => setUploadDesc(e.target.value)}
-                  required
-                ></textarea>
-              </div>
-
-              {/* Conditional Prof Options for Midterms */}
-              {uploadType === 'midtermExams' && (
-                <div className="form-row-2">
-                  <div className="form-group">
-                    <label htmlFor="up-prof">Mã giảng viên</label>
-                    <select 
-                      id="up-prof" 
-                      className="form-input select-input"
-                      value={uploadProf}
-                      onChange={(e) => setUploadProf(e.target.value)}
-                    >
-                      <option value="pnta">pnta (Thầy Phan Ngô Tuấn Anh)</option>
-                      <option value="ndt">ndt (Thầy Nguyễn Đình Tuấn)</option>
-                      <option value="ntv">ntv (Thầy Ngô Trấn Vũ)</option>
-                      <option value="ntvv">ntvv (Thầy Nguyễn Thanh Vân)</option>
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label>Tên giảng viên</label>
-                    <input type="text" className="form-input" value={uploadProfName} disabled />
-                  </div>
-                </div>
-              )}
-
-              <div className="form-row-2">
-                <div className="form-group">
-                  <label htmlFor="up-image">Tên tệp hình ảnh bìa (Thư mục images)</label>
-                  <input 
-                    type="text" 
-                    id="up-image" 
-                    className="form-input" 
-                    placeholder="e.g. tccvang.jpg" 
-                    value={uploadImage}
-                    onChange={(e) => setUploadImage(e.target.value)}
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="up-pdf">Tên tệp PDF tài liệu (Thư mục docs)</label>
-                  <input 
-                    type="text" 
-                    id="up-pdf" 
-                    className="form-input" 
-                    placeholder="e.g. tccvang.pdf" 
-                    value={uploadPdf}
-                    onChange={(e) => setUploadPdf(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              {uploadType === 'documentsData' && (
-                <div className="form-group">
-                  <label htmlFor="up-ext">Đường dẫn Google Drive (Không bắt buộc)</label>
-                  <input 
-                    type="text" 
-                    id="up-ext" 
-                    className="form-input" 
-                    placeholder="e.g. https://drive.google.com/file/d/..." 
-                    value={uploadExternalUrl}
-                    onChange={(e) => setUploadExternalUrl(e.target.value)}
-                  />
-                </div>
-              )}
-
-              <button type="submit" className="btn btn-primary w-full mt-2" disabled={uploadStatus === 'loading'}>
-                <Upload size={16} />
-                <span>Đăng Tải Lên Hệ Thống</span>
-              </button>
-
-              {uploadStatus === 'loading' && <div className="status-msg loading mt-3">Đang lưu trữ dữ liệu...</div>}
-              
-              {uploadStatus === 'success' && (
-                <div className="status-msg success mt-3">
-                  <CheckCircle size={15} />
-                  <span>{uploadMsg}</span>
-                </div>
-              )}
-
-              {uploadStatus === 'error' && (
-                <div className="status-msg error mt-3">
-                  <AlertCircle size={15} />
-                  <span>{uploadMsg}</span>
-                </div>
-              )}
-            </form>
-          </div>
-        </div>
-      )}
+      <AuthModal 
+        showLoginModal={showLoginModal}
+        setShowLoginModal={setShowLoginModal}
+        authMode={authMode}
+        setAuthMode={setAuthMode}
+        authError={authError}
+        setAuthError={setAuthError}
+        authSuccessMsg={authSuccessMsg}
+        setAuthSuccessMsg={setAuthSuccessMsg}
+        username={username}
+        setUsername={setUsername}
+        password={password}
+        setPassword={setPassword}
+        signupName={signupName}
+        setSignupName={setSignupName}
+        signupUsername={signupUsername}
+        setSignupUsername={setSignupUsername}
+        signupPassword={signupPassword}
+        setSignupPassword={setSignupPassword}
+        signupConfirmPassword={signupConfirmPassword}
+        setSignupConfirmPassword={setSignupConfirmPassword}
+        forgotEmail={forgotEmail}
+        setForgotEmail={setForgotEmail}
+        forgotLoading={forgotLoading}
+        forgotStep={forgotStep}
+        setForgotStep={setForgotStep}
+        forgotOtp={forgotOtp}
+        setForgotOtp={setForgotOtp}
+        forgotNewPassword={forgotNewPassword}
+        setForgotNewPassword={setForgotNewPassword}
+        forgotConfirmNewPassword={forgotConfirmNewPassword}
+        setForgotConfirmNewPassword={setForgotConfirmNewPassword}
+        phoneInput={phoneInput}
+        setPhoneInput={setPhoneInput}
+        verificationCode={verificationCode}
+        setVerificationCode={setVerificationCode}
+        isOtpSent={isOtpSent}
+        setIsOtpSent={setIsOtpSent}
+        otpLoading={otpLoading}
+        setConfirmationResult={setConfirmationResult}
+        handleLoginSubmit={handleLoginSubmit}
+        handleGoogleLogin={handleGoogleLogin}
+        handleFacebookLogin={handleFacebookLogin}
+        handleGithubLogin={handleGithubLogin}
+        handleSignupSubmit={handleSignupSubmit}
+        handleForgotPasswordSubmit={handleForgotPasswordSubmit}
+        handleResetPasswordSubmit={handleResetPasswordSubmit}
+        handleSendOtp={handleSendOtp}
+        handleVerifyOtp={handleVerifyOtp}
+      />
     </>
   );
 }

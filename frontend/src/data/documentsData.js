@@ -1,5 +1,15 @@
 export const documentsData = [
   {
+    id: 'k51-2-dot',
+    title: 'Bộ Đề Thi Toán Cao Cấp K51 (Cả 2 Đợt Mới Nhất)',
+    date: '23/07/2026',
+    category: 'latest',
+    categoryLabel: 'Tài liệu mới nhất',
+    image: 'c123.jpg',
+    pdf: 'K51_2_dot.pdf',
+    desc: 'Trọn bộ đề thi và lời giải chi tiết Toán Ứng Dụng / Toán Cao Cấp Khóa K51 (cả 2 đợt thi mới nhất), biên soạn bởi Lữ Võ Hoàng Phúc (K50 UEH).'
+  },
+  {
     id: 'ap1',
     title: 'Tuyển Tập Đề Thi Và Lời Giải Toán Cao Cấp Qua Các Năm',
     date: '09/08/2025',
@@ -302,6 +312,7 @@ export const midtermExams = [
 
 export const finalExams = [
   { id: 'k51-204', title: 'Toán Cao Cấp K51 Mã Đề 204', date: 'MAIN K51', hasDetailRoute: true, desc: 'Đề K51 mới nhất mã 204 từ main.pdf, làm bài trong 30 phút với chấm điểm tự động, cắm cờ câu khó và thống kê sau khi nộp.' },
+  { id: 'k51-tonghop', title: 'Toán Cao Cấp K51 Đợt 2 (Chép Đề)', date: 'DE THI CHINH', hasDetailRoute: true, desc: 'Đề thi K51 đợt 2 mới nhất cập nhật từ sinh viên chép đề, hỗ trợ làm bài trắc nghiệm 30 phút và chấm điểm tự động.' },
   { id: 'k51-118', title: 'Toán Cao Cấp K51 Mã Đề 118', date: 'MAIN K51', hasDetailRoute: true, desc: 'Đề K51 mới nhất mã 118 từ main.pdf, chuyển thành phòng luyện thi tương tác theo nhịp bài thi thật.' },
   { id: 'k51-354', title: 'Toán Cao Cấp K51 Mã Đề 354', date: 'MAIN K51', hasDetailRoute: true, desc: 'Đề K51 mới nhất mã 354 từ main.pdf, dùng để luyện tốc độ làm trắc nghiệm và kiểm tra đáp án sau khi nộp.' },
   { id: 'k51-442', title: 'Toán Cao Cấp K51 Mã Đề 442', date: 'MAIN K51', hasDetailRoute: true, desc: 'Đề K51 mới nhất mã 442 từ main.pdf, mô phỏng bài kiểm tra cuối kỳ 30 phút chuyên nghiệp.' },

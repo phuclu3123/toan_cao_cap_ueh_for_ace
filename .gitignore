@@ -5,5 +5,11 @@ node_modules/
 dist/
 .DS_Store
 *.log
+*.err.log
+*.out.log
+.sixth/
 backend/node_modules/
 backend/.env
+frontend/node_modules/
+frontend/.env
+

@@ -1,5 +1,145 @@
 const practiceExamsData = [
   {
+    "id": "k51-tonghop",
+    "title": "Toán Cao Cấp K51 Đợt 2 (Chép Đề)",
+    "sourceLabel": "DE THI CHINH",
+    "sourcePdf": "K51_2_dot.pdf",
+    "durationMinutes": 30,
+    "description": "Bộ 10 câu trắc nghiệm Toán Cao Cấp K51 đợt 2 mới nhất tổng hợp từ sinh viên chép đề kèm đáp án chi tiết.",
+    "questions": [
+      {
+        "id": "k51-th-q1",
+        "section": "Trắc nghiệm",
+        "prompt": "Một cơ sở sản xuất có hàm chi phí là $C(x, y) = x^2 + 2y^2 - 4\\ln(x) - 8\\ln(y)$, trong đó $x > 0, y > 0$. Cơ sở này đạt chi phí thấp nhất khi:",
+        "options": [
+          { "id": "A", "text": "$x = 1, y = 2$" },
+          { "id": "B", "text": "$x = \\sqrt{2}, y = \\sqrt{2}$" },
+          { "id": "C", "text": "$x = 2, y = 2$" },
+          { "id": "D", "text": "$x = \\sqrt{2}, y = 2$" }
+        ],
+        "correct": "B",
+        "explanation": "Đạo hàm riêng $C'_x = 2x - 4/x = 0 \\implies x = \\sqrt{2}$, $C'_y = 4y - 8/y = 0 \\implies y = \\sqrt{2}$. Ma trận Hessian $|H| = 32 > 0$ và $C''_{xx} = 4 > 0$ nên đạt chi phí cực tiểu tại $x = \\sqrt{2}, y = \\sqrt{2}$."
+      },
+      {
+        "id": "k51-th-q2",
+        "section": "Trắc nghiệm",
+        "prompt": "Mức sản lượng $Q = 2K^2 + 3L^2 + KL$. Tại mức đầu vào $K = 10, L = 5$, nếu tăng thêm 1 đơn vị lao động nhưng giữ nguyên sản lượng thì lượng vốn đầu vào giảm bao nhiêu đơn vị?",
+        "options": [
+          { "id": "A", "text": "$-8/9$" },
+          { "id": "B", "text": "$8/9$" },
+          { "id": "C", "text": "$-4/9$" },
+          { "id": "D", "text": "$4/9$" }
+        ],
+        "correct": "B",
+        "explanation": "Tỷ lệ MRTS $= -Q'_L / Q'_K = -40 / 45 = -8/9$. Do đó lượng vốn giảm $8/9$ đơn vị."
+      },
+      {
+        "id": "k51-th-q3",
+        "section": "Trắc nghiệm",
+        "prompt": "Cho $A, B$ là các ma trận vuông cấp 3 với $\\text{rank}(A) = 3, \\text{rank}(B) < 3$. Phát biểu nào sau đây ĐÚNG?",
+        "options": [
+          { "id": "A", "text": "$\\det(A^T B^2) \\neq 0$" },
+          { "id": "B", "text": "Hệ phương trình $AX = B$ có vô số nghiệm" },
+          { "id": "C", "text": "Ma trận $C = B^3 + 3B$ khả nghịch" },
+          { "id": "D", "text": "Hạng của ma trận $D = A^2B + AB^2$ nhỏ hơn 3" }
+        ],
+        "correct": "D",
+        "explanation": "Vì $\\text{rank}(B) < 3$ nên $\\det(B) = 0 \\implies \\det(D) = \\det(AB(A+B)) = \\det(A)\\det(B)\\det(A+B) = 0 \\implies \\text{rank}(D) < 3$."
+      },
+      {
+        "id": "k51-th-q4",
+        "section": "Trắc nghiệm",
+        "prompt": "Hàm tổng chi phí $C(Q) = 500 \\cdot \\ln(Q^2 + 1) + 200$. Chi phí biên tại $Q = 3$ gần nhất với giá trị nào?",
+        "options": [
+          { "id": "A", "text": "$150$" },
+          { "id": "B", "text": "$200$" },
+          { "id": "C", "text": "$100$" },
+          { "id": "D", "text": "$300$" }
+        ],
+        "correct": "D",
+        "explanation": "Chi phí biên $MC = C'(Q) = 500 \\cdot \\frac{2Q}{Q^2+1}$. Tại $Q = 3$, $MC(3) = 500 \\cdot \\frac{6}{10} = 300$."
+      },
+      {
+        "id": "k51-th-q5",
+        "section": "Trắc nghiệm",
+        "prompt": "Cho ma trận $A = \\begin{bmatrix} 1 & 1 & -2 \\\\ 2 & 1 & m \\\\ 3 & 4 & 1 \\end{bmatrix}$. Tìm $m$ để ma trận $A^2 + A$ suy biến.",
+        "options": [
+          { "id": "A", "text": "$m = 0$ hoặc $m = -11$" },
+          { "id": "B", "text": "$m = 0$" },
+          { "id": "C", "text": "$m = -11$" },
+          { "id": "D", "text": "$m$ có giá trị tùy ý" }
+        ],
+        "correct": "A",
+        "explanation": "Ma trận $A^2 + A = A(A + I_3)$ suy biến khi $\\det(A^2 + A) = \\det(A) \\cdot \\det(A + I_3) = 0$. Ta có $\\det(A) = 5m + 55 = 0 \\implies m = -11$, và $\\det(A + I_3) = 0 \\implies m = 0$."
+      },
+      {
+        "id": "k51-th-q6",
+        "section": "Trắc nghiệm",
+        "prompt": "Hệ số co giãn cầu theo giá $E_p = -0.5$. Doanh nghiệp quyết định tăng giá bán một lượng nhỏ. Phát biểu nào ĐÚNG về doanh thu?",
+        "options": [
+          { "id": "A", "text": "Doanh thu không đổi vì lượng cầu giảm tương ứng" },
+          { "id": "B", "text": "Doanh thu biên dương ($MR > 0$), việc tăng giá làm tăng tổng doanh thu" },
+          { "id": "C", "text": "Các phát biểu kia đều sai" },
+          { "id": "D", "text": "Doanh thu biên âm ($MR < 0$), việc tăng giá làm giảm tổng doanh thu" }
+        ],
+        "correct": "B",
+        "explanation": "Vì $|E_p| = 0.5 < 1$ (cầu không co giãn), khi tăng giá lượng cầu giảm ít hơn tỷ lệ tăng giá, dẫn đến tổng doanh thu tăng ($MR > 0$)."
+      },
+      {
+        "id": "k51-th-q7",
+        "section": "Trắc nghiệm",
+        "prompt": "Trong mô hình thị trường động, giá bán thỏa mãn $P'(t) + 3P(t) = 12$, $P(0) = 5$. Khi $t \\to +\\infty$, giá ổn định về mức giá cân bằng dài hạn là bao nhiêu?",
+        "options": [
+          { "id": "A", "text": "$12$" },
+          { "id": "B", "text": "$4$" },
+          { "id": "C", "text": "$3$" },
+          { "id": "D", "text": "$5$" }
+        ],
+        "correct": "B",
+        "explanation": "Nghiệm tổng quát $P(t) = 4 + C e^{-3t}$. Khi $t \\to +\\infty$, $e^{-3t} \\to 0$ nên $P(t) \\to 4$."
+      },
+      {
+        "id": "k51-th-q8",
+        "section": "Trắc nghiệm",
+        "prompt": "Cho ma trận cấp 3 $A$ có $\\det(A) = 5$. Ma trận $B$ thu được từ $A$ bằng cách giữ cột $C_1, C_3$ và thay $C_2$ bằng $2C_2 + 3C_1$. Tính $\\det(2B)$.",
+        "options": [
+          { "id": "A", "text": "$80$" },
+          { "id": "B", "text": "$40$" },
+          { "id": "C", "text": "$20$" },
+          { "id": "D", "text": "$10$" }
+        ],
+        "correct": "A",
+        "explanation": "Theo tính chất định thức: $\\det(B) = 2 \\det(A) = 10$. Vì $B$ là ma trận cấp 3 nên $\\det(2B) = 2^3 \\det(B) = 8 \\cdot 10 = 80$."
+      },
+      {
+        "id": "k51-th-q9",
+        "section": "Trắc nghiệm",
+        "prompt": "Cho ma trận vuông $A$ cấp 3 thỏa $3A^{2025} + I_3 = A^{2026}$. Nếu $\\det(A) = -1$ thì $\\det(3A - 9I_3)$ có giá trị bao nhiêu?",
+        "options": [
+          { "id": "A", "text": "$27$" },
+          { "id": "B", "text": "$3$" },
+          { "id": "C", "text": "$-27$" },
+          { "id": "D", "text": "$-3$" }
+        ],
+        "correct": "C",
+        "explanation": "Biến đổi $3A^{2025} - A^{2026} = -I_3 \\implies A^{2025}(3I_3 - A) = -I_3$. Lấy định thức 2 vế ta được $\\det(3I_3 - A) = 1 \\implies \\det(A - 3I_3) = -1$. Do đó $\\det(3A - 9I_3) = 3^3 \\det(A - 3I_3) = 27 \\cdot (-1) = -27$."
+      },
+      {
+        "id": "k51-th-q10",
+        "section": "Trắc nghiệm",
+        "prompt": "Cho $AX = B$ với $A$ vuông cấp 3 có $\\det(A) = m^2 - 4m$. Hệ chắc chắn vô nghiệm hoặc có vô số nghiệm khi:",
+        "options": [
+          { "id": "A", "text": "$m = 0$ hoặc $m = 4$" },
+          { "id": "B", "text": "$m > 4$" },
+          { "id": "C", "text": "$m = 2$" },
+          { "id": "D", "text": "$m \\neq 0$ và $m \\neq 4$" }
+        ],
+        "correct": "A",
+        "explanation": "Hệ $AX = B$ không thể có nghiệm duy nhất khi $\\det(A) = 0 \\iff m^2 - 4m = 0 \\iff m = 0$ hoặc $m = 4$."
+      }
+    ]
+  },
+  {
     "id": "k51-204",
     "title": "Toán Cao Cấp K51 Mã Đề 204",
     "sourceLabel": "MAIN K51",
