@@ -1,0 +1,830 @@
+
+
+==================== de_118.tex ==================== ====================
+\customchapter{ĐỀ THI TOÁN CAO CẤP K51 MÃ ĐỀ 118}
+% (Lưu ý: Đoạn này nối tiếp ngay sau \customchapter{ĐỀ THI TOÁN CAO CẤP K51 MÃ ĐỀ 204} của bạn)
+    Cho phương trình vi phân:
+    Xét hàm khả vi $f : \mathbb{R} \to \mathbb{R}$ có $f'(10) = -\dfrac{f(10)}{10}$. Giả sử hàm cầu của một sản phẩm được cho bởi $q = f(2p)$ với $p$ là giá bán và $q$ là lượng cầu của sản phẩm. Nếu tăng giá $4\%$ từ mức giá $p = 5$ thì phát biểu nào sau đây là ĐÚNG?
+    Hàm cầu của một sản phẩm được cho bởi $P = \dfrac{1000}{Q + 10}$, trong đó $P$ là giá bán và $Q$ là số lượng sản phẩm bán ra. Hãy tìm doanh thu biên (biên tế của doanh thu) khi $Q = 40$.
+    Cho $A$ là ma trận vuông cấp $3$ thỏa $A^T A^2 = 3I_3$. Tính $\det\left[ \left(\dfrac{1}{3}A\right)^{-1} \right]$.
+    \choice{$\dfrac{1}{9}$}{$\dfrac{1}{3}$}{$3$}{$9$}
+    \choice{$m = 4$}{$m = \dfrac{23}{3}$}{$m = -\dfrac{50}{3}$}{$m = -\dfrac{62}{3}$}
+    Cho hàm lợi nhuận $\Pi(L, K) = 3 \cdot L^{\frac{1}{3}}K^{\frac{1}{3}} - L - 0,01K$, trong đó $L$ là lượng lao động, $K$ là lượng vốn. Để lợi nhuận lớn nhất thì
+    \choice{$m = \dfrac{13}{6}$}{$m = \dfrac{13}{3}$}{$m = \dfrac{13}{2}$}{$m = \dfrac{13}{5}$}
+    \textbf{(2.0đ)} Xét mô hình Input-Output mở gồm ba ngành với ma trận hệ số đầu vào là
+        \item[(ii)] Tính tổng giá trị nguyên liệu đầu vào của ngành 3.
+    \textbf{(1.5đ)} Một công ty muốn hoàn thành một đơn hàng gồm $200$ đơn vị sản phẩm và muốn phân phối sản lượng giữa hai nhà máy: nhà máy 1 (sản xuất $q_1$ đơn vị) and nhà máy 2 (sản xuất $q_2$ đơn vị). Biết rằng hàm tổng chi phí cho trước bởi
+    \[ C(q_1, q_2) = \dfrac{1}{2}q_1^2 + 10q_1 + 20q_2 + 800, \]
+    hãy tìm chi phí tối thiểu bằng phương pháp nhân tử Lagrange.
+
+
+==================== de_204.tex ==================== ====================
+\customchapter{ĐỀ THI TOÁN CAO CẤP K51 MÃ ĐỀ 204}
+    \choice{0}{$-\dfrac{m}{2}$}{$\dfrac{m}{2}$}{$m$}
+    Tiết kiệm $S$ của một thành phố phụ thuộc vào thu nhập $I$ của thành phố đó theo phương trình
+    $$S^2 + \dfrac{1}{4}I^2 = SI + I$$
+    và phần tiết kiệm không vượt quá $30\%$ thu nhập. Tại mức thu nhập $I = 16$, tiết kiệm tăng thêm bao nhiêu khi thu nhập tăng $1\%$ ?
+    \choice{$\dfrac{32}{5}\%$}{$\dfrac{32}{3}\%$}{$\dfrac{3}{2}\%$}{$\dfrac{5}{2}\%$}
+    Giải phương trình vi phân $y' + 2y = 2x$ với điều kiện đầu $y(0) = \dfrac{3}{2}$.
+    \choice{$y = 2e^{2x} + x + \dfrac{1}{2}$}{$y = 2e^{-2x} + x - \dfrac{1}{2}$}{\rule{0pt}{0.8cm}$y = 2e^{2x} + x - \dfrac{1}{2}$}{$y = 2e^{-2x} + x + \dfrac{1}{2}$}
+    \[ f(x, y) = \dfrac{x^3}{3} + \dfrac{y^3}{3} - x - 4y \]đạt cực tiểu địa phương tại
+    Cho hàm sản lượng $Q(L, K) = 6 \cdot L^{\frac{1}{2}}K^{\frac{1}{4}}$ với $L$ là lượng lao động, $K$ là lượng tiền vốn. Khi đó, sản lượng biên (biên tế riêng của sản lượng) theo vốn tại $L = 100, K = 10000$ là:
+    \choice{$\dfrac{1}{150}$}{$6,8$}{$0,25$}{$\dfrac{3}{200}$}
+    \textbf{(1.5đ)} Hàm sản xuất được cho bởi
+    \[ q = f(\ell, k) = 8\ell^{0.5}k^{0.5}, \]trong đó $q$ là sản lượng, $\ell$ là số đơn vị lao động và $k$ là số đơn vị vốn. Giá mỗi đơn vị vốn là $\$12$ và chi phí mỗi đơn vị lao động là $\$4$. Với mức sản lượng mong muốn $q = 200$, hãy tìm chi phí tối thiểu bằng phương pháp nhân tử Lagrange.
+    \textbf{(2.0đ)} Trong mô hình Input-Output mở Leontief gồm ba ngành, cho ma trận hệ số đầu vào là
+        \item[(i)] Nếu nhu cầu cuối của ba ngành lần lượt là $113$, $61$ và $44$, hãy tìm sản lượng của ba ngành.
+        \item[(ii)] Nhờ cải tiến kỹ thuật, ngành $1$ tiết kiệm được $\dfrac{1}{3}$ nguyên liệu từ ngành $2$. Khi đó, hãy xác định sản lượng của ba ngành nếu nhu cầu cuối không đổi.
+
+
+==================== de_354.tex ==================== ====================
+\customchapter{ĐỀ THI TOÁN CAO CẤP K51 MÃ ĐỀ 354}
+    Một xí nghiệp sản xuất độc quyền một loại sản phẩm với hàm cầu của loại sản phẩm này là: $Q_D = 1500 - \dfrac{1}{2}P$ và hàm chi phí là $C = C(Q)$. Biết xí nghiệp đạt lợi nhuận cao nhất khi $Q = Q_0 = 400$. Ta có chi phí biên tại $Q_0$ là:
+    \choice{$m \neq -\dfrac{5}{2}$ và $m \neq \dfrac{4}{5}$}{$m \neq \dfrac{5}{2}$ và $m \neq -\dfrac{4}{5}$}{$m \neq \dfrac{5}{2}$ và $m \neq \dfrac{4}{5}$}{$m \neq -\dfrac{5}{2}$ và $m \neq -\dfrac{4}{5}$}
+    Cho biết hàm cầu $P = 250 - 0.5Q^2$, trong đó $P$ là đơn giá bán và $Q$ là lượng cầu. Khi đó, tại mức giá $P = 50$, nếu giá giảm $2\%$ thì:
+    Tìm $\dfrac{dy}{dx}$ biết $x^4 + x^5 = (y - x^2)^2$.
+    \choice{$\dfrac{dy}{dx} = \dfrac{5x^4 + 2xy - 4x^3}{y - x^2}$}{$\dfrac{dy}{dx} = \dfrac{5x^4 + 4xy - 4x^3}{y - x^2}$}{$\dfrac{dy}{dx} = \dfrac{5x^4 + 4xy - 2x^3}{2(y - x^2)}$}{$\dfrac{dy}{dx} = \dfrac{5x^4 + 4xy}{2(y - x^2)}$}
+    Cho phương trình vi phân $y' + 2y = e^{5x}$. Nghiệm tổng quát của phương trình là:
+    \choice{$y = \dfrac{1}{7}e^{5x} + Ce^{-2x}$}{$y = \dfrac{1}{7}e^{2x} + Ce^{-5x}$}{$y = -\dfrac{1}{7}e^{5x} + Ce^{-2x}$}{$y = -\dfrac{1}{7}e^{2x} + Ce^{-5x}$}
+    \textbf{(1.5đ)} Hàm sản xuất được cho bởi
+    trong đó $q$ là sản lượng, $\ell$ là số đơn vị lao động và $k$ là số đơn vị vốn. Nếu giá của mỗi đơn vị vốn và mỗi đơn vị lao động lần lượt là $6$ và $3$ và doanh nghiệp dành $180$ cho chi phí sản xuất, bằng phương pháp nhân tử Lagrange hãy xác định mức sản lượng tối đa mà doanh nghiệp có thể đạt được.
+    \textbf{(2.0đ)} Trong mô hình Input-Output mở Leontief gồm ba ngành, cho ma trận hệ số đầu vào là
+    Biết giá trị sản lượng của ba ngành lần lượt là $150$, $200$ và $240$, và tổng giá trị nguyên liệu đầu vào của ngành 2 là $140$.
+        \item[(ii)] Tính sản lượng thay đổi của ba ngành nếu nhu cầu cuối của ba ngành lần lượt tăng thêm là $5$, $2$ và $3$.
+
+
+==================== de_442.tex ==================== ====================
+\customchapter{ĐỀ THI TOÁN CAO CẤP K51 MÃ ĐỀ 442}
+    Xét hàm sản xuất $Q = 0.5K^{0.25}L^{0.75}$, trong đó $Q$ là sản lượng, $K$ là lượng vốn và $L$ là lượng lao động. Ký hiệu $EQ_K$ và $EQ_L$ lần lượt là độ co dãn riêng của sản lượng theo vốn và theo lao động. Phát biểu nào sau đây là SAI:
+    Cho $y = y(x)$ là hàm ẩn xác định bởi phương trình $x^3 + 3xy^4 + 3x^2y^2 + 2y^3e^x - 16 = 0$. Tính giá trị $y'(0)$.
+    \choice{$2$}{$-2$}{$-\dfrac{8}{3}$}{$\dfrac{8}{3}$}
+    Hàm $f(x, y) = \dfrac{x^3}{3} + \dfrac{y^3}{3} - x - 9y$ đạt cực tiểu địa phương tại:
+    Cho $y$ là nghiệm của phương trình vi phân
+    \[ y' + \dfrac{2xy}{1+x^2} = 0, \]
+    Cho hàm sản xuất $Q = \dfrac{1}{2}L + \dfrac{1}{2}\ln(2L + 1)$, trong đó $Q$ là sản lượng và $L$ là lượng lao động ($L \ge 0$). Chọn phát biểu ĐÚNG:
+    \choice{Khi $L$ tăng dần ra $+\infty$ thì biên tế (giá trị cận biên) của $Q$ luôn bé hơn $\dfrac{1}{2}$}{Khi $L$ tăng dần ra $+\infty$ thì biên tế (giá trị cận biên) của $Q$ theo $L$ tiến dần về một hằng số}{Biên tế (giá trị cận biên) của $Q$ theo $L$ khi $L = 1$ có giá trị là $\dfrac{7}{12}$}{Khi $L$ tăng dần ra $+\infty$ thì biên tế (giá trị cận biên) của $Q$ theo $L$ tăng}
+    \textbf{(1.5đ)} Từ năm 2000, lượng vốn của một tập đoàn kinh tế A tăng với tốc độ tỉ lệ thuận với lượng vốn hiện có (thỏa mô hình tăng trưởng mũ). Biết rằng lượng vốn của tập đoàn A ở năm 2000 là $1000000$ (đơn vị $1000\$$) và vào năm 2015, lượng vốn tăng gấp ba. Ước lượng lượng vốn của tập đoàn A vào năm 2030 nếu tốc độ tăng vốn là không đổi.
+    \textbf{(2.0đ)} Trong mô hình Input-Output mở Leontief gồm ba ngành, cho ma trận đầu vào 
+    Biết rằng tổng giá trị nguyên liệu đầu vào của ngành 3 bằng hai lần giá trị nguyên liệu mà ngành 1 cung cấp cho ngành 3 và nhu cầu cuối của ba ngành lần lượt là $73$, $59$ và $46$.
+        \item[(i)] Tính giá trị sản lượng của ba ngành.
+        \item[(ii)] Tính tổng giá trị nguyên liệu đầu vào mà ngành 1 cung cấp cho ba ngành.
+
+
+==================== de_english.tex ==================== ====================
+\customchapter{MATHEMATICS EXAM K51 (ENGLISH)}
+    \choice{$y = -\dfrac{1}{2}e^{-x} + Ce^x$}{$y = e^{-x} + Ce^x$}{$y = -e^{-x} + Ce^{-x}$}{$y = \dfrac{1}{2}e^{-x} + Ce^x$}
+    \choice{$3$}{$\dfrac{1}{2}$}{$1$}{$\dfrac{3}{2}$}
+    \choice{$A^{-1} = \begin{bmatrix} \dfrac{1}{3} & 0 \\[0.8em] -\dfrac{2}{3} & \dfrac{1}{3} \end{bmatrix}$}{$A^{-1} = \begin{bmatrix} \dfrac{1}{3} & -\dfrac{2}{3} \\[0.8em] 0 & \dfrac{1}{3} \end{bmatrix}$}{$A^{-1} = \begin{bmatrix} 3 & -6 \\[0.5em] 0 & 3 \end{bmatrix}$}{$A^{-1} = \begin{bmatrix} 3 & 0 \\[0.5em] -6 & 3 \end{bmatrix}$}
+    The profit function of a product is given by $\pi = Q^3 - \dfrac{9}{2}Q^2 + 6Q$, where $Q$ is the output. At what level of output is the marginal profit minimized?
+    \choice{$Q = 1$}{$Q = 0$}{$Q = \dfrac{3}{2}$}{$Q = 2$}
+    \choice{$A^2 \neq B$}{$\text{rank}(AB^2) < 3$}{$\text{rank}(B) < \text{rank}(A^2)$}{There is not a matrix $C$ such that $ACB = I$}
+
+
+==================== de_tonghop.tex ==================== ====================
+\customchapter{ĐỀ THI TOÁN CAO CẤP K51 (ĐỢT 2 -- SINH VIÊN CHÉP ĐỀ)}
+    Một cơ sở sản xuất có hàm chi phí là $C(x, y) = x^2 + 2y^2 - 4\ln(x) - 8\ln(y)$, trong đó $x > 0$, $y > 0$ lần lượt là lượng của hai loại nguyên liệu đầu vào cần thiết. Cơ sở này đạt chi phí thấp nhất khi:
+    Một doanh nghiệp sản xuất một loại sản phẩm. Mức sản lượng $Q$ phụ thuộc hai yếu tố đầu vào là lượng vốn $K$ và lượng lao động $L$ theo phương trình $Q = 2K^2 + 3L^2 + KL$. Tại mức đầu vào $K = 10, L = 5$, nếu doanh nghiệp tăng thêm 1 đơn vị lao động nhưng vẫn muốn giữ nguyên sản lượng thì lượng vốn đầu vào giảm bao nhiêu đơn vị?
+    Hàm tổng chi phí của một công ty công nghệ được xác định bởi công thức $C(Q) = 500 \cdot \ln(Q^2 + 1) + 200$, với $Q$ là số lượng tài khoản người dùng đăng ký. Chi phí biên của công ty tại mức sản lượng $Q = 3$ gần nhất với giá trị nào sau đây?
+    Tại mức giá hiện tại $p_0$, hệ số co giãn của lượng cầu theo giá của một sản phẩm là $E_p = -0.5$. Doanh nghiệp quyết định tăng giá bán một lượng nhỏ. Phát biểu nào sau đây là \textbf{ĐÚNG} về doanh thu của doanh nghiệp?
+    \choice{Doanh thu không đổi vì lượng cầu giảm tương ứng với mức tăng giá.}{Doanh thu biên dương ($MR > 0$), việc tăng giá làm tăng tổng doanh thu.}{Các phát biểu kia đều sai.}{Doanh thu biên âm ($MR < 0$), việc tăng giá làm giảm tổng doanh thu.}
+    Trong mô hình thị trường động, giá bán $P(t)$ của một loại hàng hóa theo thời gian $t$ thỏa mãn phương trình vi phân: $P'(t) + 3P(t) = 12$. Biết giá ban đầu $P(0) = 5$. Khi thời gian $t$ tiến ra vô hạn ($t \to +\infty$), giá của hàng hóa này sẽ ổn định về mức giá cân bằng dài hạn là bao nhiêu?
+    Một công ty công nghệ vừa ra mắt một ứng dụng di động mới. Bộ phận nghiên cứu thị trường nhận thấy rằng tốc độ tăng trưởng số lượng người dùng ứng dụng $dx/dt$ tại thời điểm $t$ (tính bằng tháng) tỷ lệ thuận với hiệu số giữa lượng người dùng tối đa tiềm năng trên thị trường ($10000$) và số lượng người dùng hiện tại $x(t)$. Biết rằng tại thời điểm vừa ra mắt ($t = 0$), ứng dụng có số lượng người dùng ban đầu là $500$.
+    Một công ty nhận đơn hàng sản xuất tổng cộng $300$ sản phẩm và quyết định phân bổ sản lượng này cho hai nhà máy trực thuộc: nhà máy 1 (sản xuất $q_1$ sản phẩm) và nhà máy 2 (sản xuất $q_2$ sản phẩm). Biết rằng hàm tổng chi phí vận hành của công ty được xác định bởi $C(q_1, q_2) = q_1^2 + 20q_1 + 40q_2 + 1200$. Sử dụng phương pháp nhân tử Lagrange, hãy tìm phương án phân bổ sản lượng ($q_1, q_2$) sao cho tổng chi phí đạt giá trị tối thiểu.
+
+
+==================== loigiai_118.tex ==================== ====================
+\customchapter{LỜI GIẢI ĐỀ THI TOÁN CAO CẤP K51 (118)}
+\begin{ex} Cho phương trình vi phân:
+    Phương trình vi phân tuyến tính bậc nhất có dạng $$y' + p(x)y = q(x),$$
+    \textbf{\textcolor{blue}{Cơ sở lý thuyết:}} cho phương trình hàm ẩn $g(x,y) = 0$. Giả sử $y = y(x)$ là hàm số khả vi được xác định từ phương trình này, đạo hàm của $y$ theo $x$ được tính bởi công thức:
+    $$y'(x) = - \dfrac{g_x}{g_y},$$
+    \textbf{\textcolor{red}{Trở lại bài toán:}} xét phương trình hàm ẩn $$g(x,y) = e^{xy} + (x - 1)y^3 + xy^2 - 2y + 2 = 0$$
+    $$y'(x) = - \dfrac{y e^{xy} + y^3 + y^2}{x e^{xy} + 3(x - 1)y^2 + 2xy - 2}.$$
+    $$y'(0) = - \dfrac{1 \cdot e^0 + 1^3 + 1^2}{0 \cdot e^0 + 3(0 - 1) \cdot 1^2 + 0 - 2} = - \dfrac{1 + 1 + 1}{-3 - 2} = - \dfrac{3}{-5} = \dfrac{3}{5}.$$
+ Xét hàm khả vi $f: \mathbb{R} \to \mathbb{R}$ có $f'(10) = -\dfrac{f(10)}{10}$. Giả sử hàm cầu của một sản phẩm được cho bởi $q = f(2p)$ với $p$ là giá bán và $q$ là lượng cầu của sản phẩm. Nếu tăng giá $4\%$ từ mức giá $p = 5$ thì phát biểu nào sau đây là ĐÚNG?
+    \textbf{\textcolor{blue}{Cơ sở lý thuyết: Ứng dụng của Hệ số co giãn (HSCD)}}\\
+    Hệ số co giãn của lượng cầu $q$ theo giá $p$ tại mức giá $p_0$ được tính bằng công thức:
+    $$ \varepsilon_d = q'(p_0) \cdot \dfrac{p_0}{q(p_0)} $$
+    Kết hợp với giả thiết $f'(10) = -\dfrac{f(10)}{10}$, biểu thức đạo hàm biên tại $p = 5$ được viết lại thành:
+    $$q'(5) = 2 \cdot \left(-\dfrac{f(10)}{10}\right) = -\dfrac{f(10)}{5}.$$
+    Thay các kết quả vừa tìm được vào công thức hệ số co giãn ban đầu, ta thu được:
+    $$\varepsilon_d= q'(5) \cdot \dfrac{5}{q(5)} = \left(-\dfrac{f(10)}{5}\right) \cdot \dfrac{5}{f(10)} = -1.$$
+    Về mặt ý nghĩa kinh tế, $\varepsilon_d = -1$ chỉ ra rằng tại phân khúc giá $p = 5$, biên độ tăng $1\%$ của giá bán sẽ dẫn đến sự sụt giảm $1\%$ của lượng cầu. Từ quy luật này, ta suy luận được nếu giá bán tăng $4\%$, lượng cầu sẽ sụt giảm một tỷ lệ xấp xỉ tương ứng là $4\%$.
+\vspace{0.2cm}
+    Hàm cầu của một sản phẩm được cho bởi $P = \dfrac{1000}{Q + 10}$, trong đó $P$ là giá bán và $Q$ là số lượng sản phẩm bán ra. Hãy tìm doanh thu biên (biên tế của doanh thu) khi $Q = 40$.
+Ta có hàm doanh thu sẽ được tính bằng công thức 
+\[R=P\cdot Q = \dfrac{1000}{Q+10}\cdot Q\]
+        colback=white,     % Nền trắng
+    Cho $A$ là ma trận vuông cấp $3$ thỏa $A^T A^2 = 3I_3$. Tính $\det\left[ \left(\dfrac{1}{3}A\right)^{-1} \right]$.
+    \choice{$\dfrac{1}{9}$}{$\dfrac{1}{3}$}{$3$}{\True $9$}
+    $$ \det\left[ \left(\dfrac{1}{3}A\right)^{-1} \right] = \dfrac{1}{\det\left(\dfrac{1}{3}A\right)} = \dfrac{1}{\left(\dfrac{1}{3}\right)^3 \det(A)}. $$
+    $$ \det\left[ \left(\dfrac{1}{3}A\right)^{-1} \right] = \dfrac{1}{\dfrac{1}{27} \cdot 3} = \dfrac{1}{\dfrac{1}{9}} = 9. $$
+    \choice{$m = 4$}{$m = \dfrac{23}{3}$}{$m = -\dfrac{50}{3}$}{\True $m = -\dfrac{62}{3}$}
+    Ép điều kiện định thức bằng $0$, ta thu được phương trình $$-3m - 62 = 0 \Leftrightarrow m = -\dfrac{62}{3}$$
+    Cho hàm lợi nhuận $\Pi(L, K) = 3 \cdot L^{\frac{1}{3}}K^{\frac{1}{3}} - L - 0,01K$, trong đó $L$ là lượng lao động, $K$ là lượng vốn. Để lợi nhuận lớn nhất thì
+    Để lợi nhuận $\Pi(L, K)$ đạt tối đa, bước đầu tiên ta cần tìm điểm dừng của hàm số bằng cách giải hệ phương trình đạo hàm riêng bậc nhất (điều kiện cần):
+        L^{-\frac{2}{3}} K^{\frac{1}{3}} = 1 \quad &(1) \\
+        L^{\frac{1}{3}} K^{-\frac{2}{3}} = 0,01 \quad &(2)
+    $$ \dfrac{L^{-\frac{2}{3}} K^{\frac{1}{3}}}{L^{\frac{1}{3}} K^{-\frac{2}{3}}} = \dfrac{1}{0,01} \Leftrightarrow L^{-1} K^1 = 100 \Rightarrow K = 100L. $$
+    $$ L^{-\frac{2}{3}} (100L)^{\frac{1}{3}} = 1 \Leftrightarrow L^{-\frac{2}{3}} \cdot 100^{\frac{1}{3}} \cdot L^{\frac{1}{3}} = 1 \Leftrightarrow 100^{\frac{1}{3}} \cdot L^{-\frac{1}{3}} = 1. $$
+    $$ L^{-\frac{1}{3}} = 100^{-\frac{1}{3}} \Rightarrow L = 100. $$
+    Ta tính được ngay lượng vốn cần thiết: $$K = 100 \cdot 100 = 10000$$
+        \item Theo chuẩn tự luận, tìm xong điểm dừng ta phải kiểm tra thêm đạo hàm cấp 2 (ma trận Hessian) để khẳng định đây là điểm cực đại. Tuy nhiên, nhìn vào 4 đáp án đều có con số cụ thể, ta ngầm hiểu đề bài chắc chắn tồn tại điểm tối ưu. Vì vậy, các em có thể mạnh dạn bỏ qua bước kiểm tra điều kiện đủ để tiết kiệm thời gian. Trừ khi đáp án có dòng "Không tồn tại cực đại", ta mới phải làm tới cùng nhé!
+    \choice{$m = \dfrac{13}{6}$}{\True $m = \dfrac{13}{3}$}{$m = \dfrac{13}{2}$}{$m = \dfrac{13}{5}$}
+    $$ 3m - 13 = 0 \Leftrightarrow m = \dfrac{13}{3}. $$
+    \textbf{(2.0đ)} Xét mô hình Input-Output mở gồm ba ngành với ma trận hệ số đầu vào là
+        \item[(ii)] Tính tổng giá trị nguyên liệu đầu vào của ngành 3.
+Điểm mấu chốt của mô hình Leontief không nằm ở việc học thuộc công thức, mà nằm ở ý nghĩa của tỷ lệ sản xuất. Ta thiết lập sơ đồ tư duy gồm hai cột:
+    \item \textbf{Cột phải (Ngành nhận):} Điểm xuất phát luôn là $1$ đơn vị sản phẩm gốc, sau đó được nhân bản (scale) lên thành quy mô thực tế là Tổng sản lượng $X_j$.
+    \item \textbf{Cột trái (Ngành cung):} Để sản xuất $1$ đơn vị ở cột phải, ta cần $a_{ij}$ nguyên liệu. Theo quy tắc tam suất, khi quy mô sản xuất nhân lên $X_j$ lần, lượng nguyên liệu cũng phải nhân lên đúng $X_j$ lần để ra giá trị luân chuyển thực tế $x_{ij}$.
+    \item \textbf{Chiều xuôi (Mũi tên đỏ - Tìm $x_{ij}$):} Nếu bài toán cho trước Tổng sản lượng $X_j$, ta tư duy theo chiều nhân: do quy mô tăng lên $X_j$ lần, lượng nguyên liệu cũng tăng tương ứng $X_j$ lần. Ta có công thức $x_{ij} = a_{ij} \times X_j$.
+    \item \textbf{Chiều ngược (Mũi tên xanh - Tìm $X_j$):} Trong thực tế thi cử, nhiều bài toán sẽ cho trước giá trị thực tế $x_{ij}$ và yêu cầu tìm Tổng sản lượng. Nhờ sơ đồ hai chiều, ta dễ dàng suy ra phép chia ngược lại bằng quy tắc tam suất: $X_j = \dfrac{x_{ij}}{a_{ij}}$.
+    \node[font=\bfseries\color{green!60!black}] at (0, 0) {Ngành Cung ($i$)};
+    \node[font=\bfseries\color{green!60!black}] at (4.5, 0) {Ngành Nhận ($j$)};
+    \node[draw=red!80!black, thick, rounded corners=2pt, inner sep=8pt, font=\Large\bfseries] (Xj) at (4.5, -4) {$X_j$};
+\vspace{0.3cm}
+        \node[font=\bfseries\color{green!60!black}] at (0,0) {Cấp (1)};
+        \node[font=\bfseries\color{green!60!black}] at (2.5,0) {Nhận (3)};
+        \node[draw=red!80!black, thick, inner sep=6pt, font=\bfseries] (Xj) at (2.5,-2.5) {$X_3$};
+        \node[font=\bfseries\color{green!60!black}] at (0,0) {Cấp (2)};
+        \node[font=\bfseries\color{green!60!black}] at (2.5,0) {Nhận (3)};
+        \node[draw=red!80!black, thick, inner sep=6pt, font=\bfseries] (Xj) at (2.5,-2.5) {$X_3$};
+\noindent \textbf{Tìm ma trận sản lượng $X$:} Với $m = 0.1$, ta giải hệ phương trình $(I - A)X = D$ với vector cầu cuối $D = (77, 61, 80)^T$:
+\vspace{0.3cm}
+\noindent \textbf{(i) Tổng giá trị nguyên liệu ngành 2 cung cấp:} Ngành 2 sẽ cung cấp cho cả 3 ngành. Ta ráp Tổng sản lượng thực tế ($X_1, X_2, X_3$) vào cột Nhận, sau đó dùng mũi tên đỏ hướng về cột Cung:
+            \node[font=\bfseries\color{green!60!black}] at (0,0) {#2};
+            \node[font=\bfseries\color{green!60!black}] at (1.8,0) {#3};
+            \node[draw=red!80!black, thick, inner sep=4pt, font=\bfseries] (Xj) at (1.8,-2.5) {#5};
+\vspace{0.3cm}
+\noindent \textbf{(ii) Tổng giá trị nguyên liệu đầu vào ngành 3:} Ngành 3 thu nhận nguyên liệu từ cả 3 ngành. Ở đây Tổng sản lượng cố định là $X_3 = 200$:
+            \node[font=\bfseries\color{green!60!black}] at (0,0) {#2};
+            \node[font=\bfseries\color{green!60!black}] at (1.8,0) {#3};
+            \node[draw=red!80!black, thick, inner sep=4pt, font=\bfseries] (Xj) at (1.8,-2.5) {#5};
+    \textbf{(1.5đ)} Một công ty muốn hoàn thành một đơn hàng gồm $200$ đơn vị sản phẩm và muốn phân phối sản lượng giữa hai nhà máy: nhà máy 1 (sản xuất $q_1$ đơn vị) and nhà máy 2 (sản xuất $q_2$ đơn vị). Biết rằng hàm tổng chi phí cho trước bởi
+    \[ C(q_1, q_2) = \dfrac{1}{2}q_1^2 + 10q_1 + 20q_2 + 800, \]
+    hãy tìm chi phí tối thiểu bằng phương pháp nhân tử Lagrange.
+\noindent Lập hàm Lagrange để tìm chi phí tối thiểu $C(q_1, q_2) = \dfrac{1}{2}q_1^2 + 10q_1 + 20q_2 + 800$ với ràng buộc tổng sản lượng $q_1 + q_2 = 200$, ta có:
+\[ L(q_1, q_2, \lambda) = \dfrac{1}{2}q_1^2 + 10q_1 + 20q_2 + 800 + \lambda(200 - q_1 - q_2) \]
+\noindent Vì $|\overline{H}| = -1 < 0$ và các đạo hàm cấp hai đều là các hằng số, không phụ thuộc vào $q_1, q_2$, định thức $|\overline{H}|$ luôn âm trên toàn miền. Do đó, hàm chi phí $C$ đạt \textbf{cực tiểu toàn cục} tại điểm dừng $M(10, 190)$. Chi phí tối thiểu toàn cục khi này là:
+\[ C_{min} = \dfrac{1}{2}(10)^2 + 10(10) + 20(190) + 800 = 50 + 100 + 3800 + 800 = 4750 \]
+\[ k = \frac{\ln 1.25}{5} \]
+\[ N(10) = 1200 e^{\frac{\ln 1.25}{5} \cdot 10} = 1200 e^{2 \ln 1.25} \]
+
+
+==================== loigiai_204.tex ==================== ====================
+\customchapter{LỜI GIẢI ĐỀ THI TOÁN CAO CẤP K51 (204)}
+    \choice{0}{$-\dfrac{m}{2}$}{\True $\dfrac{m}{2}$}{$m$}
+\item \textbf{Nghịch đảo của một ma trận nhân với một số vô hướng:} Cho ma trận vuông $A$ khả nghịch và một hằng số thực $k \neq 0$. Nghịch đảo của ma trận $kA$ bằng nghịch đảo của số $k$ nhân với ma trận nghịch đảo của $A$:$$ (kA)^{-1} = \dfrac{1}{k} A^{-1} $$
+$$ (kA^T)^{-1} = \dfrac{1}{k} (A^T)^{-1} = \dfrac{1}{k} (A^{-1})^T $$
+    $$ B^{-1} = (2A^T)^{-1} = \dfrac{1}{2} (A^T)^{-1} = \dfrac{1}{2} (A^{-1})^T $$
+Phần tử nằm trên hàng 3, cột 1 của $(A^{-1})^T$ chính là $m$. Do đó, phần tử nằm trên hàng 3, cột 1 của $B^{-1}$ là $$\dfrac{1}{2} \cdot m = \dfrac{m}{2}$$
+\vspace{0.3cm}
+            \item Bấm \textbf{AC} để lưu và thoát ra màn hình tính toán.
+    \vspace{0.15cm}
+\vspace{0.1cm}
+\vspace{0.1cm}
+            \item Nếu máy báo \textbf{No Solution} \hspace{0.55cm} $\longrightarrow$ Nhận $m$ cho \textbf{Dạng 4}.
+    \vspace{0.2cm}
+    Tiết kiệm $S$ của một thành phố phụ thuộc vào thu nhập $I$ của thành phố đó theo phương trình
+    $$S^2 + \dfrac{1}{4}I^2 = SI + I$$
+và phần tiết kiệm không vượt quá $30\%$ thu nhập. Tại mức thu nhập $I = 16$, tiết kiệm tăng thêm bao nhiêu khi thu nhập tăng $1\%$?
+    \choice{$\dfrac{32}{5}\%$}{$\dfrac{32}{3}\%$}{\True $\dfrac{3}{2}\%$}{$\dfrac{5}{2}\%$}
+    \item \textbf{Hệ số co giãn:} $\text{HSCD} = \text{Biên} \cdot \dfrac{x}{y}$
+    \item \textbf{Cận biên:} Sử dụng công thức đạo hàm hàm ẩn:
+    $$ \text{Biên} = \dfrac{dy}{dx} = - \dfrac{g_x}{g_y} $$
+    \item \textbf{Hệ số co giãn:} $\text{HSCD} = \text{Biên} \cdot \dfrac{x}{y}$
+    Bài toán yêu cầu tính \textbf{Hệ số co giãn} (HSCD) của tiết kiệm $S$ theo thu nhập $I$ tại $I = 16$. 
+    Công thức tổng quát: $$\varepsilon = S'(I) \cdot \dfrac{I}{S}$$
+        $$ S^2 + \dfrac{1}{4}(16)^2 = S(16) + 16 \Leftrightarrow S^2 - 16S + 48 = 0 \Leftrightarrow \left[ \begin{array}{l} S = 12 \\[0.5em] S = 4 \end{array} \right. $$
+        Theo giả thiết, phần tiết kiệm không vượt quá $30\%$ thu nhập, tức là $$S \leq 0,3 \cdot I \Rightarrow S \leq 0,3 \cdot 16 = 4,8$$ 
+        \item \textbf{Bước 2: Tìm đạo hàm của hàm ẩn (Giá trị cận biên)} \\
+        Chuyển phương trình về dạng hàm ẩn $g(I, S) = 0$:
+        $$ g(I, S) = S^2 + \dfrac{1}{4}I^2 - SI - I = 0 $$
+        Đạo hàm cận biên $S'(I) = \dfrac{dS}{dI}$ được tính bằng công thức: $S'(I) = - \dfrac{g_I}{g_S}$. Do đó ta có 
+ $$S'(I) = - \dfrac{\dfrac{1}{2}I - S - 1}{2S - I}$$
+        $$ S'(16) = - \dfrac{\dfrac{1}{2}\cdot 16 - 4 - 1}{2\cdot 4 - 16} = - \dfrac{8 - 5}{8 - 16} = - \dfrac{3}{-8} = \dfrac{3}{8} $$
+        \item \textbf{Bước 3: Tính Hệ số co giãn (HSCD)} \\
+        $$ \text{HSCD} = \text{Biên} \cdot \dfrac{I}{S} = \dfrac{3}{8} \cdot \dfrac{16}{4} = \dfrac{3}{8} \cdot 4 = \dfrac{3}{2} $$
+        Ý nghĩa kinh tế: Tại mức thu nhập $I = 16$, khi thu nhập tăng $1\%$ thì tiết kiệm sẽ tăng thêm $\dfrac{3}{2}\%$.
+    \item \textbf{Định thức của ma trận nghịch đảo:} $$|B^{-1}| = \dfrac{1}{|B|}$$
+Tiếp theo, áp dụng các tính chất của định thức gồm: đưa hằng số ra ngoài ($|kA| = k^n|A|$), định thức của một tích, định thức ma trận chuyển vị ($|A^T| = |A|$) và định thức ma trận nghịch đảo $\left(|B^{-1}| = \dfrac{1}{|B|}\right)$, ta biến đổi biểu thức cần tính:
+        &= 8 \cdot |A| \cdot |B| \cdot |A| \cdot \dfrac{1}{|B|} \\
+    \item \textbf{Nghịch đảo của ma trận nhân với một số:} $$(kA)^{-1} = \dfrac{1}{k}A^{-1}$$
+        Áp dụng tính chất ma trận nghịch đảo $(k \cdot A)^{-1} = \dfrac{1}{k} A^{-1}$ với $k = -1$, suy ra:
+    Giải phương trình vi phân $y' + 2y = 2x$ với điều kiện đầu $y(0) = \dfrac{3}{2}$.
+    \choice{$y = 2e^{2x} + x + \dfrac{1}{2}$}{\True $y = 2e^{-2x} + x - \dfrac{1}{2}$}{$y = 2e^{2x} + x - \dfrac{1}{2}$}{$y = 2e^{-2x} + x + \dfrac{1}{2}$}
+Phương trình vi phân tuyến tính bậc nhất có dạng $$y' + p(x)y = q(x),$$ 
+        v = \int e^{2x} dx = \dfrac{e^{2x}}{2} \quad \text{\textit{(Sử dụng công thức nguyên hàm hàm hợp)}}
+        I = \int 2xe^{2x} dx &= 2x \cdot \dfrac{e^{2x}}{2} - \int \dfrac{e^{2x}}{2} \cdot 2 dx \\
+        &= x e^{2x} - \dfrac{1}{2}e^{2x} + C
+$$ y \cdot e^{2x} = x e^{2x} - \dfrac{1}{2}e^{2x} + C $$
+$$ y = x - \dfrac{1}{2} + C e^{-2x} $$
+Để tìm hằng số $C$, ta thay điều kiện đầu $y(0) = \dfrac{3}{2}$ vào nghiệm tổng quát:
+$$ \dfrac{3}{2} = 0 - \dfrac{1}{2} + C \cdot e^{-2(0)} \Leftrightarrow \dfrac{3}{2} = -\dfrac{1}{2} + C \cdot 1 \Rightarrow C = 2 $$
+$$ y = 2e^{-2x} + x - \dfrac{1}{2} $$
+ \vspace{0.4cm}
+Từ điều kiện đầu $y(0) = \dfrac{3}{2}$, ta thay $x = 0$ vào các đáp án để kiểm tra:
+        \item \textbf{\kh{A}} và \textbf{\kh{D}} có $y(0) = 2e^0 + 0 + \dfrac{1}{2} = \dfrac{5}{2} \neq \dfrac{3}{2}$ nên \textbf{LOẠI}.
+        \item \textbf{\kh{B}} và \textbf{\kh{C}} đều có $y(0) = 2e^0 + 0 - \dfrac{1}{2} = \dfrac{3}{2}$ nên tạm giữ lại.
+Để phân biệt \textbf{\kh{B}} và \textbf{\kh{C}}, ta chọn thử đáp án \textbf{\kh{B}}: $$y = 2e^{-2x} + x - \dfrac{1}{2}$$ 
+   y' + 2y &= (-4e^{-2x} + 1) + 2\left(2e^{-2x} + x - \dfrac{1}{2}\right)\\[0.5em]
+    \[ f(x, y) = \dfrac{x^3}{3} + \dfrac{y^3}{3} - x - 4y \]đạt cực tiểu địa phương tại
+    colback=white,
+    Cho hàm sản lượng $Q(L, K) = 6 \cdot L^{\frac{1}{2}}K^{\frac{1}{4}}$ với $L$ là lượng lao động, $K$ là lượng tiền vốn. Khi đó, sản lượng biên (biên tế riêng của sản lượng) theo vốn tại $L = 100, K = 10000$ là:
+    \choice{$\dfrac{1}{150}$}{$6,8$}{$0,25$}{\True $\dfrac{3}{200}$}
+        colback=white,     % Nền trắng
+Xuất phát từ định nghĩa đạo hàm tại một điểm: $\dfrac{f(x_0 + \Delta x) - f(x_0)}{\Delta x} \approx f'(x_0)$.
+Mở rộng tư duy từ hàm 1 biến, đối với hàm 2 biến $f(x,y)$, ta cộng dồn vi phân riêng phần theo từng biến.
+    \item \textbf{Công thức xấp xỉ tuyến tính (Vi phân toàn phần):}
+    \textit{(Có thể viết dưới dạng ký hiệu $\partial$: $f(x, y) \approx f(x_0, y_0) + \dfrac{\partial f}{\partial x}(x_0, y_0)\Delta x + \dfrac{\partial f}{\partial y}(x_0, y_0)\Delta y$)}
+Áp dụng công thức xấp xỉ tuyến tính (phép tính vi phân) cho hàm hai biến:
+\noindent Phương trình vi phân tổng quát:
+\vspace{0.5cm}
+\vspace{0.5cm}
+    \item $M = \alpha^{-1}$: Sức chứa (Carrying capacity). Khi dân số $N(t)$ tiến gần đến mức sức chứa $M$, tốc độ tăng trưởng $N'(t)$ sẽ giảm dần về $0$ (quần thể đạt trạng thái bão hòa).
+\[ N'(t) = k_0N(t) \quad \Leftrightarrow \quad \frac{N'(t)}{N(t)} = k_0 \]
+\[ \int \frac{1}{N(t)} \mathrm{d}(N(t)) = \int k_0 \mathrm{d}t \]
+\vspace{0.5cm}
+\[ k_0 = \dfrac{\ln 2}{10} \]
+\[ N(24) = 500 e^{\frac{\ln 2}{10} \cdot 24} = 500 e^{2.4 \ln 2} \]
+    \textbf{(1.5đ)} Hàm sản xuất được cho bởi
+    \[ q = f(\ell, k) = 8\ell^{0.5}k^{0.5}, \]trong đó $q$ là sản lượng, $\ell$ là số đơn vị lao động và $k$ là số đơn vị vốn. Giá mỗi đơn vị vốn là $\$12$ và chi phí mỗi đơn vị lao động là $\$4$. Với mức sản lượng mong muốn $q = 200$, hãy tìm chi phí tối thiểu bằng phương pháp nhân tử Lagrange.
+\vspace{0.5cm}
+    colback=white,
+\vspace{-0.3cm}
+\vspace{0.3cm}
+\vspace{0.2cm}
+\noindent Lập hàm Lagrange để tìm chi phí tối thiểu $C(\ell, k) = 4\ell + 12k$, ta có:
+\[ \dfrac{12}{4} = \dfrac{4\lambda \ell^{1/2}k^{-1/2}}{4\lambda \ell^{-1/2}k^{1/2}} \Rightarrow 3 = \dfrac{\ell}{k} \Rightarrow \ell = 3k \]
+\[ 200 - 8(3k)^{1/2}k^{1/2} = 0 \Rightarrow 200 = 8\sqrt{3}k \Rightarrow k = \dfrac{25}{\sqrt{3}} \]
+\noindent Suy ra $\ell = 3 \cdot \dfrac{25}{\sqrt{3}} = 25\sqrt{3}$.
+Vậy ta có điểm dừng $M\left(25\sqrt{3}, \dfrac{25}{\sqrt{3}}\right)$.
+0 & -\dfrac{4}{\sqrt{3}} & -4\sqrt{3} \\[0.6em]
+-\dfrac{4}{\sqrt{3}} & \dfrac{2\sqrt{3}}{75} & -\dfrac{2\sqrt{3}}{25} \\[0.6em]
+-4\sqrt{3} & -\dfrac{2\sqrt{3}}{25} & \dfrac{6\sqrt{3}}{25} 
+\[ |\overline{H}| = -\dfrac{128\sqrt{3}}{25} \]
+\noindent Do các đạo hàm cấp hai vẫn còn chứa biến nên ta xét tại điểm dừng. Vì $|\overline{H}| < 0$ nên hàm số đạt cực tiểu địa phương tại $M\left(25\sqrt{3}, \dfrac{25}{\sqrt{3}}\right)$. Chi phí tối thiểu khi này là:
+\[ C_{min} = 4(25\sqrt{3}) + 12\left(\dfrac{25}{\sqrt{3}}\right) = 200\sqrt{3} \approx 346.41 \]
+    \textbf{(2.0đ)} Trong mô hình Input-Output mở Leontief gồm ba ngành, cho ma trận hệ số đầu vào là
+        \item[(i)] Nếu nhu cầu cuối của ba ngành lần lượt là $113$, $61$ và $44$, hãy tìm sản lượng của ba ngành.
+        \item[(ii)] Nhờ cải tiến kỹ thuật, ngành $1$ tiết kiệm được $\dfrac{1}{3}$ nguyên liệu từ ngành $2$. Khi đó, hãy xác định sản lượng của ba ngành nếu nhu cầu cuối không đổi.
+trong đó $I$ là ma trận đơn vị cùng cấp với $A$, $A$ là ma trận hệ số đầu vào, $X$ là ma trận sản lượng và $D$ là ma trận cầu cuối. Đặt $B = I - A$ là ma trận Leontief. Hệ thức trên trở thành một phương trình ma trận cơ bản và ta có hai hướng tiếp cận chính để tìm lời giải cho ma trận sản lượng $X$.
+\vspace{0.5cm}
+Về mặt tính toán lý thuyết, người học cần tìm ma trận nghịch đảo $(I - A)^{-1}$ thông qua phương pháp ma trận phụ hợp hoặc các phép biến đổi sơ cấp trên dòng, sau đó thực hiện phép nhân ma trận với cột cầu cuối $D$. Tuy nhiên, trong thực hành với sự hỗ trợ của máy tính cầm tay, ta chỉ cần nhập ma trận $I - A$ để lấy nghịch đảo trực tiếp $\boldsymbol{x^{-1}}$ và nhân với ma trận $D$, từ đó xuất ra toàn bộ kết quả sản lượng $X$ một cách nhanh chóng và chính xác.
+\vspace{0.5cm}
+với $a_{ij}$ là các phần tử cấu thành của ma trận hệ số $I - A$, $x_j$ là các ẩn sản lượng tương ứng và $b_i$ là các thành phần của vector cầu cuối $D$. Thay vì tìm ma trận nghịch đảo, ta áp dụng Quy tắc Cramer để giải quyết trực tiếp từng ẩn số. Để thực hiện, ta cần tính định thức hệ số $D$ (hay $\Delta$) và các định thức phụ $D_{x_1}, D_{x_2}, D_{x_3}$. Cụ thể, định thức hệ số $D$ được lập từ các hệ số của các ẩn ở vế trái:
+\[ x_1 = \dfrac{D_{x_1}}{D}, \quad x_2 = \dfrac{D_{x_2}}{D}, \quad x_3 = \dfrac{D_{x_3}}{D} \]
+    \vspace{0pt} % Giúp căn chỉnh mép trên của minipage
+        \item \textbf{Gọi hàm/Biến:} Sau khi nhập xong ma trận và ấn \textbf{AC}, sử dụng phím \textbf{OPTN} để gọi ma trận ra tính toán.
+        \item \textbf{Lưu \& Xóa màn hình:} Phím \textbf{AC} dùng để xóa trắng màn hình hiện tại nhưng \textbf{không xóa dữ liệu ma trận} đã lưu trong bộ nhớ ngầm.
+    \vspace{0pt} % Giúp hình ảnh căn bằng với dòng chữ đầu tiên bên trái
+\noindent \textbf{(i) Tìm sản lượng của ba ngành (Trình bày 2 cách)}
+\noindent Gọi $X = \begin{bmatrix} x_1 \\ x_2 \\ x_3 \end{bmatrix}$ là ma trận sản lượng của ba ngành. Mô hình Input-Output Leontief có phương trình tổng quát:
+\[ (I - A)^{-1} = \dfrac{1}{381} \begin{bmatrix} 530 & 200 & 180 \\ 230 & 590 & 150 \\ 250 & 310 & 660 \end{bmatrix} \]
+\noindent Tính ma trận sản lượng $X$:
+\[ X = \dfrac{1}{381} \begin{bmatrix} 530 & 200 & 180 \\ 230 & 590 & 150 \\ 250 & 310 & 660 \end{bmatrix} \begin{bmatrix} 113 \\ 61 \\ 44 \end{bmatrix} = \begin{bmatrix} 210 \\ 180 \\ 200 \end{bmatrix} \]
+\noindent Vậy sản lượng của ba ngành lần lượt là $x_1 = 210$, $x_2 = 180$ và $x_3 = 200$.
+    x_1 = \dfrac{\Delta_1}{\Delta} = \dfrac{80.01}{0.381} = 210 \\[0.6em]
+    x_2 = \dfrac{\Delta_2}{\Delta} = \dfrac{68.58}{0.381} = 180 \\[0.6em]
+    x_3 = \dfrac{\Delta_3}{\Delta} = \dfrac{76.20}{0.381} = 200
+\noindent \textbf{(ii) Xác định sản lượng khi ngành 1 tiết kiệm $\dfrac{1}{3}$ nguyên liệu từ ngành 2.}
+\noindent Hệ số đầu vào mới là $a'_{21} = 0.3 - \dfrac{1}{3} \cdot 0.3 = 0.2$.
+\noindent Sản lượng mới của ba ngành là:
+    x'_1 = \dfrac{\Delta_1}{\Delta} = \dfrac{80.01}{0.401} = \dfrac{80010}{401} \approx 199.53 \\[0.6em]
+    x'_2 = \dfrac{\Delta_2}{\Delta} = \dfrac{59.79}{0.401} = \dfrac{59790}{401} \approx 149.10 \\[0.6em]
+    x'_3 = \dfrac{\Delta_3}{\Delta} = \dfrac{73.69}{0.401} = \dfrac{73690}{401} \approx 183.77
+    colback=white,
+Tóm lại, bạn nên dùng Cách 2 để trình bày bài giải tự luận thật chặt chẽ, và tận dụng Cách 1 để tính nhanh kết quả hoặc khi bài toán yêu cầu tìm mức sản lượng cho nhiều mức cầu cuối khác nhau.
+
+
+==================== loigiai_354.tex ==================== ====================
+\vspace{1cm}
+\customchapter{LỜI GIẢI ĐỀ THI TOÁN CAO CẤP K51 (354)}
+\vspace{0.5cm}
+    Một xí nghiệp sản xuất độc quyền một loại sản phẩm với hàm cầu của loại sản phẩm này là: $Q_D = 1500 - \dfrac{1}{2}P$ và hàm chi phí là $C = C(Q)$. Biết xí nghiệp đạt lợi nhuận cao nhất khi $Q = Q_0 = 400$. Ta có chi phí biên tại $Q_0$ là:
+\vspace{0.2cm}
+\vspace{0.2cm}
+Mục tiêu của doanh nghiệp độc quyền là tối đa hóa hàm lợi nhuận: $\pi(Q) = R(Q) - C(Q)$. Theo nguyên lý giải tích, trạng thái tối ưu đạt được khi thỏa mãn hai điều kiện cốt lõi:
+    \item \textbf{Điều kiện cần:} Đạo hàm bậc nhất triệt tiêu, tức là $$\pi'(Q) = 0 \Leftrightarrow R'(Q) = C'(Q) \Leftrightarrow MR = MC$$
+    \item \textbf{Điều kiện đủ:} Đạo hàm bậc hai âm ($\pi''(Q) < 0$), nghĩa là tốc độ tăng của doanh thu biên ($MR$) phải nhỏ hơn tốc độ tăng của chi phí biên ($MC$).
+\vspace{0.2cm}
+    Từ hàm cầu $Q = 1500 - \dfrac{1}{2}P$, ta suy ra:
+\[P = 3000 - 2Q\]Khi đó, hàm tổng doanh thu của xí nghiệp là:
+Từ đây ta có hàm doanh thu biên được tính bởi công thứ là:
+\[MR = R'(Q) = (3000Q - 2Q^2)' = 3000 - 4Q\]Đến đây, ta có thể tiếp tục giải bài toán theo 2 cách:
+\noindent \textbf{\textcolor{blue}{Cách 1: Tiếp cận theo nguyên lý tối ưu hóa vi mô ($MR = MC$)}}\\[1em] 
+Dựa vào cơ sở lý thuyết ở trên vì xí nghiệp đạt lợi nhuận cực đại tại mức sản lượng $Q_0 = 400$, do đó đây chính là điểm cân bằng thỏa mãn điều kiện $MR(Q_0) = MC(Q_0)$. Với doanh thu biên $MR = R'(Q)$, ta thay trực tiếp $Q_0 = 400$ vào hệ thức cân bằng:
+    \[MC(400) = MR(400) = 3000 - 4(400) = 1400\]
+Gọi $\pi(Q)$ là hàm lợi nhuận của xí nghiệp. Lợi nhuận được tính bằng:
+    \item Thực chất, Cách 2 chính là bản chất toán học để chứng minh điều kiện cân bằng $MR = MC$. Các lý thuyết kinh tế chỉ đúc kết lại kết quả của quá trình đạo hàm này để ta áp dụng tính toán nhanh hơn. 
+\vspace{0.25cm}
+    colback=white,
+Bên cạnh phương pháp đại số, bài toán có thể được phân tích thông qua đồ thị các đường đơn vị của doanh nghiệp độc quyền. Điểm tối đa hóa lợi nhuận đạt được tại giao điểm $MR = MC$ (điểm $E$). Từ đó, doanh nghiệp chiếu lên đường cầu để ấn định giá bán (điểm $N$) và đối chiếu với đường chi phí trung bình (điểm $M$). Khoảng cách $NM$ chính là lợi nhuận thu được trên mỗi đơn vị sản phẩm.
+        \draw[->, thick] (0,0) -- (0,16) node[left] {$P, C, MR, MC$};
+        % Tô màu vùng lợi nhuận (Rectangle từ giá C đến giá P0, độ rộng Q0)
+        % Mức giá P0 = 11. Mức chi phí AC tại Q=4 là 7.67
+        % 2. Doanh thu biên MR: y = 15 - 2x
+        \draw[thick, orange, domain=0:7.5, samples=2] plot (\x, {15 - 2*\x}) node[below right] {$MR$};
+        % 3. Chi phí biên MC (Đường cong chữ U): y = 0.125x^2 - x + 9
+        % Đảm bảo đi qua Q=4, y=7 (Tức MC=1400)
+        \draw[thick, green!70!black, domain=1.5:10, samples=50] plot (\x, {0.125*\x*\x - \x + 9}) node[right] {Chi phí biên (MC)};
+        % 4. Tổng chi phí trung bình AC (Đường cong chữ U): y = (x-6)^2 / 24 + 7.5
+        % Đạt cực tiểu tại x=6, y=7.5 (Cắt chính xác MC tại đáy của AC)
+        \draw[thick, green!50!black, domain=1.5:11.5, samples=50] plot (\x, {(\x-6)*(\x-6)/24 + 7.5}) node[right] {Chi phí trung bình (AC)};
+        % Điểm E (Giao MR và MC)
+        \filldraw[black] (E) circle (2pt);
+        \filldraw[black] (N) circle (2pt) node[above right] {$N$};
+        % Điểm M (Chi phí trung bình tại Q0)
+        \filldraw[black] (M) circle (2pt) node[below right] {$M$};
+        \draw[dashed, thick] (0,7) node[left] {$MC = 1400$} -- (E);
+        {\textbf{Tối đa hóa lợi nhuận:}\\ $Q: MR = MC$};
+        \node[text=black!80!black] at (2, 9.3) {Lợi nhuận $\pi_{max}$};
+    colback=white,
+    colback=white,
+    \choice{\True$m \neq -\dfrac{5}{2}$ và $m \neq \dfrac{4}{5}$}{$m \neq \dfrac{5}{2}$ và $m \neq -\dfrac{4}{5}$}{$m \neq \dfrac{5}{2}$ và $m \neq \dfrac{4}{5}$}{$m \neq -\dfrac{5}{2}$ và $m \neq -\dfrac{4}{5}$}
+    \begin{cases} 4 - 5m \neq 0 \\[0.5em] -50 - 20m \neq 0 \end{cases} \Leftrightarrow \begin{cases} m \neq \dfrac{4}{5} \\[0.5em] m \neq -\dfrac{5}{2} \end{cases}
+Vậy ma trận $A^2 + AB$ không suy biến khi $m \neq \dfrac{4}{5}$ và $m \neq -\dfrac{5}{2}$.
+    \item Các tính chất cốt lõi cần nhớ: $$|XYZ| = |X|\cdot|Y|\cdot|Z|, \quad |A|^{-1} = \dfrac{1}{|A|}, \quad |kI_n| = k^n$$
+    |A^{-1}| \cdot |B^2| \cdot |A| = \dfrac{1}{|A|}\cdot |B|^2\cdot |A|= |B|^2
+    \draw [decorate,decoration={brace,amplitude=4pt,mirror}, thick, blue] 
+    \draw [decorate,decoration={brace,amplitude=4pt,mirror}, thick, red] 
+    \draw [decorate,decoration={brace,amplitude=4pt,mirror}, thick, red] 
+    \draw [decorate,decoration={brace,amplitude=4pt,mirror}, thick, blue] 
+    \draw [decorate,decoration={brace,amplitude=4pt,mirror}, thick, orange] 
+    \vspace{0.2cm}
+    Cho biết hàm cầu $P = 250 - 0.5Q^2$, trong đó $P$ là đơn giá bán và $Q$ là lượng cầu. Khi đó, tại mức giá $P = 50$, nếu giá giảm $2\%$ thì:
+    \textbf{\textcolor{blue}{CƠ SỞ TƯ DUY: HỆ SỐ CO GIÃN CỦA CẦU THEO GIÁ ($\varepsilon_P$)}}
+Độ co giãn $\varepsilon_P$ cho biết khi giá thay đổi $1\%$ thì lượng cầu thay đổi xấp xỉ bao nhiêu phần trăm.
+    \item \textbf{Công thức gốc:} $\varepsilon_P = \dfrac{dQ}{dP} \cdot \dfrac{P}{Q}$.
+    \item Nếu đề bài cho hàm giá theo sản lượng $P = f(Q)$, ta dùng công thức ngược:
+    $$ \varepsilon_P =\dfrac{1}{\dfrac{dP}{dQ}}\cdot \dfrac{P}{Q} = \dfrac{1}{P'(Q)} \cdot \dfrac{P}{Q} $$
+    \item \textbf{Ứng dụng kinh tế:} Sự thay đổi phần trăm của $Q$ xấp xỉ bằng độ co giãn nhân với sự thay đổi phần trăm của $P$:
+    $$ \frac{\Delta Q}{Q} \approx \varepsilon_P \cdot \frac{\Delta P}{P} $$
+    % Tam giác vi phân thể hiện dP và dQ trên đường tiếp tuyến
+    \draw[thick, black!70] (2.5, 3.25) -- (1.5, 3.25) node[midway, below] {$dQ$};
+    \draw[thick, black!70] (1.5, 3.25) -- (1.5, 4.25) node[midway, left] {$dP$};
+        Hệ số góc $k = \dfrac{dP}{dQ} = P'(Q)$ \\
+        Thành phần $\dfrac{dQ}{dP}$ trong độ co giãn chính là $\dfrac{1}{k}$.
+        \varepsilon = \dfrac{1}{P'(Q)}\cdot\dfrac{P}{Q}=\dfrac{1}{\dfrac{d}{dx} \left( 250-0.5x^2 \right) \Big|_{x=20}}\cdot\dfrac{50}{20}=-\dfrac{1}{8}
+Do giá giảm $2\%$ nên ta có lượng cầu tăng xấp xỉ $\dfrac{1}{4}=0.25\%$\\
+        \varepsilon = \dfrac{dQ}{dP}\cdot\dfrac{P}{Q}=\dfrac{d}{dx} \left( \sqrt{2(250-x)} \right) \Big|_{x=50}\cdot\dfrac{50}{\sqrt{2(250-50)}}=-\dfrac{1}{8}
+Do giá giảm $2\%$ nên ta có lượng cầu tăng xấp xỉ $\dfrac{1}{4}=0.25\%$
+    colback=white,
+Về mặt Toán học khắt khe, công thức ngược đạo hàm $\dfrac{dx}{dy} = \dfrac{1}{\dfrac{dy}{dx}}$ bắt buộc phải thỏa mãn 2 điều kiện:
+\vspace{1em}
+    colback=white,
+Trong Kinh tế vi mô (đặc biệt là bài toán hàm Cầu), việc áp dụng công thức trở nên cực kỳ trơn tru nhờ các đặc tính tự nhiên của thị trường:
+    Tìm $\dfrac{dy}{dx}$ biết $x^4 + x^5 = (y - x^2)^2$.
+    \choice{$\dfrac{dy}{dx} = \dfrac{5x^4 + 2xy - 4x^3}{y - x^2}$}{$\dfrac{dy}{dx} = \dfrac{5x^4 + 4xy - 4x^3}{y - x^2}$}{$\dfrac{dy}{dx} = \dfrac{5x^4 + 4xy - 2x^3}{2(y - x^2)}$}{\True $\dfrac{dy}{dx} = \dfrac{5x^4 + 4xy}{2(y - x^2)}$}
+    \textbf{\textcolor{blue}{CƠ SỞ TƯ DUY: ĐẠO HÀM HÀM ẨN}}
+\noindent Hàm ẩn thường được cho dưới dạng phương trình chứa cả $x$ và $y$. Ta có ba tư duy giải, trong đó ưu tiên dùng công thức để hạn chế sai sót biến đổi đại số:
+    \item \textbf{Cách 1 (Sử dụng công thức - Khuyên dùng):} Gom hết phương trình về một vế để tạo hàm $F(x,y)=0$. Sau đó tính các đạo hàm riêng $F'_x, F'_y$ và áp dụng công thức $$y'= \dfrac{dy}{dx} = - \dfrac{F'_x}{F'_y}$$
+        \item Sử dụng chức năng $\dfrac{d}{dx}$ để tính đạo hàm tại $x_0$.
+\textbf{Cách 1: Sử dụng công thức đạo hàm hàm ẩn}\\
+Áp dụng công thức tính đạo hàm của hàm ẩn, ta có ngay:
+    y' = \frac{dy}{dx} = - \frac{F'_x}{F'_y} = \frac{5x^4 + 4xy}{2(y - x^2)}
+Từ đó, rút ra được đạo hàm: $$y' = \dfrac{5x^4 + 4xy}{2(y - x^2)}$$
+    \item Sử dụng chức năng $\dfrac{d}{dx}$ để tính đạo hàm tại $x=100$:
+        \frac{d}{dx} \left( x^2 + \sqrt{x^4 + x^5} \right) \Big|_{x=100}
+        \item \textbf{Thử đáp án $\kh{A}$}: Nhập $\dfrac{5x^4 + 4xy}{-2(y - x^2)}$ $\xrightarrow{\text{CALC}}$ Máy trả về $\approx -2707.493781$.
+        \item \textbf{Thử đáp án $\kh{B}$}: Nhập $\dfrac{5x^4 - 4xy}{2(y - x^2)}$ $\xrightarrow{\text{CALC}}$ Máy trả về $\approx 2267.69$.
+        \item \textbf{Thử đáp án $\kh{C}$}: Nhập $\dfrac{5x^4 + 4y}{2(y - x^2)}$ $\xrightarrow{\text{CALC}}$ Máy trả về $\approx 2489.79$.
+        \item \textbf{Thử đáp án \textbf{$\kh{D}$}}: Nhập $\dfrac{5x^4 + 4xy}{2(y - x^2)}$ $\xrightarrow{\text{CALC}}$ Máy tính trả về kết quả \textbf{2707.493781}.
+Ta thực hiện đối chiếu với kết quả $\dfrac{d}{dx}$ thì \textbf{$\kh{D}$} là kết quả chính xác. \\
+    colback=white,
+    \vspace{0.15cm}
+\vspace{0.1cm}
+\vspace{0.1cm}
+            \item Nếu máy báo \textbf{No Solution} \hspace{0.55cm} $\longrightarrow$ Nhận $m$ cho \textbf{Dạng 4}.
+    \vspace{0.2cm}
+    Cho phương trình vi phân $y' + 2y = e^{5x}$. Nghiệm tổng quát của phương trình là:
+    \choice{\True $y = \dfrac{1}{7}e^{5x} + Ce^{-2x}$}{$y = \dfrac{1}{7}e^{2x} + Ce^{-5x}$}{$y = -\dfrac{1}{7}e^{5x} + Ce^{-2x}$}{$y = -\dfrac{1}{7}e^{2x} + Ce^{-5x}$}
+    Đây là phương trình vi phân tuyến tính bậc nhất có dạng $$y' + p(x)y = q(x),$$ với $p(x) = 2$ và $q(x) = e^{5x}$. Ta tính thừa số tích phân 
+        $$ y e^{2x} = \int e^{7x} dx = \frac{1}{7}e^{7x} + C $$
+        $$ y = \frac{1}{7} \frac{e^{7x}}{e^{2x}} + \frac{C}{e^{2x}} = \frac{1}{7}e^{5x} + C e^{-2x} $$
+Ta sẽ đạo hàm và nhẩm nhanh biểu thức $y'(0) + 2y(0)$ ở từng đáp án, nếu kết quả không ra $1$ thì loại ngay lập tức. $\textbf{Ví dụ thử đáp án \kh{B}:}$ $$y = \dfrac{1}{7}e^{2x} + Ce^{-5x} \Rightarrow y(0) = \dfrac{1}{7} + C$$
+\noindent Lấy đạo hàm: $$y' = \dfrac{2}{7}e^{2x} - 5Ce^{-5x} \Rightarrow y'(0) = \dfrac{2}{7} - 5C$$ 
+\[ y'(0) + 2y(0) = \left(\frac{2}{7} - 5C\right) + 2\left(\frac{1}{7} + C\right) = \frac{4}{7} - 3C \neq 1 \]
+\vspace{0.3cm}
+\noindent \textbf{Kiểm tra đáp án \kh{A}:} $$y = \dfrac{1}{7}e^{5x} + Ce^{-2x} \Rightarrow y(0) = \dfrac{1}{7} + C$$
+\noindent Lấy đạo hàm: $$y' = \dfrac{5}{7}e^{5x} - 2Ce^{-2x} \Rightarrow y'(0) = \dfrac{5}{7} - 2C$$
+\[ y'(0) + 2y(0) = \left( \frac{5}{7} - 2C \right) + 2\left( \frac{1}{7} + C \right) = \frac{7}{7} = 1 \quad \text{(Thỏa mãn)} \]
+    y' + 2y &= \frac{5}{7}e^{5x} - 2Ce^{-2x} + \frac{2}{7}e^{5x} + 2Ce^{-2x} \\
+\vspace{0.15cm}
+\vspace{0.15cm}
+\[ \frac{d}{dx} \left( \frac{1}{7}e^{5x} + 1e^{-2x} \right) \Bigg|_{x=10} + 2 \left( \frac{1}{7}e^{5 \times 10} + 1e^{-2 \times 10} \right) \]
+\vspace{0.15cm}
+    colback=white,
+    \textbf{(1.5đ)} Hàm sản xuất được cho bởi
+    trong đó $q$ là sản lượng, $\ell$ là số đơn vị lao động và $k$ là số đơn vị vốn. Nếu giá của mỗi đơn vị vốn và mỗi đơn vị lao động lần lượt là $6$ và $3$ và doanh nghiệp dành $180$ cho chi phí sản xuất, bằng phương pháp nhân tử Lagrange hãy xác định mức sản lượng tối đa mà doanh nghiệp có thể đạt được.
+\loigiai{\noindent Lập hàm Lagrange để tìm mức sản lượng tối đa $q = 2\ell^{1/2}k^{1/2}$ với ràng buộc chi phí $3\ell + 6k = 180$, ta có:
+\[ \dfrac{6\lambda}{3\lambda} = \dfrac{\ell^{1/2}k^{-1/2}}{\ell^{-1/2}k^{1/2}} \Rightarrow 2 = \dfrac{\ell}{k} \Rightarrow \ell = 2k \]
+Từ (1) ta dễ dàng suy ra $\lambda = \dfrac{\sqrt{2}}{6} > 0$. 
+\[ L_{11} = -\dfrac{1}{2}\ell^{-3/2}k^{1/2}, \quad L_{22} = -\dfrac{1}{2}\ell^{1/2}k^{-3/2}, \quad L_{12} = L_{21} = \dfrac{1}{2}\ell^{-1/2}k^{-1/2} \]
+3 & -\dfrac{1}{2}\ell^{-3/2}k^{1/2} & \dfrac{1}{2}\ell^{-1/2}k^{-1/2} \\[0.6em]
+6 & \dfrac{1}{2}\ell^{-1/2}k^{-1/2} & -\dfrac{1}{2}\ell^{1/2}k^{-3/2} 
+|\overline{H}| &= -3\left[3\left(-\dfrac{1}{2}\ell^{1/2}k^{-3/2}\right) - 6\left(\dfrac{1}{2}\ell^{-1/2}k^{-1/2}\right)\right] + 6\left[3\left(\dfrac{1}{2}\ell^{-1/2}k^{-1/2}\right) - 6\left(-\dfrac{1}{2}\ell^{-3/2}k^{1/2}\right)\right] \\[0.6em]
+&= -3\left(-\dfrac{3}{2}\ell^{1/2}k^{-3/2} - 3\ell^{-1/2}k^{-1/2}\right) + 6\left(\dfrac{3}{2}\ell^{-1/2}k^{-1/2} + 3\ell^{-3/2}k^{1/2}\right) \\[0.6em]
+&= \dfrac{9}{2}\ell^{1/2}k^{-3/2} + 9\ell^{-1/2}k^{-1/2} + 9\ell^{-1/2}k^{-1/2} + 18\ell^{-3/2}k^{1/2} \\[0.6em]
+&= \dfrac{9}{2}\ell^{1/2}k^{-3/2} + 18\ell^{-1/2}k^{-1/2} + 18\ell^{-3/2}k^{1/2}
+\noindent Vì định thức luôn dương trên toàn miền $\ell, k > 0$, nên hàm số đạt \textbf{cực đại toàn cục} tại điểm dừng $M(30, 15)$. Mức sản lượng tối đa toàn cục khi này là:
+    \textbf{(2.0đ)} Trong mô hình Input-Output mở Leontief gồm ba ngành, cho ma trận hệ số đầu vào là
+    Biết giá trị sản lượng của ba ngành lần lượt là $150$, $200$ và $240$, và tổng giá trị nguyên liệu đầu vào của ngành 2 là $140$.
+        \item[(ii)] Tính sản lượng thay đổi của ba ngành nếu nhu cầu cuối của ba ngành lần lượt tăng thêm là $5$, $2$ và $3$.
+\noindent Bài toán cho biết tổng giá trị nguyên liệu đầu vào của ngành 2 là $140$. Bản chất đây là tổng các luồng nguyên liệu đổ về ngành 2 từ cả 3 ngành. Ta áp dụng sơ đồ luồng với Tổng sản lượng ngành 2 là $X_2 = 200$, dùng mũi tên đỏ suy ngược về luồng thực tế:
+            \node[font=\bfseries\color{green!60!black}] at (0,0) {#2};
+            \node[font=\bfseries\color{green!60!black}] at (1.8,0) {#3};
+            \node[draw=red!80!black, thick, inner sep=4pt, font=\bfseries] (Xj) at (1.8,-2.5) {#5};
+\noindent Dựa vào kết quả ở các hộp màu cam, ta thiết lập phương trình tổng đầu vào của ngành 2:
+\noindent Vậy ma trận hệ số đầu vào là $A = \begin{bmatrix} 0.1 & 0.2 & 0.3 \\ 0.2 & 0.3 & 0.1 \\ 0.3 & 0.2 & 0.1 \end{bmatrix}$.
+\vspace{0.3cm}
+\noindent Đề yêu cầu tính tổng giá trị của hai luồng riêng biệt: $(2 \to 1)$ và $(3 \to 2)$. Ta lập sơ đồ cho hai luồng này tương ứng với Tổng sản lượng $X_1 = 150$ và $X_2 = 200$:
+            \node[font=\bfseries\color{green!60!black}] at (0,0) {#2};
+            \node[font=\bfseries\color{green!60!black}] at (1.8,0) {#3};
+            \node[draw=red!80!black, thick, inner sep=4pt, font=\bfseries] (Xj) at (1.8,-2.5) {#5};
+\vspace{0.3cm}
+\noindent Gọi $\Delta X = \begin{bmatrix} \Delta x_1 \\ \Delta x_2 \\ \Delta x_3 \end{bmatrix}$ là ma trận sản lượng thay đổi và $\Delta D = \begin{bmatrix} 5 \\ 2 \\ 3 \end{bmatrix}$ là ma trận nhu cầu cuối thay đổi. Theo mô hình Leontief, sự thay đổi này tuân theo phương trình:
+\noindent Suy ra lượng sản lượng cần thay đổi của từng ngành là tỷ số giữa định thức phụ và định thức hệ số:
+    \Delta x_1 = \dfrac{\Delta_1}{\Delta} = \dfrac{4.22}{0.432} = \dfrac{1055}{108} \approx 9.77 \\[0.8em]
+    \Delta x_2 = \dfrac{\Delta_2}{\Delta} = \dfrac{2.94}{0.432} = \dfrac{245}{36} \approx 6.81 \\[0.8em]
+    \Delta x_3 = \dfrac{\Delta_3}{\Delta} = \dfrac{3.5}{0.432} = \dfrac{875}{108} \approx 8.10
+\noindent Vậy để đáp ứng nhu cầu cuối tăng thêm, sản lượng của ba ngành cần tăng tương ứng xấp xỉ $9.77$, $6.81$ và $8.10$ đơn vị.
+\[ k_0 = \frac{\ln 2}{25} \]
+\[ G(40) = 2000000 e^{\frac{\ln 2}{25} \cdot 40} = 2000000 e^{1.6 \ln 2} \]
+
+
+==================== loigiai_442.tex ==================== ====================
+\customchapter{LỜI GIẢI ĐỀ THI TOÁN CAO CẤP K51 (442)}
+\vspace{0.5cm}
+    Xét hàm sản xuất $Q = 0.5K^{0.25}L^{0.75}$, trong đó $Q$ là sản lượng, $K$ là lượng vốn và $L$ là lượng lao động. Ký hiệu $EQ_K$ và $EQ_L$ lần lượt là độ co dãn riêng của sản lượng theo vốn và theo lao động. Phát biểu nào sau đây là SAI:
+\vspace{0.1cm}
+    \textbf{\textcolor{blue}{CƠ SỞ TƯ DUY: HỆ SỐ CO GIÃN CỦA HÀM NHIỀU BIẾN VÀ HÀM COBB-DOUGLAS}}
+\vspace{0.2cm}
+Độ co giãn riêng của hàm sản xuất $Q(K, L)$ phản ánh tỷ lệ phần trăm thay đổi của sản lượng khi một yếu tố đầu vào thay đổi $1\%$ (trong điều kiện cố định yếu tố còn lại). Theo định nghĩa giải tích, ta có:
+    \item \textbf{Độ co giãn theo vốn ($K$):} $$\varepsilon_K = EQ_K = \dfrac{\partial Q}{\partial K} \cdot \dfrac{K}{Q}$$
+    \item \textbf{Độ co giãn theo lao động ($L$):} $$\varepsilon_L = EQ_L = \dfrac{\partial Q}{\partial L} \cdot \dfrac{L}{Q}$$
+Xét hàm sản xuất Cobb-Douglas tổng quát có dạng $Q = A \cdot K^\alpha \cdot L^\beta$ (với $A, \alpha, \beta > 0$).
+\[\dfrac{\partial Q}{\partial K} = A \cdot \alpha \cdot K^{\alpha - 1} \cdot L^\beta = \alpha \cdot \dfrac{A \cdot K^\alpha \cdot L^\beta}{K} = \alpha \cdot \dfrac{Q}{K}\]Từ đó, thay vào công thức hệ số co giãn, ta được:
+\[EQ_K = \left( \alpha \cdot \dfrac{Q}{K} \right) \cdot \dfrac{K}{Q} = \alpha\]Hoàn toàn tương tự đối với biến $L$, ta tính được đạo hàm riêng:
+\[\dfrac{\partial Q}{\partial L} = A \cdot K^\alpha \cdot \beta \cdot L^{\beta - 1} = \beta \cdot \dfrac{Q}{L}\]Dẫn đến hệ số co giãn theo lao động là:
+\[EQ_L = \left( \beta \cdot \dfrac{Q}{L} \right) \cdot \dfrac{L}{Q} = \beta\]Như vậy, \textbf{đối với hàm Cobb-Douglas, hệ số co giãn riêng chính là số mũ của từng biến tương ứng}. 
+\vspace{0.25cm}
+    colback=white,
+\textbf{Ý nghĩa kinh tế học của tổng hệ số co giãn ($\alpha + \beta$):} 
+    \item Nếu $\alpha + \beta = 1$: Doanh nghiệp có \textbf{hiệu suất không đổi theo quy mô} (Constant returns to scale). Nếu tăng cả $K$ và $L$ lên $m$ lần thì sản lượng cũng tăng đúng $m$ lần.
+    \item Nếu $\alpha + \beta > 1$: Doanh nghiệp có \textbf{hiệu suất tăng theo quy mô} (Increasing returns to scale). Tăng đầu vào $m$ lần sẽ làm sản lượng tăng nhiều hơn $m$ lần.
+    \item Nếu $\alpha + \beta < 1$: Doanh nghiệp có \textbf{hiệu suất giảm theo quy mô} (Decreasing returns to scale). Tăng đầu vào $m$ lần sẽ làm sản lượng tăng ít hơn $m$ lần.
+\vspace{0.2cm}
+    Từ hàm sản xuất $Q = 0.5K^{0.25}L^{0.75}$, áp dụng hệ quả đã chứng minh ở trên đối với hàm Cobb-Douglas, ta có thể suy ra ngay các hệ số co giãn riêng chính là phần hệ số mũ của các biến:
+    Cho $y = y(x)$ là hàm ẩn xác định bởi phương trình $x^3 + 3xy^4 + 3x^2y^2 + 2y^3e^x - 16 = 0$. Tính giá trị $y'(0)$.
+    \choice{$2$}{$-2$}{\True $-\dfrac{8}{3}$}{$\dfrac{8}{3}$}
+\vspace{0.1cm}
+    \textbf{\textcolor{blue}{CƠ SỞ TƯ DUY: LÝ THUYẾT VÀ CHỨNG MINH ĐẠO HÀM HÀM ẨN}}
+\vspace{0.2cm}
+Xét phương trình $F(x, y) = 0$ xác định một hàm ẩn $y = y(x)$. 
+Theo định lý về vi phân toàn phần (Total Differential), nếu ta lấy vi phân hai vế của phương trình $F(x, y) = 0$, ta sẽ có:
+\[dF = \dfrac{\partial F}{\partial x} dx + \dfrac{\partial F}{\partial y} dy = 0\]Chia cả hai vế cho đại lượng vi phân $dx$, ta thu được biểu thức:
+\[\dfrac{\partial F}{\partial x} + \dfrac{\partial F}{\partial y} \cdot \dfrac{dy}{dx} = 0\]Từ đây, ta rút ra được công thức tính đạo hàm của hàm ẩn $y$ theo $x$ (với điều kiện $F'_y \neq 0$):
+\[y' = \dfrac{dy}{dx} = - \dfrac{\dfrac{\partial F}{\partial x}}{\dfrac{\partial F}{\partial y}} = - \dfrac{F'_x}{F'_y}\]
+Quy trình thực chiến tính đạo hàm hàm ẩn tại một điểm $(x_0, y_0)$:
+    \item \textbf{Bước 3:} Thay tọa độ $(x_0, y_0)$ vào công thức $$y'(x_0) = - \dfrac{F'_x(x_0, y_0)}{F'_y(x_0, y_0)}$$
+    \[y'(x)=-\dfrac{F'_x}{F'_y}=-\dfrac{3x^2 + 3y^4 + 6xy^2 + 2y^3e^x}{12xy^3 + 6x^2y + 6y^2e^x}\]
+    \[y'(0)=-\dfrac{3(0)^2 + 3(2)^4 + 6(0)(2)^2 + 2(2)^3e^0}{12(0)(2)^3 + 6(0)^2(2) + 6(2)^2e^0}=-\dfrac{64}{24}=-\dfrac{8}{3}\]
+\vspace{0.25cm}
+    colback=white,
+         \item \textbf{Bài toán quen thuộc:} như đã đề cập rất nhiều lần đây chỉ là một bài toán cơ bản khi cho hàm ẩn và một phương trình kèm theo. Cách giải ở đây ta sẽ sử dụng công thức riêng, ngoài dạng tìm đạo hàm tại điểm thì bài toán còn có thể tùy chỉnh thành bài toán tìm hệ số co dãn hoặc nhiều dạng khác nhau.
+\vspace{0.2em}
+\vspace{0.1cm}
+    colback=white,
+    Hàm $f(x, y) = \dfrac{x^3}{3} + \dfrac{y^3}{3} - x - 9y$ đạt cực tiểu địa phương tại:
+\vspace{0.1cm}
+    colback=white,
+\vspace{0.1cm}
+\vspace{0.2cm}
+    \item \textbf{Định thức của ma trận nghịch đảo:} $$|A^{-1}| = \dfrac{1}{|A|}$$
+    \[|D| = 27 \cdot \dfrac{1}{|A|} \cdot |B|^2 \cdot |C|\]Thay các số liệu $|A| = -2, |B| = 2, |C| = 9$ do đề bài cung cấp vào phương trình:
+    \[|D| = 27 \cdot \left(\dfrac{1}{-2}\right) \cdot (2)^2 \cdot 9 = 27 \cdot \left(-\dfrac{1}{2}\right) \cdot 4 \cdot 9 = -486    \]
+    Cho $y$ là nghiệm của phương trình vi phân
+    \[ y' + \dfrac{2xy}{1+x^2} = 0, \]
+\vspace{0.1cm}
+    \textbf{\textcolor{blue}{CƠ SỞ TƯ DUY: PHÂN LOẠI VÀ PHƯƠNG PHÁP GIẢI PHƯƠNG TRÌNH VI PHÂN BẬC NHẤT}}
+\vspace{0.2cm}
+Phương trình đã cho có dạng tổng quát là $y' + p(x)y = q(x)$ (với $q(x) = 0$). Đây thực chất là một \textbf{phương trình vi phân tuyến tính bậc nhất thuần nhất}. Nhờ đặc điểm thuần nhất ($q(x) = 0$), phương trình này đồng thời cũng là \textbf{phương trình vi phân tách biến}. Ta có thể giải nó bằng cả hai cách tiếp cận:
+    \item \textbf{Cách 1: Tư duy Tách biến (Separation of Variables):} Chuyển $y'$ thành $\dfrac{dy}{dx}$. Dùng các phép nhân chia đại số để dồn toàn bộ $x$ và $dx$ về một vế, toàn bộ $y$ và $dy$ về vế còn lại. Sau đó lấy nguyên hàm hai vế.
+    \item \textbf{Cách 2: Tư duy Tuyến tính (Integrating Factor):} Sử dụng thừa số tích phân $\mu(x) = e^{\int p(x) dx}$ nhân vào hai vế để biến vế trái thành đạo hàm của một tích $(\mu(x) \cdot y)'$, từ đó giải ra nghiệm.
+    Biến đổi phương trình đã cho về dạng phân kỳ vi phân:
+    \[\dfrac{dy}{dx} = - \dfrac{2xy}{1+x^2} \Leftrightarrow \dfrac{dy}{y} = - \dfrac{2x}{1+x^2} dx \quad (\text{Giả sử } y \neq 0)\]Lấy tích phân bất định cả hai vế:
+    \[\int \dfrac{1}{y} dy = - \int \dfrac{2x}{1+x^2} dx\]Nhận thấy ở vế phải, tử số $2x$ chính là đạo hàm của mẫu số $1+x^2$, nên ta có nguyên hàm:
+    \[\ln|y| = \ln\left(\dfrac{1}{1+x^2}\right) + C\]Mũ hóa hai vế cơ số $e$, ta thu được nghiệm tổng quát của phương trình:
+    \[|y| = e^{\ln\left(\dfrac{1}{1+x^2}\right) + C} = e^C \cdot \dfrac{1}{1+x^2} \Rightarrow y(x) = \dfrac{K}{1+x^2} \quad (\text{Với } K = \pm e^C)\]
+    Ta xác định $p(x) = \dfrac{2x}{1+x^2}$. Tính thừa số tích phân $\mu(x)$:
+    \[\mu(x) = e^{\int \dfrac{2x}{1+x^2} dx} = e^{\ln(1+x^2)} = 1+x^2\]Nhân cả hai vế của phương trình gốc với $\mu(x) = 1+x^2$:
+    \[y'(1+x^2) + y \cdot \dfrac{2x(1+x^2)}{1+x^2} = 0 \Leftrightarrow y'(1+x^2) + y(2x) = 0\]Nhận thấy vế trái chính là khai triển đạo hàm của tích số $[y(1+x^2)]'$:
+    \[y(1+x^2) = K \Rightarrow y(x) = \dfrac{K}{1+x^2}\]
+    \[10 = \dfrac{K}{1+(2)^2} \Leftrightarrow 10 = \dfrac{K}{5} \Rightarrow K = 50\]Vậy nghiệm riêng thỏa mãn điều kiện đề bài là hàm số $y(x) = \dfrac{50}{1+x^2}$. \\
+    \[y(-3) = \dfrac{50}{1+(-3)^2} = \dfrac{50}{1+9} = \dfrac{50}{10} = 5\]
+\vspace{0.2cm}
+    \vspace{0.15cm}
+\vspace{0.1cm}
+\vspace{0.1cm}
+            \item Nếu máy báo \textbf{No Solution} \hspace{0.55cm} $\longrightarrow$ Nhận $m$ cho \textbf{Dạng 4}.
+    \vspace{0.2cm}
+\vspace{0.1cm}
+\vspace{0.2cm}
+    colback=white,
+\vspace{0.1cm}
+    Cho hàm sản xuất $Q = \dfrac{1}{2}L + \dfrac{1}{2}\ln(2L + 1)$, trong đó $Q$ là sản lượng và $L$ là lượng lao động ($L \ge 0$). Chọn phát biểu ĐÚNG:
+    \choice{Khi $L$ tăng dần ra $+\infty$ thì biên tế (giá trị cận biên) của $Q$ luôn bé hơn $\dfrac{1}{2}$}{\True Khi $L$ tăng dần ra $+\infty$ thì biên tế (giá trị cận biên) của $Q$ theo $L$ tiến dần về một hằng số}{Biên tế (giá trị cận biên) của $Q$ theo $L$ khi $L = 1$ có giá trị là $\dfrac{7}{12}$}{Khi $L$ tăng dần ra $+\infty$ thì biên tế (giá trị cận biên) của $Q$ theo $L$ tăng}
+\vspace{0.1cm}
+\vspace{0.2cm}
+    \item \textbf{Sản lượng cận biên của lao động ($MP_L$):} $MP_L = \dfrac{dQ}{dL} = Q'(L)$. Hàm này cho biết nếu thuê thêm 1 nhân công thì sản lượng sẽ tăng thêm bao nhiêu.
+    \item \textbf{Quy luật năng suất cận biên giảm dần:} Ở đa số các mô hình sản xuất thực tế, khi không gian vốn ($K$) bị giới hạn, việc nhồi nhét thêm lao động ($L$) sẽ làm cho hiệu quả của mỗi lao động mới kém dần đi. Điều này biểu hiện qua đạo hàm bậc hai của hàm sản xuất âm: $MP'_L = Q''(L) < 0$, tức là hàm cận biên nghịch biến.
+    \item \textbf{Hành vi tiệm cận (Giới hạn):} Khi $L \to +\infty$, ta dùng phép tính $\lim\limits_{L \to +\infty} MP_L$ để đánh giá hành vi cực hạn của hàm sản xuất xem nó sẽ sụp đổ về $0$ hay hội tụ về một hằng số giới hạn nào đó.
+Từ hàm sản xuất $Q(L) = \dfrac{1}{2}L + \dfrac{1}{2}\ln(2L + 1)$, tiến hành lấy đạo hàm theo biến $L$:
+    \[MP_L = Q'(L) = \dfrac{1}{2} + \dfrac{1}{2} \cdot \dfrac{(2L + 1)'}{2L + 1} = \dfrac{1}{2} + \dfrac{1}{2} \cdot \dfrac{2}{2L + 1}\]
+        \item \textbf{Phát biểu \kh{A}:} "Khi $L$ tăng dần ra $+\infty$ thì biên tế luôn bé hơn $\dfrac{1}{2}$".\\
+        Vì điều kiện lao động $L \ge 0$, nên cụm phân thức $\dfrac{1}{2L+1}$ luôn mang giá trị dương ($> 0$). Do đó:
+        \[MP_L = \dfrac{1}{2} + \dfrac{1}{2L + 1} > \dfrac{1}{2}\]
+        Biên tế luôn lớn hơn $\dfrac{1}{2}$ với mọi $L \ge 0$. Phát biểu này \textbf{SAI}.
+        \[\lim_{L \to +\infty} MP_L = \lim_{L \to +\infty} \left( \dfrac{1}{2} + \dfrac{1}{2L + 1} \right) = \dfrac{1}{2} + 0 = \dfrac{1}{2}\]
+        Rõ ràng khi $L$ tiến ra vô cực, mẫu số $2L+1$ tiến ra vô cực, làm cho phân thức $\dfrac{1}{2L+1}$ triệt tiêu về $0$. Đồ thị của $MP_L$ sẽ nhận đường thẳng $y = 0.5$ làm tiệm cận ngang. Tức là biên tế hội tụ về hằng số $0.5$. Phát biểu này \textbf{ĐÚNG}.
+        \item \textbf{Phát biểu \kh{C}:} "Biên tế khi $L = 1$ có giá trị là $\dfrac{7}{12}$".\\
+        \[MP_L(1) = \dfrac{1}{2} + \dfrac{1}{2(1) + 1} = \dfrac{1}{2} + \dfrac{1}{3} = \dfrac{3}{6} + \dfrac{2}{6} = \dfrac{5}{6}\]
+        Kết quả là $\dfrac{5}{6}$, khác với $\dfrac{7}{12}$. Phát biểu này \textbf{SAI}.
+        \[(MP_L)' = Q''(L) = \left( \dfrac{1}{2} + (2L + 1)^{-1} \right)' = 0 - 1 \cdot (2L + 1)^{-2} \cdot 2 = - \dfrac{2}{(2L+1)^2}\]
+        Vì $(2L+1)^2 > 0$ nên $(MP_L)' < 0$ với mọi $L \ge 0$. Hàm cận biên là hàm nghịch biến (phản ánh đúng quy luật năng suất cận biên giảm dần). Khi $L$ tăng, biên tế phải GIẢM. Phát biểu này \textbf{SAI}.
+    colback=white,
+\textbf{Ý nghĩa kinh tế học của tổng hệ số co giãn ($\alpha + \beta$):} 
+    \item Nếu $\alpha + \beta = 1$: Doanh nghiệp có \textbf{hiệu suất không đổi theo quy mô} (Constant returns to scale). Nếu tăng cả $K$ và $L$ lên $m$ lần thì sản lượng cũng tăng đúng $m$ lần.
+    \item Nếu $\alpha + \beta > 1$: Doanh nghiệp có \textbf{hiệu suất tăng theo quy mô} (Increasing returns to scale). Tăng đầu vào $m$ lần sẽ làm sản lượng tăng nhiều hơn $m$ lần.
+    \item Nếu $\alpha + \beta < 1$: Doanh nghiệp có \textbf{hiệu suất giảm theo quy mô} (Decreasing returns to scale). Tăng đầu vào $m$ lần sẽ làm sản lượng tăng ít hơn $m$ lần.
+    colback=white,
+    colframe=orange!80!black,        % Viền hộp màu cam nhấn mạnh
+        \fill[orange!80!black] (frame.north west) rectangle ([xshift=8mm]frame.south west);
+\textbf{\textcolor{orange!80!black}{MẸO THỰC CHIẾN: TÌM GIỚI HẠN (LIMIT) TỔNG QUÁT BẰNG PHÍM CALC}} \\
+Để kiểm tra nhanh giới hạn của một hàm số $f(X)$ bất kỳ bằng máy tính Casio/Vinacal, ta nhập trực tiếp biểu thức $f(X)$ vào máy, sau đó sử dụng phím \textbf{CALC} để gán giá trị cho biến $X$ tiến cực sát đến điểm cần xét. Cụ thể:
+\vspace{0.2cm}
+\vspace{0.1cm}
+    \textit{(Ví dụ: Máy hiện $0.49999998$ thì ta mạnh dạn làm tròn giới hạn là $0.5$ hay $\dfrac{1}{2}$).}
+\vspace{0.1cm}
+    \textbf{(1.5đ)} Từ năm 2000, lượng vốn của một tập đoàn kinh tế A tăng với tốc độ tỉ lệ thuận với lượng vốn hiện có (thỏa mô hình tăng trưởng mũ). Biết rằng lượng vốn của tập đoàn A ở năm 2000 là $1000000$ (đơn vị $1000\$$) và vào năm 2015, lượng vốn tăng gấp ba. Ước lượng lượng vốn của tập đoàn A vào năm 2030 nếu tốc độ tăng vốn là không đổi.
+Gọi $V(t)$ là lượng vốn của tập đoàn A sau $t$ năm kể từ năm 2000 ($t \ge 0$). Vì tốc độ tăng vốn tỉ lệ thuận với lượng vốn hiện có, hàm $V(t)$ thỏa mãn mô hình tăng trưởng mũ với phương trình tổng quát:
+Tại thời điểm ban đầu (năm 2000), lượng vốn là $V(0) = 1000000$. Đến năm 2015, tương ứng với khoảng thời gian $t = 15$ năm, lượng vốn tăng gấp ba, tức là $V(15) = 3000000$. Thay các giá trị này vào phương trình, ta được:
+\[ k_0 = \frac{\ln 3}{15} \]
+Bài toán yêu cầu ước lượng lượng vốn vào năm 2030, tức là sau khoảng thời gian $t = 2030 - 2000 = 30$ năm. Thay thời gian và $k_0$ vào mô hình, ta có biểu thức:
+\[ V(30) = 1000000 e^{\frac{\ln 3}{15} \cdot 30} = 1000000 e^{2 \ln 3} \]
+Vậy, nếu tốc độ tăng vốn là không đổi, lượng vốn của tập đoàn A vào năm 2030 ước lượng sẽ đạt mức $9000000$ (đơn vị $1000\$$).
+    \textbf{(2.0đ)} Trong mô hình Input-Output mở Leontief gồm ba ngành, cho ma trận đầu vào 
+    Biết rằng tổng giá trị nguyên liệu đầu vào của ngành 3 bằng hai lần giá trị nguyên liệu mà ngành 1 cung cấp cho ngành 3 và nhu cầu cuối của ba ngành lần lượt là $73$, $59$ và $46$.
+        \item[(i)] Tính giá trị sản lượng của ba ngành.
+        \item[(ii)] Tính tổng giá trị nguyên liệu đầu vào mà ngành 1 cung cấp cho ba ngành.
+\noindent Bài toán cho biết tổng giá trị nguyên liệu đầu vào của ngành 3 gấp hai lần giá trị nguyên liệu ngành 1 cung cấp cho ngành 3. Ta áp dụng sơ đồ luồng tại ngành nhận (3) với Tổng sản lượng là $X_3$:
+            \node[font=\bfseries\color{green!60!black}] at (0,0) {#2};
+            \node[font=\bfseries\color{green!60!black}] at (2.2,0) {#3};
+            \node[draw=red!80!black, thick, inner sep=4pt, font=\bfseries] (Xj) at (2.2,-2.5) {#5};
+\noindent Vậy ma trận hệ số đầu vào là $A = \begin{bmatrix} 0.1 & 0.2 & 0.4 \\ 0.3 & 0.1 & 0.2 \\ 0.2 & 0.4 & 0.2 \end{bmatrix}$.
+\vspace{0.3cm}
+\noindent \textbf{2. Giải quyết câu (i): Tính giá trị sản lượng của ba ngành}
+\noindent Giá trị sản lượng của ba ngành được xác định bằng tỷ số giữa định thức phụ tương ứng và định thức hệ số:
+    X_1 = \dfrac{\Delta_1}{\Delta} = \dfrac{84}{0.4} = 210 \\[0.8em]
+    X_2 = \dfrac{\Delta_2}{\Delta} = \dfrac{72}{0.4} = 180 \\[0.8em]
+    X_3 = \dfrac{\Delta_3}{\Delta} = \dfrac{80}{0.4} = 200
+\vspace{0.3cm}
+\noindent Ngành 1 đóng vai trò là bên cung cấp cho cả ba ngành trong nền kinh tế. Ta áp dụng sơ đồ luồng xuôi (mũi tên đỏ) bằng cách nhân hệ số đầu vào với Tổng sản lượng thực tế của từng ngành nhận:
+            \node[font=\bfseries\color{green!60!black}] at (0,0) {#2};
+            \node[font=\bfseries\color{green!60!black}] at (1.8,0) {#3};
+            \node[draw=red!80!black, thick, inner sep=4pt, font=\bfseries] (Xj) at (1.8,-2.5) {#5};
+    L'_x = \dfrac{1}{2}x^{-1/2}y^{1/2} - 2\lambda = 0 & (1) \\[0.6em]
+    L'_y = \dfrac{1}{2}x^{1/2}y^{-1/2} - 3\lambda = 0 & (2) \\[0.6em]
+    2\lambda = \dfrac{1}{2}x^{-1/2}y^{1/2} \\[0.6em]
+    3\lambda = \dfrac{1}{2}x^{1/2}y^{-1/2}
+\[ \dfrac{3\lambda}{2\lambda} = \dfrac{\dfrac{1}{2}x^{1/2}y^{-1/2}}{\dfrac{1}{2}x^{-1/2}y^{1/2}} \Rightarrow \dfrac{3}{2} = \dfrac{x}{y} \Rightarrow 2x = 3y \]
+\noindent Từ (1) ta dễ dàng suy ra $\lambda = \dfrac{1}{4}(30)^{-1/2}(20)^{1/2} = \dfrac{\sqrt{6}}{12} > 0$. Vậy ta có điểm dừng $M(30, 20)$.
+\[ g_1 = 2, \quad g_2 = 3,\quad L_{11} = -\dfrac{1}{4}x^{-3/2}y^{1/2}, \quad L_{22} = -\dfrac{1}{4}x^{1/2}y^{-3/2}, \quad L_{12} = L_{21} = \dfrac{1}{4}x^{-1/2}y^{-1/2} \]
+2 & -\dfrac{1}{4}x^{-3/2}y^{1/2} & \dfrac{1}{4}x^{-1/2}y^{-1/2} \\[0.6em]
+3 & \dfrac{1}{4}x^{-1/2}y^{-1/2} & -\dfrac{1}{4}x^{1/2}y^{-3/2} 
+|\overline{H}| &= -2\left[2\left(-\dfrac{1}{4}x^{1/2}y^{-3/2}\right) - 3\left(\dfrac{1}{4}x^{-1/2}y^{-1/2}\right)\right] + 3\left[2\left(\dfrac{1}{4}x^{-1/2}y^{-1/2}\right) - 3\left(-\dfrac{1}{4}x^{-3/2}y^{1/2}\right)\right] \\[0.6em]
+&= x^{1/2}y^{-3/2} + \dfrac{3}{2}x^{-1/2}y^{-1/2} + \dfrac{3}{2}x^{-1/2}y^{-1/2} + \dfrac{9}{4}x^{-3/2}y^{1/2} \\[0.6em]
+&= x^{1/2}y^{-3/2} + 3x^{-1/2}y^{-1/2} + \dfrac{9}{4}x^{-3/2}y^{1/2}
+
+
+==================== loigiai_english.tex ==================== ====================
+\customchapter{MATHEMATICS EXAM K51 (ENGLISH)}
+\vspace{0.5cm}
+    \choice{\True $y = -\dfrac{1}{2}e^{-x} + Ce^x$}{$y = e^{-x} + Ce^x$}{$y = -e^{-x} + Ce^{-x}$}{$y = \dfrac{1}{2}e^{-x} + Ce^x$}
+\vspace{0.2cm}
+\vspace{0.2cm}
+\[y' + p(x)y = q(x)\]To solve this, we use the Integrating Factor method. The integrating factor $\mu(x)$ is defined as:
+    \textbf{Step 1: Identify components and compute the integrating factor}\\
+    We calculate the integrating factor $\mu(x)$:
+        \Leftrightarrow \quad & y \cdot e^{-x} = -\dfrac{1}{2}e^{-2x} + C
+    \[y = \left(-\dfrac{1}{2}e^{-2x} + C\right)e^x = -\dfrac{1}{2}e^{-x} + Ce^x\]Comparing this result with the given options, we conclude that option \textbf{\kh{A}} is correct.
+\vspace{0.2cm}
+\vspace{0.2cm}
+    Since $A$ is a $3 \times 3$ matrix ($n=3$) and $\text{rank}(A) \le 2 < 3$, $A$ does not have full rank. We evaluate each option based on this core fact:
+        \item \textbf{Option \kh{D} ($\det(A^2 - A) = 0$):} We can factor the matrix polynomial:
+        \item \textbf{Option \kh{B} ($\text{rank}(A^2) = 3$):} According to the rank inequality property, $\text{rank}(A^2) \le \text{rank}(A) \le 2$. Therefore, it is impossible for $\text{rank}(A^2)$ to be $3$. This statement is \textbf{FALSE}.
+    \choice{$3$}{$\dfrac{1}{2}$}{$1$}{\True $\dfrac{3}{2}$}
+\vspace{0.2cm}
+\vspace{0.2cm}
+In economics, the "approximate increase in output when one additional unit of labor is added" is the exact definition of the \textbf{Marginal Product of Labor ($MP_L$)}. Mathematically, this is the partial derivative of the production function with respect to $L$:
+\[MP_L = \dfrac{\partial Q}{\partial L}\]To compute this, we must apply the \textbf{Chain Rule} for multivariable composite functions. If $Q = f(u)$ where $u = g(K, L)$, then:
+\[\dfrac{\partial Q}{\partial L} = f'(u) \cdot \dfrac{\partial u}{\partial L}\]
+            MP_L = \dfrac{\partial Q}{\partial L} &= f'(K + 3\sqrt{L}) \cdot \dfrac{\partial}{\partial L}(K + 3L^{1/2}) \\
+            &= f'(K + 3\sqrt{L}) \cdot \left(0 + 3 \cdot \dfrac{1}{2}L^{-1/2}\right) \\
+            &= f'(K + 3\sqrt{L}) \cdot \dfrac{3}{2\sqrt{L}}
+            MP_L(1, 1) &= f'(1 + 3\sqrt{1}) \cdot \dfrac{3}{2\sqrt{1}} \\
+            &= f'(4) \cdot \dfrac{3}{2}
+    \[MP_L(1, 1) = 1 \cdot \dfrac{3}{2} = \dfrac{3}{2}\]Thus, an additional unit of labor increases the output by approximately $\dfrac{3}{2}$. The correct choice is \textbf{\kh{D}}.
+    \choice{$A^{-1} = \begin{bmatrix} \dfrac{1}{3} & 0 \\[0.8em] -\dfrac{2}{3} & \dfrac{1}{3} \end{bmatrix}$}{$A^{-1} = \begin{bmatrix} \dfrac{1}{3} & -\dfrac{2}{3} \\[0.8em] 0 & \dfrac{1}{3} \end{bmatrix}$}{\True $A^{-1} = \begin{bmatrix} 3 & -6 \\[0.5em] 0 & 3 \end{bmatrix}$}{$A^{-1} = \begin{bmatrix} 3 & 0 \\[0.5em] -6 & 3 \end{bmatrix}$}
+\vspace{0.2cm}
+\vspace{0.2cm}
+To extract the unknown matrix $A$ from a complex algebraic equation, we must rigidly adhere to the following properties:
+    \item \textbf{Inverse of a scalar multiple:} $(k \cdot M)^{-1} = \dfrac{1}{k} \cdot M^{-1}$. (Many students mistakenly write $k M^{-1}$).
+\vspace{0.25cm}
+    colback=white,
+When dealing with the inverse of $(3A^T)$, the scalar $3$ must be inverted alongside the matrix. Just like in real numbers where $(3x)^{-1} = \dfrac{1}{3x}$, for matrices, $(3A^T)^{-1} = \dfrac{1}{3}(A^T)^{-1}$. Forgetting to invert the scalar will immediately lead you to a trap answer designed by the examiners.
+\vspace{0.2cm}
+            (3A^T)^{-1} &= B^2 \Leftrightarrow \dfrac{1}{3}(A^T)^{-1} &= B^2
+    \]Multiply both sides by $3$ to remove the fraction:
+\vspace{0.2cm}
+\vspace{0.2cm}
+When dealing with an implicit function $F(x,y) = 0$, finding $y'(x_0)$ requires a highly structured approach to prevent algebraic errors:
+    \item \textbf{The Formulaic Approach:} Instead of taking the direct derivative, define $F(x,y) = 0$ by moving everything to one side. Then, compute the partial derivatives and use:
+    \[y' = -\dfrac{F'_x}{F'_y}\]
+        y'(x) = -\dfrac{3x^2+y^3+2e^{2x}y}{3xy^2+e^{2x}}
+        y'(0) = -\dfrac{3(0)^2+(2)^3+2e^{2(0)}(2)}{3(0)(2)^2+e^{2(0)}} = -\dfrac{0+8+4}{0+1} = -12
+\vspace{0.2cm}
+\vspace{0.2cm}
+The determinant acts as a volume scaling factor in linear algebra. When evaluating the determinant of a complex matrix product, break it down layer by layer using these immutable rules:
+    \item \textbf{Inverse \& Transpose Rule:} $\det(M^{-1}) = \dfrac{1}{\det(M)}$ and $\det(M^T) = \det(M)$.
+\vspace{0.25cm}
+    colback=white,
+\vspace{0.2cm}
+            &= 8 \cdot (\det A)^2 \cdot \dfrac{1}{\det B}
+           \det \left[ 2A^2(B^{-1})^T \right] &= 8 \cdot (3)^2 \cdot \dfrac{1}{2} \\
+            &= 8 \cdot 9 \cdot \dfrac{1}{2} = 36
+    The profit function of a product is given by $\pi = Q^3 - \dfrac{9}{2}Q^2 + 6Q$, where $Q$ is the output. At what level of output is the marginal profit minimized?
+    \choice{$Q = 1$}{$Q = 0$}{\True $Q = \dfrac{3}{2}$}{$Q = 2$}
+\vspace{0.2cm}
+\vspace{0.2cm}
+\noindent A critical point (or stationary point) $x_0$ is a root of the equation $f'(x) = 0$. When factoring $f'(x)$ into terms containing $(x-x_0)^k$, the degree $k$ determines whether the derivative changes sign:
+    \[M\pi = \pi'(Q) = 3Q^2 - 2 \cdot \dfrac{9}{2}Q + 6 = 3Q^2 - 9Q + 6\]
+    \[ 6Q - 9 = 0 \Rightarrow Q = \dfrac{9}{6} = \dfrac{3}{2} \]
+    \noindent Since $(M\pi)'' = 6 > 0$ for all $Q$, the marginal profit function $M\pi(Q)$ is a \textbf{strictly convex function} everywhere (an upward-opening parabola). According to \textbf{Theory Section 4 (Evaluating Global Extrema)}, a critical point of a globally convex function is strictly a global minimum. Thus, the marginal profit is globally minimized at an output level of $Q = \dfrac{3}{2}$. Option \textbf{\kh{C}} is correct.
+    \choice{$A^2 \neq B$}{$\text{rank}(AB^2) < 3$}{\True $\text{rank}(B) < \text{rank}(A^2)$}{There is not a matrix $C$ such that $ACB = I$}
+\vspace{0.2cm}
+\vspace{0.2cm}
+    We systematically test the logical validity of each option:
+        \item \textbf{Check \textbf{\kh{D}} (No matrix $C$ satisfies $ACB = I$):} Suppose such a matrix $C$ exists. Taking determinants gives:
+        \[\det(ACB) = \det(I) \Rightarrow \det(A)\det(C)\det(B) = 1 \Rightarrow 0 \cdot \det(C) \cdot 2 = 1 \Rightarrow 0 = 1\]This contradiction proves that no such matrix $C$ can exist. The statement is \textbf{TRUE}.
+    We evaluate the determinants $D_1 = f''_{xx}$ and $D_2 = f''_{xx}f''_{yy} - (f''_{xy})^2$ at each stationary point.
+        \]Since both $D_1 > 0$ and $D_2 > 0$, the Hessian matrix is positive definite. The surface forms a convex "bowl" shape, indicating that point $B(2,2)$ is a \textbf{local minimum}.
+\vspace{0.2cm}
+        \item \textbf{Approach:} Set $|A| \neq 0 \longrightarrow$ Solve for $m$.
+    \vspace{0.15cm}
+        \item \textbf{Approach:} Set $|A| = 0 \longrightarrow$ Solve for $m$.
+\vspace{0.3cm}
+    \vspace{0.1cm}
+    \hspace{0.5cm} \textbf{\textit{Execution Steps for Types 3 \& 4:}}
+        \item \textbf{Step 2:} Substitute each found value of $m$ back into the original numerical matrix.
+            \item If the calculator displays \textbf{Infinite Solution} $\longrightarrow$ Accept $m$ for \textbf{Type 3}.
+            \item If the calculator displays \textbf{No Solution} \hspace{0.55cm} $\longrightarrow$ Accept $m$ for \textbf{Type 4}.
+    \vspace{0.2cm}
+        \item \textbf{Approach 1 (Complement):} Find $m$ for "No Solution" (Type 4), then take the complement set (all real numbers $\mathbb{R}$ excluding the Type 4 results).
+        \item \textbf{Approach 2 (Union):} Take the union of the results from \textbf{Type 1} and \textbf{Type 3}.
+    We extract the coefficient matrix $A$ and compute its determinant directly:
+    We only have one candidate, $m = 1$. We plug this specific value back into the original system:
+    - "There exists $m$ such that the system has no solution" is \textbf{TRUE} (we just proved $m=1$ does exactly this). \\
+\[ 10k = \ln 1.3 \Rightarrow k = \dfrac{\ln 1.3}{10} \]
+\[ G(t) = 800e^{\frac{\ln 1.3}{10}t} \]
+\[ G(20) = 800e^{\frac{\ln 1.3}{10} \cdot 20} = 800e^{2\ln 1.3} \]
+\noindent \textbf{Step 1 (Inverse calculation):} From the actual value $x_{13} = 400$, we divide by the input coefficient $a_{13} = 0.2$ to deduce the total output of sector 3 ($X_3$).
+        \node[font=\bfseries\color{green!60!black}] at (0,0) {Supply (1)};
+        \node[font=\bfseries\color{green!60!black}] at (2.5,0) {Receive (3)};
+        \node[draw=red!80!black, thick, inner sep=6pt, font=\bfseries] (Xj) at (2.5,-2.5) {$X_3$};
+        \node[font=\bfseries\color{green!60!black}] at (0,0) {Supply (2)};
+        \node[font=\bfseries\color{green!60!black}] at (2.5,0) {Receive (3)};
+        \node[draw=red!80!black, thick, inner sep=6pt, font=\bfseries] (Xj) at (2.5,-2.5) {$2000$};
+\noindent From the Step 1 diagram, we have: $X_3 = \dfrac{400}{0.2} = 2000$.
+\vspace{0.3cm}
+\noindent Let $\Delta X = \begin{bmatrix} \Delta x_1 \\ \Delta x_2 \\ \Delta x_3 \end{bmatrix}$ be the change in the output matrix and $\Delta D = \begin{bmatrix} 10 \\ -5 \\ 5 \end{bmatrix}$ be the change in the final demand matrix. According to the Leontief model, we have the equation $(I - A)\Delta X = \Delta D$.
+\noindent The change in output for each sector is the ratio of the corresponding secondary determinant to the main determinant:
+    \Delta x_1 = \dfrac{\Delta_1}{\Delta} = \dfrac{5.15}{0.285} = \dfrac{1030}{57} \approx 18.07 \\[0.8em]
+    \Delta x_2 = \dfrac{\Delta_2}{\Delta} = \dfrac{2.05}{0.285} = \dfrac{410}{57} \approx 7.19 \\[0.8em]
+    \Delta x_3 = \dfrac{\Delta_3}{\Delta} = \dfrac{3.8}{0.285} = \dfrac{760}{57} \approx 13.33
+\[ \dfrac{1}{1} = \dfrac{\lambda L^{-2/3}K^{2/3}}{\lambda L^{1/3}K^{-1/3}} \Rightarrow 1 = L^{-1}K \Rightarrow K = L \]
+\[ 100 - 3L^{1/3}L^{2/3} = 0 \Rightarrow 100 = 3L \Rightarrow L = \dfrac{100}{3} \]
+\noindent Hence $K = \dfrac{100}{3}$. Substitute $L, K$ into (1), we easily get $\lambda = 1$. Thus, we have the stationary point $M\left(\dfrac{100}{3}, \dfrac{100}{3}\right)$.
+\[ \mathcal{L}_{LL} = \dfrac{2}{3}\lambda L^{-5/3}K^{2/3}, \quad \mathcal{L}_{KK} = \dfrac{2}{3}\lambda L^{1/3}K^{-4/3}, \quad \mathcal{L}_{LK} = \mathcal{L}_{KL} = -\dfrac{2}{3}\lambda L^{-2/3}K^{-1/3} \]
+\noindent Substitute the values at the stationary point $M\left(\dfrac{100}{3}, \dfrac{100}{3}\right)$ and $\lambda = 1$ into the derivatives:
+\[ \mathcal{L}_{LL} = \dfrac{2}{3}(1)\left(\dfrac{100}{3}\right)^{-1} = \dfrac{1}{50}, \quad \mathcal{L}_{KK} = \dfrac{2}{3}(1)\left(\dfrac{100}{3}\right)^{-1} = \dfrac{1}{50}, \quad \mathcal{L}_{LK} = \mathcal{L}_{KL} = -\dfrac{2}{3}(1)\left(\dfrac{100}{3}\right)^{-1} = -\dfrac{1}{50} \]
+1 & \dfrac{1}{50} & -\dfrac{1}{50} \\[0.6em]
+2 & -\dfrac{1}{50} & \dfrac{1}{50} 
+\[ |\overline{H}| = 0 - 1\left(\dfrac{1}{50} - \left(-\dfrac{2}{50}\right)\right) + 2\left(-\dfrac{1}{50} - \dfrac{2}{50}\right) = -1\left(\dfrac{3}{50}\right) + 2\left(-\dfrac{3}{50}\right) = -\dfrac{9}{50} \]
+\noindent Since the second-order derivatives contain variables and $\lambda$, we evaluate the determinant at the stationary point. Because $|\overline{H}| < 0$, the cost function achieves a \textbf{local minimum} at $M\left(\dfrac{100}{3}, \dfrac{100}{3}\right)$.
+\[ C_{min} = \dfrac{100}{3} + 2\left(\dfrac{100}{3}\right) = 100 \]
+
+
+==================== loigiai_tonghop.tex ==================== ====================
+\customchapter{LỜI GIẢI ĐỀ THI TOÁN CAO CẤP K51 (ĐỢT 2 -- SINH VIÊN CHÉP ĐỀ)}
+    Một cơ sở sản xuất có hàm chi phí là $C(x, y) = x^2 + 2y^2 - 4\ln(x) - 8\ln(y)$, trong đó $x > 0$, $y > 0$ lần lượt là lượng của hai loại nguyên liệu đầu vào cần thiết. Cơ sở này đạt chi phí thấp nhất khi:
+    Ta áp dụng lý thuyết cực trị vào khảo sát hàm chi phí $C(x, y) = x^2 + 2y^2 - 4\ln(x) - 8\ln(y)$ trên miền mở $x > 0, y > 0$:
+    Đạo hàm riêng bậc nhất của hàm chi phí được tính như sau:
+    $$ C'_x = 2x - \dfrac{4}{x}, \quad C'_y = 4y - \dfrac{8}{y} $$
+        2x - \dfrac{4}{x} = 0 \\[0.8em]
+        4y - \dfrac{8}{y} = 0
+    $$ C''_{xx} = 2 + \dfrac{4}{x^2}, \quad C''_{yy} = 4 + \dfrac{8}{y^2}, \quad C''_{xy} = C''_{yx} = 0 $$
+    Vì định thức ma trận Hessian mang dấu dương ($|H| > 0$) và đạo hàm riêng cấp hai $C''_{xx}(\sqrt{2}, \sqrt{2}) = 4 > 0$, theo điều kiện đủ, hàm chi phí đạt cực tiểu tại điểm dừng $M(\sqrt{2}, \sqrt{2})$. Do $M$ là điểm cực trị duy nhất trên miền mở đang khảo sát, đây cũng chính là điểm cực tiểu toàn cục.
+    Vậy cơ sở đạt chi phí thấp nhất khi lượng nguyên liệu đầu vào là $x = \sqrt{2}, y = \sqrt{2}$.
+    Một doanh nghiệp sản xuất một loại sản phẩm. Mức sản lượng $Q$ phụ thuộc hai yếu tố đầu vào là lượng vốn $K$ và lượng lao động $L$ theo phương trình $Q = 2K^2 + 3L^2 + KL$. Tại mức đầu vào $K = 10, L = 5$, nếu doanh nghiệp tăng thêm 1 đơn vị lao động nhưng vẫn muốn giữ nguyên sản lượng thì lượng vốn đầu vào giảm bao nhiêu đơn vị?
+    \textbf{\Large Cơ sở lý thuyết: Tỷ lệ thay thế kỹ thuật biên (MRTS)}
+Trong kinh tế vi mô, khi mức sản lượng được giữ không đổi ở mức $Q(K, L) = Q_0$, vi phân toàn phần của sản lượng bằng không:
+Hệ thức trên xác định tốc độ thay thế của vốn đầu vào $K$ đối với lượng lao động $L$ được gọi là Tỷ lệ thay thế kỹ thuật biên (MRTS):
+$$ \text{MRTS} = \dfrac{\mathrm{d}K}{\mathrm{d}L} = -\dfrac{Q'_L}{Q'_K} $$
+Ý nghĩa kinh tế: Để tăng sử dụng thêm 1 đơn vị lao động mà sản lượng đầu ra không đổi, doanh nghiệp phải giảm bớt một lượng vốn tương ứng bằng $|\text{MRTS}|$ đơn vị.
+    \textbf{Cách 1: Sử dụng tỷ lệ thay thế kỹ thuật biên (MRTS)}
+    Xét hàm sản lượng của doanh nghiệp $Q(K, L) = 2K^2 + 3L^2 + KL$.
+    Ta lần lượt tính đạo hàm riêng của sản lượng theo các biến vốn $K$ và lao động $L$ tại mức phối hợp đầu vào $(K, L) = (10, 5)$:
+    Tỷ lệ thay thế kỹ thuật biên tại mức đầu vào này bằng:
+    $$ \dfrac{\mathrm{d}K}{\mathrm{d}L} = -\dfrac{Q'_L(10, 5)}{Q'_K(10, 5)} = -\dfrac{40}{45} = -\dfrac{8}{9} $$
+    Khi lượng lao động tăng thêm 1 đơn vị ($dL = 1$), lượng vốn đầu vào thay đổi một lượng là:
+    $$ dK \approx \dfrac{\mathrm{d}K}{\mathrm{d}L} \cdot dL = -\dfrac{8}{9} \cdot 1 = -\dfrac{8}{9} $$
+    Dấu âm biểu thị xu hướng giảm đi. Do đó, lượng vốn đầu vào phải giảm $8/9$ đơn vị để doanh nghiệp giữ nguyên mức sản lượng ban đầu.
+    \textbf{Cách 2: Sử dụng công thức xấp xỉ bằng vi phân}
+    Doanh nghiệp muốn giữ nguyên sản lượng nên lượng thay đổi sản lượng $\Delta Q = 0$. 
+    Khi lượng lao động tăng thêm 1 đơn vị, ta có $\Delta L = 1$. Thế các giá trị vào công thức:
+    $$ \Rightarrow \Delta K \approx -\dfrac{40}{45} = -\dfrac{8}{9} $$
+    Vậy lượng vốn $K$ thay đổi khoảng $-\dfrac{8}{9}$ đơn vị, tức là giảm $8/9$ đơn vị.
+    Hàm tổng chi phí của một công ty công nghệ được xác định bởi công thức $C(Q) = 500 \cdot \ln(Q^2 + 1) + 200$, với $Q$ là số lượng tài khoản người dùng đăng ký. Chi phí biên của công ty tại mức sản lượng $Q = 3$ gần nhất với giá trị nào sau đây?
+    \textbf{\Large Cơ sở lý thuyết: Chi phí biên tế và Quy tắc đạo hàm}
+Chi phí biên tế ($MC$) biểu thị tốc độ thay đổi của tổng chi phí khi sản lượng tăng thêm một đơn vị sản phẩm. Về mặt toán học, hàm chi phí biên chính là đạo hàm bậc nhất của hàm tổng chi phí $C(Q)$ theo biến sản lượng $Q$:
+$$ MC(Q) = C'(Q) $$
+$$ \big[ \ln\big(u(Q)\big) \big]' = \dfrac{u'(Q)}{u(Q)} $$
+    Ta tiến hành lấy đạo hàm hàm chi phí $C(Q) = 500 \cdot \ln(Q^2 + 1) + 200$:
+    $$ MC(Q) = C'(Q) = 500 \cdot \dfrac{(Q^2+1)'}{Q^2+1} = 500 \cdot \dfrac{2Q}{Q^2+1} = \dfrac{1000Q}{Q^2+1} $$
+    Để xác định chi phí biên tế tại mức sản lượng $Q = 3$ tài khoản, ta thế giá trị vào hàm số $MC(Q)$:
+    $$ MC(3) = \dfrac{1000 \cdot 3}{3^2+1} = \dfrac{3000}{10} = 300 $$
+    Chi phí biên của công ty tại mức sản lượng này là $300$.
+    Tại mức giá hiện tại $p_0$, hệ số co giãn của lượng cầu theo giá của một sản phẩm là $E_p = -0.5$. Doanh nghiệp quyết định tăng giá bán một lượng nhỏ. Phát biểu nào sau đây là \textbf{ĐÚNG} về doanh thu của doanh nghiệp?
+    \choice{Doanh thu không đổi vì lượng cầu giảm tương ứng với mức tăng giá.}{Doanh thu biên dương ($MR > 0$), việc tăng giá làm tăng tổng doanh thu.}{\True Các phát biểu kia đều sai.}{Doanh thu biên âm ($MR < 0$), việc tăng giá làm giảm tổng doanh thu.}
+    \textbf{\Large Cơ sở lý thuyết: Doanh thu biên tế và Hệ số co giãn cầu theo giá}
+    \item \textbf{Doanh thu biên tế ($MR$)} được định nghĩa là đạo hàm của tổng doanh thu theo lượng bán $Q$ chứ không phải theo giá $p$:
+    $$ MR = \dfrac{\mathrm{d}TR}{\mathrm{d}Q} $$
+    \item \textbf{Hệ số co giãn của lượng cầu theo giá ($E_p$)} được định nghĩa bởi công thức:
+    $$ E_p = \dfrac{\mathrm{d}Q}{\mathrm{d}p} \cdot \dfrac{p}{Q} $$
+    Khi $E_p \neq 0$ thì $\dfrac{\mathrm{d}Q}{\mathrm{d}p} \neq 0$, ta xem giá $p$ là hàm ngược của lượng cầu $p = p(Q)$. Khi đó:
+    $$ \dfrac{\mathrm{d}p}{\mathrm{d}Q} = \dfrac{1}{\dfrac{\mathrm{d}Q}{\mathrm{d}p}} = \dfrac{1}{E_p \dfrac{Q}{p}} = \dfrac{p}{E_p Q} $$
+    \item \textbf{Thiết lập mối liên hệ giữa $MR$ và $E_p$ (Công thức Amoroso-Robinson):}
+    $$ MR = \dfrac{\mathrm{d}(p \cdot Q)}{\mathrm{d}Q} = p + Q \cdot \dfrac{\mathrm{d}p}{\mathrm{d}Q} = p + Q \cdot \dfrac{p}{E_p Q} = p + \dfrac{p}{E_p} = p\left(1 + \dfrac{1}{E_p}\right) $$
+        \item \textbf{Xét chiều biến động của tổng doanh thu ($TR$):}
+        Đạo hàm của tổng doanh thu $TR = p \cdot Q(p)$ theo giá $p$ là:
+        $$ \dfrac{\mathrm{d}TR}{\mathrm{d}p} = Q + p\dfrac{\mathrm{d}Q}{\mathrm{d}p} = Q(1 + E_p) $$
+        $$ \dfrac{\mathrm{d}TR}{\mathrm{d}p} = Q_0(1 - 0.5) = 0.5Q_0 > 0 $$
+        Do $\dfrac{\mathrm{d}TR}{\mathrm{d}p} > 0$, khi doanh nghiệp tăng giá một lượng nhỏ ($dp > 0$), tổng doanh thu $TR$ sẽ tăng.
+        Suy ra phát biểu \textbf{A} là sai (doanh thu tăng chứ không phải không đổi) và phát biểu \textbf{D} là sai (tăng giá làm doanh thu tăng chứ không phải giảm).
+        \item \textbf{Xét doanh thu biên tế ($MR$):}
+        Theo công thức Amoroso-Robinson, mối quan hệ giữa doanh thu biên tế theo lượng ($MR = \frac{\mathrm{d}TR}{\mathrm{d}Q}$) và co giãn cầu là:
+        $$ MR = p \left(1 + \dfrac{1}{E_p}\right) $$
+        $$ MR = p \left(1 + \dfrac{1}{-0.5}\right) = -p < 0 \quad (\text{vì } p > 0) $$
+        Vì $MR < 0$, phát biểu \textbf{B} là sai (doanh thu biên âm chứ không phải dương).
+    Trong mô hình thị trường động, giá bán $P(t)$ của một loại hàng hóa theo thời gian $t$ thỏa mãn phương trình vi phân: $P'(t) + 3P(t) = 12$. Biết giá ban đầu $P(0) = 5$. Khi thời gian $t$ tiến ra vô hạn ($t \to +\infty$), giá của hàng hóa này sẽ ổn định về mức giá cân bằng dài hạn là bao nhiêu?
+Phương trình vi phân bậc nhất dạng hệ số hằng tuyến tính có thể đưa về dạng tách biến (phân ly biến số):
+$$ \dfrac{\mathrm{d}y}{\mathrm{d}t} = a(y - b) \Rightarrow \dfrac{\mathrm{d}y}{y - b} = a\,\mathrm{d}t $$
+    Ta biến đổi phương trình vi phân biến động giá cả:
+    $$ P'(t) + 3P(t) = 12 \Leftrightarrow \dfrac{\mathrm{d}P}{\mathrm{d}t} = -3(P - 4) $$
+    $$ \dfrac{\mathrm{d}P}{P - 4} = -3\,\mathrm{d}t \Rightarrow \int \dfrac{\mathrm{d}P}{P - 4} = \int -3\,\mathrm{d}t $$
+    Khi thời gian tiến ra vô hạn ($t \to +\infty$), giới hạn hội tụ của giá bán là:
+    Một công ty công nghệ vừa ra mắt một ứng dụng di động mới. Bộ phận nghiên cứu thị trường nhận thấy rằng tốc độ tăng trưởng số lượng người dùng ứng dụng $dx/dt$ tại thời điểm $t$ (tính bằng tháng) tỷ lệ thuận với hiệu số giữa lượng người dùng tối đa tiềm năng trên thị trường ($10000$) và số lượng người dùng hiện tại $x(t)$. Biết rằng tại thời điểm vừa ra mắt ($t = 0$), ứng dụng có số lượng người dùng ban đầu là $500$.
+Mô hình toán học cho sự tăng trưởng bị giới hạn bởi một ngưỡng bão hòa tối đa $M$ được mô tả bởi phương trình vi phân động lực học bậc nhất:
+$$ \dfrac{\mathrm{d}x}{\mathrm{d}t} = k(M - x) \quad (\text{với } k > 0) $$
+Phương trình vi phân này được giải bằng phương pháp phân ly biến số, đưa về dạng nguyên hàm tích phân cơ bản để xác định nghiệm cụ thể.
+        \item Gọi $x(t)$ là số lượng người dùng ứng dụng di động sau $t$ tháng ($t \ge 0$). Theo đề bài, tốc độ tăng trưởng người dùng tỷ lệ thuận với hiệu số giữa ngưỡng tối đa tiềm năng ($10000$) và lượng người dùng hiện tại, ta lập được phương trình vi phân tách biến:
+        $$ \dfrac{\mathrm{d}x}{\mathrm{d}t} = k(10000 - x) \quad (\text{với } k > 0) $$
+        $$ \dfrac{\mathrm{d}x}{10000 - x} = k \, \mathrm{d}t $$
+        $$ \int \dfrac{\mathrm{d}x}{10000 - x} = \int k \, \mathrm{d}t \Leftrightarrow -\ln(10000 - x) = kt + C_1 \Leftrightarrow 10000 - x = C e^{-kt} $$
+        $$ 10000 - 9500 e^{-10k} = 1000 \Leftrightarrow e^{-10k} = \dfrac{18}{19} \Rightarrow k = -\dfrac{1}{10} \ln\left(\dfrac{18}{19}\right) \approx 0,005407 $$
+        $$ 10000 - 9500 e^{-kt} = 7500 \Leftrightarrow e^{-kt} = \dfrac{5}{19} \Rightarrow t = -\dfrac{1}{k} \ln\left(\dfrac{5}{19}\right) $$
+        $$ t = 10 \cdot \dfrac{\ln(5/19)}{\ln(18/19)} \approx 246,92 \quad (\text{tháng}) $$
+    Một công ty nhận đơn hàng sản xuất tổng cộng $300$ sản phẩm và quyết định phân bổ sản lượng này cho hai nhà máy trực thuộc: nhà máy 1 (sản xuất $q_1$ sản phẩm) và nhà máy 2 (sản xuất $q_2$ sản phẩm). Biết rằng hàm tổng chi phí vận hành của công ty được xác định bởi $C(q_1, q_2) = q_1^2 + 20q_1 + 40q_2 + 1200$. Sử dụng phương pháp nhân tử Lagrange, hãy tìm phương án phân bổ sản lượng ($q_1, q_2$) sao cho tổng chi phí đạt giá trị tối thiểu.
+    Ta tối thiểu hóa hàm chi phí $C(q_1, q_2) = q_1^2 + 20q_1 + 40q_2 + 1200$ với điều kiện ràng buộc sản lượng $q_1 + q_2 = 300$.
+    Vì định thức Hessian viền mang dấu âm ($|\overline{H}| = -2 < 0$), theo điều kiện đủ, hàm chi phí đạt cực tiểu toàn cục tại điểm dừng $M(10, 290)$.
+    Vậy phương án phân bổ sản lượng tối ưu để chi phí thấp nhất là sản xuất $10$ sản phẩm tại nhà máy 1 và $290$ sản phẩm tại nhà máy 2. Tổng chi phí vận hành tối thiểu đạt được là:
+            x = \dfrac{17}{3} \\[0.8em] 
+            y = -\dfrac{4}{3} \\[0.8em] 
+            z = -\dfrac{4}{3} 
+        \item \textbf{Trường hợp 2:} Xét $m - 3 \neq 0 \Leftrightarrow m \neq 3$. Từ ma trận biến đổi ở trên, ta nhân dòng 2 với hằng số $-\dfrac{1}{2}$ để chuẩn hóa cột thứ hai:
+            0 & 1 & \dfrac{4-m}{2} & -2 \\[0.8em] 
+            0 & 1 & \dfrac{4-m}{2} & -2 \\[0.8em] 
+            0 & 0 & \dfrac{(m-1)(m-6)}{2} & 2(m-1) 
+                0 & 1 & \dfrac{3}{2} & -2 \\[0.8em] 
+                y + \dfrac{3}{2}z = -2
+                y = -2 - \dfrac{3}{2}t \\[0.8em]
+                x = 5 + \dfrac{5}{2}t
+            \begin{pmatrix} x \\ y \\ z \end{pmatrix} = \begin{pmatrix} 5 + \dfrac{5}{2}t \\[0.8em] -2 - \dfrac{3}{2}t \\[0.8em] t \end{pmatrix} \quad (t \in \mathbb{R})
+                y + \dfrac{4-m}{2}z = -2 \\[0.8em]
+                \dfrac{(m-1)(m-6)}{2}z = 2(m-1)
+                z = \dfrac{4}{m-6} \\[0.8em]
+                y = \dfrac{4}{m-6} \\[0.8em]
+                x = -\dfrac{m+14}{m-6}
+    $$ \begin{pmatrix} x \\ y \\ z \end{pmatrix} = \begin{pmatrix} -\dfrac{m+14}{m-6} \\[0.8em] \dfrac{4}{m-6} \\[0.8em] \dfrac{4}{m-6} \end{pmatrix} $$

@@ -145,62 +145,83 @@ export const blogPosts = [
       },
       {
         heading: '8. Phân Tích & Lời Giải Chi Tiết Các Dạng Bài Thi Thực Tế K46 - K51 UEH',
-        body: 'Dưới đây là lời giải chi tiết cho 8 dạng toán ứng dụng trắc nghiệm xuất hiện trong các bộ đề thi thật của UEH từ khóa K46 đến K51:\n\n' +
-          '**Dạng 1: Tính Chi phí biên (Đề K51 Đợt 2 - Câu 4)**\n' +
-          'Cho hàm chi phí $C(Q) = 500 \\cdot \\ln(Q^2 + 1) + 200$. Tính chi phí biên tại mức sản lượng $Q = 3$.\n' +
-          '**Phương pháp & Lời giải**:\n' +
-          'Chi phí biên $MC(Q) = C\'(Q) = 500 \\cdot \\frac{(Q^2 + 1)\'}{Q^2 + 1} = 500 \\cdot \\frac{2Q}{Q^2 + 1}$.\n' +
-          'Thế $Q = 3$: $MC(3) = 500 \\cdot \\frac{2(3)}{3^2 + 1} = 500 \\cdot \\frac{6}{10} = 300$.\n' +
-          '**Kết luận**: Chi phí biên tại mức sản lượng $Q = 3$ là $300$ đơn vị tiền.\n\n' +
-          '**Dạng 2: Phân tích biến động Doanh thu theo hệ số co giãn $E_p$ (Đề K51 Đợt 2 - Câu 6)**\n' +
-          'Tại mức giá $p_0$, hệ số co giãn cầu theo giá là $E_p = -0.5$. Doanh nghiệp tăng giá nhẹ thì tổng doanh thu thay đổi thế nào?\n' +
-          '**Phương pháp & Lời giải**:\n' +
-          'Áp dụng công thức Amoroso-Robinson:\n' +
-          '$$MR = p \\left(1 + \\frac{1}{E_p}\\right) = p \\left(1 + \\frac{1}{-0.5}\\right) = p(1 - 2) = -p < 0$$\n' +
-          'Vì $|E_p| = 0.5 < 1$ (cầu ít co giãn), khi giá $p$ tăng thì lượng cầu giảm không đáng kể, do đó tổng doanh thu $TR = p \\cdot Q$ sẽ tăng. Chọn **Đáp án B**.\n\n' +
-          '**Dạng 3: Tỷ lệ thay thế kỹ thuật biên MRTS (Đề K51 Đợt 2 - Câu 2)**\n' +
-          'Cho hàm sản xuất $Q = 2K^2 + 3L^2 + KL$. Tại $K=10, L=5$, nếu tăng 1 đơn vị lao động ($dL=1$) mà giữ nguyên sản lượng ($dQ=0$) thì lượng vốn $K$ thay đổi bao nhiêu?\n' +
-          '**Phương pháp & Lời giải**:\n' +
-          'Tính các đạo hàm riêng:\n' +
-          '$$Q\'_L = 6L + K \\implies Q\'_L(10, 5) = 6(5) + 10 = 40$$\n' +
-          '$$Q\'_K = 4K + L \\implies Q\'_K(10, 5) = 4(10) + 5 = 45$$\n' +
-          'Vì $dQ = Q\'_K dK + Q\'_L dL = 0 \\implies dK = -\\frac{Q\'_L}{Q\'_K} dL = -\\frac{40}{45} \\cdot 1 = -\\frac{8}{9}$. Lượng vốn giảm $8/9$ đơn vị.\n\n' +
-          '**Dạng 4: Đạo hàm ẩn bài toán Tiết kiệm và Thu nhập (Đề K49 & K51 - Câu 4)**\n' +
-          'Cho mối liên hệ $S^2 + \\frac{1}{4}I^2 = SI + I$. Tại mức thu nhập $I = 16$, tìm hệ số co giãn của tiết kiệm $S$ theo thu nhập $I$.\n' +
-          '**Phương pháp & Lời giải**:\n' +
-          'Thế $I = 16$ vào phương trình: $S^2 + 64 = 16S + 16 \\iff S^2 - 16S + 48 = 0 \\implies S = 4$ hoặc $S = 12$.\n' +
-          'Vì tỷ lệ tiết kiệm thông thường $S \\le 30\\% I = 4.8$, chọn $S = 4$.\n' +
+        body: 'Dưới đây là hệ thống lời giải chi tiết cho các dạng toán ứng dụng vi tế & vĩ mô được trích xuất trực tiếp từ mã nguồn TeX chính thức của Bộ Đề K51 (Mã 118, 204, 354, 442, Tiếng Anh & Đề tổng hợp) và bộ đề K46 - K50 UEH:\n\n' +
+          '**Dạng 1: Tối ưu hóa Chi phí phân bổ cho 2 Nhà máy bằng Nhân tử Lagrange (Đề K51 Tự luận - Mã 118 & Đề Tổng hợp)**\n' +
+          'Một doanh nghiệp nhận đơn hàng $200$ đơn vị sản phẩm và phân bổ sản lượng cho nhà máy 1 ($q_1$) và nhà máy 2 ($q_2$). Hàm tổng chi phí:\n' +
+          '$$C(q_1, q_2) = \\frac{1}{2}q_1^2 + 10q_1 + 20q_2 + 800$$\n' +
+          'với ràng buộc tổng sản lượng $q_1 + q_2 = 200$. Tìm chi phí tối thiểu.\n\n' +
+          '**Lời giải chi tiết**:\n' +
+          'Thành lập hàm Lagrange:\n' +
+          '$$L(q_1, q_2, \\lambda) = \\frac{1}{2}q_1^2 + 10q_1 + 20q_2 + 800 + \\lambda(200 - q_1 - q_2)$$\n' +
+          'Giải hệ phương trình điểm dừng (điều kiện FOC):\n' +
+          '$$\\begin{aligned}\n' +
+          'L\'_{q_1} = q_1 + 10 - \\lambda = 0 &\\implies \\lambda = q_1 + 10 \\\\\n' +
+          'L\'_{q_2} = 20 - \\lambda = 0 &\\implies \\lambda = 20 \\\\\n' +
+          'L\'_\\lambda = 200 - q_1 - q_2 = 0 &\\implies q_1 + q_2 = 200\n' +
+          '\\end{aligned}$$\n' +
+          'Từ $\\lambda = 20 \\implies q_1 = 10$. Thế vào ràng buộc ta được $q_2 = 190$.\n' +
+          'Định thức Hessian bổ sung $|\\overline{H}| = -1 < 0$ khẳng định hàm chi phí đạt cực tiểu tại $M(10, 190)$.\n' +
+          'Chi phí tối thiểu đạt được:\n' +
+          '$$C_{\\min} = \\frac{1}{2}(10)^2 + 10(10) + 20(190) + 800 = 4750$$\n\n' +
+          '**Dạng 2: Bài toán Tối thiểu hóa Chi phí với Hàm Sản xuất Cobb-Douglas (Đề K51 Tự luận - Mã 204)**\n' +
+          'Hàm sản xuất $q = 8\\ell^{0.5} k^{0.5}$ với giá vốn $p_k = 12$, giá lao động $w = 4$. Với sản lượng mong muốn $q = 200$, tìm chi phí tối thiểu.\n\n' +
+          '**Lời giải chi tiết**:\n' +
+          'Tỷ lệ thay thế kỹ thuật biên $MRTS$ phải bằng tỷ giá yếu tố sản xuất:\n' +
+          '$$\\begin{aligned}\n' +
+          'MRTS = \\frac{MP_\\ell}{MP_k} = \\frac{w}{p_k} &\\iff \\frac{4\\ell^{-0.5}k^{0.5}}{4\\ell^{0.5}k^{-0.5}} = \\frac{4}{12} \\\\\n' +
+          '&\\iff \\frac{k}{\\ell} = \\frac{1}{3} \\implies \\ell = 3k\n' +
+          '\\end{aligned}$$\n' +
+          'Thế $\\ell = 3k$ vào phương trình sản lượng $q = 200$:\n' +
+          '$$\\begin{aligned}\n' +
+          '8(3k)^{0.5} k^{0.5} = 200 &\\iff 8\\sqrt{3} k = 200 \\\\\n' +
+          '&\\implies k = \\frac{25}{\\sqrt{3}}, \\quad \\ell = 25\\sqrt{3}\n' +
+          '\\end{aligned}$$\n' +
+          'Chi phí tối thiểu $C_{\\min} = 4\\ell + 12k = 4(25\\sqrt{3}) + 12\\left(\\frac{25}{\\sqrt{3}}\\right) = 200\\sqrt{3}$.\n\n' +
+          '**Dạng 3: Xác định Doanh thu biên $MR$ & Chi phí biên $MC$ Độc quyền (Đề K51 Mã 118 & Mã 354)**\n' +
+          '- *Trường hợp A (Mã 118)*: Hàm cầu $P = \\frac{1000}{Q + 10}$. Doanh thu $R = P \\cdot Q = \\frac{1000Q}{Q + 10}$.\n' +
+          'Doanh thu biên tại $Q = 40$:\n' +
+          '$$MR(Q) = R\'(Q) = \\frac{1000(Q+10) - 1000Q}{(Q+10)^2} = \\frac{10000}{(Q+10)^2} \\implies MR(40) = \\frac{10000}{2500} = 4$$\n' +
+          '- *Trường hợp B (Mã 354)*: Thị trường độc quyền với cầu $Q_D = 1500 - \\frac{1}{2}P$. Lợi nhuận cực đại tại $Q_0 = 400$.\n' +
+          'Đường cầu đảo $P = 3000 - 2Q \\implies R(Q) = 3000Q - 2Q^2 \\implies MR(Q) = 3000 - 4Q$.\n' +
+          'Tại điểm tối ưu lợi nhuận $Q_0 = 400$, điều kiện $MC = MR$ cho ta $MC(400) = 3000 - 4(400) = 1400$.\n\n' +
+          '**Dạng 4: Đạo hàm ẩn & Hệ số co giãn Tiết kiệm $S$ theo Thu nhập $I$ (Đề K51 Mã 204 & K49)**\n' +
+          'Mối liên hệ $S^2 + \\frac{1}{4}I^2 = SI + I$ với điều kiện $S \\le 30\\% I$. Tại $I = 16$, tìm hệ số co giãn của tiết kiệm.\n\n' +
+          '**Lời giải chi tiết**:\n' +
+          'Thế $I = 16$ vào phương trình:\n' +
+          '$$S^2 + 64 = 16S + 16 \\iff S^2 - 16S + 48 = 0 \\implies S = 4 \\quad (\\text{do } S \\le 0.3 \\times 16 = 4.8)$$\n' +
           'Lấy đạo hàm hai vế theo $I$:\n' +
-          '$$2S \\cdot S\' + \\frac{1}{2}I = S\' \\cdot I + S + 1$$\n' +
-          'Thế $I=16, S=4$: $2(4) S\' + \\frac{1}{2}(16) = S\'(16) + 4 + 1 \\iff 8 S\' + 8 = 16 S\' + 5 \\iff 8 S\' = 3 \\implies S\' = \\frac{3}{8}$.\n' +
-          'Hệ số co giãn $E_I = S\' \\cdot \\frac{I}{S} = \\frac{3}{8} \\cdot \\frac{16}{4} = \\frac{3}{2} = 1.5\\%$. Khi thu nhập tăng 1%, tiết kiệm tăng 1.5%.\n\n' +
-          '**Dạng 5: Tìm mức sản lượng tối ưu hóa Chi phí trung bình $AC_{\\min}$ (Đề K46 & K47)**\n' +
-          'Cho hàm chi phí $C(q) = q^3 - 6q^2 + 15q + 100$. Tìm mức sản lượng $q$ để chi phí trung bình $AC$ đạt tối thiểu.\n' +
-          '**Phương pháp & Lời giải**:\n' +
-          'Chi phí trung bình $AC(q) = q^2 - 6q + 15 + \\frac{100}{q}$. Chi phí biên $MC(q) = 3q^2 - 12q + 15$.\n' +
-          'Áp dụng quy tắc điểm đáy:\n' +
-          '$$MC = AC \\iff 3q^2 - 12q + 15 = q^2 - 6q + 15 + \\frac{100}{q} \\iff 2q^2 - 6q = \\frac{100}{q} \\iff q^3 - 3q^2 - 50 = 0 \\implies q = 5$$\n\n' +
-          '**Dạng 6: Sản lượng biên theo vốn (Đề K51 Mã đề 204 - Câu 9)**\n' +
-          'Cho hàm sản xuất $Q(L, K) = 6 L^{1/2} K^{1/4}$. Tính sản lượng biên theo vốn tại $L=100, K=10000$.\n' +
-          '**Phương pháp & Lời giải**:\n' +
-          '$$Q\'_K = 6 L^{1/2} \\cdot \\frac{1}{4} K^{-3/4} = \\frac{3}{2} L^{1/2} K^{-3/4}$$\n' +
-          'Thế $L=100, K=10000 \\implies Q\'_K = \\frac{3}{2} \\cdot 10 \\cdot (10^4)^{-3/4} = 15 \\cdot 10^{-3} = \\frac{3}{200} = 0.015$.\n\n' +
-          '**Dạng 7: Xấp xỉ tuyến tính hàm hai biến (Đề K51 Mã đề 204 - Câu 10)**\n' +
-          'Cho $f(10, 5) = 1000, f\'_x(10, 5) = 2, f\'_y(10, 5) = -3$. Tính giá trị gần đúng của $f(10.1, 4.8)$.\n' +
-          '**Phương pháp & Lời giải**:\n' +
-          'Ta có $\\Delta x = 10.1 - 10 = 0.1$, $\\Delta y = 4.8 - 5 = -0.2$.\n' +
-          'Áp dụng công thức vi phân xấp xỉ:\n' +
-          '$$f(10.1, 4.8) \\approx f(10, 5) + f\'_x \\cdot \\Delta x + f\'_y \\cdot \\Delta y = 1000 + 2(0.1) + (-3)(-0.2) = 1000 + 0.2 + 0.6 = 1000.8$$\n\n' +
-          '**Dạng 8: Cân bằng giá thị trường động (Đề K51 Đợt 2 - Câu 7)**\n' +
-          'Cho phương trình vi phân giá thị trường $P\'(t) + 3P(t) = 12$ với $P(0) = 5$. Tìm mức giá ổn định dài hạn khi $t \\to +\\infty$.\n' +
-          '**Phương pháp & Lời giải**:\n' +
-          'Phương trình vi phân có nghiệm $P(t) = 4 + C \\cdot e^{-3t}$. Thế $P(0) = 5 \\implies C = 1$.\n' +
-          'Do đó $P(t) = 4 + e^{-3t}$. Khi $t \\to +\\infty \\implies e^{-3t} \\to 0 \\implies P(t) \\to 4$. Mức giá cân bằng dài hạn là $P^* = 4$.'
+          '$$\\begin{aligned}\n' +
+          '2S \\cdot S\' + \\frac{1}{2}I = S\' \\cdot I + S + 1 &\\iff 2(4) S\' + 8 = 16 S\' + 5 \\\\\n' +
+          '&\\iff 8 S\' = 3 \\implies S\' = \\frac{3}{8}\n' +
+          '\\end{aligned}$$\n' +
+          'Hệ số co giãn $\\varepsilon_I = S\' \\cdot \\frac{I}{S} = \\frac{3}{8} \\cdot \\frac{16}{4} = 1.5\\%$. Khi thu nhập tăng 1%, tiết kiệm tăng 1.5%.\n\n' +
+          '**Dạng 5: Quy tắc điểm đáy cực tiểu hóa Chi phí trung bình $AC_{\\min}$ (Đề K46 & K47)**\n' +
+          'Cho hàm chi phí $C(q) = q^3 - 6q^2 + 15q + 100$. Tìm sản lượng $q$ để $AC$ đạt tối thiểu.\n\n' +
+          '**Lời giải chi tiết**:\n' +
+          'Tính các đại lượng:\n' +
+          '$$AC(q) = q^2 - 6q + 15 + \\frac{100}{q}, \\quad MC(q) = 3q^2 - 12q + 15$$\n' +
+          'Áp dụng quy tắc điểm đáy $MC = AC$:\n' +
+          '$$\\begin{aligned}\n' +
+          '3q^2 - 12q + 15 = q^2 - 6q + 15 + \\frac{100}{q} &\\iff 2q^2 - 6q = \\frac{100}{q} \\\\\n' +
+          '&\\iff q^3 - 3q^2 - 50 = 0 \\implies q = 5\n' +
+          '\\end{aligned}$$\n\n' +
+          '**Dạng 6: Sản lượng biên theo vốn $Q\'_K$ & Co giãn riêng (Đề K51 Mã 204 & Mã 442)**\n' +
+          '- *Trường hợp A*: Cho $Q(L, K) = 6 L^{1/2} K^{1/4}$. Tính $Q\'_K(100, 10000)$:\n' +
+          '$$Q\'_K = 6 L^{1/2} \\cdot \\frac{1}{4} K^{-3/4} = \\frac{3}{2} (100)^{1/2} (10000)^{-3/4} = 15 \\cdot 10^{-3} = \\frac{3}{200}$$\n' +
+          '- *Trường hợp B*: Cho $Q = 0.5 K^{0.25} L^{0.75}$. Tổng độ co giãn riêng $EQ_K + EQ_L = 0.25 + 0.75 = 1$ (Hàm sản xuất có hiệu quả theo quy mô không đổi).\n\n' +
+          '**Dạng 7: Mô hình Tăng trưởng vốn Mũ dài hạn (Đề K51 Mã đề 442 - Tự luận)**\n' +
+          'Lượng vốn của tập đoàn $A$ thỏa mãn $V(t) = V_0 e^{kt}$. Biết $V(2000) = 10^6$, $V(2015) = 3 \\cdot 10^6$. Ước lượng vốn năm 2030.\n\n' +
+          '**Lời giải chi tiết**:\n' +
+          'Đặt thời điểm năm 2000 là $t = 0 \\implies V(0) = V_0 = 10^6$.\n' +
+          'Năm 2015 tương ứng $t = 15 \\implies V(15) = V_0 e^{15k} = 3 \\cdot 10^6 \\implies e^{15k} = 3$.\n' +
+          'Năm 2030 tương ứng $t = 30$, lượng vốn ước tính:\n' +
+          '$$V(30) = V_0 e^{30k} = V_0 \\left(e^{15k}\\right)^2 = 10^6 \\cdot 3^2 = 9 \\cdot 10^6$$\n' +
+          'Lượng vốn tập đoàn năm 2030 ước tính đạt $9$ tỷ USD (gấp 9 lần lượng vốn ban đầu).'
       },
       {
         heading: '9. Tài Liệu Tham Khảo Chính Thống',
-        body: '1. *Bài tập Toán Cao Cấp* (dành cho khối ngành Kinh tế và Quản trị), Nhóm tác giả, Đại học Kinh tế TP. Hồ Chí Minh (UEH), 2023.\n' +
-          '2. *Nhập môn Giải tích Toán học* (dành cho Thương mại, Kinh tế, Khoa học Đời sống và Khoa học Xã hội), Nhóm dịch giả, NXB Kinh tế TP. Hồ Chí Minh, 2017.\n' +
+        body: '1. *Bộ Mã Nguồn TeX Đề Thi & Lời Giải Chính Thức K51*, Nhóm tác giả MT4A UEH (Lữ Võ Hoàng Phúc, Trần Gia Mẫn), 2025.\n' +
+          '2. *Bài tập Toán Cao Cấp* (dành cho khối ngành Kinh tế và Quản trị), Nhóm tác giả Đại học Kinh tế TP. Hồ Chí Minh (UEH), NXB Kinh tế TP.HCM, 2023.\n' +
           '3. Slide Giảng dạy *Chương 5: Đạo hàm và Vi phân (Cập nhật)* - TS. Phan Ngô Tuấn Anh, Đại học Kinh tế TP. Hồ Chí Minh.'
       }
     ]
