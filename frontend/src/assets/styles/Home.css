@@ -941,9 +941,9 @@
 
 .article-toc h3.toc-title {
   color: var(--text-primary);
-  font-size: 1.12rem;
+  font-size: 1.1rem;
   font-weight: 800;
-  margin-bottom: 18px;
+  margin-bottom: 16px;
   padding-bottom: 10px;
   border-bottom: 1px solid var(--border-color);
   letter-spacing: -0.01em;
@@ -955,42 +955,43 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
+/* Sharp straight vertical bar indicator matching AI Vietnam reference */
 .toc-list li a {
   color: var(--text-secondary);
   font-size: 0.9rem;
   font-weight: 500;
-  line-height: 1.55;
+  line-height: 1.5;
   text-decoration: none;
   display: block;
-  padding: 6px 12px;
+  padding: 6px 0 6px 14px;
   border-left: 3px solid transparent;
+  border-radius: 0 !important; /* Flat straight vertical line, no rounded corners */
   transition: all 0.2s ease;
-  border-radius: 4px;
 }
 
 :root.light-theme .toc-list li a {
-  color: #475569;
+  color: #64748b; /* Muted gray for inactive items */
 }
 
 .toc-list li a:hover {
   color: var(--accent-teal);
-  border-left-color: var(--accent-teal);
-  background: rgba(6, 182, 212, 0.04);
+  border-left-color: #cbd5e1;
+  background: transparent;
 }
 
 .toc-list li a.active {
-  color: var(--accent-teal);
+  color: var(--accent-teal) !important;
   font-weight: 750;
-  border-left-color: var(--accent-teal);
+  border-left-color: var(--accent-teal) !important;
   background: transparent !important;
 }
 
 :root.light-theme .toc-list li a.active {
-  color: #0f766e;
-  border-left-color: #0f766e;
+  color: #0f766e !important;
+  border-left-color: #0f766e !important;
   background: transparent !important;
 }
 
@@ -1029,7 +1030,7 @@
 .forum-article h1.article-title {
   max-width: 880px;
   color: var(--text-primary);
-  font-size: clamp(2.1rem, 3.8vw, 3rem);
+  font-size: clamp(2rem, 3.5vw, 2.8rem);
   line-height: 1.25;
   font-weight: 850;
   margin: 16px 0;
@@ -1088,8 +1089,8 @@
 
 /* Borderless, clean section flow like AI Vietnam & Medium */
 .article-section {
-  margin-bottom: 44px;
-  padding-bottom: 32px;
+  margin-bottom: 36px;
+  padding-bottom: 28px;
   border-bottom: 1px solid var(--border-color);
 }
 
@@ -1098,9 +1099,9 @@
 }
 
 .article-section h2.section-heading {
-  margin: 0 0 22px;
+  margin: 0 0 18px;
   color: var(--text-primary);
-  font-size: clamp(1.5rem, 2.5vw, 1.95rem);
+  font-size: clamp(1.4rem, 2.2vw, 1.85rem);
   font-weight: 850;
   display: flex;
   align-items: center;
@@ -1146,9 +1147,9 @@
 
 .article-paragraph {
   color: var(--text-primary);
-  font-size: 1.06rem;
-  line-height: 1.88;
-  margin-bottom: 18px;
+  font-size: 1.05rem;
+  line-height: 1.8;
+  margin-bottom: 14px;
   white-space: pre-wrap;
 }
 
@@ -1156,18 +1157,18 @@
   margin-bottom: 0;
 }
 
-/* KaTeX Math Formatting: Clean, Centered Display Block */
+/* KaTeX Math Formatting: Compact Vertical Spacing matching AI Vietnam & Overleaf */
 .math-block {
   display: flex;
   justify-content: center;
   align-items: center;
   text-align: center;
-  margin: 24px 0;
-  padding: 16px 0;
+  margin: 8px 0; /* Reduced vertical white gaps! */
+  padding: 4px 0;
   background: transparent;
   border: none;
   overflow-x: auto;
-  font-size: 1.12rem;
+  font-size: 1.1rem;
   width: 100%;
 }
 
