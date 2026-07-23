@@ -900,48 +900,84 @@
 }
 
 .forum-blog-page {
-  background: #ffffff;
+  background: var(--bg-primary);
+  min-height: 100vh;
 }
 
 .forum-blog-hero {
-  padding: 118px 0 70px;
-  background: #ffffff;
+  padding: 110px 0 60px;
+  background: var(--bg-primary);
+}
+
+.forum-blog-hero .container {
+  max-width: 1380px;
+  margin: 0 auto;
+  padding: 0 24px;
 }
 
 .forum-blog-grid {
   display: grid;
-  grid-template-columns: 300px minmax(0, 900px);
-  gap: 64px;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 36px;
   align-items: start;
 }
 
 .article-toc {
   position: sticky;
-  top: 110px;
-  padding-top: 60px;
+  top: 96px;
+  padding: 20px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  max-height: calc(100vh - 110px);
+  overflow-y: auto;
 }
 
 .article-toc h3 {
-  color: #214b48;
+  color: var(--text-primary);
   font-size: 1rem;
-}
-
-.article-toc ol {
-  margin-top: 20px;
-  padding-left: 18px;
-  border-left: 2px solid #e2e8f0;
-  color: #111827;
-  font-size: 0.86rem;
   font-weight: 800;
-  line-height: 1.75;
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.article-toc li {
-  margin-bottom: 12px;
+.toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toc-list li a {
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.45;
+  text-decoration: none;
+  display: block;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border-left: 3px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.toc-list li a:hover {
+  color: var(--accent-teal);
+  background: rgba(6, 182, 212, 0.08);
+  border-left-color: var(--accent-teal);
+  transform: translateX(2px);
 }
 
 .forum-article {
-  color: #111827;
+  color: var(--text-primary);
+  max-width: 1000px;
 }
 
 .article-search {
@@ -1073,6 +1109,35 @@
   background: rgba(6, 182, 212, 0.08);
   border-radius: 4px;
   color: var(--text-primary);
+}
+
+/* Article Diagram Figures */
+.article-diagram-figure {
+  margin: 28px 0;
+  text-align: center;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 20px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.article-diagram-img {
+  width: 100%;
+  max-width: 760px;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+  margin: 0 auto;
+}
+
+.article-diagram-caption {
+  margin-top: 14px;
+  font-size: 0.9rem;
+  font-weight: 750;
+  color: var(--accent-teal);
+  letter-spacing: 0.02em;
 }
 
 /* Article Table of Contents (TOC) */

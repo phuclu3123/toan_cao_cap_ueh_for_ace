@@ -1,6 +1,6 @@
 import { useEffect, useContext } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, CalendarDays, Link as LinkIcon, UserRound } from 'lucide-react';
+import { ArrowLeft, BookOpen, CalendarDays, Link as LinkIcon, UserRound } from 'lucide-react';
 import { blogPosts, getBlogPostBySlug } from '../data/blogPosts';
 import { LanguageContext } from '../App';
 import { translations } from '../utils/translations';
@@ -51,7 +51,7 @@ export default function BlogDetailPage() {
       <section className="forum-blog-hero">
         <div className="container forum-blog-grid">
           <aside className="article-toc">
-            <h3>{t.blogPage.tocTitle}</h3>
+            <h3><BookOpen size={18} /> {t.blogPage.tocTitle}</h3>
             <ul className="toc-list">
               {post.toc.map((item, idx) => (
                 <li key={idx}>

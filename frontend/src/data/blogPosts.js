@@ -1,6 +1,160 @@
 export const blogPosts = [
   {
     slug: 'ung-dung-vi-mo-vi-mo-trong-toan-ung-dung-k51',
+    title: 'Bách Khoa Toàn Thư Lý Thuyết Kinh Tế Vi/Vĩ Mô (Slide Chương 5 PNTA) & Bộ Đề Thi K46-K51 UEH',
+    category: 'Chuyên đề nâng cao',
+    date: '23/07/2026',
+    author: 'Lữ Võ Hoàng Phúc (K50 UEH)',
+    keywords: ['Chương 5 PNTA', 'Marginal Cost', 'Marginal Product', 'MRPL', 'Amoroso-Robinson', 'MPC', 'MPS', 'Toán UEH'],
+    image: '/images/bg.jpg',
+    excerpt: 'Hệ thống hóa 100% toàn bộ lý thuyết gốc Kinh tế Vi mô & Vĩ mô trong Slide Chương 5 của Thầy Phan Ngô Tuấn Anh (MPL, MPK, MRPL, C, FC, VC, MC, AC, AVC, AR, MR, π, Y, C, S, MPC, MPS, Ep, Amoroso-Robinson) kèm sơ đồ trực quan và giải bài tập xuyên suốt các kỳ thi K46 đến K51.',
+    toc: [
+      '1. Khái niệm & Bản chất Toán học của Đại lượng Biên tế (Marginal Analysis)',
+      '2. Hàm Sản Xuất, Năng Suất Biên (MPL, MPK) & Năng Suất Doanh Thu Biên (MRPL)',
+      '3. Cấu trúc Hàm Chi Phí (C, FC, VC, MC, AC, AFC, AVC) & Quy Tắc Điểm Đáy',
+      '4. Hàm Doanh Thu, Hàm Lợi Nhuận & Tối Đa Hóa Lợi Nhuận (R, AR, MR, π)',
+      '5. Kinh Tế Vĩ Mô: Thu Nhập Quốc Dân (Y), Tiêu Dùng (C), Tiết Kiệm (S), MPC & MPS',
+      '6. Lý Thuyết Hệ Số Co Giãn (Elasticity) & Công Thức Amoroso-Robinson',
+      '7. Vi Phân Ẩn & Xấp Xỉ Tuyến Tính Trong Kinh Tế',
+      '8. Phân Tích & Giải Chi Tiết Các Dạng Bài Thi Thực Tế Xuyên Suốt K46 - K51',
+      '9. Tổng Kết & Lộ Trình Ôn Tập Đạt Điểm Tuyệt Đối'
+    ],
+    sections: [
+      {
+        heading: '1. Khái niệm & Bản chất Toán học của Đại lượng Biên tế (Marginal Analysis)',
+        body: 'Trong tài liệu *Chương 5: Đạo hàm và vi phân (cập nhật)* của Thầy Phan Ngô Tuấn Anh (PNTA), các đại lượng biên tế (Marginal Concepts) phản ánh tốc độ thay đổi của một chỉ tiêu kinh tế khi một biến số đầu vào thay đổi $1$ đơn vị.\n\n' +
+          'Về mặt toán học, **giá trị biên tế chính là đạo hàm bậc nhất** của hàm số tương ứng:\n' +
+          '$$M_y(x) = y\'(x) = \\frac{\\mathrm{d}y}{\\mathrm{d}x}$$\n\n' +
+          '📌 **Ý nghĩa kinh tế cơ bản**:\n' +
+          'Cho biết khi biến $x$ tăng thêm $1$ đơn vị từ mức $x_0$, thì biến $y$ sẽ biến đổi một lượng xấp xỉ bằng $y\'(x_0)$ đơn vị.\n\n' +
+          '📌 **Ý nghĩa hình học**:\n' +
+          'Giá trị biên tế $y\'(x_0)$ chính là **hệ số góc (slope)** của đường tiếp tuyến với đồ thị hàm số $y = f(x)$ tại điểm $x = x_0$. Chi phí hay năng suất biên càng lớn thì đường tiếp tuyến càng dốc đứng.'
+      },
+      {
+        heading: '2. Hàm Sản Xuất, Năng Suất Biên (MPL, MPK) & Năng Suất Doanh Thu Biên (MRPL)',
+        body: 'Sản lượng đầu ra $Q$ của một doanh nghiệp phụ thuộc vào các yếu tố đầu vào như Lao động ($L$) và Vốn ($K$).\n\n' +
+          '🌾 **1. Năng suất biên theo Lao động (Marginal Product of Labor - $MP_L$)**:\n' +
+          '$$MP_L = Q\'_L = \\frac{\\partial Q}{\\partial L}$$\n' +
+          '*Ý nghĩa*: Khi tăng sử dụng $1$ đơn vị lao động (giữ nguyên vốn $K$), tổng sản lượng $Q$ sẽ tăng thêm xấp xỉ $MP_L$ đơn vị sản phẩm.\n\n' +
+          '🏭 **2. Năng suất biên theo Vốn (Marginal Product of Capital - $MP_K$)**:\n' +
+          '$$MP_K = Q\'_K = \\frac{\\partial Q}{\\partial K}$$\n' +
+          '*Ý nghĩa*: Khi tăng thêm $1$ đơn vị vốn (giữ nguyên lao động $L$), tổng sản lượng $Q$ sẽ tăng thêm xấp xỉ $MP_K$ đơn vị sản phẩm.\n\n' +
+          '👥 **3. Năng suất trung bình (Average Product - AP)**:\n' +
+          '$$AP_L = \\frac{Q}{L}, \\quad AP_K = \\frac{Q}{K}$$\n' +
+          '*Mối quan hệ giữa $MP_L$ và $AP_L$*: Khi $MP_L > AP_L \\implies AP_L$ đang tăng; khi $MP_L < AP_L \\implies AP_L$ đang giảm; $MP_L = AP_L$ tại **điểm cực đại của $AP_L$**.\n\n' +
+          '![Sơ đồ Năng suất biên MPL và Năng suất trung bình APL](/images/mpl_apl_diagram.png)\n\n' +
+          '💵 **4. Năng suất doanh thu biên (Marginal Revenue Product - $MRP$)**:\n' +
+          'Năng suất doanh thu biên tế theo lao động $MRP_L$ đo lường lượng doanh thu tăng thêm khi doanh nghiệp thuê thêm $1$ đơn vị lao động:\n' +
+          '$$MRP_L = \\frac{\\mathrm{d}TR}{\\mathrm{d}L} = \\frac{\\mathrm{d}TR}{\\mathrm{d}Q} \\cdot \\frac{\\mathrm{d}Q}{\\mathrm{d}L} = MR \\cdot MP_L$$\n' +
+          '$$MRP_K = \\frac{\\mathrm{d}TR}{\\mathrm{d}K} = \\frac{\\mathrm{d}TR}{\\mathrm{d}Q} \\cdot \\frac{\\mathrm{d}Q}{\\mathrm{d}K} = MR \\cdot MP_K$$\n' +
+          '*Điều kiện tối đa hóa lợi nhuận khi thuê lao động*: Thuê lao động cho đến khi $MRP_L = w$ (với $w$ là mức tiền lương trên thị trường).'
+      },
+      {
+        heading: '3. Cấu trúc Hàm Chi Phí (C, FC, VC, MC, AC, AFC, AVC) & Quy Tắc Điểm Đáy',
+        body: '📊 **1. Phân loại hàm chi phí**:\n' +
+          'Tổng chi phí sản xuất $C(q)$ bao gồm Chi phí biến đổi $VC(q)$ và Chi phí cố định $FC$:\n' +
+          '$$C(q) = VC(q) + FC$$\n\n' +
+          '📈 **2. Chi phí biên (Marginal Cost - MC)**:\n' +
+          '$$MC = C\'(q) = VC\'(q) = \\frac{\\mathrm{d}C}{\\mathrm{d}q}$$\n' +
+          '*Ý nghĩa*: Cho biết khi tăng sản lượng thêm $1$ đơn vị thì tổng chi phí tăng thêm xấp xỉ $MC$ đơn vị tiền.\n\n' +
+          '📉 **3. Chi phí trung bình (Average Cost - AC / ATC)**:\n' +
+          '$$AC(q) = \\frac{C(q)}{q} = \\frac{VC(q)}{q} + \\frac{FC}{q} = AVC(q) + AFC(q)$$\n\n' +
+          '⚖️ **4. Quy tắc điểm đáy (Bottom Point Rule - $MC = AC$)**:\n' +
+          'Đạo hàm của chi phí trung bình theo sản lượng:\n' +
+          '$$AC\'(q) = \\frac{\\mathrm{d}}{\\mathrm{d}q}\\left(\\frac{C(q)}{q}\\right) = \\frac{C\'(q) \\cdot q - C(q)}{q^2} = \\frac{MC - AC}{q}$$\n' +
+          '- Nếu $MC < AC \\implies AC\'(q) < 0$: Chi phí trung bình **đang giảm** (Hiệu quả quy mô).\n' +
+          '- Nếu $MC > AC \\implies AC\'(q) > 0$: Chi phí trung bình **đang tăng**.\n' +
+          '- Nếu $MC = AC \\implies AC\'(q) = 0$: Đường $MC$ **cắt đường $AC$ tại điểm cực tiểu của $AC$** ($AC_{\\min}$).\n\n' +
+          '![Sơ đồ Chi phí biên MC cắt Chi phí trung bình AC tại điểm cực tiểu](/images/mc_ac_diagram.png)'
+      },
+      {
+        heading: '4. Hàm Doanh Thu, Hàm Lợi Nhuận & Tối Đa Hóa Lợi Nhuận (R, AR, MR, π)',
+        body: '💸 **1. Hàm Doanh thu & Doanh thu biên**:\n' +
+          'Tổng doanh thu $R(q) = p \\cdot q$. Doanh thu trung bình $AR(q) = \\frac{R(q)}{q} = p$. Doanh thu biên:\n' +
+          '$$MR = R\'(q) = \\frac{\\mathrm{d}R}{\\mathrm{d}q}$$\n\n' +
+          '🏆 **2. Tối đa hóa lợi nhuận $\\pi(q)$**:\n' +
+          '$$\\pi(q) = R(q) - C(q) \\implies \\pi\'(q) = MR - MC$$\n' +
+          '*Điều kiện cần*: $\\pi\'(q^*) = 0 \\iff MR = MC$ (Doanh thu biên bằng Chi phí biên).\n\n' +
+          '🏢 **3. Phân biệt theo cấu trúc thị trường**:\n' +
+          '- **Cạnh tranh hoàn hảo**: Doanh nghiệp chấp nhận giá $p = const \\implies MR = AR = p$. Lợi nhuận cực đại tại $p = MC$.\n' +
+          '- **Thị trường Độc quyền**: Doanh nghiệp quyết định giá $p = p(q)$ giảm theo $q \\implies MR = p + q \\cdot p\'(q) < p$.'
+      },
+      {
+        heading: '5. Kinh Tế Vĩ Mô: Thu Nhập Quốc Dân (Y), Tiêu Dùng (C), Tiết Kiệm (S), MPC & MPS',
+        body: '🌐 **1. Đẳng thức phân bổ Thu nhập quốc dân**:\n' +
+          'Trong mô hình vĩ mô đơn giản, tổng thu nhập quốc dân $Y$ được phân bổ hoàn toàn vào Tiêu dùng $C$ và Tiết kiệm $S$:\n' +
+          '$$Y = C(Y) + S(Y)$$\n\n' +
+          '🛒 **2. Hàm Tiêu dùng & Khuynh hướng tiêu dùng biên ($MPC$)**:\n' +
+          '$$MPC = C\'(Y) = \\frac{\\mathrm{d}C}{\\mathrm{d}Y}$$\n' +
+          '*Ý nghĩa*: Khi thu nhập quốc dân $Y$ tăng thêm $1$ đơn vị tiền, tiêu dùng của toàn xã hội sẽ tăng thêm xấp xỉ $MPC$ đơn vị tiền ($0 < MPC < 1$).\n\n' +
+          '🏦 **3. Hàm Tiết kiệm & Khuynh hướng tiết kiệm biên ($MPS$)**:\n' +
+          '$$S(Y) = Y - C(Y) \\implies MPS = S\'(Y) = \\frac{\\mathrm{d}S}{\\mathrm{d}Y} = 1 - C\'(Y) = 1 - MPC$$\n' +
+          '*Mối quan hệ luôn đúng*: $MPC + MPS = 1$.\n\n' +
+          '![Sơ đồ Luồng Thu nhập Y phân bổ vào Tiêu dùng C và Tiết kiệm S](/images/income_saving_diagram.png)'
+      },
+      {
+        heading: '6. Lý Thuyết Hệ Số Co Giãn (Elasticity) & Công Thức Amoroso-Robinson',
+        body: '📐 **1. Định nghĩa Hệ số co giãn tổng quát**:\n' +
+          '$$\\varepsilon_{yx} = E_x = f\'(x) \\cdot \\frac{x}{y} = \\frac{\\mathrm{d}y / y}{\\mathrm{d}x / x}$$\n\n' +
+          '📉 **2. Hệ số co giãn của Cầu theo Giá ($E_p$)**:\n' +
+          '$$E_p = \\frac{\\mathrm{d}Q}{\\mathrm{d}p} \\cdot \\frac{p}{Q}$$\n' +
+          '- $|E_p| > 1$: Cầu co giãn nhiều $\\implies$ Tăng giá làm **giảm tổng doanh thu** ($MR < 0$).\n' +
+          '- $|E_p| < 1$: Cầu ít co giãn $\\implies$ Tăng giá làm **tăng tổng doanh thu** ($MR > 0$).\n' +
+          '- $|E_p| = 1$: Co giãn đơn vị $\\implies$ Tổng doanh thu đạt **cực đại** ($MR = 0$).\n\n' +
+          '![Sơ đồ Đường Cầu D, Doanh thu biên MR và Miền Co giãn Ep](/images/elasticity_mr_diagram.png)\n\n' +
+          '🤝 **3. Công thức Amoroso-Robinson**:\n' +
+          '$$MR = p \\left(1 + \\frac{1}{E_p}\\right)$$\n\n' +
+          '📊 **4. Hệ số co giãn của Chi phí (Cost Elasticity - $\\varepsilon_{Cq}$)**:\n' +
+          '$$\\varepsilon_{Cq} = C\'(q) \\cdot \\frac{q}{C} = \\frac{MC}{AC}$$'
+      },
+      {
+        heading: '7. Vi Phân Ẩn & Xấp Xỉ Tuyến Tính Trong Kinh Tế',
+        body: '🔍 **1. Đạo hàm và Vi phân hàm ẩn $F(x, y) = 0$**:\n' +
+          '$$\\frac{\\mathrm{d}y}{\\mathrm{d}x} = -\\frac{F\'_x}{F\'_y}$$\n\n' +
+          '🧮 **2. Công thức Xấp xỉ tuyến tính một biến & hai biến**:\n' +
+          '$$\\Delta y \\approx f\'(x_0) \\cdot \\Delta x \\implies f(x_0 + \\Delta x) \\approx f(x_0) + f\'(x_0) \\cdot \\Delta x$$\n' +
+          '$$f(x_0 + \\Delta x, y_0 + \\Delta y) \\approx f(x_0, y_0) + f\'_x(x_0, y_0) \\Delta x + f\'_y(x_0, y_0) \\Delta y$$'
+      },
+      {
+        heading: '8. Phân Tích & Giải Chi Tiết Các Dạng Bài Thi Thực Tế Xuyên Suốt K46 - K51',
+        body: 'Tổng hợp và giải chi tiết các câu hỏi ứng dụng thực tế từ các kỳ thi K46, K47, K48, K49, K50, K51:\n\n' +
+          '📝 **Dạng 1: Chi phí biên của công ty công nghệ (K51 Đợt 2 - Câu 4)**\n' +
+          '*Đề bài*: Cho $C(Q) = 500 \\cdot \\ln(Q^2 + 1) + 200$. Tính chi phí biên tại $Q = 3$.\n' +
+          '*Lời giải*: $MC = C\'(Q) = 500 \\cdot \\frac{2Q}{Q^2 + 1}$. Tại $Q = 3 \\implies MC(3) = 500 \\cdot \\frac{6}{10} = 300$.\n\n' +
+          '📝 **Dạng 2: Phân tích Doanh thu theo $E_p$ (K51 Đợt 2 - Câu 6)**\n' +
+          '*Đề bài*: Hệ số co giãn cầu $E_p = -0.5$. Doanh nghiệp tăng giá bán một lượng nhỏ thì doanh thu thay đổi thế nào?\n' +
+          '*Lời giải*: Vì $|E_p| = 0.5 < 1$ (cầu ít co giãn), khi tăng giá thì lượng cầu giảm ít hơn tỷ lệ tăng giá, do đó tổng doanh thu tăng ($MR > 0$). Chọn B.\n\n' +
+          '📝 **Dạng 3: Tỷ lệ thay thế kỹ thuật biên MRTS (K51 Đợt 2 - Câu 2)**\n' +
+          '*Đề bài*: $Q = 2K^2 + 3L^2 + KL$. Tại $K=10, L=5$, tăng $1$ đơn vị lao động ($dL=1$) giữ nguyên sản lượng ($dQ=0$) thì $K$ giảm bao nhiêu?\n' +
+          '*Lời giải*: $dQ = Q\'_K dK + Q\'_L dL = 0 \\implies dK = -\\frac{Q\'_L}{Q\'_K} dL = -\\frac{6L+K}{4K+L} = -\\frac{40}{45} = -\\frac{8}{9}$. Vốn giảm $8/9$ đơn vị.\n\n' +
+          '📝 **Dạng 4: Tiết kiệm và Thu nhập trong bài toán đạo hàm ẩn (K49 & K51 - Câu 4)**\n' +
+          '*Đề bài*: $S^2 + \\frac{1}{4}I^2 = SI + I$. Tại mức thu nhập $I = 16$, tiết kiệm tăng thêm bao nhiêu $\%$ khi thu nhập tăng $1\\%$?\n' +
+          '*Lời giải*: Tính $S$ tại $I=16$: $S^2 + 64 = 16S + 16 \\implies S^2 - 16S + 48 = 0 \\implies S = 4$ (vì $S \\le 30\\% I = 4.8$).\n' +
+          'Lấy đạo hàm hai vế theo $I$: $2S S\' + \\frac{1}{2}I = S\' I + S + 1$. Thế $I=16, S=4 \\implies 8 S\' + 8 = 16 S\' + 5 \\implies 8 S\' = 3 \\implies S\' = \\frac{3}{8}$.\n' +
+          'Hệ số co giãn $E_I = S\' \\cdot \\frac{I}{S} = \\frac{3}{8} \\cdot \\frac{16}{4} = \\frac{3}{2} = 1.5\\%$. Khi thu nhập tăng $1\\%$, tiết kiệm tăng $\\frac{3}{2}\\%$.\n\n' +
+          '📝 **Dạng 5: Mức chi phí trung bình cực tiểu $AC_{\\min}$ (K46 & K47)**\n' +
+          '*Đề bài*: Cho hàm chi phí $C(q) = q^3 - 6q^2 + 15q + 100$. Tìm mức sản lượng $q$ để chi phí trung bình $AC$ đạt tối thiểu.\n' +
+          '*Lời giải*: $AC(q) = q^2 - 6q + 15 + \\frac{100}{q}$. Cho $MC = AC \\iff 3q^2 - 12q + 15 = q^2 - 6q + 15 + \\frac{100}{q} \\iff 2q^2 - 6q = \\frac{100}{q} \\iff q^3 - 3q^2 - 50 = 0 \\implies q = 5$.\n\n' +
+          '📝 **Dạng 6: Sản lượng biên theo vốn (K51 Mã 204 - Câu 9)**\n' +
+          '*Đề bài*: Cho $Q(L, K) = 6 L^{1/2} K^{1/4}$. Tính sản lượng biên theo vốn tại $L=100, K=10000$.\n' +
+          '*Lời giải*: $Q\'_K = \\frac{3}{2} L^{1/2} K^{-3/4} = \\frac{3}{2} (10) (10^{-3}) = \\frac{3}{200}$.\n\n' +
+          '📝 **Dạng 7: Xấp xỉ tuyến tính hàm hai biến (K51 Mã 204 - Câu 10)**\n' +
+          '*Đề bài*: $f(10, 5) = 1000, f\'_x = 2, f\'_y = -3$. Tính gần đúng $f(10.1, 4.8)$.\n' +
+          '*Lời giải*: $f(10.1, 4.8) \\approx 1000 + 2(0.1) + (-3)(-0.2) = 1000.8$.\n\n' +
+          '📝 **Dạng 8: Cân bằng giá thị trường động (K51 Đợt 2 - Câu 7)**\n' +
+          '*Đề bài*: Cho $P\'(t) + 3P(t) = 12$, $P(0) = 5$. Tìm giá ổn định dài hạn khi $t \\to +\\infty$.\n' +
+          '*Lời giải*: $P(t) = 4 + C e^{-3t} \\xrightarrow{t \\to +\\infty} P^* = 4$.'
+      },
+      {
+        heading: '9. Tổng Kết & Lộ Trình Ôn Tập Đạt Điểm Tuyệt Đối',
+        body: 'Tóm lại, để đạt điểm tuyệt đối 9-10 trong các bài thi Toán Ứng Dụng UEH qua các khóa K46-K51, sinh viên cần làm chủ 2 bước:\n\n' +
+          '1. **Nắm chắc định nghĩa & ý nghĩa kinh tế gốc** của các hàm số ($C, R, \\pi, Q, S, I$) và các đại lượng biên tế ($MC, AC, MR, MP_L, MP_K, MRP_L, MPC, MPS, E_p$).\n' +
+          '2. **Thực hành phản xạ tính toán** trên hệ thống phòng thi trắc nghiệm tương tác 30 phút của UEH TCC.'
+      }
+    ]
+  },
+  {
+    slug: 'lo-trinh-on-toan-cao-cap',
     title: 'Cẩm Nang Toàn Diện Lý Thuyết Kinh Tế Vi/Vĩ Mô (Chương 5 Slide PNTA) & Phân Tích Bộ Đề K51 UEH',
     category: 'Chuyên đề nâng cao',
     date: '23/07/2026',

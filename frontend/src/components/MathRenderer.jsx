@@ -10,11 +10,24 @@ export default function MathRenderer({ text, className = '' }) {
   const renderedContent = useMemo(() => {
     if (!text || typeof text !== 'string') return text || '';
 
-    // Regex to split by $$...$$ and $...$ (non-greedy)
-    const regex = /(\$\$.*?\$\$|\$.*?\$)/s;
+    // Regex to split by $$...$$, $...$, and ![alt](src)
+    const regex = /(\$\$.*?\$\$|\$.*?\$|!\[.*?\]\(.*?\))/s;
     const parts = text.split(regex);
 
     return parts.map((part, index) => {
+      if (part.startsWith('![') && part.includes('](') && part.endsWith(')')) {
+        const match = part.match(/^!\[(.*?)\]\((.*?)\)$/);
+        if (match) {
+          const [, alt, src] = match;
+          return (
+            <figure key={index} className="article-diagram-figure">
+              <img src={src} alt={alt} className="article-diagram-img" />
+              {alt && <figcaption className="article-diagram-caption">📌 {alt}</figcaption>}
+            </figure>
+          );
+        }
+      }
+
       if (part.startsWith('$$') && part.endsWith('$$') && part.length >= 4) {
         const math = part.slice(2, -2).trim();
         try {
