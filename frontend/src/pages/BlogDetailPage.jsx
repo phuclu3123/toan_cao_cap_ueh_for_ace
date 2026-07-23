@@ -1,6 +1,6 @@
-import { useEffect, useContext } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, BookOpen, CalendarDays, Link as LinkIcon, UserRound } from 'lucide-react';
+import { ArrowLeft, BookOpen, CalendarDays, Link as LinkIcon, UserRound, Check } from 'lucide-react';
 import { blogPosts, getBlogPostBySlug } from '../data/blogPosts';
 import { LanguageContext } from '../App';
 import { translations } from '../utils/translations';
@@ -12,20 +12,60 @@ export default function BlogDetailPage() {
   const t = translations[language];
   const { slug } = useParams();
   const post = getBlogPostBySlug(slug);
+  const [activeSectionId, setActiveSectionId] = useState('');
+  const [copiedSectionId, setCopiedSectionId] = useState('');
 
   // Scroll to top when post slug changes
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
   }, [slug]);
 
+  // ScrollSpy using IntersectionObserver
+  useEffect(() => {
+    if (!post) return;
+
+    const sectionElements = document.querySelectorAll('.article-section');
+    if (!sectionElements.length) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSectionId(entry.target.id);
+          }
+        });
+      },
+      {
+        rootMargin: '-100px 0px -60% 0px',
+        threshold: 0.1
+      }
+    );
+
+    sectionElements.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [post]);
+
   // Handle smooth scroll to section without breaking hash routing
   const scrollToSection = (e, heading) => {
     e.preventDefault();
     const id = heading.toLowerCase().replace(/\s+/g, '-');
+    setActiveSectionId(id);
     const element = document.getElementById(id);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+      const topOffset = element.getBoundingClientRect().top + window.pageYOffset - 90;
+      window.scrollTo({ top: topOffset, behavior: 'smooth' });
     }
+  };
+
+  // Copy section anchor link to clipboard
+  const copySectionLink = (e, heading) => {
+    e.preventDefault();
+    const id = heading.toLowerCase().replace(/\s+/g, '-');
+    const url = `${window.location.origin}${window.location.pathname}#${id}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setCopiedSectionId(id);
+      setTimeout(() => setCopiedSectionId(''), 2500);
+    });
   };
 
   if (!post) {
@@ -53,16 +93,21 @@ export default function BlogDetailPage() {
           <aside className="article-toc">
             <h3><BookOpen size={18} /> {t.blogPage.tocTitle}</h3>
             <ul className="toc-list">
-              {post.toc.map((item, idx) => (
-                <li key={idx}>
-                  <a
-                    href={`#${item.toLowerCase().replace(/\s+/g, '-')}`}
-                    onClick={(e) => scrollToSection(e, item)}
-                  >
-                    {item}
-                  </a>
-                </li>
-              ))}
+              {post.toc.map((item, idx) => {
+                const sectionId = item.toLowerCase().replace(/\s+/g, '-');
+                const isActive = activeSectionId === sectionId;
+                return (
+                  <li key={idx}>
+                    <a
+                      href={`#${sectionId}`}
+                      className={`toc-link ${isActive ? 'active' : ''}`}
+                      onClick={(e) => scrollToSection(e, item)}
+                    >
+                      {item}
+                    </a>
+                  </li>
+                );
+              })}
             </ul>
           </aside>
 
@@ -85,26 +130,43 @@ export default function BlogDetailPage() {
 
             <img src={post.image} alt={post.title} className="article-cover" />
 
-            {post.sections.map((section) => (
-              <section key={section.heading} id={section.heading.toLowerCase().replace(/\s+/g, '-')} className="article-section">
-                <h2 className="section-heading">{section.heading} <LinkIcon size={18} /></h2>
-                <div className="article-body">
-                  {section.body.split('\n\n').map((paragraph, pIdx) => (
-                    <div key={pIdx} className="article-paragraph">
-                      <MathRenderer text={paragraph} />
-                    </div>
-                  ))}
-                </div>
-              </section>
-            ))}
+            {post.sections.map((section) => {
+              const sectionId = section.heading.toLowerCase().replace(/\s+/g, '-');
+              const isCopied = copiedSectionId === sectionId;
+              return (
+                <section key={section.heading} id={sectionId} className="article-section">
+                  <h2 className="section-heading">
+                    <span>{section.heading}</span>
+                    <button
+                      type="button"
+                      className="section-anchor-btn"
+                      onClick={(e) => copySectionLink(e, section.heading)}
+                      title="Sao chép liên kết phần này"
+                    >
+                      {isCopied ? <Check size={18} className="text-success" /> : <LinkIcon size={18} />}
+                      {isCopied && <span className="copied-tooltip">Đã chép link!</span>}
+                    </button>
+                  </h2>
+                  <div className="article-body">
+                    {section.body.split('\n\n').map((paragraph, pIdx) => (
+                      <div key={pIdx} className="article-paragraph">
+                        <MathRenderer text={paragraph} />
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              );
+            })}
 
-            <h2>{t.blogPage.relatedTitle}</h2>
-            <div className="related-posts">
-              {relatedPosts.map((item) => (
-                <Link to={`/blog/${item.slug}`} key={item.slug}>
-                  {item.title}
-                </Link>
-              ))}
+            <div className="related-section">
+              <h2>{t.blogPage.relatedTitle}</h2>
+              <div className="related-posts">
+                {relatedPosts.map((item) => (
+                  <Link to={`/blog/${item.slug}`} key={item.slug}>
+                    {item.title}
+                  </Link>
+                ))}
+              </div>
             </div>
           </article>
         </div>
