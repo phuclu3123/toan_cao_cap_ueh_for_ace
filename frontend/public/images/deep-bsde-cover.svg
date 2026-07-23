@@ -1,0 +1,41 @@
+<svg width="1440" height="820" viewBox="0 0 1440 820" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1440" height="820" fill="#F4F1EA"/>
+  <path d="M0 0H1440V14H0V0Z" fill="#173F3A"/>
+  <g opacity=".46" stroke="#D7D0C3">
+    <path d="M80 105H1360M80 205H1360M80 305H1360M80 405H1360M80 505H1360M80 605H1360M80 705H1360"/>
+    <path d="M140 70V755M340 70V755M540 70V755M740 70V755M940 70V755M1140 70V755M1340 70V755"/>
+  </g>
+  <rect x="70" y="70" width="650" height="680" rx="8" fill="#173F3A"/>
+  <text x="122" y="145" fill="#9FD1C6" font-family="Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="4">STOCHASTIC CONTROL · MEAN FIELD</text>
+  <text x="122" y="255" fill="#FAF8F2" font-family="Georgia, serif" font-size="76" font-weight="700">Deep BSDE</text>
+  <text x="122" y="335" fill="#FAF8F2" font-family="Georgia, serif" font-size="58" font-weight="700">FBSDE · MFG · MFC</text>
+  <path d="M122 385H650" stroke="#D5A85C" stroke-width="4"/>
+  <text x="122" y="456" fill="#DDE9E5" font-family="Arial, sans-serif" font-size="27">Brownian · Itô · Hamiltonian</text>
+  <text x="122" y="501" fill="#DDE9E5" font-family="Arial, sans-serif" font-size="27">Riccati · Almgren–Chriss · PoA</text>
+  <text x="122" y="610" fill="#9FD1C6" font-family="Arial, sans-serif" font-size="18" letter-spacing="2">TỪ NỀN TẢNG XÁC SUẤT</text>
+  <text x="122" y="644" fill="#9FD1C6" font-family="Arial, sans-serif" font-size="18" letter-spacing="2">ĐẾN SOLVER SỐ CHIỀU CAO</text>
+  <g transform="translate(795 110)">
+    <rect width="560" height="590" rx="12" fill="#FCFAF6" stroke="#BDB5A8" stroke-width="2"/>
+    <text x="42" y="55" fill="#173F3A" font-family="Arial, sans-serif" font-size="17" font-weight="700" letter-spacing="2">FORWARD–BACKWARD SYSTEM</text>
+    <rect x="45" y="104" width="145" height="74" rx="14" fill="#E3EFEB" stroke="#1E7066" stroke-width="2"/>
+    <text x="118" y="135" text-anchor="middle" fill="#173F3A" font-family="Arial, sans-serif" font-size="15" font-weight="700">FORWARD</text>
+    <text x="118" y="160" text-anchor="middle" fill="#1E7066" font-family="Georgia, serif" font-size="24">Xₜ</text>
+    <rect x="370" y="104" width="145" height="74" rx="14" fill="#F3E8D4" stroke="#D4A65A" stroke-width="2"/>
+    <text x="442" y="135" text-anchor="middle" fill="#173F3A" font-family="Arial, sans-serif" font-size="15" font-weight="700">TERMINAL</text>
+    <text x="442" y="160" text-anchor="middle" fill="#9B6B24" font-family="Georgia, serif" font-size="24">pₜ</text>
+    <path d="M205 141H350" stroke="#1E7066" stroke-width="4"/>
+    <path d="M344 134L356 141L344 148" fill="#1E7066"/>
+    <rect x="208" y="254" width="145" height="74" rx="14" fill="#E3EFEB" stroke="#1E7066" stroke-width="2"/>
+    <text x="280" y="285" text-anchor="middle" fill="#173F3A" font-family="Arial, sans-serif" font-size="15" font-weight="700">BACKWARD</text>
+    <text x="280" y="310" text-anchor="middle" fill="#1E7066" font-family="Georgia, serif" font-size="24">pₜ, qₜ</text>
+    <path d="M442 190C442 231 371 270 365 280" stroke="#D4A65A" stroke-width="4"/>
+    <path d="M369 267L361 286L378 276" fill="#D4A65A"/>
+    <path d="M196 291C132 291 116 231 116 191" stroke="#1E7066" stroke-width="4"/>
+    <path d="M109 199L116 184L123 199" fill="#1E7066"/>
+    <rect x="45" y="398" width="470" height="122" rx="16" fill="#173F3A"/>
+    <text x="280" y="435" text-anchor="middle" fill="#9FD1C6" font-family="Arial, sans-serif" font-size="15" font-weight="700" letter-spacing="2">DEEP SHOOTING</text>
+    <text x="280" y="472" text-anchor="middle" fill="#FAF8F2" font-family="Georgia, serif" font-size="26">Network → Rollout → Lossₜ</text>
+    <text x="280" y="500" text-anchor="middle" fill="#DDE9E5" font-family="Arial, sans-serif" font-size="15">Monte Carlo · Backpropagation · SGD</text>
+    <text x="280" y="560" text-anchor="middle" fill="#173F3A" font-family="Georgia, serif" font-size="20" font-style="italic">equilibrium ↔ social optimum</text>
+  </g>
+</svg>

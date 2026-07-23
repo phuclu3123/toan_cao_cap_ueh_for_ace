@@ -139,6 +139,163 @@ function WorkedExampleBlock({ block }) {
 }
 
 function DiagramArtwork({ kind }) {
+  if (kind === 'theory-stack') {
+    return (
+      <svg viewBox="0 0 760 390" role="img" aria-label="Bốn tầng lý thuyết của Deep BSDE">
+        <defs>
+          <marker id="stack-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L9,3 z" className="diagram-arrow-head" />
+          </marker>
+        </defs>
+        <rect x="55" y="52" width="285" height="112" rx="18" className="diagram-card diagram-card-soft" />
+        <rect x="420" y="52" width="285" height="112" rx="18" className="diagram-card diagram-card-accent" />
+        <rect x="55" y="228" width="285" height="112" rx="18" className="diagram-card diagram-card-warm" />
+        <rect x="420" y="228" width="285" height="112" rx="18" className="diagram-card diagram-card-soft" />
+        <path d="M345 108 H404" markerEnd="url(#stack-arrow)" className="diagram-flow-line" />
+        <path d="M563 170 V212" markerEnd="url(#stack-arrow)" className="diagram-flow-line" />
+        <path d="M414 284 H355" markerEnd="url(#stack-arrow)" className="diagram-flow-line" />
+        <text x="197" y="88" textAnchor="middle" className="diagram-card-title">XÁC SUẤT</text>
+        <text x="197" y="121" textAnchor="middle" className="diagram-card-value">W, Itô, SDE</text>
+        <text x="197" y="145" textAnchor="middle" className="diagram-small-label">Ngôn ngữ của bất định</text>
+        <text x="563" y="88" textAnchor="middle" className="diagram-card-title">ĐIỀU KHIỂN</text>
+        <text x="563" y="121" textAnchor="middle" className="diagram-card-value">HJB · FBSDE</text>
+        <text x="563" y="145" textAnchor="middle" className="diagram-small-label">Policy và adjoint</text>
+        <text x="197" y="264" textAnchor="middle" className="diagram-card-title">DEEP LEARNING</text>
+        <text x="197" y="297" textAnchor="middle" className="diagram-card-value">ANN · SGD</text>
+        <text x="197" y="321" textAnchor="middle" className="diagram-small-label">Xấp xỉ số chiều cao</text>
+        <text x="563" y="264" textAnchor="middle" className="diagram-card-title">MEAN FIELD</text>
+        <text x="563" y="297" textAnchor="middle" className="diagram-card-value">MFG · MFC</text>
+        <text x="563" y="321" textAnchor="middle" className="diagram-small-label">Law và quần thể</text>
+        <rect x="272" y="174" width="216" height="45" rx="12" className="diagram-label-box" />
+        <text x="380" y="203" textAnchor="middle" className="diagram-equation">Deep BSDE</text>
+      </svg>
+    );
+  }
+
+  if (kind === 'fbsde-loop') {
+    return (
+      <svg viewBox="0 0 760 390" role="img" aria-label="Vòng coupling forward backward stochastic differential equation">
+        <defs>
+          <marker id="fbsde-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L9,3 z" className="diagram-arrow-head" />
+          </marker>
+        </defs>
+        <rect x="65" y="75" width="150" height="82" rx="16" className="diagram-card diagram-card-soft" />
+        <rect x="305" y="75" width="150" height="82" rx="16" className="diagram-card diagram-card-accent" />
+        <rect x="545" y="75" width="150" height="82" rx="16" className="diagram-card diagram-card-warm" />
+        <path d="M220 116 H290" markerEnd="url(#fbsde-arrow)" className="diagram-flow-line" />
+        <path d="M460 116 H530" markerEnd="url(#fbsde-arrow)" className="diagram-flow-line" />
+        <text x="140" y="108" textAnchor="middle" className="diagram-card-title">INITIAL STATE</text>
+        <text x="140" y="135" textAnchor="middle" className="diagram-card-value">X₀</text>
+        <text x="380" y="108" textAnchor="middle" className="diagram-card-title">FORWARD STATE</text>
+        <text x="380" y="135" textAnchor="middle" className="diagram-card-value">Xₜ</text>
+        <text x="620" y="108" textAnchor="middle" className="diagram-card-title">TERMINAL</text>
+        <text x="620" y="135" textAnchor="middle" className="diagram-card-value">pₜ = ∇g(Xₜ)</text>
+        <rect x="305" y="258" width="150" height="82" rx="16" className="diagram-card diagram-card-accent" />
+        <rect x="65" y="258" width="150" height="82" rx="16" className="diagram-card diagram-card-soft" />
+        <text x="380" y="291" textAnchor="middle" className="diagram-card-title">BACKWARD</text>
+        <text x="380" y="318" textAnchor="middle" className="diagram-card-value">pₜ, qₜ</text>
+        <text x="140" y="291" textAnchor="middle" className="diagram-card-title">CONTROL</text>
+        <text x="140" y="318" textAnchor="middle" className="diagram-card-value">αₜ*(pₜ)</text>
+        <path d="M620 164 C620 244 500 299 470 299" markerEnd="url(#fbsde-arrow)" className="diagram-flow-line" />
+        <path d="M290 299 H230" markerEnd="url(#fbsde-arrow)" className="diagram-flow-line" />
+        <path d="M140 248 C140 211 285 195 362 164" markerEnd="url(#fbsde-arrow)" className="diagram-flow-line" />
+        <text x="526" y="244" textAnchor="middle" className="diagram-small-label">terminal boundary</text>
+        <text x="242" y="213" textAnchor="middle" className="diagram-small-label">drift coupling</text>
+      </svg>
+    );
+  }
+
+  if (kind === 'ac-tradeoff') {
+    return (
+      <svg viewBox="0 0 760 390" role="img" aria-label="Các quỹ đạo thanh lý Almgren Chriss theo mức risk aversion">
+        <path d="M82 45 V320 H700" className="diagram-axis" />
+        <path d="M92 75 C210 86 360 170 665 310" className="diagram-line diagram-line-warm" />
+        <path d="M92 75 C250 130 430 235 665 310" className="diagram-line diagram-line-accent" />
+        <path d="M92 75 L665 310" className="diagram-line diagram-dashed" />
+        <circle cx="92" cy="75" r="7" className="diagram-point" />
+        <circle cx="665" cy="310" r="7" className="diagram-point" />
+        <text x="47" y="79" className="diagram-axis-label">X₀</text>
+        <text x="674" y="336" className="diagram-axis-label">T</text>
+        <text x="94" y="355" className="diagram-axis-label">Thời gian</text>
+        <text x="22" y="32" className="diagram-axis-label">Inventory</text>
+        <text x="530" y="125" className="diagram-series-label diagram-warm-text">λ cao</text>
+        <text x="526" y="218" className="diagram-series-label diagram-accent-text">λ vừa</text>
+        <text x="526" y="285" className="diagram-series-label">λ → 0</text>
+        <rect x="120" y="245" width="230" height="55" rx="12" className="diagram-label-box" />
+        <text x="235" y="268" textAnchor="middle" className="diagram-small-label">Risk cao → front-load</text>
+        <text x="235" y="289" textAnchor="middle" className="diagram-equation">κ = √(λσ²/η)</text>
+      </svg>
+    );
+  }
+
+  if (kind === 'mfg-mfc') {
+    return (
+      <svg viewBox="0 0 760 390" role="img" aria-label="So sánh Mean Field Game và Mean Field Control">
+        <defs>
+          <marker id="meanfield-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L9,3 z" className="diagram-arrow-head" />
+          </marker>
+        </defs>
+        <rect x="42" y="45" width="318" height="300" rx="20" className="diagram-zone diagram-zone-neutral" />
+        <rect x="400" y="45" width="318" height="300" rx="20" className="diagram-zone diagram-zone-teal" />
+        <text x="201" y="82" textAnchor="middle" className="diagram-card-title">MEAN FIELD GAME</text>
+        <text x="559" y="82" textAnchor="middle" className="diagram-card-title">MEAN FIELD CONTROL</text>
+        <rect x="87" y="113" width="228" height="62" rx="14" className="diagram-card diagram-card-soft" />
+        <text x="201" y="140" textAnchor="middle" className="diagram-small-label">Agent tối ưu riêng</text>
+        <text x="201" y="162" textAnchor="middle" className="diagram-equation">Best response α*(m)</text>
+        <rect x="87" y="238" width="228" height="62" rx="14" className="diagram-card diagram-card-soft" />
+        <text x="201" y="265" textAnchor="middle" className="diagram-small-label">Population consistency</text>
+        <text x="201" y="287" textAnchor="middle" className="diagram-equation">m = Law(Xα*)</text>
+        <path d="M201 183 V222" markerEnd="url(#meanfield-arrow)" className="diagram-flow-line" />
+        <path d="M77 269 C47 210 52 146 78 144" markerEnd="url(#meanfield-arrow)" className="diagram-flow-line" />
+        <rect x="445" y="113" width="228" height="62" rx="14" className="diagram-card diagram-card-accent" />
+        <text x="559" y="140" textAnchor="middle" className="diagram-small-label">Social planner</text>
+        <text x="559" y="162" textAnchor="middle" className="diagram-equation">min Jsocial(α, Law)</text>
+        <rect x="445" y="238" width="228" height="62" rx="14" className="diagram-card diagram-card-warm" />
+        <text x="559" y="265" textAnchor="middle" className="diagram-small-label">Nội hóa externality</text>
+        <text x="559" y="287" textAnchor="middle" className="diagram-equation">Social optimum</text>
+        <path d="M559 183 V222" markerEnd="url(#meanfield-arrow)" className="diagram-flow-line" />
+        <text x="380" y="370" textAnchor="middle" className="diagram-equation">PoA = social cost(MFG) / social cost(MFC)</text>
+      </svg>
+    );
+  }
+
+  if (kind === 'deep-bsde-pipeline') {
+    return (
+      <svg viewBox="0 0 760 390" role="img" aria-label="Pipeline huấn luyện Deep BSDE">
+        <defs>
+          <marker id="deep-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L9,3 z" className="diagram-arrow-head" />
+          </marker>
+        </defs>
+        <rect x="35" y="122" width="130" height="98" rx="16" className="diagram-card diagram-card-soft" />
+        <rect x="220" y="122" width="130" height="98" rx="16" className="diagram-card diagram-card-accent" />
+        <rect x="405" y="122" width="130" height="98" rx="16" className="diagram-card diagram-card-warm" />
+        <rect x="590" y="122" width="130" height="98" rx="16" className="diagram-card diagram-card-soft" />
+        <path d="M170 171 H205" markerEnd="url(#deep-arrow)" className="diagram-flow-line" />
+        <path d="M355 171 H390" markerEnd="url(#deep-arrow)" className="diagram-flow-line" />
+        <path d="M540 171 H575" markerEnd="url(#deep-arrow)" className="diagram-flow-line" />
+        <text x="100" y="153" textAnchor="middle" className="diagram-card-title">SAMPLE</text>
+        <text x="100" y="180" textAnchor="middle" className="diagram-card-value">X₀, ΔW</text>
+        <text x="100" y="203" textAnchor="middle" className="diagram-small-label">Monte Carlo</text>
+        <text x="285" y="153" textAnchor="middle" className="diagram-card-title">NETWORK</text>
+        <text x="285" y="180" textAnchor="middle" className="diagram-card-value">p₀, q, q⁰</text>
+        <text x="285" y="203" textAnchor="middle" className="diagram-small-label">Unknown objects</text>
+        <text x="470" y="153" textAnchor="middle" className="diagram-card-title">ROLLOUT</text>
+        <text x="470" y="180" textAnchor="middle" className="diagram-card-value">Xₖ, pₖ</text>
+        <text x="470" y="203" textAnchor="middle" className="diagram-small-label">Euler graph</text>
+        <text x="655" y="153" textAnchor="middle" className="diagram-card-title">BOUNDARY</text>
+        <text x="655" y="180" textAnchor="middle" className="diagram-card-value">Lossₜ</text>
+        <text x="655" y="203" textAnchor="middle" className="diagram-small-label">Terminal mismatch</text>
+        <path d="M655 230 C655 330 285 340 285 237" markerEnd="url(#deep-arrow)" className="diagram-flow-line" />
+        <rect x="347" y="278" width="174" height="48" rx="12" className="diagram-label-box" />
+        <text x="434" y="308" textAnchor="middle" className="diagram-equation">Backprop + SGD</text>
+        <text x="380" y="75" textAnchor="middle" className="diagram-card-value">Boundary-value problem → learning problem</text>
+      </svg>
+    );
+  }
+
   if (kind === 'marginal-chain') {
     return (
       <svg viewBox="0 0 760 300" role="img" aria-label="Chuỗi lao động, sản lượng và doanh thu">

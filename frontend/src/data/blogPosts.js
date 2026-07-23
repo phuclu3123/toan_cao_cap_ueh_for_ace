@@ -1,7 +1,9 @@
 import { economicsDerivativePost } from './economicsDerivativePost';
 import { quantFinanceStatisticsPost } from './quantFinanceStatisticsPost';
+import { deepBsdeMfgMfcPost } from './deepBsdeMfgMfcPost';
 
 export const blogPosts = [
+  deepBsdeMfgMfcPost,
   quantFinanceStatisticsPost,
   economicsDerivativePost,
   {
