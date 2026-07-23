@@ -52,9 +52,9 @@ export default function BlogDetailPage() {
         <div className="container forum-blog-grid">
           <aside className="article-toc">
             <h3>{t.blogPage.tocTitle}</h3>
-            <ol>
-              {post.toc.map((item) => (
-                <li key={item}>
+            <ul className="toc-list">
+              {post.toc.map((item, idx) => (
+                <li key={idx}>
                   <a
                     href={`#${item.toLowerCase().replace(/\s+/g, '-')}`}
                     onClick={(e) => scrollToSection(e, item)}
@@ -63,7 +63,7 @@ export default function BlogDetailPage() {
                   </a>
                 </li>
               ))}
-            </ol>
+            </ul>
           </aside>
 
           <article className="forum-article">
@@ -71,7 +71,7 @@ export default function BlogDetailPage() {
               <ArrowLeft size={18} />
               {t.blogPage.btnAll}
             </Link>
-            <h1>{post.title}</h1>
+            <h1 className="article-title">{post.title}</h1>
             <div className="article-byline">
               <span><UserRound size={16} /> {t.blogPage.authorLabel} {post.author}</span>
               <span><CalendarDays size={16} /> {post.date}</span>
@@ -80,16 +80,20 @@ export default function BlogDetailPage() {
               <strong>Keywords:</strong> {post.keywords.join(', ')}
             </p>
             <div className="article-meta">
-              <span>{post.category}</span>
+              <span className="category-badge">{post.category}</span>
             </div>
 
             <img src={post.image} alt={post.title} className="article-cover" />
 
             {post.sections.map((section) => (
               <section key={section.heading} id={section.heading.toLowerCase().replace(/\s+/g, '-')} className="article-section">
-                <h2>{section.heading} <LinkIcon size={18} /></h2>
+                <h2 className="section-heading">{section.heading} <LinkIcon size={18} /></h2>
                 <div className="article-body">
-                  <MathRenderer text={section.body} />
+                  {section.body.split('\n\n').map((paragraph, pIdx) => (
+                    <div key={pIdx} className="article-paragraph">
+                      <MathRenderer text={paragraph} />
+                    </div>
+                  ))}
                 </div>
               </section>
             ))}
