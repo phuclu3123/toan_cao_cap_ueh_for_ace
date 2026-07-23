@@ -8,8 +8,8 @@ export const quantFinanceStatisticsPost = {
   date: '23/07/2026',
   updatedAt: 'Đã đối chiếu nguồn ngày 23/07/2026',
   author: 'Lữ Võ Hoàng Phúc (K50 UEH)',
-  readingTime: '32 phút đọc · kèm công thức và Python',
-  level: 'Nền tảng thống kê → mô hình nhân tố',
+  readingTime: '48 phút đọc · kèm công thức, ma trận và Python',
+  level: 'Nền tảng thống kê → stochastic control nâng cao',
   keywords: [
     'VN30',
     'Log-return',
@@ -22,7 +22,7 @@ export const quantFinanceStatisticsPost = {
   ],
   image: '/images/quant-finance-cover.svg',
   excerpt:
-    'Một bản đồ ký hiệu có hệ thống từ mean, sample variance và covariance đến log-return, volatility năm hóa, beta thị trường, common noise và idiosyncratic risk. Mỗi khái niệm được trình bày theo ba lớp: thống kê, tài chính và Python.',
+    'Một bản đồ ký hiệu có hệ thống từ mean, sample variance và covariance đến log-return, volatility, hình học ma trận, Cholesky, phân phối Gaussian, Brownian motion, common noise và idiosyncratic diffusion. Mỗi khái niệm được trình bày theo ba lớp: thống kê, tài chính và Python.',
   scope: {
     label: 'Mục tiêu của bài',
     title: 'Không học thuộc công thức tài chính tách rời thống kê',
@@ -31,7 +31,7 @@ export const quantFinanceStatisticsPost = {
   },
   highlights: [
     { value: '03', label: 'tầng đọc: thống kê · tài chính · code' },
-    { value: '02', label: 'loại rủi ro: chung · đặc thù' },
+    { value: '16', label: 'section từ nền tảng đến nâng cao' },
     { value: '01', label: 'pipeline có thể tái lập' },
   ],
   toc: [
@@ -41,12 +41,17 @@ export const quantFinanceStatisticsPost = {
     '3. Mean của return và drift của mô hình giá',
     '4. Variance, standard deviation và volatility',
     '5. Covariance, correlation và ma trận rủi ro',
-    '6. Từ VN30 đến common và idiosyncratic volatility',
-    '7. Hai cách hiệu chỉnh sigma₀ và sigmaID',
-    '8. Từ rủi ro thống kê đến hàm mục tiêu LQ',
-    '9. Pipeline Python có thể tái lập',
-    '10. Chẩn đoán mô hình và các bẫy thực nghiệm',
-    '11. Tài liệu tham khảo và quy ước báo cáo',
+    '6. Ma trận xác định dương, bán xác định dương và trị riêng',
+    '7. Phân rã Cholesky và sinh nhiễu tương quan',
+    '8. Sigma ID và Sigma 0 trong đúng mô hình của đề tài',
+    '9. Ký hiệu phân phối, dấu ~ và Gaussian đa biến',
+    '10. Brownian motion, kỳ vọng có điều kiện và empirical law',
+    '11. Từ VN30 đến common và idiosyncratic volatility',
+    '12. Hai cách hiệu chỉnh sigma₀ và sigmaID từ return',
+    '13. Từ rủi ro thống kê đến hàm mục tiêu LQ',
+    '14. Pipeline Python có thể tái lập',
+    '15. Chẩn đoán mô hình và các bẫy thực nghiệm',
+    '16. Tài liệu tham khảo và quy ước báo cáo',
   ],
   sections: [
     {
@@ -318,6 +323,50 @@ assert np.allclose(vol_annual.pow(2), var_annual)`,
             'Correlation không có đơn vị; covariance giữ thang volatility của hai tài sản.',
         },
         {
+          type: 'formula',
+          label: 'Ma trận sample covariance viết đầy đủ',
+          content: math`$$\widehat\Sigma=
+\begin{bmatrix}
+s_1^2&s_{12}&\cdots&s_{1d}\\
+s_{21}&s_2^2&\cdots&s_{2d}\\
+\vdots&\vdots&\ddots&\vdots\\
+s_{d1}&s_{d2}&\cdots&s_d^2
+\end{bmatrix}
+=\frac{1}{T-1}\sum_{t=1}^{T}(R_t-\bar R)(R_t-\bar R)^\top$$`,
+          note:
+            'Mỗi hàng/cột là một tài sản; đường chéo là variance, ngoài đường chéo là covariance và sij=sji.',
+        },
+        {
+          type: 'formula',
+          label: 'Ví dụ trực quan với ba cổ phiếu',
+          content: math`$$\widehat\Sigma=
+\begin{bmatrix}
+\sigma_1^2&\rho_{12}\sigma_1\sigma_2&\rho_{13}\sigma_1\sigma_3\\
+\rho_{12}\sigma_1\sigma_2&\sigma_2^2&\rho_{23}\sigma_2\sigma_3\\
+\rho_{13}\sigma_1\sigma_3&\rho_{23}\sigma_2\sigma_3&\sigma_3^2
+\end{bmatrix}$$`,
+          note:
+            'Công thức cho thấy covariance đồng thời chứa mức volatility riêng và mức correlation của từng cặp.',
+        },
+        {
+          type: 'example',
+          open: true,
+          meta: 'Ví dụ ma trận · ba tài sản',
+          title: 'Đọc từng ô của một covariance matrix',
+          prompt:
+            'Giả sử volatility năm của ba mã là 20%, 30%, 25% và correlation lần lượt là $\\rho_{12}=0.50$, $\\rho_{13}=0.20$, $\\rho_{23}=-0.10$. Hãy lập ma trận covariance năm.',
+          method:
+            'Đường chéo dùng $\\sigma_i^2$; ngoài đường chéo dùng $\\rho_{ij}\\sigma_i\\sigma_j$.',
+          steps: [
+            { label: 'Đường chéo', content: '$0.20^2=0.0400$, $0.30^2=0.0900$, $0.25^2=0.0625$.' },
+            { label: 'Covariance 1–2', content: '$0.50(0.20)(0.30)=0.0300$.' },
+            { label: 'Covariance 1–3 và 2–3', content: '$0.20(0.20)(0.25)=0.0100$ và $-0.10(0.30)(0.25)=-0.0075$.' },
+          ],
+          result: '$\\widehat\\Sigma=\\begin{bmatrix}0.0400&0.0300&0.0100\\\\0.0300&0.0900&-0.0075\\\\0.0100&-0.0075&0.0625\\end{bmatrix}$',
+          interpretation:
+            'Ô âm không có nghĩa variance âm; nó chỉ nói hai tài sản có xu hướng biến động ngược chiều trong mẫu.',
+        },
+        {
           type: 'paragraph',
           content:
             'Nếu $w$ là vector tỷ trọng và $\\widehat\\Sigma$ là ma trận covariance, variance danh mục là $w^\\top\\widehat\\Sigma w$. Các phần tử ngoài đường chéo quyết định lợi ích đa dạng hóa. Hai mã đều biến động mạnh nhưng không đồng biến động hoàn toàn vẫn có thể tạo danh mục ít rủi ro hơn từng mã riêng lẻ.',
@@ -343,7 +392,403 @@ portfolio_vol = np.sqrt(portfolio_var)`,
       ],
     },
     {
-      heading: '6. Từ VN30 đến common và idiosyncratic volatility',
+      heading: '6. Ma trận xác định dương, bán xác định dương và trị riêng',
+      eyebrow: 'Hình học ma trận',
+      summary:
+        'Trị riêng cho biết quadratic form có thể âm hay không, ma trận có khả nghịch hay không và Cholesky có tồn tại theo dạng chuẩn hay không.',
+      blocks: [
+        {
+          type: 'paragraph',
+          content:
+            'Với ma trận thực $A$, quadratic form $x^\\top Ax$ chỉ phụ thuộc phần đối xứng $(A+A^\\top)/2$. Vì vậy khi nói positive definite trong LQ và covariance, ta xét ma trận đối xứng. Dấu của quadratic form quyết định một “chi phí bình phương” có thực sự không âm với mọi trạng thái hay không.',
+        },
+        {
+          type: 'comparison',
+          columns: ['Loại ma trận đối xứng', 'Định nghĩa bằng quadratic form', 'Điều kiện trị riêng'],
+          rows: [
+            ['Xác định dương · $A\\succ0$', '$x^\\top Ax>0$ với mọi $x\\neq0$', 'Mọi $\\lambda_i(A)>0$'],
+            ['Bán xác định dương · $A\\succeq0$', '$x^\\top Ax\\geq0$ với mọi $x$', 'Mọi $\\lambda_i(A)\\geq0$'],
+            ['Không xác định · indefinite', 'Có hướng cho giá trị dương và hướng cho giá trị âm', 'Có cả trị riêng dương và âm'],
+            ['Xác định âm · $A\\prec0$', '$x^\\top Ax<0$ với mọi $x\\neq0$', 'Mọi $\\lambda_i(A)<0$'],
+          ],
+        },
+        {
+          type: 'formula',
+          label: 'Phân rã trị riêng của ma trận đối xứng',
+          content: math`$$A=U\Lambda U^\top,\qquad \Lambda=\operatorname{diag}(\lambda_1,\ldots,\lambda_d),\qquad x^\top Ax=\sum_{k=1}^{d}\lambda_k(u_k^\top x)^2$$`,
+          note:
+            'Mỗi eigenvector uk là một hướng rủi ro; eigenvalue λk là mức phạt hoặc variance theo hướng đó.',
+        },
+        {
+          type: 'paragraph',
+          content:
+            'Covariance lý thuyết luôn PSD vì $a^\\top\\Sigma a=\\operatorname{Var}(a^\\top R)\\geq0$. Nó có thể không PD nếu một tài sản là tổ hợp tuyến tính của các tài sản khác hoặc số quan sát không đủ so với số chiều. Khi đó có hướng danh mục khác 0 nhưng sample variance bằng 0.',
+        },
+        {
+          type: 'formula',
+          label: 'Kiểm tra nhanh ma trận 2×2',
+          content: math`$$A=\begin{bmatrix}a&b\\b&c\end{bmatrix}\succ0\iff a>0\ \text{và}\ ac-b^2>0$$`,
+          note:
+            'Đây là Sylvester criterion: mọi leading principal minor phải dương đối với positive definite.',
+        },
+        {
+          type: 'comparison',
+          columns: ['Ma trận trong đề tài', 'Tính chất mong muốn', 'Lý do'],
+          rows: [
+            ['$R$', '$R\\succ0$', 'Khả nghịch để $\\alpha_t=\\frac12R^{-1}p_t$ xác định duy nhất'],
+            ['$Q=\\lambda_{risk}\\Sigma_{annual}$', '$Q\\succeq0$', 'Inventory risk không âm; có thể có hướng zero-risk trong sample'],
+            ['$A=a_TI$', '$A\\succ0$ nếu $a_T>0$', 'Mọi terminal inventory khác 0 đều bị phạt'],
+            ['$\\Sigma$', '$\\Sigma\\succeq0$', 'Mọi variance danh mục đều không âm'],
+          ],
+        },
+        {
+          type: 'formula',
+          label: 'Condition number đối với SPD matrix',
+          content: math`$$\kappa_2(A)=\frac{\lambda_{\max}(A)}{\lambda_{\min}(A)}$$`,
+          note:
+            'κ gần 1 là cân bằng tốt; κ rất lớn nghĩa là gần suy biến và nghiệm số nhạy với sai số dữ liệu.',
+        },
+        {
+          type: 'code',
+          label: 'Python · kiểm tra PSD/PD và conditioning',
+          content: code`A = 0.5 * (A + A.T)  # đối xứng hóa sai số số học
+eigvals = np.linalg.eigvalsh(A)
+tol = 1e-10
+
+is_psd = bool(eigvals.min() >= -tol)
+is_pd = bool(eigvals.min() > tol)
+condition_number = np.linalg.cond(A)
+
+print({
+    "min_eigenvalue": eigvals.min(),
+    "max_eigenvalue": eigvals.max(),
+    "is_psd": is_psd,
+    "is_pd": is_pd,
+    "condition_number": condition_number,
+})`,
+        },
+        {
+          type: 'insight',
+          tone: 'rose',
+          title: 'Không dùng det(A)>0 để kết luận A xác định dương',
+          content:
+            'Định thức dương chỉ nói tích các trị riêng dương. Một ma trận có hai trị riêng âm vẫn có determinant dương nhưng không positive definite. Với ma trận đối xứng, hãy kiểm toàn bộ `eigvalsh`, Cholesky hoặc Sylvester criterion.',
+        },
+      ],
+    },
+    {
+      heading: '7. Phân rã Cholesky và sinh nhiễu tương quan',
+      eyebrow: 'Đại số tuyến tính xác suất',
+      summary:
+        'Cholesky biến các cú sốc Gaussian độc lập thành vector cú sốc có đúng covariance chéo của VN30.',
+      blocks: [
+        {
+          type: 'formula',
+          label: 'Cholesky factor',
+          content: math`$$\Sigma=LL^\top,\qquad L=\begin{bmatrix}\ell_{11}&0&\cdots&0\\\ell_{21}&\ell_{22}&\cdots&0\\\vdots&\vdots&\ddots&\vdots\\\ell_{d1}&\ell_{d2}&\cdots&\ell_{dd}\end{bmatrix}$$`,
+          note:
+            'Dạng Cholesky chuẩn với đường chéo dương là duy nhất khi Σ đối xứng xác định dương.',
+        },
+        {
+          type: 'formula',
+          label: 'Từ chuẩn độc lập đến chuẩn tương quan',
+          content: math`$$Z\sim\mathcal N(0,I_d),\qquad \varepsilon=LZ\quad\Longrightarrow\quad \varepsilon\sim\mathcal N(0,\Sigma)$$`,
+          note:
+            'Vì Cov(LZ)=L Cov(Z)Lᵀ=LLᵀ=Σ.',
+        },
+        {
+          type: 'formula',
+          label: 'Brownian increment nhiều tài sản',
+          content: math`$$\Delta W_k=\sqrt{\Delta t}\,Z_k,\qquad L\Delta W_k\sim\mathcal N(0,\Sigma\Delta t)$$`,
+          note:
+            'Nhân √Δt để variance của increment tỷ lệ với độ dài bước thời gian.',
+        },
+        {
+          type: 'example',
+          meta: 'Ví dụ Cholesky · hai tài sản',
+          title: 'Một cú sốc độc lập trở thành cú sốc có tương quan',
+          prompt:
+            'Với $\\Sigma=\\begin{bmatrix}4&2\\\\2&3\\end{bmatrix}$, tìm Cholesky factor và kiểm tra covariance.',
+          method: 'Giải lần lượt các phần tử của lower triangular L sao cho $LL^\\top=\\Sigma$.',
+          steps: [
+            { label: 'Phần tử đầu', content: '$\\ell_{11}=\\sqrt4=2$.' },
+            { label: 'Phần tử dưới', content: '$\\ell_{21}=2/\\ell_{11}=1$.' },
+            { label: 'Đường chéo thứ hai', content: '$\\ell_{22}=\\sqrt{3-1^2}=\\sqrt2$.' },
+          ],
+          result: '$L=\\begin{bmatrix}2&0\\\\1&\\sqrt2\\end{bmatrix},\\quad LL^\\top=\\begin{bmatrix}4&2\\\\2&3\\end{bmatrix}$',
+          interpretation:
+            'Cùng một thành phần Z1 đi vào cả hai tài sản qua cột đầu của L, tạo covariance dương bằng 2.',
+        },
+        {
+          type: 'paragraph',
+          content:
+            'Nếu covariance chỉ PSD và có eigenvalue bằng 0, `np.linalg.cholesky` có thể thất bại vì hàm yêu cầu positive definite. Hai lựa chọn có ý nghĩa khác nhau: dùng spectral square root $U\\Lambda_+^{1/2}U^\\top$ để giữ hạng suy biến, hoặc thêm jitter $\\varepsilon I$ để làm mọi eigenvalue tăng thêm $\\varepsilon$. Jitter giúp số học nhưng đã thay đổi covariance, dù rất nhỏ.',
+        },
+        {
+          type: 'formula',
+          label: 'Spectral square root và jitter',
+          content: math`$$\Sigma^{1/2}=U\operatorname{diag}(\sqrt{\max(\lambda_i,0)})U^\top,\qquad \Sigma_{\mathrm{stab}}=\Sigma+\varepsilon I$$`,
+          note:
+            'Eigenvalue clipping sửa các trị riêng âm nhỏ do sai số; jitter nâng tất cả các hướng, kể cả hướng thật sự có variance 0.',
+        },
+        {
+          type: 'code',
+          label: 'Python · đúng với notebook của đề tài',
+          content: code`returns = np.log(prices).diff().dropna()
+cov_daily = returns.cov().to_numpy()
+
+jitter = 1e-10
+cov_daily_stable = cov_daily + jitter * np.eye(cov_daily.shape[0])
+chol_daily = np.linalg.cholesky(cov_daily_stable)
+
+eigvals = np.linalg.eigvalsh(cov_daily_stable)
+cond = np.linalg.cond(cov_daily_stable)
+
+# Nếu dùng time scale theo năm:
+cov_annual = 252 * cov_daily_stable
+chol_annual = np.sqrt(252) * chol_daily
+assert np.allclose(chol_annual @ chol_annual.T, cov_annual)`,
+        },
+      ],
+    },
+    {
+      heading: '8. Sigma ID và Sigma 0 trong đúng mô hình của đề tài',
+      eyebrow: 'Private/common diffusion',
+      summary:
+        'Trong đề tài, Sigma ID và Sigma 0 là diffusion loadings của inventory state; chúng không tự động là volatility thị trường ước lượng bằng hồi quy return.',
+      blocks: [
+        {
+          type: 'formula',
+          label: 'Dynamics của agent i',
+          content: math`$$\mathrm dX_t^i=-\alpha_t^i\,\mathrm dt+\Sigma_{\mathrm{id}}\,\mathrm dW_t^i+\Sigma_0\,\mathrm dW_t^0$$`,
+          note:
+            'Wᶦ là Brownian riêng của agent i; W⁰ là Brownian chung mà mọi agent cùng nhận.',
+        },
+        {
+          type: 'comparison',
+          columns: ['Ký hiệu', 'Shape', 'Vai trò'],
+          rows: [
+            ['$W_t^i$', '$\\mathbb R^d$', 'Nhiễu riêng; khác nhau giữa các agent'],
+            ['$W_t^0$', '$\\mathbb R^d$', 'Nhiễu chung; cùng realization giữa các agent'],
+            ['$\\Sigma_{id}$', '$d\\times d$', 'Scale và correlation của private state shocks'],
+            ['$\\Sigma_0$', '$d\\times d$', 'Scale và correlation của common state shocks'],
+            ['$\\sigma_X,\\sigma_0$', 'Vô hướng', 'Phiên bản scalar, thường nhân $I_d$ hoặc áp theo từng chiều'],
+          ],
+        },
+        {
+          type: 'formula',
+          label: 'Instantaneous covariance của một agent',
+          content: math`$$\operatorname{Cov}(\mathrm dX_t^i\mid\mathcal F_t)=\left(\Sigma_{\mathrm{id}}\Sigma_{\mathrm{id}}^\top+\Sigma_0\Sigma_0^\top\right)\mathrm dt$$`,
+          note:
+            'Hai nguồn variance cộng vì private và common Brownian được giả định độc lập.',
+        },
+        {
+          type: 'formula',
+          label: 'Cross-agent covariance chỉ đến từ common noise',
+          content: math`$$\operatorname{Cov}(\mathrm dX_t^i,\mathrm dX_t^j\mid\mathcal F_t)=\Sigma_0\Sigma_0^\top\,\mathrm dt,\qquad i\neq j$$`,
+          note:
+            'Private shocks độc lập giữa agent nên không tạo covariance chéo có điều kiện.',
+        },
+        {
+          type: 'paragraph',
+          content:
+            'Ý nghĩa kinh tế: private noise làm inventory của các agent phân tán quanh quỹ đạo trung bình, ví dụ sai lệch fill hoặc order-flow riêng. Common noise làm cả population cùng lệch hướng, ví dụ một cú sốc thanh khoản hoặc thị trường chung. Vì common shock không triệt tiêu khi lấy trung bình nhiều agent, nó đặc biệt quan trọng trong Mean Field Game và Mean Field Control.',
+        },
+        {
+          type: 'formula',
+          label: 'Hiệu chỉnh đang dùng trong B4 của notebook',
+          content: math`$$LL^\top=\Sigma_{\mathrm{VN30,annual}},\qquad \Sigma_{\mathrm{id}}=s_{\mathrm{diff}}L,\qquad \Sigma_0=s_{\mathrm{diff}}s_{\mathrm{common}}L$$`,
+          note:
+            'Đề tài dùng geometry tương quan VN30 qua L, sau đó nhân các scenario scales của state diffusion.',
+        },
+        {
+          type: 'formula',
+          label: 'Giá trị mặc định của B4',
+          content: math`$$s_{\mathrm{diff}}=0.05,\qquad s_{\mathrm{common}}=0.25,\qquad \Sigma_{\mathrm{id}}=0.05L,\qquad \Sigma_0=0.0125L$$`,
+          note:
+            '0.25 là tỷ lệ common so với private diffusion, không phải common diffusion tuyệt đối bằng 0.25.',
+        },
+        {
+          type: 'formula',
+          label: 'Covariance suy ra trong B4',
+          content: math`$$\operatorname{Cov}(\mathrm dX_t^i\mid\mathcal F_t)=\left(0.05^2+0.0125^2\right)\Sigma_{\mathrm{VN30,annual}}\,\mathrm dt,\qquad \operatorname{Cov}(\mathrm dX_t^i,\mathrm dX_t^j\mid\mathcal F_t)=0.0125^2\Sigma_{\mathrm{VN30,annual}}\,\mathrm dt$$`,
+          note:
+            'Công thức này cho thấy chính xác dữ liệu VN30 đi vào state noise qua covariance geometry như thế nào.',
+        },
+        {
+          type: 'comparison',
+          columns: ['Khối thực nghiệm', 'Private diffusion', 'Common diffusion', 'Có dùng Cholesky VN30?'],
+          rows: [
+            ['B3B Full-MV', '$0.03I_d$', '$0.01I_d$', 'Không trong block này'],
+            ['B4 adverse crowding', '$0.05L$', '$0.0125L$', 'Có'],
+            ['Factor model của return', '$\\sigma_{ID,i}$ residual', '$\\beta_i\\sigma_0$', 'Là cách phân rã khác'],
+          ],
+        },
+        {
+          type: 'insight',
+          tone: 'rose',
+          title: 'Hai hệ sigma không được nhập làm một',
+          content:
+            '$\\sigma_{ID,i}$ và $\\beta_i\\sigma_0$ trong factor regression mô tả volatility return của cổ phiếu. $\\Sigma_{id}$ và $\\Sigma_0$ trong SDE của đề tài mô tả diffusion của inventory/state. Dữ liệu VN30 cung cấp geometry cho cả hai cách xây dựng, nhưng đơn vị và đối tượng ngẫu nhiên khác nhau.',
+        },
+      ],
+    },
+    {
+      heading: '9. Ký hiệu phân phối, dấu ~ và Gaussian đa biến',
+      eyebrow: 'Ngôn ngữ xác suất',
+      summary:
+        'Dấu ngã mô tả luật phân phối; nó không có nghĩa “xấp xỉ bằng”.',
+      blocks: [
+        {
+          type: 'comparison',
+          columns: ['Ký hiệu', 'Cách đọc', 'Ý nghĩa'],
+          rows: [
+            ['$X\\sim\\mathcal D$', 'X có phân phối D', 'Luật xác suất của X là D'],
+            ['$X\\sim\\mathcal N(\\mu,\\sigma^2)$', 'X phân phối chuẩn', 'Mean μ, variance σ²'],
+            ['$Z\\sim\\mathcal N(0,I_d)$', 'Chuẩn đa biến tiêu chuẩn', 'Mean vector 0, covariance identity'],
+            ['$X\\overset d=Y$', 'Bằng nhau theo phân phối', 'Có cùng law, không nhất thiết cùng realization'],
+            ['$X\\approx Y$', 'X xấp xỉ Y', 'Gần nhau theo nghĩa được nêu'],
+            ['$X\\perp Y$', 'X độc lập Y', 'Joint law phân tích thành tích các marginal laws'],
+            ['$X_1,\\ldots,X_n\\overset{iid}{\\sim}\\mathcal D$', 'Độc lập, cùng phân phối', 'Giả định thường dùng trong thống kê mẫu'],
+          ],
+        },
+        {
+          type: 'formula',
+          label: 'Gaussian đa biến',
+          content: math`$$X\sim\mathcal N(\mu,\Sigma),\qquad \mathbb E[X]=\mu,\qquad \operatorname{Cov}(X)=\Sigma$$`,
+          note:
+            'μ là vector d chiều; Σ là ma trận d×d đối xứng PSD.',
+        },
+        {
+          type: 'comparison',
+          columns: ['Phân phối', 'Ký hiệu thường gặp', 'Vai trò trong Quant Finance'],
+          rows: [
+            ['Normal / Gaussian', '$X\\sim\\mathcal N(\\mu,\\sigma^2)$', 'Innovation và Brownian increment'],
+            ['Multivariate normal', '$X\\sim\\mathcal N(\\mu,\\Sigma)$', 'Cú sốc nhiều tài sản có covariance chéo'],
+            ['Lognormal', '$S_t\\sim\\operatorname{Lognormal}(m,v)$', 'Giá GBM dương vì $\\ln S_t$ là Gaussian'],
+            ['Student-t', '$X\\sim t_\\nu$', 'Mô hình đuôi dày hơn Gaussian cho return'],
+            ['Chi-square', '$X\\sim\\chi_\\nu^2$', 'Phân phối lấy mẫu của variance dưới giả định Gaussian'],
+            ['Empirical distribution', '$\\widehat F_n$', 'Law được tạo trực tiếp từ dữ liệu/particles, không ép dạng tham số'],
+          ],
+        },
+        {
+          type: 'formula',
+          label: 'GBM dẫn tới phân phối lognormal của giá',
+          content: math`$$\ln S_t\sim\mathcal N\!\left(\ln S_0+\left(\mu-\frac12\sigma^2\right)t,\sigma^2t\right)\quad\Longrightarrow\quad S_t\ \text{có phân phối lognormal}$$`,
+          note:
+            'Giá theo GBM luôn dương; log-return Gaussian không đồng nghĩa mức giá Gaussian.',
+        },
+        {
+          type: 'formula',
+          label: 'Linear transformation của Gaussian',
+          content: math`$$X\sim\mathcal N(\mu,\Sigma)\quad\Longrightarrow\quad AX+b\sim\mathcal N(A\mu+b,A\Sigma A^\top)$$`,
+          note:
+            'Đây là cơ sở toán học của cả Cholesky simulation và portfolio return wᵀR.',
+        },
+        {
+          type: 'paragraph',
+          content:
+            'Trong Quant Finance, Gaussian thuận tiện vì được đặc trưng hoàn toàn bởi mean và covariance, đồng thời đóng kín dưới phép biến đổi tuyến tính. Nhưng return thực tế thường có đuôi dày, bất đối xứng và volatility clustering. Vì vậy Gaussian trong đề tài chủ yếu là mô hình cho Brownian increments và Monte Carlo innovations, không phải tuyên bố rằng mọi return VN30 đều phân phối chuẩn hoàn hảo.',
+        },
+        {
+          type: 'code',
+          label: 'Python · ký hiệu phân phối thành lệnh lấy mẫu',
+          content: code`rng = np.random.default_rng(42)
+n_paths, d = 10_000, 3
+
+# Z_k ~ N(0, I_d)
+Z = rng.standard_normal((n_paths, d))
+
+# epsilon_k ~ N(0, Sigma)
+L = np.linalg.cholesky(Sigma)
+epsilon = Z @ L.T
+
+print(epsilon.mean(axis=0))
+print(np.cov(epsilon, rowvar=False))  # xấp xỉ Sigma khi n_paths lớn`,
+        },
+      ],
+    },
+    {
+      heading: '10. Brownian motion, kỳ vọng có điều kiện và empirical law',
+      eyebrow: 'Stochastic process · Mean field',
+      summary:
+        'Đề tài không chỉ dùng biến ngẫu nhiên tĩnh mà dùng cả quá trình thông tin phát triển theo thời gian và phân phối của một quần thể agent.',
+      blocks: [
+        {
+          type: 'formula',
+          label: 'Định nghĩa increment của Brownian motion chuẩn',
+          content: math`$$W_0=0,\qquad W_t-W_s\sim\mathcal N(0,(t-s)I_d),\quad 0\leq s<t$$`,
+          note:
+            'Các increments trên những khoảng thời gian không giao nhau độc lập và quỹ đạo liên tục gần như chắc chắn.',
+        },
+        {
+          type: 'formula',
+          label: 'Rời rạc hóa trên lưới thời gian',
+          content: math`$$\Delta W_k=W_{t_{k+1}}-W_{t_k}=\sqrt{\Delta t}\,\xi_k,\qquad \xi_k\overset{iid}{\sim}\mathcal N(0,I_d)$$`,
+          note:
+            'Không nhân Δt; phải nhân √Δt vì variance của Brownian increment bằng Δt.',
+        },
+        {
+          type: 'comparison',
+          columns: ['Ký hiệu', 'Ý nghĩa trong đề tài'],
+          rows: [
+            ['$\\mathbb E[X]$', 'Kỳ vọng không điều kiện qua mọi nguồn ngẫu nhiên'],
+            ['$\\mathbb E[X\\mid\\mathcal F_t]$', 'Dự báo tốt nhất theo bình phương sai số với thông tin đến thời điểm t'],
+            ['$\\mathcal F_t$', 'Filtration: toàn bộ thông tin có sẵn đến t'],
+            ['$\\mathcal F_t^0$', 'Thông tin sinh bởi common noise đến t'],
+            ['$\\mathcal L(X_t)$', 'Law/phân phối của state X tại t'],
+            ['$\\mathcal L(X_t\\mid\\mathcal F_t^0)$', 'Conditional law khi đã biết common-noise history'],
+          ],
+        },
+        {
+          type: 'formula',
+          label: 'Empirical law của N agent',
+          content: math`$$\mu_t^N=\frac1N\sum_{i=1}^{N}\delta_{X_t^i}$$`,
+          note:
+            'δx là point mass tại x; μtN là phân phối thực nghiệm, không phải chỉ riêng mean inventory.',
+        },
+        {
+          type: 'formula',
+          label: 'Mean và covariance của empirical population',
+          content: math`$$\bar X_t^N=\int x\,\mu_t^N(\mathrm dx)=\frac1N\sum_{i=1}^{N}X_t^i,\qquad S_{X,t}=\frac1{N-1}\sum_{i=1}^{N}(X_t^i-\bar X_t^N)(X_t^i-\bar X_t^N)^\top$$`,
+          note:
+            'Mean field có thể phụ thuộc mean, dispersion hoặc toàn bộ empirical law.',
+        },
+        {
+          type: 'paragraph',
+          content:
+            'Khi không có common noise và các agent đủ độc lập, averaging làm private noise giảm theo quy mô quần thể. Khi có common noise, tất cả agent cùng nhận một realization nên thành phần này không mất đi khi $N$ tăng. Vì vậy giới hạn mean-field với common noise thường là một conditional distribution ngẫu nhiên theo $\\mathcal F_t^0$, không phải một phân phối tất định.',
+        },
+        {
+          type: 'formula',
+          label: 'Monte Carlo mean và standard error',
+          content: math`$$\widehat m_N=\frac1N\sum_{i=1}^{N}Y_i,\qquad \operatorname{SE}(\widehat m_N)\approx\frac{s_Y}{\sqrt N}$$`,
+          note:
+            'Tăng số particle giảm sampling error theo tốc độ căn N, không theo N.',
+        },
+        {
+          type: 'formula',
+          label: 'Khoảng tin cậy Monte Carlo xấp xỉ 95%',
+          content: math`$$\widehat m_N\pm1.96\,\frac{s_Y}{\sqrt N}$$`,
+          note:
+            'Dựa trên CLT và phù hợp khi số path đủ lớn, variance hữu hạn và dependence đã được xử lý đúng.',
+        },
+        {
+          type: 'paragraph',
+          content:
+            'Trong thí nghiệm Deep BSDE, nhiều seed không chỉ để “chạy lại cho chắc”. Mean qua seed ước lượng hiệu năng kỳ vọng của quy trình huấn luyện; standard deviation qua seed đo độ bất ổn thuật toán; confidence interval mô tả độ chính xác của mean đã báo cáo. Path-level samples trong cùng một model run và seed-level results không phải lúc nào cũng độc lập tương đương, nên cần nêu rõ đơn vị lấy mẫu.',
+        },
+        {
+          type: 'insight',
+          tone: 'teal',
+          title: 'q và q⁰ trong BSDE là gì?',
+          content:
+            'Trong backward equation $\\mathrm dp_t=-f_t\\mathrm dt+q_t\\mathrm dW_t+q_t^0\\mathrm dW_t^0$, $q_t$ và $q_t^0$ là martingale loadings giúp adjoint phản ứng với thông tin private/common mới xuất hiện. Chúng không phải inventory-risk matrix $Q$, cũng không phải scalar q trong một phương trình Riccati.',
+        },
+      ],
+    },
+    {
+      heading: '11. Từ VN30 đến common và idiosyncratic volatility',
       eyebrow: 'Mô hình nhân tố',
       summary:
         'Biến động của một cổ phiếu có thể được phân rã thành phần đi cùng thị trường và phần riêng còn lại sau khi đã kiểm soát thị trường.',
@@ -392,7 +837,7 @@ portfolio_vol = np.sqrt(portfolio_var)`,
       ],
     },
     {
-      heading: '7. Hai cách hiệu chỉnh sigma₀ và sigmaID',
+      heading: '12. Hai cách hiệu chỉnh sigma₀ và sigmaID từ return',
       eyebrow: 'Ước lượng',
       summary:
         'Cách factor regression thực tế hơn; cách average covariance phù hợp với mô hình đồng nhất nhưng đặt giả định mạnh hơn.',
@@ -490,7 +935,7 @@ sigma_id_equal_model = np.sqrt(sigma_id_sq)`,
       ],
     },
     {
-      heading: '8. Từ rủi ro thống kê đến hàm mục tiêu LQ',
+      heading: '13. Từ rủi ro thống kê đến hàm mục tiêu LQ',
       eyebrow: 'Stochastic control',
       summary:
         'Các dạng toàn phương trong hàm mục tiêu là cách đưa quy mô giao dịch, inventory risk và terminal inventory vào một thước đo chi phí.',
@@ -529,7 +974,7 @@ sigma_id_equal_model = np.sqrt(sigma_id_sq)`,
       ],
     },
     {
-      heading: '9. Pipeline Python có thể tái lập',
+      heading: '14. Pipeline Python có thể tái lập',
       eyebrow: 'Thực hành dữ liệu',
       summary:
         'Một pipeline tốt phải khóa tần suất, lịch giao dịch, cách xử lý thiếu dữ liệu và mọi phép annualization.',
@@ -617,7 +1062,7 @@ summary.to_csv("vn30_quant_parameters.csv", encoding="utf-8-sig")`,
       ],
     },
     {
-      heading: '10. Chẩn đoán mô hình và các bẫy thực nghiệm',
+      heading: '15. Chẩn đoán mô hình và các bẫy thực nghiệm',
       eyebrow: 'Độ tin cậy',
       summary:
         'Kết quả số chỉ có ý nghĩa khi dữ liệu và giả định tạo ra nó được kiểm tra.',
@@ -668,7 +1113,7 @@ rolling_beta_60 = (
       ],
     },
     {
-      heading: '11. Tài liệu tham khảo và quy ước báo cáo',
+      heading: '16. Tài liệu tham khảo và quy ước báo cáo',
       eyebrow: 'Nguồn và tái lập',
       summary:
         'Các nguồn dưới đây được chọn để người đọc có thể kiểm tra cả định nghĩa thống kê, API code và cơ sở thực nghiệm tài chính.',
@@ -719,6 +1164,21 @@ rolling_beta_60 = (
               title: 'statsmodels · Ordinary Least Squares',
               note: 'API OLS và lưu ý intercept không được thêm tự động.',
               href: 'https://www.statsmodels.org/dev/generated/statsmodels.regression.linear_model.OLS.html',
+            },
+            {
+              title: 'NumPy · Cholesky decomposition',
+              note: 'Định nghĩa LLᵀ và yêu cầu đầu vào đối xứng xác định dương.',
+              href: 'https://numpy.org/doc/2.0/reference/generated/numpy.linalg.cholesky.html',
+            },
+            {
+              title: 'NumPy · Linear algebra reference',
+              note: 'Các hàm eigvalsh, eigh, cond, matrix_rank và decompositions dùng để kiểm tra hình học ma trận.',
+              href: 'https://numpy.org/doc/stable/reference/routines.linalg.html',
+            },
+            {
+              title: 'MIT OpenCourseWare · Stochastic Processes II',
+              note: 'Brownian motion, Gaussian increments, independent increments và variance tỷ lệ với thời gian.',
+              href: 'https://ocw.mit.edu/courses/18-s096-topics-in-mathematics-with-applications-in-finance-fall-2013/3b97c6b0c282dd9dc024c4c7ffe3fba8_MIT18_S096F13_lecnote17.pdf',
             },
             {
               title: 'Campbell, Lettau, Malkiel & Xu · Idiosyncratic Risk',
