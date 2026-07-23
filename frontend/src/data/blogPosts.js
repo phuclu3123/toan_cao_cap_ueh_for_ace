@@ -49,9 +49,9 @@ export const blogPosts = [
           '**3. Năng suất trung bình (Average Product - AP)**:\n' +
           '$$AP_L = \\frac{Q}{L}, \\quad AP_K = \\frac{Q}{K}$$\n' +
           '**Mối quan hệ giữa $MP_L$ và $AP_L$**: Đạo hàm $AP_L$ theo $L$ ta có $(AP_L)\'_L = \\frac{Q\'_L \\cdot L - Q}{L^2} = \\frac{MP_L - AP_L}{L}$. Do đó:\n' +
-          '- Khi $MP_L > AP_L \\implies (AP_L)\'_L > 0$: Năng suất trung bình đang tăng.\n' +
-          '- Khi $MP_L < AP_L \\implies (AP_L)\'_L < 0$: Năng suất trung bình đang giảm.\n' +
-          '- Khi $MP_L = AP_L \\implies (AP_L)\'_L = 0$: Đường $MP_L$ cắt đường $AP_L$ tại điểm cực đại của $AP_L$.\n\n' +
+          '- **Khi $MP_L > AP_L \\implies (AP_L)\'_L > 0$**: Năng suất trung bình đang tăng.\n' +
+          '- **Khi $MP_L < AP_L \\implies (AP_L)\'_L < 0$**: Năng suất trung bình đang giảm.\n' +
+          '- **Khi $MP_L = AP_L \\implies (AP_L)\'_L = 0$**: Đường $MP_L$ cắt đường $AP_L$ tại điểm cực đại của $AP_L$.\n\n' +
           '![Đồ thị Năng suất biên MPL và Năng suất trung bình APL cắt nhau tại Max(APL)](/images/mpl_apl_diagram.svg)\n\n' +
           '**4. Tỷ lệ thay thế kỹ thuật biên (MRTS)**:\n' +
           'MRTS đo lường lượng vốn $K$ có thể cắt giảm khi tăng 1 đơn vị lao động $L$ để duy trì sản lượng không đổi ($dQ = 0$):\n' +
@@ -144,79 +144,90 @@ export const blogPosts = [
           'Khi thời gian $t \\to +\\infty$, vì $a > 0$ nên $e^{-at} \\to 0$. Do đó giá thị trường sẽ hội tụ về mức giá cân bằng dài hạn $P^* = \\frac{b}{a}$.'
       },
       {
-        heading: '8. Phân Tích & Lời Giải Chi Tiết Các Dạng Bài Thi Thực Tế K46 - K51 UEH',
-        body: 'Dưới đây là hệ thống lời giải chi tiết cho các dạng toán ứng dụng vi tế & vĩ mô được trích xuất trực tiếp từ mã nguồn TeX chính thức của Bộ Đề K51 (Mã 118, 204, 354, 442, Tiếng Anh & Đề tổng hợp) và bộ đề K46 - K50 UEH:\n\n' +
-          '**Dạng 1: Tối ưu hóa Chi phí phân bổ cho 2 Nhà máy bằng Nhân tử Lagrange (Đề K51 Tự luận - Mã 118 & Đề Tổng hợp)**\n' +
-          'Một doanh nghiệp nhận đơn hàng $200$ đơn vị sản phẩm và phân bổ sản lượng cho nhà máy 1 ($q_1$) và nhà máy 2 ($q_2$). Hàm tổng chi phí:\n' +
-          '$$C(q_1, q_2) = \\frac{1}{2}q_1^2 + 10q_1 + 20q_2 + 800$$\n' +
-          'với ràng buộc tổng sản lượng $q_1 + q_2 = 200$. Tìm chi phí tối thiểu.\n\n' +
+        heading: '8. Phân Tích & Lời Giải Chi Tiết Các Dạng Bài Thi Trắc Nghiệm Thực Tế K46 - K51 UEH',
+        body: 'Hệ thống toàn bộ 10 câu hỏi toán trắc nghiệm ứng dụng vi mô & vĩ mô xuất hiện trong các kỳ thi chính thức K46 - K51 UEH:\n\n' +
+          '**Câu 1 (Đề K51 Đợt 2 - Câu 1)**: Cho hàm chi phí hai biến nguyên liệu $C(x, y) = x^2 + 2y^2 - 4\\ln(x) - 8\\ln(y)$ với $x > 0, y > 0$. Cơ sở sản xuất đạt chi phí thấp nhất khi:\n' +
+          '- **A.** $x = 1, y = 2$\n' +
+          '- **B.** $x = \\sqrt{2}, y = \\sqrt{2}$\n' +
+          '- **C.** $x = 2, y = 2$\n' +
+          '- **D.** $x = \\sqrt{2}, y = 2$\n\n' +
           '**Lời giải chi tiết**:\n' +
-          'Thành lập hàm Lagrange:\n' +
-          '$$L(q_1, q_2, \\lambda) = \\frac{1}{2}q_1^2 + 10q_1 + 20q_2 + 800 + \\lambda(200 - q_1 - q_2)$$\n' +
-          'Giải hệ phương trình điểm dừng (điều kiện FOC):\n' +
-          '$$\\begin{aligned}\n' +
-          'L\'_{q_1} = q_1 + 10 - \\lambda = 0 &\\implies \\lambda = q_1 + 10 \\\\\n' +
-          'L\'_{q_2} = 20 - \\lambda = 0 &\\implies \\lambda = 20 \\\\\n' +
-          'L\'_\\lambda = 200 - q_1 - q_2 = 0 &\\implies q_1 + q_2 = 200\n' +
-          '\\end{aligned}$$\n' +
-          'Từ $\\lambda = 20 \\implies q_1 = 10$. Thế vào ràng buộc ta được $q_2 = 190$.\n' +
-          'Định thức Hessian bổ sung $|\\overline{H}| = -1 < 0$ khẳng định hàm chi phí đạt cực tiểu tại $M(10, 190)$.\n' +
-          'Chi phí tối thiểu đạt được:\n' +
-          '$$C_{\\min} = \\frac{1}{2}(10)^2 + 10(10) + 20(190) + 800 = 4750$$\n\n' +
-          '**Dạng 2: Bài toán Tối thiểu hóa Chi phí với Hàm Sản xuất Cobb-Douglas (Đề K51 Tự luận - Mã 204)**\n' +
-          'Hàm sản xuất $q = 8\\ell^{0.5} k^{0.5}$ với giá vốn $p_k = 12$, giá lao động $w = 4$. Với sản lượng mong muốn $q = 200$, tìm chi phí tối thiểu.\n\n' +
+          'Tính đạo hàm riêng bậc nhất:\n' +
+          '$$\\begin{aligned} C\'_x = 2x - \\frac{4}{x} = 0 &\\implies 2x^2 = 4 \\implies x = \\sqrt{2} \\\\ C\'_y = 4y - \\frac{8}{y} = 0 &\\implies 4y^2 = 8 \\implies y = \\sqrt{2} \\end{aligned}$$\n' +
+          'Ma trận Hessian $|H| = C\'\'_{xx} C\'\'_{yy} - (C\'\'_{xy})^2 = (4)(8) - 0 = 32 > 0$ và $C\'\'_{xx} = 4 > 0 \\implies$ Cực tiểu tại $x = \\sqrt{2}, y = \\sqrt{2}$. Chọn **Đáp án B**.\n\n' +
+          '**Câu 2 (Đề K51 Đợt 2 - Câu 2 & Mã 204)**: Mức sản lượng $Q = 2K^2 + 3L^2 + KL$. Tại mức đầu vào $K = 10, L = 5$, nếu tăng 1 đơn vị lao động ($dL = 1$) nhưng giữ nguyên sản lượng ($dQ = 0$) thì lượng vốn $K$ giảm bao nhiêu đơn vị?\n' +
+          '- **A.** $-8/9$\n' +
+          '- **B.** $8/9$\n' +
+          '- **C.** $-4/9$\n' +
+          '- **D.** $4/9$\n\n' +
           '**Lời giải chi tiết**:\n' +
-          'Tỷ lệ thay thế kỹ thuật biên $MRTS$ phải bằng tỷ giá yếu tố sản xuất:\n' +
-          '$$\\begin{aligned}\n' +
-          'MRTS = \\frac{MP_\\ell}{MP_k} = \\frac{w}{p_k} &\\iff \\frac{4\\ell^{-0.5}k^{0.5}}{4\\ell^{0.5}k^{-0.5}} = \\frac{4}{12} \\\\\n' +
-          '&\\iff \\frac{k}{\\ell} = \\frac{1}{3} \\implies \\ell = 3k\n' +
-          '\\end{aligned}$$\n' +
-          'Thế $\\ell = 3k$ vào phương trình sản lượng $q = 200$:\n' +
-          '$$\\begin{aligned}\n' +
-          '8(3k)^{0.5} k^{0.5} = 200 &\\iff 8\\sqrt{3} k = 200 \\\\\n' +
-          '&\\implies k = \\frac{25}{\\sqrt{3}}, \\quad \\ell = 25\\sqrt{3}\n' +
-          '\\end{aligned}$$\n' +
-          'Chi phí tối thiểu $C_{\\min} = 4\\ell + 12k = 4(25\\sqrt{3}) + 12\\left(\\frac{25}{\\sqrt{3}}\\right) = 200\\sqrt{3}$.\n\n' +
-          '**Dạng 3: Xác định Doanh thu biên $MR$ & Chi phí biên $MC$ Độc quyền (Đề K51 Mã 118 & Mã 354)**\n' +
-          '- *Trường hợp A (Mã 118)*: Hàm cầu $P = \\frac{1000}{Q + 10}$. Doanh thu $R = P \\cdot Q = \\frac{1000Q}{Q + 10}$.\n' +
-          'Doanh thu biên tại $Q = 40$:\n' +
-          '$$MR(Q) = R\'(Q) = \\frac{1000(Q+10) - 1000Q}{(Q+10)^2} = \\frac{10000}{(Q+10)^2} \\implies MR(40) = \\frac{10000}{2500} = 4$$\n' +
-          '- *Trường hợp B (Mã 354)*: Thị trường độc quyền với cầu $Q_D = 1500 - \\frac{1}{2}P$. Lợi nhuận cực đại tại $Q_0 = 400$.\n' +
-          'Đường cầu đảo $P = 3000 - 2Q \\implies R(Q) = 3000Q - 2Q^2 \\implies MR(Q) = 3000 - 4Q$.\n' +
-          'Tại điểm tối ưu lợi nhuận $Q_0 = 400$, điều kiện $MC = MR$ cho ta $MC(400) = 3000 - 4(400) = 1400$.\n\n' +
-          '**Dạng 4: Đạo hàm ẩn & Hệ số co giãn Tiết kiệm $S$ theo Thu nhập $I$ (Đề K51 Mã 204 & K49)**\n' +
-          'Mối liên hệ $S^2 + \\frac{1}{4}I^2 = SI + I$ với điều kiện $S \\le 30\\% I$. Tại $I = 16$, tìm hệ số co giãn của tiết kiệm.\n\n' +
+          'Tính các đạo hàm riêng:\n' +
+          '$$\\begin{aligned} Q\'_L = 6L + K &\\implies Q\'_L(10, 5) = 6(5) + 10 = 40 \\\\ Q\'_K = 4K + L &\\implies Q\'_K(10, 5) = 4(10) + 5 = 45 \\end{aligned}$$\n' +
+          'Tỷ lệ $MRTS = -\\frac{\\mathrm{d}K}{\\mathrm{d}L} = \\frac{Q\'_L}{Q\'_K} = \\frac{40}{45} = \\frac{8}{9} \\implies dK = -\\frac{8}{9}$. Lượng vốn giảm $8/9$ đơn vị. Chọn **Đáp án B**.\n\n' +
+          '**Câu 3 (Đề K51 Đợt 2 - Câu 4 & Mã 204)**: Hàm chi phí $C(Q) = 500 \\cdot \\ln(Q^2 + 1) + 200$. Chi phí biên tại $Q = 3$ là:\n' +
+          '- **A.** $150$\n' +
+          '- **B.** $200$\n' +
+          '- **C.** $100$\n' +
+          '- **D.** $300$\n\n' +
           '**Lời giải chi tiết**:\n' +
-          'Thế $I = 16$ vào phương trình:\n' +
-          '$$S^2 + 64 = 16S + 16 \\iff S^2 - 16S + 48 = 0 \\implies S = 4 \\quad (\\text{do } S \\le 0.3 \\times 16 = 4.8)$$\n' +
-          'Lấy đạo hàm hai vế theo $I$:\n' +
-          '$$\\begin{aligned}\n' +
-          '2S \\cdot S\' + \\frac{1}{2}I = S\' \\cdot I + S + 1 &\\iff 2(4) S\' + 8 = 16 S\' + 5 \\\\\n' +
-          '&\\iff 8 S\' = 3 \\implies S\' = \\frac{3}{8}\n' +
-          '\\end{aligned}$$\n' +
-          'Hệ số co giãn $\\varepsilon_I = S\' \\cdot \\frac{I}{S} = \\frac{3}{8} \\cdot \\frac{16}{4} = 1.5\\%$. Khi thu nhập tăng 1%, tiết kiệm tăng 1.5%.\n\n' +
-          '**Dạng 5: Quy tắc điểm đáy cực tiểu hóa Chi phí trung bình $AC_{\\min}$ (Đề K46 & K47)**\n' +
-          'Cho hàm chi phí $C(q) = q^3 - 6q^2 + 15q + 100$. Tìm sản lượng $q$ để $AC$ đạt tối thiểu.\n\n' +
+          'Chi phí biên $MC(Q) = C\'(Q) = 500 \\cdot \\frac{2Q}{Q^2 + 1}$.\n' +
+          'Thế $Q = 3 \\implies MC(3) = 500 \\cdot \\frac{6}{10} = 300$. Chọn **Đáp án D**.\n\n' +
+          '**Câu 4 (Đề K51 Đợt 2 - Câu 6)**: Hệ số co giãn cầu theo giá $E_p = -0.5$. Doanh nghiệp tăng giá bán một lượng nhỏ. Phát biểu nào ĐÚNG về doanh thu?\n' +
+          '- **A.** Doanh thu không đổi\n' +
+          '- **B.** Doanh thu biên dương ($MR > 0$), việc tăng giá làm tăng tổng doanh thu\n' +
+          '- **C.** Các phát biểu kia đều sai\n' +
+          '- **D.** Doanh thu biên âm ($MR < 0$), việc tăng giá làm giảm tổng doanh thu\n\n' +
           '**Lời giải chi tiết**:\n' +
-          'Tính các đại lượng:\n' +
-          '$$AC(q) = q^2 - 6q + 15 + \\frac{100}{q}, \\quad MC(q) = 3q^2 - 12q + 15$$\n' +
-          'Áp dụng quy tắc điểm đáy $MC = AC$:\n' +
-          '$$\\begin{aligned}\n' +
-          '3q^2 - 12q + 15 = q^2 - 6q + 15 + \\frac{100}{q} &\\iff 2q^2 - 6q = \\frac{100}{q} \\\\\n' +
-          '&\\iff q^3 - 3q^2 - 50 = 0 \\implies q = 5\n' +
-          '\\end{aligned}$$\n\n' +
-          '**Dạng 6: Sản lượng biên theo vốn $Q\'_K$ & Co giãn riêng (Đề K51 Mã 204 & Mã 442)**\n' +
-          '- *Trường hợp A*: Cho $Q(L, K) = 6 L^{1/2} K^{1/4}$. Tính $Q\'_K(100, 10000)$:\n' +
-          '$$Q\'_K = 6 L^{1/2} \\cdot \\frac{1}{4} K^{-3/4} = \\frac{3}{2} (100)^{1/2} (10000)^{-3/4} = 15 \\cdot 10^{-3} = \\frac{3}{200}$$\n' +
-          '- *Trường hợp B*: Cho $Q = 0.5 K^{0.25} L^{0.75}$. Tổng độ co giãn riêng $EQ_K + EQ_L = 0.25 + 0.75 = 1$ (Hàm sản xuất có hiệu quả theo quy mô không đổi).\n\n' +
-          '**Dạng 7: Mô hình Tăng trưởng vốn Mũ dài hạn (Đề K51 Mã đề 442 - Tự luận)**\n' +
-          'Lượng vốn của tập đoàn $A$ thỏa mãn $V(t) = V_0 e^{kt}$. Biết $V(2000) = 10^6$, $V(2015) = 3 \\cdot 10^6$. Ước lượng vốn năm 2030.\n\n' +
+          'Vì $|E_p| = 0.5 < 1$ (cầu ít co giãn), khi doanh nghiệp tăng giá bán thì lượng cầu giảm không đáng kể, do đó tổng doanh thu $TR = p \\cdot Q$ sẽ tăng. Chọn **Đáp án B**.\n\n' +
+          '**Câu 5 (Đề K51 Mã 354 - Câu 3)**: Hàm cầu $P = 250 - 0.5Q^2$. Tại mức giá $P = 50$, nếu giá giảm $2\\%$ thì lượng cầu thay đổi thế nào?\n' +
+          '- **A.** Lượng cầu tăng $0.25\\%$\n' +
+          '- **B.** Lượng cầu tăng $1\\%$\n' +
+          '- **C.** Lượng cầu giảm $0.25\\%$\n' +
+          '- **D.** Lượng cầu giảm $1\\%$\n\n' +
           '**Lời giải chi tiết**:\n' +
-          'Đặt thời điểm năm 2000 là $t = 0 \\implies V(0) = V_0 = 10^6$.\n' +
-          'Năm 2015 tương ứng $t = 15 \\implies V(15) = V_0 e^{15k} = 3 \\cdot 10^6 \\implies e^{15k} = 3$.\n' +
-          'Năm 2030 tương ứng $t = 30$, lượng vốn ước tính:\n' +
-          '$$V(30) = V_0 e^{30k} = V_0 \\left(e^{15k}\\right)^2 = 10^6 \\cdot 3^2 = 9 \\cdot 10^6$$\n' +
-          'Lượng vốn tập đoàn năm 2030 ước tính đạt $9$ tỷ USD (gấp 9 lần lượng vốn ban đầu).'
+          'Tại $P = 50 \\implies 0.5Q^2 = 200 \\implies Q = 20$.\n' +
+          'Ta có $Q\'(P) = -\\frac{1}{Q} = -\\frac{1}{20}$. Co giãn cầu $E_p = Q\'(P) \\cdot \\frac{P}{Q} = -\\frac{1}{20} \\cdot \\frac{50}{20} = -0.125$.\n' +
+          'Khi giá giảm $2\\%$, lượng cầu thay đổi $\\% \\Delta Q = E_p \\times (\\% \\Delta P) = (-0.125) \\times (-2\\%) = +0.25\\%$. Chọn **Đáp án A**.\n\n' +
+          '**Câu 6 (Đề K51 Mã 204 - Câu 9)**: Cho $Q(L, K) = 6 L^{1/2} K^{1/4}$. Sản lượng biên theo vốn tại $L = 100, K = 10000$ là:\n' +
+          '- **A.** $1/150$\n' +
+          '- **B.** $6.8$\n' +
+          '- **C.** $0.25$\n' +
+          '- **D.** $3/200$\n\n' +
+          '**Lời giải chi tiết**:\n' +
+          '$Q\'_K = 6 L^{1/2} \\cdot \\frac{1}{4} K^{-3/4} = \\frac{3}{2} L^{1/2} K^{-3/4}$.\n' +
+          'Thế $L = 100, K = 10000 \\implies Q\'_K = \\frac{3}{2} (10) (10^4)^{-3/4} = 15 \\cdot 10^{-3} = \\frac{3}{200}$. Chọn **Đáp án D**.\n\n' +
+          '**Câu 7 (Đề K51 Mã 118 - Câu 2)**: Hàm cầu $q = f(2p)$, biết $f\'(10) = -\\frac{f(10)}{10}$. Tại giá $p = 5$, nếu giá tăng $4\\%$ thì lượng cầu thay đổi thế nào?\n' +
+          '- **A.** Giảm $2\\%$\n' +
+          '- **B.** Giảm $4\\%$\n' +
+          '- **C.** Tăng $4\\%$\n' +
+          '- **D.** Không đổi\n\n' +
+          '**Lời giải chi tiết**:\n' +
+          '$q\'(5) = 2 f\'(10) = -\\frac{f(10)}{5}$. Co giãn cầu $\\varepsilon_d = q\'(5) \\cdot \\frac{5}{q(5)} = \\left(-\\frac{f(10)}{5}\\right) \\cdot \\frac{5}{f(10)} = -1$.\n' +
+          'Hệ số co giãn bằng $-1 \\implies$ Giá tăng $4\\%$ làm lượng cầu giảm $4\\%$. Chọn **Đáp án B**.\n\n' +
+          '**Câu 8 (Đề K46 - Câu 5)**: Cho $x > 0$ và $y = x\\sqrt{x + 30}$. Hệ số co giãn của $y$ đối với $x$ tại $x = 30$ là:\n' +
+          '- **A.** $4/3$\n' +
+          '- **B.** $5/4$\n' +
+          '- **C.** $3$\n' +
+          '- **D.** $1/3$\n\n' +
+          '**Lời giải chi tiết**:\n' +
+          '$y\' = \\sqrt{x+30} + \\frac{x}{2\\sqrt{x+30}}$. Tại $x=30 \\implies y = 30\\sqrt{60}, y\' = \\frac{75}{\\sqrt{60}}$.\n' +
+          'Co giãn $E = y\' \\cdot \\frac{x}{y} = \\frac{75}{\\sqrt{60}} \\cdot \\frac{30}{30\\sqrt{60}} = \\frac{75}{60} = \\frac{5}{4}$. Chọn **Đáp án B**.\n\n' +
+          '**Câu 9 (Đề K46 - Câu 6)**: Biết $P \\cdot Q = 500$ và chi phí biên tại $Q = 10$ là $MC = 10$. Tính $\\frac{\\mathrm{d}C}{\\mathrm{d}P}$ tại $Q = 10$:\n' +
+          '- **A.** $-2$\n' +
+          '- **B.** $-4$\n' +
+          '- **C.** $-12$\n' +
+          '- **D.** $-24$\n\n' +
+          '**Lời giải chi tiết**:\n' +
+          '$P = 500/Q \\implies Q = 500/P \\implies Q\'(P) = -500/P^2$. Tại $Q=10 \\implies P = 50 \\implies Q\'(50) = -1/5$.\n' +
+          'Áp dụng quy tắc chuỗi $\\frac{\\mathrm{d}C}{\\mathrm{d}P} = MC \\cdot Q\'(P) = 10 \\times (-1/5) = -2$. Chọn **Đáp án A**.\n\n' +
+          '**Câu 10 (Đề K47 - Câu 13)**: Cho $P \\cdot Q = 250$ và $\\frac{\\mathrm{d}C}{\\mathrm{d}P}$ tại $Q = 25$ là $-0.5$. Chi phí biên $MC$ tại $Q = 25$ bằng:\n' +
+          '- **A.** $0.2$\n' +
+          '- **B.** $0.3$\n' +
+          '- **C.** $0.4$\n' +
+          '- **D.** $0.5$\n\n' +
+          '**Lời giải chi tiết**:\n' +
+          '$P = 250/Q$. Tại $Q=25 \\implies P=10 \\implies Q\'(P) = -250/P^2 = -2.5$.\n' +
+          'Ta có $\\frac{\\mathrm{d}C}{\\mathrm{d}P} = MC \\cdot Q\'(P) \\iff -0.5 = MC \\cdot (-2.5) \\implies MC = 0.2$. Chọn **Đáp án A**.'
       },
       {
         heading: '9. Tài Liệu Tham Khảo Chính Thống',
