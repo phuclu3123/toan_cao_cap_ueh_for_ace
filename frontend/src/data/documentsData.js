@@ -10,6 +10,76 @@ export const documentsData = [
     desc: 'Trọn bộ đề thi và lời giải chi tiết Toán Ứng Dụng / Toán Cao Cấp Khóa K51 (cả 2 đợt thi mới nhất), biên soạn bởi Lữ Võ Hoàng Phúc (K50 UEH).'
   },
   {
+    id: 'slide-pnta-c1',
+    title: 'Slide Thầy Phan Ngô Tuấn Anh - Chương 1: Ma Trận Và Định Thức',
+    date: '23/07/2026',
+    category: 'latest',
+    categoryLabel: 'Slide PNTA',
+    image: 'pnta.jpg',
+    pdf: 'SLIDE_PNTA/Chương 1 - Ma trận và định thức (cập nhật).pdf',
+    desc: 'Bài giảng Slide chính thức Chương 1 của Thầy Phan Ngô Tuấn Anh (PNTA) cập nhật mới nhất cho sinh viên UEH.'
+  },
+  {
+    id: 'slide-pnta-c2',
+    title: 'Slide Thầy Phan Ngô Tuấn Anh - Chương 2: Hệ Phương Trình Tuyến Tính',
+    date: '23/07/2026',
+    category: 'latest',
+    categoryLabel: 'Slide PNTA',
+    image: 'pnta.jpg',
+    pdf: 'SLIDE_PNTA/Chương 2 - Hệ phương trình tuyến tính (cập nhật).pdf',
+    desc: 'Bài giảng Slide chính thức Chương 2 của Thầy Phan Ngô Tuấn Anh (PNTA), hướng dẫn giải và định lý Kronecker-Capelli.'
+  },
+  {
+    id: 'slide-pnta-c3',
+    title: 'Slide Thầy Phan Ngô Tuấn Anh - Chương 3: Mô Hình Input-Output Leontief',
+    date: '23/07/2026',
+    category: 'latest',
+    categoryLabel: 'Slide PNTA',
+    image: 'pnta.jpg',
+    pdf: 'SLIDE_PNTA/Chương 3 - Mô hình input-output Leontief (cập nhật).pdf',
+    desc: 'Bài giảng Slide chính thức Chương 3 của Thầy Phan Ngô Tuấn Anh (PNTA) về ma trận hệ số kỹ thuật và cầu cuối.'
+  },
+  {
+    id: 'slide-pnta-c4',
+    title: 'Slide Thầy Phan Ngô Tuấn Anh - Chương 4: Giới Hạn Và Sự Liên Tục',
+    date: '23/07/2026',
+    category: 'latest',
+    categoryLabel: 'Slide PNTA',
+    image: 'pnta.jpg',
+    pdf: 'SLIDE_PNTA/Chương 4 - Giới hạn và sự liên tục.pdf',
+    desc: 'Bài giảng Slide chính thức Chương 4 của Thầy Phan Ngô Tuấn Anh (PNTA) về giới hạn hàm số và tính liên tục.'
+  },
+  {
+    id: 'slide-pnta-c5',
+    title: 'Slide Thầy Phan Ngô Tuấn Anh - Chương 5: Đạo Hàm Và Vi Phân',
+    date: '23/07/2026',
+    category: 'latest',
+    categoryLabel: 'Slide PNTA',
+    image: 'pnta.jpg',
+    pdf: 'SLIDE_PNTA/Chương 5 - Đạo hàm và vi phân (cập nhật).pdf',
+    desc: 'Bài giảng Slide chính thức Chương 5 của Thầy Phan Ngô Tuấn Anh (PNTA), tính đạo hàm, vi phân và hệ số co giãn.'
+  },
+  {
+    id: 'slide-pnta-c6',
+    title: 'Slide Thầy Phan Ngô Tuấn Anh - Chương 6: Hàm Nhiều Biến',
+    date: '23/07/2026',
+    category: 'latest',
+    categoryLabel: 'Slide PNTA',
+    image: 'pnta.jpg',
+    pdf: 'SLIDE_PNTA/Chương 6 - Hàm nhiều biến (cập nhật).pdf',
+    desc: 'Bài giảng Slide chính thức Chương 6 của Thầy Phan Ngô Tuấn Anh (PNTA) về cực trị tự do và cực trị có điều kiện Lagrange.'
+  },
+  {
+    id: 'slide-pnta-c7',
+    title: 'Slide Thầy Phan Ngô Tuấn Anh - Chương 7: Phương Trình Vi Phân',
+    date: '23/07/2026',
+    category: 'latest',
+    categoryLabel: 'Slide PNTA',
+    image: 'pnta.jpg',
+    pdf: 'SLIDE_PNTA/Chương 7 - Phương trình vi phân (cập nhật).pdf',
+    desc: 'Bài giảng Slide chính thức Chương 7 của Thầy Phan Ngô Tuấn Anh (PNTA) về phương trình vi phân cấp 1 và ứng dụng kinh tế.'
+  },
+  {
     id: 'ap1',
     title: 'Tuyển Tập Đề Thi Và Lời Giải Toán Cao Cấp Qua Các Năm',
     date: '09/08/2025',
@@ -280,6 +350,15 @@ export const midtermExams = [
     image: 'pnta.jpg',
     pdf: 'pnta.pdf',
     desc: 'Tuyển tập đề thi giữa kỳ đầy đủ các mã đề của lớp thầy Phan Ngô Tuấn Anh tại UEH, đi kèm lời giải tự luận chi tiết từng bước.'
+  },
+  {
+    id: 'gk-dna',
+    title: 'Đề Thi Giữa Kỳ - Đặng Ngọc Ánh (DNA)',
+    professor: 'dna',
+    professorName: 'Thầy/Cô Đặng Ngọc Ánh',
+    image: 'c123.jpg',
+    pdf: 'GK_DNA/1c90828a-976e-4a2d-9e5a-c8c79000ce75.jpg',
+    desc: 'Bộ đề thi giữa kỳ môn Toán Cao Cấp cập nhật mới nhất từ giảng viên Đặng Ngọc Ánh (DNA).'
   },
   {
     id: 'ndt',
