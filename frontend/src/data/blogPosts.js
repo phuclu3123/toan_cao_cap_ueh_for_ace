@@ -1,6 +1,123 @@
 export const blogPosts = [
   {
     slug: 'ung-dung-vi-mo-vi-mo-trong-toan-ung-dung-k51',
+    title: 'Cẩm Nang Toàn Diện Lý Thuyết Kinh Tế Vi/Vĩ Mô (Chương 5 Slide PNTA) & Phân Tích Bộ Đề K51 UEH',
+    category: 'Chuyên đề nâng cao',
+    date: '23/07/2026',
+    author: 'Lữ Võ Hoàng Phúc (K50 UEH)',
+    keywords: ['Chương 5 PNTA', 'Marginal Cost', 'Marginal Product', 'Hệ số co giãn', 'Amoroso-Robinson', 'Toán K51 UEH'],
+    image: '/images/bg.jpg',
+    excerpt: 'Hệ thống hóa 100% lý thuyết gốc Kinh tế Vi mô & Vĩ mô trong Slide Chương 5 của Thầy Phan Ngô Tuấn Anh (Hàm sản xuất, Năng suất biên, Chi phí biên, Doanh thu biên, Hệ số co giãn, Vi phân ẩn, Xấp xỉ tuyến tính) và phân tích giải toán xuyên suốt bộ đề K51 (cả 2 đợt).',
+    toc: [
+      '1. Khái niệm & Hệ thống các Đại lượng Biên tế (Marginal Analysis)',
+      '2. Hệ thống Hàm Sản Xuất & Năng Suất Biên (MPL, MPK)',
+      '3. Lý thuyết Chi Phí, Doanh Thu, Lợi Nhuận & Tối Đa Hóa Lợi Nhuận',
+      '4. Lý thuyết Hệ Số Co Giãn (Elasticity) & Công Thức Amoroso-Robinson',
+      '5. Vi Phân Ẩn & Xấp Xỉ Tuyến Tính Trong Kinh Tế',
+      '6. Phân Tích & Giải Chi Tiết Các Dạng Bài Thi Thực Tế Trong Đề K51',
+      '7. Tổng Kết & Lộ Trình Ôn Tập Đạt Điểm Tuyệt Đối'
+    ],
+    sections: [
+      {
+        heading: '1. Khái niệm & Hệ thống các Đại lượng Biên tế (Marginal Analysis)',
+        body: 'Trong tài liệu *Chương 5: Đạo hàm và vi phân (cập nhật)* của Thầy Phan Ngô Tuấn Anh (PNTA), đại lượng biên tế (Marginal Concepts) phản ánh tốc độ thay đổi của một chỉ tiêu kinh tế khi một biến số đầu vào thay đổi $1$ đơn vị.\n\n' +
+          'Về mặt toán học, **giá trị biên tế chính là đạo hàm bậc nhất** của hàm số tương ứng:\n' +
+          '$$M_y(x) = y\'(x) = \\frac{\\mathrm{d}y}{\\mathrm{d}x}$$\n\n' +
+          '📌 **Ý nghĩa kinh tế cơ bản**:\n' +
+          'Nếu biến $x$ tăng thêm $1$ đơn vị từ mức $x_0$, thì biến $y$ sẽ biến đổi một lượng xấp xỉ bằng $y\'(x_0)$ đơn vị.\n\n' +
+          '📌 **Ý nghĩa hình học**:\n' +
+          'Giá trị biên tế $y\'(x_0)$ chính là **hệ số góc (slope)** của đường tiếp tuyến với đồ thị hàm số $y = f(x)$ tại điểm $x = x_0$. Chi phí hay năng suất biên càng lớn thì đường tiếp tuyến càng dốc.'
+      },
+      {
+        heading: '2. Hệ thống Hàm Sản Xuất & Năng Suất Biên (MPL, MPK)',
+        body: 'Sản lượng đầu ra $Q$ của một doanh nghiệp phụ thuộc vào các yếu tố đầu vào như Lao động ($L$) và Vốn ($K$).\n\n' +
+          '🌾 **1. Năng suất biên theo Lao động (Marginal Product of Labor - $MP_L$)**:\n' +
+          'Là đạo hàm riêng của hàm sản lượng $Q(L, K)$ theo biến lao động $L$:\n' +
+          '$$MP_L = Q\'_L = \\frac{\\partial Q}{\\partial L}$$\n' +
+          '*Ý nghĩa*: Khi doanh nghiệp tăng sử dụng $1$ đơn vị lao động (giữ nguyên lượng vốn $K$), tổng sản lượng $Q$ sẽ tăng thêm xấp xỉ $MP_L$ đơn vị sản phẩm.\n\n' +
+          '🏭 **2. Năng suất biên theo Vốn (Marginal Product of Capital - $MP_K$)**:\n' +
+          'Là đạo hàm riêng của hàm sản lượng $Q(L, K)$ theo biến vốn $K$:\n' +
+          '$$MP_K = Q\'_K = \\frac{\\partial Q}{\\partial K}$$\n' +
+          '*Ý nghĩa*: Khi doanh nghiệp tăng thêm $1$ đơn vị vốn tiền tệ/máy móc (giữ nguyên lượng lao động $L$), tổng sản lượng $Q$ sẽ tăng thêm xấp xỉ $MP_K$ đơn vị sản phẩm.\n\n' +
+          '👥 **3. Năng suất trung bình (Average Product - AP)**:\n' +
+          '$$AP_L = \\frac{Q}{L}, \\quad AP_K = \\frac{Q}{K}$$'
+      },
+      {
+        heading: '3. Lý thuyết Chi Phí, Doanh Thu, Lợi Nhuận & Tối Đa Hóa Lợi Nhuận',
+        body: '📊 **1. Hàm Chi phí $C(q)$ & Chi phí biên (Marginal Cost - MC)**:\n' +
+          'Gọi $q$ là sản lượng và $C(q)$ là tổng chi phí sản xuất ($C(q) = VC(q) + FC$):\n' +
+          '$$MC = C\'(q) = \\frac{\\mathrm{d}C}{\\mathrm{d}q}$$\n' +
+          '*Chi phí trung bình*: $AC(q) = \\frac{C(q)}{q}$. Chi phí biến đổi trung bình: $AVC(q) = \\frac{VC(q)}{q}$.\n\n' +
+          '📈 **2. Hàm Doanh thu $R(q)$ & Doanh thu biên (Marginal Revenue - MR)**:\n' +
+          'Tổng doanh thu $R(q) = p \\cdot q$. Doanh thu biên là đạo hàm của tổng doanh thu:\n' +
+          '$$MR = R\'(q) = \\frac{\\mathrm{d}R}{\\mathrm{d}q}$$\n' +
+          '*Doanh thu trung bình*: $AR(q) = \\frac{R(q)}{q} = p$.\n\n' +
+          '💰 **3. Hàm Lợi nhuận $\\pi(q)$ & Nguyên tắc tối đa hóa lợi nhuận**:\n' +
+          '$$\\pi(q) = R(q) - C(q) \\implies \\pi\'(q) = R\'(q) - C\'(q) = MR - MC$$\n' +
+          '*Điều kiện cần tối đa hóa lợi nhuận*: $\\pi\'(q^*) = 0 \\iff MR = MC$.\n' +
+          '*Điều kiện đủ*: $\\pi\'\'(q^*) < 0 \\iff R\'\'(q^*) < C\'\'(q^*)$.\n\n' +
+          '⚖️ **4. Khuynh hướng tiêu dùng biên ($MPC$) & Khuynh hướng tiết kiệm biên ($MPS$)**:\n' +
+          'Cho hàm tiêu dùng $C = C(Y)$ và hàm tiết kiệm $S = S(Y) = Y - C(Y)$ theo thu nhập quốc dân $Y$:\n' +
+          '$$MPC = C\'(Y) = \\frac{\\mathrm{d}C}{\\mathrm{d}Y}, \\quad MPS = S\'(Y) = \\frac{\\mathrm{d}S}{\\mathrm{d}Y} = 1 - MPC$$'
+      },
+      {
+        heading: '4. Lý thuyết Hệ Số Co Giãn (Elasticity) & Công Thức Amoroso-Robinson',
+        body: '📐 **1. Định nghĩa Hệ số co giãn của hàm số**:\n' +
+          'Hệ số co giãn của $y = f(x)$ tại $x$ biểu thị tỷ lệ phần trăm thay đổi của $y$ khi $x$ tăng $1\\%$:\n' +
+          '$$\\varepsilon_{yx} = E_x = f\'(x) \\cdot \\frac{x}{y} = \\frac{\\mathrm{d}y / y}{\\mathrm{d}x / x}$$\n\n' +
+          '📉 **2. Hệ số co giãn của Cầu theo Giá ($E_p$)**:\n' +
+          '$$E_p = \\frac{\\mathrm{d}Q}{\\mathrm{d}p} \\cdot \\frac{p}{Q}$$\n' +
+          '- $|E_p| > 1$ (Cầu co giãn nhiều): Tăng giá bán làm **giảm tổng doanh thu** ($MR < 0$).\n' +
+          '- $|E_p| < 1$ (Cầu ít co giãn): Tăng giá bán làm **tăng tổng doanh thu** ($MR > 0$).\n' +
+          '- $|E_p| = 1$ (Co giãn đơn vị): Tổng doanh thu đạt **cực đại** ($MR = 0$).\n\n' +
+          '🤝 **3. Thiết lập Công thức Amoroso-Robinson**:\n' +
+          '$$MR = \\frac{\\mathrm{d}(p \\cdot Q)}{\\mathrm{d}Q} = p + Q \\cdot \\frac{\\mathrm{d}p}{\\mathrm{d}Q} = p \\left(1 + \\frac{1}{E_p}\\right)$$\n\n' +
+          '📊 **4. Hệ số co giãn của Chi phí (Cost Elasticity - $\\varepsilon_{Cq}$)**:\n' +
+          '$$\\varepsilon_{Cq} = C\'(q) \\cdot \\frac{q}{C} = \\frac{MC}{AC}$$\n' +
+          '- Nếu $\\varepsilon_{Cq} < 1 \\iff MC < AC$: Hiệu quả theo quy mô tăng (Economies of scale).\n' +
+          '- Nếu $\\varepsilon_{Cq} > 1 \\iff MC > AC$: Hiệu quả theo quy mô giảm (Diseconomies of scale).'
+      },
+      {
+        heading: '5. Vi Phân Ẩn & Xấp Xỉ Tuyến Tính Trong Kinh Tế',
+        body: '🔍 **1. Đạo hàm và Vi phân hàm ẩn $F(x, y) = 0$**:\n' +
+          '$$\\frac{\\mathrm{d}y}{\\mathrm{d}x} = -\\frac{F\'_x}{F\'_y}$$\n' +
+          'Áp dụng tính hệ số co giãn ẩn của tiết kiệm $S$ theo thu nhập $I$ trong mối quan hệ $S^2 + \\frac{1}{4}I^2 = SI + I$.\n\n' +
+          '🧮 **2. Công thức Xấp xỉ tuyến tính một biến & hai biến**:\n' +
+          '$$\\Delta y \\approx f\'(x_0) \\cdot \\Delta x \\implies f(x_0 + \\Delta x) \\approx f(x_0) + f\'(x_0) \\cdot \\Delta x$$\n' +
+          '$$f(x_0 + \\Delta x, y_0 + \\Delta y) \\approx f(x_0, y_0) + f\'_x(x_0, y_0) \\Delta x + f\'_y(x_0, y_0) \\Delta y$$'
+      },
+      {
+        heading: '6. Phân Tích & Giải Chi Tiết Các Dạng Bài Thi Thực Tế Trong Đề K51',
+        body: 'Dưới đây là lời giải chi tiết cho tất cả các câu hỏi ứng dụng Vi/Vĩ mô trong bộ đề K51 (cả 2 đợt thi mới nhất):\n\n' +
+          '📝 **Câu 1 (Đề K51 Đợt 2 - Câu 4): Chi phí biên của công ty công nghệ**\n' +
+          '*Đề bài*: Cho $C(Q) = 500 \\cdot \\ln(Q^2 + 1) + 200$. Tính chi phí biên tại $Q = 3$.\n' +
+          '*Lời giải*: $MC = C\'(Q) = 500 \\cdot \\frac{2Q}{Q^2 + 1}$. Tại $Q = 3 \\implies MC(3) = 500 \\cdot \\frac{6}{10} = 300$.\n\n' +
+          '📝 **Câu 2 (Đề K51 Đợt 2 - Câu 6): Phân tích Doanh thu theo $E_p$**\n' +
+          '*Đề bài*: Hệ số co giãn cầu $E_p = -0.5$. Doanh nghiệp tăng giá bán một lượng nhỏ thì doanh thu thay đổi thế nào?\n' +
+          '*Lời giải*: Vì $|E_p| = 0.5 < 1$ (cầu ít co giãn), khi tăng giá thì lượng cầu giảm ít hơn tỷ lệ tăng giá, do đó tổng doanh thu tăng ($MR > 0$). Chọn B.\n\n' +
+          '📝 **Câu 3 (Đề K51 Đợt 2 - Câu 2): Tỷ lệ thay thế kỹ thuật biên MRTS**\n' +
+          '*Đề bài*: $Q = 2K^2 + 3L^2 + KL$. Tại $K=10, L=5$, tăng $1$ đơn vị lao động ($dL=1$) giữ nguyên sản lượng ($dQ=0$) thì $K$ giảm bao nhiêu?\n' +
+          '*Lời giải*: $dQ = Q\'_K dK + Q\'_L dL = 0 \\implies dK = -\\frac{Q\'_L}{Q\'_K} dL = -\\frac{6L+K}{4K+L} = -\\frac{40}{45} = -\\frac{8}{9}$. Vốn giảm $8/9$ đơn vị.\n\n' +
+          '📝 **Câu 4 (Đề K51 Mã 204 - Câu 9): Sản lượng biên theo vốn**\n' +
+          '*Đề bài*: Cho $Q(L, K) = 6 L^{1/2} K^{1/4}$. Tính sản lượng biên theo vốn tại $L=100, K=10000$.\n' +
+          '*Lời giải*: $Q\'_K = 6 L^{1/2} \\cdot \\frac{1}{4} K^{-3/4} = \\frac{3}{2} L^{1/2} K^{-3/4}$. Thế $L=100, K=10000 \\implies Q\'_K = \\frac{3}{2} (10) (10^{-3}) = \\frac{3}{200}$.\n\n' +
+          '📝 **Câu 5 (Đề K51 Mã 204 - Câu 10): Xấp xỉ tuyến tính hàm hai biến**\n' +
+          '*Đề bài*: $f(10, 5) = 1000, f\'_x(10, 5) = 2, f\'_y(10, 5) = -3$. Tính gần đúng $f(10.1, 4.8)$.\n' +
+          '*Lời giải*: $f(10.1, 4.8) \\approx f(10, 5) + f\'_x \\Delta x + f\'_y \\Delta y = 1000 + 2(0.1) + (-3)(-0.2) = 1000 + 0.2 + 0.6 = 1000.8$.\n\n' +
+          '📝 **Câu 6 (Đề K51 Đợt 2 - Câu 7): Mức giá cân bằng dài hạn thị trường động**\n' +
+          '*Đề bài*: Cho $P\'(t) + 3P(t) = 12$, $P(0) = 5$. Tìm giá ổn định dài hạn khi $t \\to +\\infty$.\n' +
+          '*Lời giải*: $P(t) = 4 + C e^{-3t}$. Với $P(0)=5 \\implies C=1$. Khi $t \\to +\\infty$, $e^{-3t} \\to 0 \\implies P(t) \\to 4$. Mức giá ổn định là $P^* = 4$.'
+      },
+      {
+        heading: '7. Tổng Kết & Lộ Trình Ôn Tập Đạt Điểm Tuyệt Đối',
+        body: 'Tóm lại, để đạt điểm tuyệt đối 9-10 trong các bài thi Toán Ứng Dụng UEH, sinh viên cần làm chủ 2 bước:\n\n' +
+          '1. **Nắm chắc định nghĩa & ý nghĩa kinh tế gốc** của các hàm số ($C, R, \\pi, Q, S$) và các đại lượng biên tế ($MC, MR, MP_L, MP_K, MPC, MPS, E_p$).\n' +
+          '2. **Thực hành phản xạ tính toán** trên hệ thống phòng thi trắc nghiệm tương tác 30 phút của UEH TCC.'
+      }
+    ]
+  },
+  {
+    slug: 'lo-trinh-on-toan-cao-cap',
     title: 'Hệ Thống Lý Thuyết Vi/Vĩ Mô (Slide Chương 5 PNTA) & Phân Tích Bộ Đề Thi K51 UEH',
     category: 'Chuyên đề nâng cao',
     date: '23/07/2026',
