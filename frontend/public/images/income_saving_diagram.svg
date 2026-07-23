@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480" width="100%" height="100%" style="background-color: #ffffff; font-family: 'Inter', -apple-system, sans-serif;">
+  <defs>
+    <linearGradient id="yGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0d9488" />
+      <stop offset="100%" stop-color="#0f766e" />
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-opacity="0.08" />
+    </filter>
+  </defs>
+
+  <rect width="800" height="480" rx="12" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" filter="url(#shadow)" />
+  <text x="400" y="42" font-size="18" font-weight="800" fill="#0f172a" text-anchor="middle" letter-spacing="-0.01em">SƠ ĐỒ CHU CHUYỂN VĨ MÔ: THU NHẬP (Y), TIÊU DÙNG (C) &amp; TIẾT KIỆM (S)</text>
+  <text x="400" y="65" font-size="13" font-weight="500" fill="#64748b" text-anchor="middle">Đẳng thức phân bổ Y = C(Y) + S(Y) và mối quan hệ MPC + MPS = 1</text>
+
+  <!-- Income Node -->
+  <rect x="80" y="190" width="180" height="90" rx="12" fill="#f0fdf4" stroke="#86efac" stroke-width="2" />
+  <text x="170" y="230" font-size="16" font-weight="800" fill="#166534" text-anchor="middle">Thu Nhập Quốc Dân (Y)</text>
+  <text x="170" y="252" font-size="12" font-weight="600" fill="#15803d" text-anchor="middle">Tổng thu nhập toàn xã hội</text>
+
+  <!-- Split Arrow 1 to C -->
+  <path d="M 260 210 Q 380 140 480 140" fill="none" stroke="#0284c7" stroke-width="3" stroke-dasharray="6 4" />
+  <polygon points="480,135 492,140 480,145" fill="#0284c7" />
+
+  <!-- Split Arrow 2 to S -->
+  <path d="M 260 260 Q 380 330 480 330" fill="none" stroke="#d97706" stroke-width="3" stroke-dasharray="6 4" />
+  <polygon points="480,325 492,330 480,335" fill="#d97706" />
+
+  <!-- Consumption Node C -->
+  <rect x="495" y="95" width="220" height="90" rx="12" fill="#f0f9ff" stroke="#7dd3fc" stroke-width="2" />
+  <text x="605" y="135" font-size="16" font-weight="800" fill="#0369a1" text-anchor="middle">Tiêu Dùng Hộ Gia Đình (C)</text>
+  <text x="605" y="157" font-size="13" font-weight="600" fill="#0284c7" text-anchor="middle">MPC = dC/dY (0 &lt; MPC &lt; 1)</text>
+
+  <!-- Saving Node S -->
+  <rect x="495" y="285" width="220" height="90" rx="12" fill="#fffbeb" stroke="#fde68a" stroke-width="2" />
+  <text x="605" y="325" font-size="16" font-weight="800" fill="#b45309" text-anchor="middle">Tiết Kiệm Tích Lũy (S)</text>
+  <text x="605" y="347" font-size="13" font-weight="600" fill="#d97706" text-anchor="middle">MPS = dS/dY = 1 - MPC</text>
+
+  <!-- Bottom Formula Box -->
+  <rect x="180" y="405" width="440" height="42" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5" />
+  <text x="400" y="431" font-size="14" font-weight="800" fill="#0f172a" text-anchor="middle">ĐẲNG THỨC NỀN TẢNG: MPC + MPS = 1  |  k = 1 / MPS</text>
+</svg>

@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480" width="100%" height="100%" style="background-color: #ffffff; font-family: 'Inter', -apple-system, sans-serif;">
+  <defs>
+    <linearGradient id="pGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#2563eb" />
+      <stop offset="100%" stop-color="#1d4ed8" />
+    </linearGradient>
+    <linearGradient id="mrGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#dc2626" />
+      <stop offset="100%" stop-color="#b91c1c" />
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-opacity="0.08" />
+    </filter>
+  </defs>
+
+  <rect width="800" height="480" rx="12" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" filter="url(#shadow)" />
+  <text x="400" y="42" font-size="18" font-weight="800" fill="#0f172a" text-anchor="middle" letter-spacing="-0.01em">ĐỒ THỊ AMOROSO-ROBINSON: GIÁ (p), DOANH THU BIÊN (MR) &amp; CO GIÃN (Ep)</text>
+  <text x="400" y="65" font-size="13" font-weight="500" fill="#64748b" text-anchor="middle">Công thức Amoroso-Robinson: MR = p * (1 + 1/Ep)</text>
+
+  <!-- Grid -->
+  <g stroke="#f1f5f9" stroke-width="1">
+    <line x1="100" y1="110" x2="720" y2="110" />
+    <line x1="100" y1="180" x2="720" y2="180" />
+    <line x1="100" y1="250" x2="720" y2="250" />
+    <line x1="100" y1="320" x2="720" y2="320" />
+    <line x1="100" y1="390" x2="720" y2="390" />
+  </g>
+
+  <!-- Axes -->
+  <line x1="100" y1="250" x2="720" y2="250" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 4" />
+  <line x1="100" y1="390" x2="720" y2="390" stroke="#334155" stroke-width="2.5" stroke-linecap="round" />
+  <line x1="100" y1="390" x2="100" y2="90" stroke="#334155" stroke-width="2.5" stroke-linecap="round" />
+  <path d="M 715 385 L 725 390 L 715 395 Z" fill="#334155" />
+  <path d="M 95 95 L 100 85 L 105 95 Z" fill="#334155" />
+
+  <text x="735" y="395" font-size="14" font-weight="700" fill="#334155">Sản lượng (Q)</text>
+  <text x="100" y="75" font-size="14" font-weight="700" fill="#334155" text-anchor="middle">Giá / Doanh thu biên</text>
+
+  <!-- Demand Line p(Q) -->
+  <line x1="100" y1="110" x2="680" y2="370" stroke="url(#pGrad)" stroke-width="3.5" stroke-linecap="round" />
+  <text x="690" y="365" font-size="15" font-weight="800" fill="#1d4ed8">Đường cầu p(Q)</text>
+
+  <!-- MR Line (Twice as steep) -->
+  <line x1="100" y1="110" x2="390" y2="370" stroke="url(#mrGrad)" stroke-width="3.5" stroke-linecap="round" />
+  <text x="400" y="365" font-size="15" font-weight="800" fill="#b91c1c">MR (Doanh thu biên)</text>
+
+  <!-- Midpoint (Ep = -1, MR = 0) -->
+  <line x1="390" y1="110" x2="390" y2="390" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4 4" />
+  <circle cx="390" cy="370" r="6" fill="#15803d" stroke="#ffffff" stroke-width="2" />
+
+  <!-- Regions text -->
+  <!-- Region 1: Elastic -->
+  <rect x="140" y="140" width="210" height="60" rx="8" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1" />
+  <text x="150" y="162" font-size="13" font-weight="700" fill="#1d4ed8">Miền Cầu Co Giãn Many (|Ep| &gt; 1)</text>
+  <text x="150" y="182" font-size="12" font-weight="600" fill="#2563eb">MR &gt; 0: Giảm giá làm tăng doanh thu</text>
+
+  <!-- Midpoint text -->
+  <text x="390" y="415" font-size="13" font-weight="800" fill="#15803d" text-anchor="middle">|Ep| = 1: MR = 0 (Doanh thu TR max)</text>
+
+  <!-- Region 2: Inelastic -->
+  <rect x="420" y="200" width="220" height="60" rx="8" fill="#fef2f2" stroke="#fecaca" stroke-width="1" />
+  <text x="430" y="222" font-size="13" font-weight="700" fill="#b91c1c">Miền Cầu Ít Co Giãn (|Ep| &lt; 1)</text>
+  <text x="430" y="242" font-size="12" font-weight="600" fill="#dc2626">MR &lt; 0: Tăng giá làm tăng doanh thu</text>
+</svg>
