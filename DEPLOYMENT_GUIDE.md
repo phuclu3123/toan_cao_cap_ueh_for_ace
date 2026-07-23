@@ -33,7 +33,7 @@ Khi chạy dưới máy cá nhân (offline), hệ thống mặc định kết n�
 ### Bước 3. Cấu hình Tài khoản kết nối (Database User)
 1. Hệ thống sẽ yêu cầu bạn tạo một User để kết nối:
    * **Username**: Đặt tên (ví dụ: `uehadmin`)
-   * **Password**: Đặt mật khẩu an toàn (ví dụ: `UehTcc123` - hoặc tự sinh rồi copy lại).
+   * **Password**: Đặt mật khẩu an toàn (ví dụ: `YourSecurePassword123` - hoặc tự sinh rồi copy lại).
 2. Nhớ lưu lại Username và Password này để dùng cho chuỗi kết nối ở bước sau! Click **Create Database User**.
 
 ### Bước 4. Cấu hình IP Access List (QUAN TRỌNG NHẤT ĐỂ TRÁNH LỖI KẾT NỐI)
@@ -53,7 +53,7 @@ Khi chạy dưới máy cá nhân (offline), hệ thống mặc định kết n�
 3. Copy chuỗi kết nối hiển thị trên màn hình có dạng:
    `mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`
 4. Thay thế `<username>` bằng tên user và `<password>` bằng mật khẩu bạn đã tạo ở Bước 3.
-   * *Ví dụ thực tế:* `mongodb+srv://uehadmin:UehTcc123@cluster0.xxxxx.mongodb.net/ueh_tcc?retryWrites=true&w=majority&appName=Cluster0`
+   * *Ví dụ thực tế:* `mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/<database_name>?retryWrites=true&w=majority&appName=Cluster0`
    * *(Nên thêm tên database là `ueh_tcc` ngay sau dấu `/` trước dấu `?` để dữ liệu gom gọn gàng)*
 
 ---

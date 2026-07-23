@@ -3,6 +3,7 @@ import User from '../models/User.js';
 import { checkMongoDBConnected } from '../config/db.js';
 import { readJSONFile, writeJSONFile, dataDir } from '../utils/jsonHelper.js';
 import { sendOtpEmail } from '../services/emailService.js';
+import { hashPassword, verifyPassword } from '../utils/passwordHelper.js';
 
 export const signup = async (req, res) => {
   const { username, password, name } = req.body;
@@ -12,6 +13,8 @@ export const signup = async (req, res) => {
   }
 
   try {
+    const hashedPassword = hashPassword(password);
+
     if (checkMongoDBConnected()) {
       const userExists = await User.findOne({ username: new RegExp(`^${username}$`, 'i') });
       if (userExists) {
@@ -22,7 +25,7 @@ export const signup = async (req, res) => {
       const newUser = new User({
         id: userId,
         username,
-        password,
+        password: hashedPassword,
         name,
         role: 'Student'
       });
@@ -42,7 +45,7 @@ export const signup = async (req, res) => {
       const filePath = path.join(dataDir, 'users.json');
       const users = readJSONFile(filePath, []);
 
-      const userExists = users.some(u => u.username.toLowerCase() === username.toLowerCase());
+      const userExists = users.some(u => u.username && u.username.toLowerCase() === username.toLowerCase());
       if (userExists) {
         return res.status(400).json({ success: false, message: 'Tên đăng nhập hoặc Email này đã tồn tại!' });
       }
@@ -50,7 +53,7 @@ export const signup = async (req, res) => {
       const newUser = {
         id: 'u-' + Date.now(),
         username,
-        password,
+        password: hashedPassword,
         name,
         role: 'Student',
         createdAt: new Date().toISOString()
@@ -88,17 +91,14 @@ export const login = async (req, res) => {
   try {
     let user = null;
     if (checkMongoDBConnected()) {
-      user = await User.findOne({ 
-        username: new RegExp(`^${username}$`, 'i'),
-        password: password
-      });
+      user = await User.findOne({ username: new RegExp(`^${username}$`, 'i') });
     } else {
       const filePath = path.join(dataDir, 'users.json');
       const users = readJSONFile(filePath, []);
-      user = users.find(u => u.username.toLowerCase() === username.toLowerCase() && u.password === password);
+      user = users.find(u => u.username && u.username.toLowerCase() === username.toLowerCase());
     }
 
-    if (!user) {
+    if (!user || !verifyPassword(password, user.password)) {
       return res.status(401).json({ success: false, message: 'Tên đăng nhập hoặc mật khẩu chưa chính xác!' });
     }
 
@@ -141,7 +141,6 @@ export const syncFirebaseAuth = async (req, res) => {
           }
           await user.save();
         } else {
-          const isAdminEmail = email && email.toLowerCase() === 'admin@ueh.edu.vn';
           const userId = 'u-' + Date.now();
           user = new User({
             id: userId,
@@ -149,7 +148,7 @@ export const syncFirebaseAuth = async (req, res) => {
             username: email || phoneNumber || uid,
             name: name || (email ? email.split('@')[0] : 'Người dùng OTP'),
             phoneNumber: phoneNumber || null,
-            role: isAdminEmail ? 'Admin' : 'Student'
+            role: 'Student'
           });
           await user.save();
         }
@@ -202,14 +201,13 @@ export const syncFirebaseAuth = async (req, res) => {
           }
           user.updatedAt = new Date().toISOString();
         } else {
-          const isAdminEmail = email && email.toLowerCase() === 'admin@ueh.edu.vn';
           user = {
             id: 'u-' + Date.now(),
             uid: uid,
             username: email || phoneNumber || uid,
             name: name || (email ? email.split('@')[0] : 'Người dùng OTP'),
             phoneNumber: phoneNumber || null,
-            role: isAdminEmail ? 'Admin' : 'Student',
+            role: 'Student',
             createdAt: new Date().toISOString()
           };
           users.push(user);
@@ -321,6 +319,8 @@ export const resetPassword = async (req, res) => {
   }
 
   try {
+    const hashedPassword = hashPassword(newPassword);
+
     if (checkMongoDBConnected()) {
       const user = await User.findOne({ username: new RegExp(`^${email}$`, 'i') });
       if (!user) {
@@ -336,7 +336,7 @@ export const resetPassword = async (req, res) => {
         return res.status(400).json({ success: false, message: 'Mã xác thực OTP đã hết hạn! Vui lòng gửi lại mã mới.' });
       }
 
-      user.password = newPassword;
+      user.password = hashedPassword;
       user.otpCode = undefined;
       user.otpExpiresAt = undefined;
       await user.save();
@@ -366,7 +366,7 @@ export const resetPassword = async (req, res) => {
         return res.status(400).json({ success: false, message: 'Mã xác thực OTP đã hết hạn! Vui lòng gửi lại mã mới.' });
       }
 
-      user.password = newPassword;
+      user.password = hashedPassword;
       delete user.otpCode;
       delete user.otpExpiresAt;
       user.updatedAt = new Date().toISOString();

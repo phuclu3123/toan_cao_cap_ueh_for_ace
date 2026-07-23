@@ -46,8 +46,8 @@ export const createResource = async (req, res) => {
       );
     }
 
-    // Role verification
-    const isAuthorized = dbUser ? (dbUser.role === 'Admin') : (adminRole === 'Admin' && !uid);
+    // Role verification (Strictly require verified Admin user record)
+    const isAuthorized = Boolean(dbUser && dbUser.role === 'Admin');
 
     if (!isAuthorized) {
       return res.status(403).json({ success: false, message: 'Bạn không có quyền thực hiện hành động này (Từ chối bởi Server)!' });
