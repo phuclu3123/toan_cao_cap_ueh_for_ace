@@ -1,11 +1,23 @@
 import { useEffect, useState, useContext } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, BookOpen, CalendarDays, Link as LinkIcon, UserRound, Check } from 'lucide-react';
+import {
+  ArrowLeft,
+  BadgeCheck,
+  CalendarDays,
+  Check,
+  Clock3,
+  FileText,
+  GraduationCap,
+  Link as LinkIcon,
+  UserRound,
+} from 'lucide-react';
 import { blogPosts, getBlogPostBySlug } from '../data/blogPosts';
 import { LanguageContext } from '../App';
 import { translations } from '../utils/translations';
+import ArticleBlock from '../components/ArticleBlock';
 import MathRenderer from '../components/MathRenderer';
 import '../assets/styles/Home.css';
+import '../assets/styles/BlogDetail.css';
 
 export default function BlogDetailPage() {
   const { language } = useContext(LanguageContext);
@@ -14,6 +26,7 @@ export default function BlogDetailPage() {
   const post = getBlogPostBySlug(slug);
   const [activeSectionId, setActiveSectionId] = useState('');
   const [copiedSectionId, setCopiedSectionId] = useState('');
+  const [readingProgress, setReadingProgress] = useState(0);
 
   // Safe ASCII slug generator for section IDs
   const getSectionId = (heading) => {
@@ -71,6 +84,32 @@ export default function BlogDetailPage() {
     return () => observer.disconnect();
   }, [post]);
 
+  useEffect(() => {
+    const updateReadingProgress = () => {
+      const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const nextProgress = scrollableHeight > 0 ? (window.scrollY / scrollableHeight) * 100 : 0;
+      setReadingProgress(Math.min(100, Math.max(0, nextProgress)));
+    };
+
+    updateReadingProgress();
+    window.addEventListener('scroll', updateReadingProgress, { passive: true });
+    window.addEventListener('resize', updateReadingProgress);
+
+    return () => {
+      window.removeEventListener('scroll', updateReadingProgress);
+      window.removeEventListener('resize', updateReadingProgress);
+    };
+  }, [post]);
+
+  useEffect(() => {
+    if (!post) return undefined;
+    const previousTitle = document.title;
+    document.title = `${post.title} | UEH TCC`;
+    return () => {
+      document.title = previousTitle;
+    };
+  }, [post]);
+
   // Handle smooth scroll to section without breaking hash routing
   const scrollToSection = (e, heading) => {
     e.preventDefault();
@@ -111,13 +150,33 @@ export default function BlogDetailPage() {
   }
 
   const relatedPosts = blogPosts.filter((item) => item.slug !== post.slug).slice(0, 3);
+  const activeSectionIndex = Math.max(
+    0,
+    post.sections.findIndex((section) => getSectionId(section.heading) === activeSectionId)
+  );
 
   return (
     <div className="home-page forum-blog-page">
+      <div
+        className="article-reading-progress"
+        role="progressbar"
+        aria-label="Tiến độ đọc bài"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow={Math.round(readingProgress)}
+      >
+        <span style={{ width: `${readingProgress}%` }} />
+      </div>
       <section className="forum-blog-hero">
         <div className="container forum-blog-grid">
           <aside className="article-toc">
-            <h3 className="toc-title">Nội dung bài viết</h3>
+            <div className="toc-heading-row">
+              <div>
+                <span className="toc-kicker">Trong bài này</span>
+                <h3 className="toc-title">Mục lục</h3>
+              </div>
+              <span className="toc-progress-value">{Math.round(readingProgress)}%</span>
+            </div>
             <ul className="toc-list">
               {post.toc.map((item, idx) => {
                 const sectionId = getSectionId(item);
@@ -129,68 +188,137 @@ export default function BlogDetailPage() {
                       className={`toc-link ${isActive ? 'active' : ''}`}
                       onClick={(e) => scrollToSection(e, item)}
                     >
-                      {item}
+                      <span className="toc-item-index">{String(idx + 1).padStart(2, '0')}</span>
+                      <span>{item}</span>
                     </a>
                   </li>
                 );
               })}
             </ul>
+            {post.scope && (
+              <div className="toc-scope-note">
+                <BadgeCheck size={17} aria-hidden="true" />
+                <span>{post.scope.title}</span>
+              </div>
+            )}
             <div className="toc-footer">
-              <span>© 2026 UEH TCC. All rights reserved.</span>
+              <span>
+                Phần {activeSectionIndex + 1}/{post.sections.length}
+              </span>
             </div>
           </aside>
 
           <article className="forum-article">
-            <Link to="/blog" className="article-back-link">
-              <ArrowLeft size={18} />
-              {t.blogPage.btnAll}
-            </Link>
-            <h1 className="article-title">{post.title}</h1>
-            <div className="article-byline">
-              <span><UserRound size={16} /> {t.blogPage.authorLabel} {post.author}</span>
-              <span><CalendarDays size={16} /> {post.date}</span>
-            </div>
-            <p className="article-keywords">
-              <strong>Keywords:</strong> {post.keywords.join(', ')}
-            </p>
-            <div className="article-meta">
-              <span className="category-badge">{post.category}</span>
-            </div>
+            <header className="editorial-article-hero">
+              <Link to="/blog" className="article-back-link">
+                <ArrowLeft size={18} />
+                {t.blogPage.btnAll}
+              </Link>
 
-            {post.sections.map((section) => {
+              <div className="article-kicker-row">
+                <span className="article-kicker">{post.category}</span>
+                {post.updatedAt && (
+                  <span className="article-verified">
+                    <BadgeCheck size={15} />
+                    Đã kiểm chứng nguồn
+                  </span>
+                )}
+              </div>
+
+              <h1 className="article-title">{post.title}</h1>
+              <p className="article-dek">{post.excerpt}</p>
+
+              <div className="article-byline">
+                <span><UserRound size={16} /> {t.blogPage.authorLabel} {post.author}</span>
+                <span><CalendarDays size={16} /> {post.date}</span>
+                {post.readingTime && <span><Clock3 size={16} /> {post.readingTime}</span>}
+                {post.level && <span><GraduationCap size={16} /> {post.level}</span>}
+              </div>
+
+              {post.scope && (
+                <div className="article-scope-card">
+                  <FileText size={20} aria-hidden="true" />
+                  <div>
+                    <span>{post.scope.label}</span>
+                    <strong>{post.scope.title}</strong>
+                    <p>{post.scope.description}</p>
+                  </div>
+                </div>
+              )}
+
+              {post.highlights && (
+                <div className="article-highlight-grid">
+                  {post.highlights.map((item) => (
+                    <div key={item.label}>
+                      <strong>{item.value}</strong>
+                      <span>{item.label}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="article-keyword-list" aria-label="Từ khóa bài viết">
+                {post.keywords.map((keyword) => (
+                  <span key={keyword}>{keyword}</span>
+                ))}
+              </div>
+            </header>
+
+            <div className="editorial-article-body">
+            {post.sections.map((section, sectionIndex) => {
               const sectionId = getSectionId(section.heading);
               const isCopied = copiedSectionId === sectionId;
               return (
                 <section key={section.heading} id={sectionId} className="article-section">
-                  <h2 className="section-heading">
-                    <span>{section.heading}</span>
-                    <button
-                      type="button"
-                      className="section-anchor-btn"
-                      onClick={(e) => copySectionLink(e, section.heading)}
-                      title="Sao chép liên kết phần này"
-                    >
-                      {isCopied ? <Check size={18} className="text-success" /> : <LinkIcon size={18} />}
-                      {isCopied && <span className="copied-tooltip">Đã chép link!</span>}
-                    </button>
-                  </h2>
+                  <header className="article-section-header">
+                    <span className="article-section-number">
+                      {String(sectionIndex + 1).padStart(2, '0')}
+                    </span>
+                    <div>
+                      {section.eyebrow && <span className="article-section-kicker">{section.eyebrow}</span>}
+                      <h2 className="section-heading">
+                        <span>{section.heading}</span>
+                        <button
+                          type="button"
+                          className="section-anchor-btn"
+                          onClick={(e) => copySectionLink(e, section.heading)}
+                          title="Sao chép liên kết phần này"
+                        >
+                          {isCopied ? <Check size={18} className="text-success" /> : <LinkIcon size={18} />}
+                          {isCopied && <span className="copied-tooltip">Đã chép link!</span>}
+                        </button>
+                      </h2>
+                      {section.summary && <p>{section.summary}</p>}
+                    </div>
+                  </header>
+
                   <div className="article-body">
-                    {section.body.split('\n\n').map((paragraph, pIdx) => (
-                      <div key={pIdx} className="article-paragraph">
-                        <MathRenderer text={paragraph} />
-                      </div>
-                    ))}
+                    {section.blocks
+                      ? section.blocks.map((block, blockIndex) => (
+                          <ArticleBlock
+                            block={block}
+                            key={`${section.heading}-${block.type}-${blockIndex}`}
+                          />
+                        ))
+                      : section.body.split('\n\n').map((paragraph, pIdx) => (
+                          <div key={pIdx} className="article-paragraph">
+                            <MathRenderer text={paragraph} />
+                          </div>
+                        ))}
                   </div>
                 </section>
               );
             })}
+            </div>
 
             <div className="related-section">
+              <span className="related-kicker">Đọc tiếp</span>
               <h2>{t.blogPage.relatedTitle}</h2>
               <div className="related-posts">
                 {relatedPosts.map((item) => (
                   <Link to={`/blog/${item.slug}`} key={item.slug}>
-                    {item.title}
+                    <span>{item.category}</span>
+                    <strong>{item.title}</strong>
                   </Link>
                 ))}
               </div>

@@ -1,3 +1,5 @@
+import { economicsDerivativePost } from './economicsDerivativePost';
+
 export const blogPosts = [
   {
     slug: 'ung-dung-vi-mo-vi-mo-trong-toan-ung-dung-k51',
@@ -1381,5 +1383,9 @@ export const blogPosts = [
     ]
   }
 ];
+
+// The first article keeps its established URL while using the audited,
+// chapter-scoped editorial version maintained in a dedicated data module.
+blogPosts[0] = economicsDerivativePost;
 
 export const getBlogPostBySlug = (slug) => blogPosts.find((post) => post.slug === slug);
