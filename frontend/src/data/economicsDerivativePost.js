@@ -2,7 +2,7 @@ const math = String.raw;
 
 export const economicsDerivativePost = {
   slug: 'ung-dung-vi-mo-vi-mo-trong-toan-ung-dung-k51',
-  title: 'Đạo hàm trong kinh tế vi mô và vĩ mô: từ đại lượng biên đến cách đọc đề K46–K51',
+  title: 'Đạo hàm kinh tế: Đại lượng biên, co giãn và lời giải đề K46–K51',
   category: 'Chuyên khảo · Chương 5',
   date: '23/07/2026',
   updatedAt: 'Đã đối chiếu nguồn ngày 23/07/2026',
@@ -18,7 +18,7 @@ export const economicsDerivativePost = {
     'MPC & MPS',
     'Đề K46–K51'
   ],
-  image: '/images/math_banner.svg',
+  image: '/images/economics-derivative-cover.svg',
   excerpt:
     'Một chuyên khảo có kiểm chứng nguồn về cách đạo hàm biến các quan hệ kinh tế thành quyết định: chi phí, doanh thu, lợi nhuận, năng suất, tiêu dùng, tiết kiệm và độ co giãn. Phần cuối hệ thống lại đúng các dạng đề trong tài liệu K46–K51 và chỉ rõ những bẫy ký hiệu dễ làm sai.',
   scope: {
@@ -1326,6 +1326,28 @@ export const economicsDerivativePost = {
             ['“Lợi nhuận lớn nhất”', '$MR=MC$ rồi kiểm tra điều kiện đủ'],
             ['“AC nhỏ nhất”', "$AC'=(MC-AC)/q$"],
           ],
+        },
+        {
+          type: 'steps',
+          title: 'Chín chú ý quan trọng thường bị bỏ sót',
+          items: [
+            'Biên tế là một tốc độ thay đổi tại chỗ. Viết $\\Delta C\\approx MC(Q_0)\\Delta Q$ là xấp xỉ quanh $Q_0$, không phải đẳng thức chính xác cho mọi mức tăng sản lượng.',
+            'Độ co giãn chỉ có nghĩa khi các đại lượng dùng để chuẩn hóa khác 0. Công thức ngược $dQ/dP=1/P\'(Q)$ còn đòi hỏi $P\'(Q)\\ne0$ tại điểm xét.',
+            'Với $F(x,y)=0$, công thức $dy/dx=-F_x/F_y$ chỉ dùng được khi $F_y\\ne0$ và đang xét đúng nhánh hàm kinh tế.',
+            'Điều kiện $f\'(x)=0$ chỉ là điều kiện cần cho cực trị nội miền của hàm khả vi. Luôn so sánh thêm điểm biên, điểm không khả vi và các ràng buộc như $Q\\ge0$.',
+            'Nếu sản lượng, lao động hoặc số máy chỉ nhận giá trị nguyên, nghiệm giải tích là mốc định hướng; phải kiểm tra các giá trị nguyên khả thi lân cận và điểm biên.',
+            'Khi $f\'\'(x_0)=0$, phép thử đạo hàm bậc hai chưa kết luận được. Cần xét dấu $f\'$ quanh $x_0$ hoặc dùng tiêu chuẩn khác.',
+            '$MR=MC$ chỉ xác định một ứng viên tối ưu nội miền. Phải kiểm tra $\\pi\'\'<0$, dấu đổi của $MR-MC$, miền xác định và khả năng nghiệm nằm ngoài miền kinh tế.',
+            'Chi phí cố định làm thay đổi $AC$ và mức lợi nhuận nhưng biến mất khỏi $MC=C\'(Q)$. Vì vậy tăng chi phí cố định không tự động dịch chuyển đường MC.',
+            '“Đại lượng biên giảm” nghĩa là đạo hàm của đại lượng biên âm, chẳng hạn $MR\'<0$; tổng doanh thu vẫn có thể tăng nếu bản thân $MR>0$.',
+          ],
+        },
+        {
+          type: 'insight',
+          tone: 'rose',
+          title: 'Nguyên tắc kiểm tra cuối: điều kiện – đơn vị – miền',
+          content:
+            'Trước khi khoanh đáp án, hãy hỏi ba câu: công thức vừa dùng cần điều kiện gì; kết quả đang mang đơn vị tuyệt đối hay phần trăm; và nghiệm có thuộc miền kinh tế hay không. Ba phép kiểm tra này bắt được phần lớn bẫy về đạo hàm ngược, hàm ẩn, co giãn và cực trị.',
         },
         {
           type: 'comparison',

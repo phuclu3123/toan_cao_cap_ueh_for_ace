@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   AlertTriangle,
   ArrowUpRight,
@@ -7,8 +6,6 @@ import {
   CheckCircle2,
   ChevronDown,
   Lightbulb,
-  Maximize2,
-  Minimize2,
   Quote,
   Route,
   Target,
@@ -28,7 +25,7 @@ function InsightBlock({ block }) {
         <Icon size={18} />
       </span>
       <div>
-        <h3>{block.title}</h3>
+        <h3>{renderMath(block.title)}</h3>
         <div>{renderMath(block.content)}</div>
       </div>
     </aside>
@@ -63,7 +60,7 @@ function ComparisonBlock({ block }) {
 function StepsBlock({ block }) {
   return (
     <div className="editorial-steps">
-      {block.title && <h3>{block.title}</h3>}
+      {block.title && <h3>{renderMath(block.title)}</h3>}
       <ol>
         {block.items.map((item, index) => (
           <li key={item}>
@@ -106,7 +103,7 @@ function WorkedExampleBlock({ block }) {
         </span>
         <div>
           <span className="worked-example-kicker">{block.meta || 'Ví dụ minh họa · có lời giải'}</span>
-          <h3>{block.title}</h3>
+          <h3>{renderMath(block.title)}</h3>
         </div>
         <span className="worked-example-toggle" aria-hidden="true">
           <ChevronDown size={19} />
@@ -173,19 +170,19 @@ function DiagramArtwork({ kind }) {
     return (
       <svg viewBox="0 0 760 360" role="img" aria-label="Giao điểm doanh thu biên và chi phí biên">
         <path d="M80 35 V302 H710" className="diagram-axis" />
-        <path d="M125 78 L655 276" className="diagram-line diagram-line-accent" />
-        <path d="M125 274 C305 258 480 202 655 72" className="diagram-line diagram-line-warm" />
-        <path d="M405 218 V302" className="diagram-guide" />
-        <circle cx="405" cy="218" r="8" className="diagram-point" />
+        <path d="M120 80 L650 280" className="diagram-line diagram-line-accent" />
+        <path d="M120 280 C250 270 330 230 390 182 C470 125 560 90 650 65" className="diagram-line diagram-line-warm" />
+        <path d="M390 182 V302" className="diagram-guide" />
+        <circle cx="390" cy="182" r="8" className="diagram-point" />
         <text x="660" y="286" className="diagram-series-label diagram-accent-text">MR</text>
         <text x="650" y="62" className="diagram-series-label diagram-warm-text">MC</text>
-        <text x="405" y="328" textAnchor="middle" className="diagram-axis-label">q*</text>
+        <text x="390" y="328" textAnchor="middle" className="diagram-axis-label">q*</text>
         <text x="92" y="24" className="diagram-axis-label">Giá trị biên</text>
         <text x="672" y="327" className="diagram-axis-label">Sản lượng q</text>
-        <text x="262" y="178" textAnchor="middle" className="diagram-zone-label">MR &gt; MC</text>
-        <text x="548" y="187" textAnchor="middle" className="diagram-zone-label">MR &lt; MC</text>
-        <rect x="337" y="112" width="136" height="46" rx="12" className="diagram-label-box" />
-        <text x="405" y="141" textAnchor="middle" className="diagram-equation">MR = MC</text>
+        <text x="245" y="164" textAnchor="middle" className="diagram-zone-label">MR &gt; MC</text>
+        <text x="535" y="178" textAnchor="middle" className="diagram-zone-label">MR &lt; MC</text>
+        <rect x="322" y="105" width="136" height="46" rx="12" className="diagram-label-box" />
+        <text x="390" y="134" textAnchor="middle" className="diagram-equation">MR = MC</text>
       </svg>
     );
   }
@@ -194,17 +191,17 @@ function DiagramArtwork({ kind }) {
     return (
       <svg viewBox="0 0 760 360" role="img" aria-label="Chi phí biên cắt chi phí trung bình tại điểm đáy">
         <path d="M80 35 V302 H710" className="diagram-axis" />
-        <path d="M120 78 C235 274 425 286 655 92" className="diagram-line diagram-line-accent" />
-        <path d="M145 280 C335 258 475 190 650 62" className="diagram-line diagram-line-warm" />
-        <path d="M396 216 V302" className="diagram-guide" />
-        <circle cx="396" cy="216" r="8" className="diagram-point" />
+        <path d="M120 85 Q385 375 650 85" className="diagram-line diagram-line-accent" />
+        <path d="M140 290 C250 280 320 255 385 230 C480 190 565 130 650 65" className="diagram-line diagram-line-warm" />
+        <path d="M385 230 V302" className="diagram-guide" />
+        <circle cx="385" cy="230" r="8" className="diagram-point" />
         <text x="655" y="104" className="diagram-series-label diagram-accent-text">AC</text>
         <text x="650" y="52" className="diagram-series-label diagram-warm-text">MC</text>
-        <text x="396" y="328" textAnchor="middle" className="diagram-axis-label">q₀</text>
+        <text x="385" y="328" textAnchor="middle" className="diagram-axis-label">q₀</text>
         <text x="98" y="25" className="diagram-axis-label">Chi phí</text>
         <text x="668" y="327" className="diagram-axis-label">q</text>
-        <rect x="318" y="130" width="156" height="48" rx="12" className="diagram-label-box" />
-        <text x="396" y="160" textAnchor="middle" className="diagram-equation">MC = AC</text>
+        <rect x="307" y="145" width="156" height="48" rx="12" className="diagram-label-box" />
+        <text x="385" y="175" textAnchor="middle" className="diagram-equation">MC = AC</text>
       </svg>
     );
   }
@@ -260,8 +257,8 @@ function DiagramArtwork({ kind }) {
   return (
     <svg viewBox="0 0 760 360" role="img" aria-label="Đường cong và tiếp tuyến biểu diễn xấp xỉ cục bộ">
       <path d="M80 35 V302 H710" className="diagram-axis" />
-      <path d="M105 275 C230 250 310 202 395 152 C490 96 585 78 680 82" className="diagram-line diagram-line-accent" />
-      <path d="M175 278 L622 52" className="diagram-line diagram-line-warm diagram-dashed" />
+      <path d="M105 275 C220 255 315 205 395 152 C490 90 585 75 680 82" className="diagram-line diagram-line-accent" />
+      <path d="M175 262 L622 38.5" className="diagram-line diagram-line-warm diagram-dashed" />
       <path d="M395 152 V302 M395 152 H80" className="diagram-guide" />
       <circle cx="395" cy="152" r="8" className="diagram-point" />
       <text x="620" y="76" className="diagram-series-label diagram-warm-text">Tiếp tuyến</text>
@@ -277,24 +274,13 @@ function DiagramArtwork({ kind }) {
 }
 
 function DiagramBlock({ block }) {
-  const [isExpanded, setIsExpanded] = useState(false);
-
   return (
-    <figure className={`economic-diagram ${isExpanded ? 'is-expanded' : ''}`}>
+    <figure className="economic-diagram">
       <div className="economic-diagram-heading">
         <div>
           <span>Minh họa trực quan</span>
           <h3>{block.title}</h3>
         </div>
-        <button
-          type="button"
-          onClick={() => setIsExpanded((value) => !value)}
-          aria-expanded={isExpanded}
-          title={isExpanded ? 'Thu nhỏ hình' : 'Phóng lớn hình'}
-        >
-          {isExpanded ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
-          <span>{isExpanded ? 'Thu nhỏ' : 'Phóng lớn'}</span>
-        </button>
       </div>
       <div className="economic-diagram-canvas">
         <DiagramArtwork kind={block.kind} />
@@ -310,7 +296,7 @@ function ExamBlock({ block }) {
       <summary>
         <div className="exam-dossier-heading">
           <span className="exam-dossier-meta">{block.meta}</span>
-          <h3>{block.title}</h3>
+          <h3>{renderMath(block.title)}</h3>
           <div className="exam-dossier-chips">
             {block.skill && <span>{block.skill}</span>}
             {block.difficulty && <span>{block.difficulty}</span>}

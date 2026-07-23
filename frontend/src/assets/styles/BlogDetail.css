@@ -965,26 +965,10 @@
   box-shadow: 0 12px 30px color-mix(in srgb, var(--article-ink) 6%, transparent);
 }
 
-.economic-diagram.is-expanded {
-  position: fixed;
-  inset: 24px;
-  z-index: 2200;
-  width: min(1120px, calc(100vw - 48px));
-  max-height: calc(100vh - 48px);
-  margin: auto;
-  overflow: auto;
-  box-shadow:
-    0 0 0 100vmax rgba(4, 10, 7, 0.72),
-    0 35px 90px rgba(0, 0, 0, 0.4);
-}
-
 .economic-diagram-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-  padding: 17px 19px;
+  padding: 15px 19px 14px;
   border-bottom: 1px solid var(--article-line);
+  background: color-mix(in srgb, var(--article-soft) 55%, var(--article-paper));
 }
 
 .economic-diagram-heading > div > span {
@@ -1005,39 +989,14 @@
   line-height: 1.4;
 }
 
-.economic-diagram-heading button {
-  display: inline-flex;
-  flex: 0 0 auto;
-  align-items: center;
-  gap: 7px;
-  padding: 8px 11px;
-  border: 1px solid var(--article-line);
-  border-radius: 10px;
-  background: var(--article-soft);
-  color: var(--article-muted);
-  font: inherit;
-  font-size: 0.68rem;
-  font-weight: 760;
-  cursor: pointer;
-}
-
-.economic-diagram-heading button:hover {
-  border-color: color-mix(in srgb, var(--article-accent) 35%, var(--article-line));
-  color: var(--article-accent);
-}
-
 .economic-diagram-canvas {
-  padding: 18px 22px 8px;
+  padding: 14px 20px 5px;
   background:
     linear-gradient(var(--article-line) 1px, transparent 1px),
     linear-gradient(90deg, var(--article-line) 1px, transparent 1px),
     var(--article-paper);
   background-size: 28px 28px;
   background-position: -1px -1px;
-}
-
-.economic-diagram.is-expanded .economic-diagram-canvas {
-  padding: 32px 5%;
 }
 
 .economic-diagram svg {
@@ -1406,7 +1365,7 @@
   border-left: 1px solid var(--article-line);
 }
 
-.exam-brief-grid span {
+.exam-brief-grid > div > span {
   display: block;
   margin-bottom: 5px;
   color: var(--article-accent);
@@ -1820,23 +1779,11 @@
     padding: 16px;
   }
 
-  .economic-diagram.is-expanded {
-    inset: 10px;
-    width: calc(100vw - 20px);
-    max-height: calc(100vh - 20px);
-  }
-
   .economic-diagram-heading {
-    align-items: flex-start;
     padding: 15px;
   }
 
-  .economic-diagram-heading button span {
-    display: none;
-  }
-
-  .economic-diagram-canvas,
-  .economic-diagram.is-expanded .economic-diagram-canvas {
+  .economic-diagram-canvas {
     padding: 10px 6px 2px;
   }
 

@@ -17,6 +17,7 @@ import { blogPosts, getBlogPostBySlug } from '../data/blogPosts';
 import { LanguageContext } from '../App';
 import { translations } from '../utils/translations';
 import ArticleBlock from '../components/ArticleBlock';
+import BlogEngagement from '../components/BlogEngagement';
 import MathRenderer from '../components/MathRenderer';
 import '../assets/styles/Home.css';
 import '../assets/styles/BlogDetail.css';
@@ -339,6 +340,8 @@ export default function BlogDetailPage() {
               );
             })}
             </div>
+
+            {post.sections && <BlogEngagement slug={post.slug} title={post.title} />}
 
             <div className="related-section">
               <span className="related-kicker">Đọc tiếp</span>

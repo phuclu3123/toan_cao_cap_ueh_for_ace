@@ -8,6 +8,7 @@ import authRoutes from './routes/authRoutes.js';
 import resourceRoutes from './routes/resourceRoutes.js';
 import contactRoutes from './routes/contactRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
+import blogEngagementRoutes from './routes/blogEngagementRoutes.js';
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ app.use(express.json());
 app.use('/api', authRoutes);
 app.use('/api', resourceRoutes);
 app.use('/api', contactRoutes);
+app.use('/api', blogEngagementRoutes);
 app.use('/', paymentRoutes);
 
 // Health check endpoint
