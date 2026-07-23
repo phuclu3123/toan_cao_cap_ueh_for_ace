@@ -414,6 +414,47 @@ portfolio_vol = np.sqrt(portfolio_var)`,
         },
         {
           type: 'formula',
+          label: 'Phương trình đặc trưng để tìm trị riêng',
+          content: math`$$\det(A-\lambda I_d)=0$$`,
+          note:
+            'Các nghiệm λ của characteristic equation là eigenvalues của A. Viết det(λI−A)=0 cũng tương đương vì hai định thức chỉ khác hệ số dấu (−1)^d.',
+        },
+        {
+          type: 'formula',
+          label: 'Tìm vector riêng sau khi đã có λ',
+          content: math`$$(A-\lambda I_d)v=0,\qquad v\neq0$$`,
+          note:
+            'Mỗi nghiệm không tầm thường v là eigenvector ứng với λ; tương đương Av=λv.',
+        },
+        {
+          type: 'example',
+          open: true,
+          meta: 'Ví dụ trị riêng · ma trận 2×2',
+          title: 'Từ phương trình đặc trưng đến kết luận xác định dương',
+          prompt:
+            'Xét $A=\\begin{bmatrix}2&1\\\\1&2\\end{bmatrix}$. Hãy tìm eigenvalues và xác định dấu của quadratic form.',
+          method:
+            'Lập $A-\\lambda I$, cho determinant bằng 0, giải polynomial rồi kiểm tra dấu toàn bộ eigenvalues.',
+          steps: [
+            {
+              label: 'Lập phương trình đặc trưng',
+              content: '$\\det(A-\\lambda I)=\\det\\begin{bmatrix}2-\\lambda&1\\\\1&2-\\lambda\\end{bmatrix}=(2-\\lambda)^2-1=0$.',
+            },
+            {
+              label: 'Giải nghiệm',
+              content: '$(2-\\lambda)^2=1$ nên $\\lambda_1=1$ và $\\lambda_2=3$.',
+            },
+            {
+              label: 'Kết luận',
+              content: 'Cả hai eigenvalues đều dương, vì vậy $A\\succ0$ và $x^\\top Ax>0$ với mọi $x\\neq0$.',
+            },
+          ],
+          result: '$\\boxed{\\lambda(A)=\\{1,3\\}}\\quad\\Longrightarrow\\quad\\boxed{A\\succ0}$',
+          interpretation:
+            'Hai trị riêng là mức phạt theo hai principal directions. Trị riêng nhỏ nhất bằng 1 nên không có hướng khác 0 nào mang chi phí bằng 0.',
+        },
+        {
+          type: 'formula',
           label: 'Phân rã trị riêng của ma trận đối xứng',
           content: math`$$A=U\Lambda U^\top,\qquad \Lambda=\operatorname{diag}(\lambda_1,\ldots,\lambda_d),\qquad x^\top Ax=\sum_{k=1}^{d}\lambda_k(u_k^\top x)^2$$`,
           note:
