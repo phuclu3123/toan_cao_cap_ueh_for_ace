@@ -1540,6 +1540,53 @@
   flex: 0 0 auto;
 }
 
+.article-code-block {
+  overflow: hidden;
+  margin: 28px 0;
+  border: 1px solid var(--article-line);
+  border-radius: 14px;
+  background: #101820;
+  box-shadow: 0 14px 34px rgba(13, 24, 32, 0.1);
+}
+
+.article-code-block figcaption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 11px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: #17232d;
+  color: #d7e4e8;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+.article-code-block figcaption span {
+  font-size: 0.67rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.article-code-block figcaption small {
+  color: #90a8b2;
+  font-size: 0.64rem;
+}
+
+.article-code-block pre {
+  overflow-x: auto;
+  margin: 0;
+  padding: 20px;
+  color: #e5edf0;
+  font: 500 0.78rem/1.72 "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  tab-size: 4;
+}
+
+.article-code-block code {
+  font: inherit;
+  white-space: pre;
+}
+
 .forum-blog-page .related-section {
   margin: 0;
   padding: 48px 68px 58px;

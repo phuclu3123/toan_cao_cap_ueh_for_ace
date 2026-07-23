@@ -408,6 +408,20 @@ function SourceListBlock({ block }) {
   );
 }
 
+function CodeBlock({ block }) {
+  return (
+    <figure className="article-code-block">
+      <figcaption>
+        <span>{block.label || 'Python'}</span>
+        {block.note && <small>{block.note}</small>}
+      </figcaption>
+      <pre>
+        <code>{block.content}</code>
+      </pre>
+    </figure>
+  );
+}
+
 export default function ArticleBlock({ block }) {
   switch (block.type) {
     case 'paragraph':
@@ -453,6 +467,9 @@ export default function ArticleBlock({ block }) {
 
     case 'source-list':
       return <SourceListBlock block={block} />;
+
+    case 'code':
+      return <CodeBlock block={block} />;
 
     default:
       return null;

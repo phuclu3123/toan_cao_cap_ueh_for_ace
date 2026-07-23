@@ -1,0 +1,32 @@
+<svg width="1440" height="820" viewBox="0 0 1440 820" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1440" height="820" fill="#F5F1E8"/>
+  <path d="M0 0H1440V12H0V0Z" fill="#173F3A"/>
+  <g opacity=".55" stroke="#D9D2C4">
+    <path d="M80 120H1360M80 220H1360M80 320H1360M80 420H1360M80 520H1360M80 620H1360M80 720H1360"/>
+    <path d="M180 80V760M380 80V760M580 80V760M780 80V760M980 80V760M1180 80V760"/>
+  </g>
+  <rect x="76" y="80" width="568" height="680" rx="6" fill="#173F3A"/>
+  <text x="126" y="164" fill="#9FD1C6" font-family="Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="4">QUANT FINANCE · VN30</text>
+  <text x="126" y="256" fill="#F9F6EF" font-family="Georgia, serif" font-size="68" font-weight="700">Thống kê</text>
+  <text x="126" y="330" fill="#F9F6EF" font-family="Georgia, serif" font-size="68" font-weight="700">đến rủi ro</text>
+  <path d="M126 382H585" stroke="#D4A65A" stroke-width="4"/>
+  <text x="126" y="448" fill="#E2ECE8" font-family="Arial, sans-serif" font-size="27">mean · variance · covariance</text>
+  <text x="126" y="494" fill="#E2ECE8" font-family="Arial, sans-serif" font-size="27">volatility · beta · common noise</text>
+  <text x="126" y="576" fill="#9FD1C6" font-family="Arial, sans-serif" font-size="19">TỪ CÔNG THỨC MẪU</text>
+  <text x="126" y="610" fill="#9FD1C6" font-family="Arial, sans-serif" font-size="19">ĐẾN Ý NGHĨA KINH TẾ</text>
+  <g transform="translate(730 128)">
+    <rect width="600" height="560" rx="8" fill="#FCFAF5" stroke="#BEB6A7" stroke-width="2"/>
+    <text x="42" y="60" fill="#173F3A" font-family="Arial, sans-serif" font-size="18" font-weight="700" letter-spacing="2">RISK DECOMPOSITION</text>
+    <path d="M58 466V116M58 466H550" stroke="#6A716E" stroke-width="2"/>
+    <path d="M76 405L124 387L172 414L220 338L268 354L316 276L364 301L412 214L460 246L508 154" stroke="#1E7066" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M76 438L124 421L172 431L220 402L268 418L316 385L364 396L412 363L460 378L508 338" stroke="#D4A65A" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <g fill="#1E7066">
+      <circle cx="76" cy="405" r="7"/><circle cx="124" cy="387" r="7"/><circle cx="172" cy="414" r="7"/><circle cx="220" cy="338" r="7"/><circle cx="268" cy="354" r="7"/><circle cx="316" cy="276" r="7"/><circle cx="364" cy="301" r="7"/><circle cx="412" cy="214" r="7"/><circle cx="460" cy="246" r="7"/><circle cx="508" cy="154" r="7"/>
+    </g>
+    <rect x="328" y="488" width="18" height="18" rx="3" fill="#1E7066"/>
+    <text x="356" y="503" fill="#424A47" font-family="Arial, sans-serif" font-size="16">common</text>
+    <rect x="438" y="488" width="18" height="18" rx="3" fill="#D4A65A"/>
+    <text x="466" y="503" fill="#424A47" font-family="Arial, sans-serif" font-size="16">idiosyncratic</text>
+  </g>
+  <text x="730" y="738" fill="#173F3A" font-family="Georgia, serif" font-size="28" font-style="italic">s² estimates σ²;  s = √s²</text>
+</svg>

@@ -1,4 +1,5 @@
 import { economicsDerivativePost } from './economicsDerivativePost';
+import { quantFinanceStatisticsPost } from './quantFinanceStatisticsPost';
 
 export const blogPosts = [
   {
@@ -1387,5 +1388,6 @@ export const blogPosts = [
 // The first article keeps its established URL while using the audited,
 // chapter-scoped editorial version maintained in a dedicated data module.
 blogPosts[0] = economicsDerivativePost;
+blogPosts.unshift(quantFinanceStatisticsPost);
 
 export const getBlogPostBySlug = (slug) => blogPosts.find((post) => post.slug === slug);
