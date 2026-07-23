@@ -58,8 +58,28 @@ export default function MathRenderer({ text, className = '' }) {
         }
       }
 
-      // Plain text part: parse markdown bold (**text**) and italic (*text*)
+      // Plain text part: parse bullet items (- item) and markdown bold (**text**) / italic (*text*)
       const parseFormattedText = (str) => {
+        // If string contains newlines with bullet items "- "
+        if (str.includes('\n- ') || str.startsWith('- ')) {
+          const lines = str.split('\n');
+          return lines.map((line, lIdx) => {
+            if (line.trim().startsWith('- ')) {
+              const content = line.trim().slice(2);
+              return (
+                <div key={lIdx} className="article-list-item">
+                  <span className="bullet-dash">•</span>
+                  <span>{parseFormattedTokens(content)}</span>
+                </div>
+              );
+            }
+            return <div key={lIdx}>{parseFormattedTokens(line)}</div>;
+          });
+        }
+        return parseFormattedTokens(str);
+      };
+
+      const parseFormattedTokens = (str) => {
         // Match **bold** or *italic*
         const tokenRegex = /(\*\*.*?\*\*|\*.*?\*)/g;
         const tokens = str.split(tokenRegex);
