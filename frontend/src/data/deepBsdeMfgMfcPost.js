@@ -443,14 +443,14 @@ check = np.cov(dW_correlated[:, 0, :], rowvar=False)`,
 &\quad \dot x_t = b(t,x_t,a_t), \qquad J(a) = g(x_T) + \int_0^T f(t,x_t,a_t)\,\mathrm dt \\[8pt]
 &\textbf{2. Hamiltonian Function:} \\
 &\quad H(t,x,p,a) = f(t,x,a) + p^\top b(t,x,a) \\[8pt]
-&\textbf{3. Canonical System (Adjoint SDE):} \\
+&\textbf{3. Canonical System (Adjoint ODE):} \\
 &\quad \dot x_t^\star = \nabla_p H(t,x_t^\star,p_t^\star,a_t^\star), \qquad \dot p_t^\star = -\nabla_x H(t,x_t^\star,p_t^\star,a_t^\star), \qquad p_T^\star = \nabla g(x_T^\star) \\[8pt]
 &\textbf{4. Minimum Principle Condition:} \\
 &\quad a_t^\star \in \arg\min_{a\in\mathcal A} H(t,x_t^\star,p_t^\star,a) \quad \text{a.e. } t.
 \end{aligned}
 $$`,
           note:
-            'Đây là Pontryagin Minimum Principle vì objective là cost cần tối thiểu. Nếu viết reward cần tối đa hóa hoặc đổi dấu Hamiltonian, tài liệu thường gọi Maximum Principle.',
+            'Ký hiệu đạo hàm: Dấu 1 chấm trên đầu (ví dụ \dot x_t = \mathrm dx_t/\mathrm dt) là đạo hàm bậc nhất theo thời gian, tức tốc độ thay đổi của trạng thái x_t hoặc shadow price p_t. Đây là Pontryagin Minimum Principle vì objective là cost cần tối thiểu.',
         },
         {
           type: 'comparison',
@@ -480,12 +480,14 @@ a-a_t^\star
           label: 'Bài toán control',
           content: math`$$
 \begin{aligned}
-&\textbf{1. Objective Function:} \qquad \inf_{\alpha\in\mathcal A} J(\alpha) = \mathbb E\!\left[\int_0^T \ell(t,X_t,\alpha_t)\,\mathrm dt + g(X_T)\right] \\[6pt]
-&\textbf{2. Stochastic Dynamics:} \qquad \mathrm dX_t = b(t,X_t,\alpha_t)\,\mathrm dt + \sigma(t,X_t,\alpha_t)\,\mathrm dW_t
+&\textbf{1. Objective Function:} \\
+&\quad \inf_{\alpha\in\mathcal A} J(\alpha) = \mathbb E\!\left[\int_0^T \ell(t,X_t,\alpha_t)\,\mathrm dt + g(X_T)\right] \\[6pt]
+&\textbf{2. Stochastic Dynamics:} \\
+&\quad \mathrm dX_t = b(t,X_t,\alpha_t)\,\mathrm dt + \sigma(t,X_t,\alpha_t)\,\mathrm dW_t
 \end{aligned}
 $$`,
           note:
-            'Ta viết bài toán minimization; với maximization, dấu và điều kiện Hamiltonian đổi tương ứng.',
+            'Giải thích ký hiệu: X_t là quá trình trạng thái (state); \alpha_t là biến điều khiển (control policy); \ell là running cost (chi phí tức thời); g(X_T) là terminal cost tại thời điểm T; W_t là quá trình ngẫu nhiên Brownian motion.',
         },
         {
           type: 'formula',
@@ -591,12 +593,14 @@ $$`,
           label: 'Dynamics và objective LQ',
           content: math`$$
 \begin{aligned}
-&\textbf{1. State Dynamics:} \qquad \mathrm dX_t = (BX_t + D\alpha_t)\,\mathrm dt + \Sigma\,\mathrm dW_t \\[6pt]
-&\textbf{2. Global Objective Function:} \qquad J(\alpha) = \mathbb E\!\left[\int_0^T (X_t^\top Q X_t + \alpha_t^\top R \alpha_t)\,\mathrm dt + X_T^\top A X_T\right]
+&\textbf{1. State Dynamics:} \\
+&\quad \mathrm dX_t = (BX_t + D\alpha_t)\,\mathrm dt + \Sigma\,\mathrm dW_t \\[6pt]
+&\textbf{2. Global Objective Function:} \\
+&\quad J(\alpha) = \mathbb E\!\left[\int_0^T (X_t^\top Q X_t + \alpha_t^\top R \alpha_t)\,\mathrm dt + X_T^\top A X_T\right]
 \end{aligned}
 $$`,
           note:
-            'Thường yêu cầu R≻0, Q⪰0 và A⪰0 để bài toán lồi theo control/state cost.',
+            'Giải thích ký hiệu: R \succ 0 là ma trận chi phí giao dịch tức thời (temporary execution cost); Q \succeq 0 là ma trận phạt rủi ro nắm giữ vị thế (inventory risk); A \succeq 0 là phạt vị thế dư thừa cuối kỳ (terminal penalty).',
         },
         {
           type: 'formula',
@@ -610,12 +614,14 @@ $$`,
           label: 'Riccati differential equation',
           content: math`$$
 \begin{aligned}
-&\textbf{1. Backward Riccati Differential ODE:} \qquad -\dot P_t = B^\top P_t + P_t B - P_t D R^{-1} D^\top P_t + Q \\[6pt]
-&\textbf{2. Terminal Condition:} \qquad P_T = A
+&\textbf{1. Backward Riccati Differential ODE:} \\
+&\quad -\dot P_t = B^\top P_t + P_t B - P_t D R^{-1} D^\top P_t + Q \\[6pt]
+&\textbf{2. Terminal Condition:} \\
+&\quad P_T = A
 \end{aligned}
 $$`,
           note:
-            'Công thức ứng với objective không có hệ số 1/2 và control law bên dưới; convention khác có thể đổi hệ số.',
+            'Giải thích ký hiệu: P_t là nghiệm ma trận Riccati (mã hóa độ cong shadow-cost tại thời điểm t); \dot P_t = \mathrm dP_t/\mathrm dt là đạo hàm theo thời gian của P_t; A là điều kiện biên cuối kỳ P_T = A.',
         },
         {
           type: 'formula',
@@ -704,12 +710,14 @@ $$`,
           label: 'Price shock và hai loại market impact',
           content: math`$$
 \begin{aligned}
-&\textbf{1. Fundamental Price (Permanent Impact):} \qquad S_k = S_{k-1} + \Sigma_{\rm price}^{1/2}\sqrt{\tau}\,\xi_k - \Gamma n_k, \quad \xi_k\overset{\mathrm{iid}}{\sim}\mathcal N(0,I_d) \\[6pt]
-&\textbf{2. Execution Price (Spread \& Temporary Impact):} \qquad \widetilde S_k = S_{k-1} - \varepsilon\odot\operatorname{sign}(n_k) - H\alpha_k
+&\textbf{1. Fundamental Price (Permanent Impact):} \\
+&\quad S_k = S_{k-1} + \Sigma_{\rm price}^{1/2}\sqrt{\tau}\,\xi_k - \Gamma n_k, \qquad \xi_k\overset{\mathrm{iid}}{\sim}\mathcal N(0,I_d) \\[8pt]
+&\textbf{2. Execution Price (Spread \& Temporary Impact):} \\
+&\quad \widetilde S_k = S_{k-1} - \varepsilon\odot\operatorname{sign}(n_k) - H\alpha_k
 \end{aligned}
 $$`,
           note:
-            'S là mid/fundamental price đã chịu permanent impact; S̃ là execution price còn chịu spread và temporary impact. Đây là convention tuyến tính; dấu và timing phải được khóa nhất quán.',
+            'Giải thích ký hiệu kinh tế: S_k là fundamental/mid price (giá cơ sở đã chịu permanent impact \\Gamma n_k); \\widetilde S_k là execution price (giá khớp lệnh thực tế chịu thêm spread \\varepsilon và temporary impact H\\alpha_k); \\xi_k \\sim \\mathcal N(0, I_d) là cú sốc giá ngẫu nhiên; n_k là khối lượng bán bước k; \\alpha_k = n_k/\\tau là tốc độ giao dịch.',
         },
         {
           type: 'formula',
@@ -755,25 +763,30 @@ $$`,
           label: 'Continuous-time LQ approximation',
           content: math`$$
 \begin{aligned}
-&\textbf{1. Objective Function:} \qquad \min_{\alpha} \int_0^T \left(\eta\alpha_t^2 + \lambda\sigma^2X_t^2\right)\mathrm dt \\[6pt]
-&\textbf{2. Boundary Constraints:} \qquad \dot X_t = -\alpha_t, \quad X_0 = x_0, \quad X_T = 0
+&\textbf{1. Objective Function:} \\
+&\quad \min_{\alpha} \int_0^T \left(\eta\alpha_t^2 + \lambda\sigma^2X_t^2\right)\mathrm dt \\[6pt]
+&\textbf{2. Boundary Constraints:} \\
+&\quad \dot X_t = -\alpha_t, \quad X_0 = x_0, \quad X_T = 0
 \end{aligned}
 $$`,
           note:
-            'η là temporary-impact scale; λ là risk aversion; σ là price volatility.',
+            'Giải thích ký hiệu: \alpha_t = -\dot X_t là tốc độ bán tại thời điểm t (với \dot X_t là đạo hàm bậc nhất của vị thế); \eta là temporary-impact scale (chi phí thanh khoản tức thời); \lambda là hệ số ngại rủi ro (risk aversion); \sigma là price volatility.',
         },
         {
           type: 'formula',
           label: 'Từ Euler–Lagrange đến quỹ đạo liên tục',
           content: math`$$
 \begin{aligned}
-&\textbf{1. Euler--Lagrange ODE:} \qquad \eta\,\ddot X_t - \lambda\sigma^2X_t = 0 \\[6pt]
-&\textbf{2. Boundary Conditions:} \qquad X(0) = x_0, \quad X(T) = 0 \\[6pt]
-&\textbf{3. Trading Rate:} \qquad \alpha_t = -\dot X_t
+&\textbf{1. Euler--Lagrange ODE:} \\
+&\quad \eta\,\ddot X_t - \lambda\sigma^2X_t = 0 \\[6pt]
+&\textbf{2. Boundary Conditions:} \\
+&\quad X(0) = x_0, \quad X(T) = 0 \\[6pt]
+&\textbf{3. Trading Rate:} \\
+&\quad \alpha_t = -\dot X_t
 \end{aligned}
 $$`,
           note:
-            'Dấu chấm là đạo hàm theo thời gian. Phương trình nói rằng độ cong của lịch thanh lý được quyết định bởi tỷ lệ inventory risk trên temporary liquidity cost.',
+            'Giải thích ký hiệu đạo hàm: Dấu 1 chấm trên đầu \dot X_t = \mathrm dX_t/\mathrm dt = -\alpha_t là tốc độ bán (trading velocity); dấu 2 chấm trên đầu \ddot X_t = \mathrm d^2X_t/\mathrm dt^2 là gia tốc bán (trading acceleration). Phương trình nói rằng độ cong lịch bán được quyết định bởi tỷ lệ inventory risk trên temporary liquidity cost.',
         },
         {
           type: 'formula',
