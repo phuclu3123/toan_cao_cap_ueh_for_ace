@@ -74,11 +74,11 @@ export const deepBsdeMfgMfcPost = {
           type: 'formula',
           label: 'Ba lớp của một bài toán điều khiển ngẫu nhiên',
           content: math`$$
-\underbrace{\mathrm dX_t=b(t,X_t,\alpha_t,\mu_t)\,\mathrm dt+\sigma(t,X_t,\mu_t)\,\mathrm dW_t}_{\text{state dynamics}}
-\quad+\quad
-\underbrace{J(\alpha)=\mathbb E\!\left[\int_0^T f(t,X_t,\alpha_t,\mu_t)\,\mathrm dt+g(X_T,\mu_T)\right]}_{\text{objective}}
-\quad+\quad
-\underbrace{\alpha_t\in\mathcal A}_{\text{admissible policy}}
+\begin{aligned}
+&\underbrace{\mathrm dX_t=b(t,X_t,\alpha_t,\mu_t)\,\mathrm dt+\sigma(t,X_t,\mu_t)\,\mathrm dW_t}_{\text{state dynamics}} \\[1.2em]
+{}+{} &\underbrace{J(\alpha)=\mathbb E\!\left[\int_0^T f(t,X_t,\alpha_t,\mu_t)\,\mathrm dt+g(X_T,\mu_T)\right]}_{\text{objective}} \\[1.2em]
+{}+{} &\underbrace{\alpha_t\in\mathcal A}_{\text{admissible policy}}
+\end{aligned}
 $$`,
           note:
             'X là state, α là control, μ là phân phối quần thể hoặc law feature, còn W là nguồn ngẫu nhiên Brownian.',
