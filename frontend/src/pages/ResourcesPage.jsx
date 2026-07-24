@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState, useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Download, Grid, HelpCircle, List, Search } from 'lucide-react';
 import DocCard from '../components/DocCard';
-import { documentsData as localDocs, midtermExams as localMidterms, finalExams as localFinals } from '../data/documentsData';
+import { documentsData as localDocs } from '../data/documentsData';
 import { API_BASE_URL } from '../config';
 import { formatResourceDate, sortResourcesByNewest } from '../utils/resourceDate';
 import { mergeResourceItems } from '../utils/resourceMerge';
@@ -11,9 +11,7 @@ import { translations } from '../utils/translations';
 import BrandLoader from '../components/ui/BrandLoader';
 import '../assets/styles/Resources.css';
 
-const itemsPerPage = 6;
-
-const midtermCovers = ['tccvang.jpg', 'c123.jpg', 'c4678.jpg', 'bg.jpg'];
+const itemsPerPage = 12;
 
 export default function ResourcesPage() {
   const { language } = useContext(LanguageContext);
@@ -21,8 +19,6 @@ export default function ResourcesPage() {
   const location = useLocation();
 
   const [docs, setDocs] = useState([]);
-  const [midterms, setMidterms] = useState([]);
-  const [finals, setFinals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('all');
