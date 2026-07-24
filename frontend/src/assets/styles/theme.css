@@ -1,0 +1,42 @@
+/* Light Theme (Porcelain & Ink) vs Dark Theme (Deep Navy & Ink) */
+:root {
+  /* Dark Mode Default Variables */
+  --color-canvas: #090d16;
+  --color-canvas-subtle: #111827;
+  --color-surface: #1e293b;
+  --color-surface-raised: #334155;
+  --color-text: #f8fafc;
+  --color-text-muted: #94a3b8;
+  --color-text-subtle: #64748b;
+  --color-border: #334155;
+  --color-border-strong: #475569;
+  --color-brand: #10b981;
+  --color-brand-hover: #059669;
+  --color-brand-active: #047857;
+  --color-focus: rgba(16, 185, 129, 0.4);
+  --color-info: #3b82f6;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+}
+
+:root.light-theme {
+  /* Light Mode Porcelain Variables */
+  --color-canvas: #f8fafc;
+  --color-canvas-subtle: #f1f5f9;
+  --color-surface: #ffffff;
+  --color-surface-raised: #f8fafc;
+  --color-text: #0f172a;
+  --color-text-muted: #475569;
+  --color-text-subtle: #94a3b8;
+  --color-border: #e2e8f0;
+  --color-border-strong: #cbd5e1;
+  --color-brand: #0d9488;
+  --color-brand-hover: #0f766e;
+  --color-brand-active: #115e59;
+  --color-focus: rgba(13, 148, 136, 0.3);
+  --color-info: #2563eb;
+  --color-success: #059669;
+  --color-warning: #d97706;
+  --color-danger: #dc2626;
+}

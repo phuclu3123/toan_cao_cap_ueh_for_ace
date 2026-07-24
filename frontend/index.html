@@ -8,6 +8,22 @@
     <meta name="keywords" content="Toán Cao Cấp, UEH TCC, Hỗ Trợ Học Tập, UEH, Lời Giải Toán Cao Cấp" />
     <title>UEH TCC - Hỗ Trợ Học Tập Toán Cao Cấp</title>
 
+    <!-- Pre-paint theme synchronization script (Prevents FOUC) -->
+    <script>
+      (function() {
+        try {
+          var savedTheme = localStorage.getItem('ueh_tcc_theme');
+          var theme = savedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+          if (theme === 'light') {
+            document.documentElement.classList.add('light-theme');
+          } else {
+            document.documentElement.classList.remove('light-theme');
+          }
+          document.documentElement.setAttribute('data-theme', theme);
+        } catch(e) {}
+      })();
+    </script>
+
     <!-- Google Fonts with full Vietnamese subset -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

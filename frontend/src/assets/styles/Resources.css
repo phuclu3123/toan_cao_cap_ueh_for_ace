@@ -67,7 +67,7 @@
 
 .quality-strip-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 520px);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 520px);
   gap: 2rem;
   align-items: end;
 }
@@ -226,8 +226,8 @@
 /* Grid Layout */
 .resources-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: 1.5rem;
 }
 
 /* List Layout */
@@ -404,6 +404,10 @@
 
 /* Responsive adjustment */
 @media (max-width: 768px) {
+  .quality-strip-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
   .resources-banner-title {
     font-size: 2rem;
   }

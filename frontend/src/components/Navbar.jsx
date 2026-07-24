@@ -169,7 +169,7 @@ export default function Navbar() {
     const query = searchQuery.trim();
     if (!query) return;
     setShowSearch(false);
-    navigate(`/resources?search=${encodeURIComponent(query)}`);
+    navigate(`/resources?q=${encodeURIComponent(query)}`);
   };
 
   const handleLoginSubmit = async (e) => {

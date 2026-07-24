@@ -2,40 +2,50 @@ import React, { createContext, useContext, useState, useEffect, lazy, Suspense }
 import { createHashRouter, RouterProvider, Outlet, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import FloatingActions from './components/FloatingActions';
+import ContactLauncher from './components/layout/ContactLauncher';
+import ScrollManager from './components/layout/ScrollManager';
 import Home from './pages/Home';
-import DocDetail from './pages/DocDetail';
 import GiftPage from './pages/GiftPage';
 import ResourcesPage from './pages/ResourcesPage';
 import CoursesPage from './pages/CoursesPage';
 import ExamsPage from './pages/ExamsPage';
 import BlogPage from './pages/BlogPage';
-import BlogDetailPage from './pages/BlogDetailPage';
 import PayOSApiPage from './pages/PayOSApiPage';
+import AboutPage from './pages/AboutPage';
+import NotFoundPage from './pages/NotFoundPage';
+import { safeLocalStorage, safeSessionStorage } from './utils/safeStorage';
 import './App.css';
 
 // Create Global Contexts
 export const LanguageContext = createContext();
 export const ThemeContext = createContext();
 
-// Dynamic chunk fetch error recovery wrapper
+// Dynamic chunk fetch error recovery wrapper with loop protection
 function safeLazy(importFunc) {
   return lazy(() =>
     importFunc().catch((error) => {
       const errorMsg = error.message || '';
-      if (
+      const isChunkError =
         error.name === 'TypeError' ||
         errorMsg.indexOf('Failed to fetch') !== -1 ||
-        errorMsg.indexOf('dynamically imported module') !== -1
-      ) {
-        console.warn('Chunk loading failed. Dynamic module mismatch, reloading page to fetch latest build...', error);
-        window.location.reload();
+        errorMsg.indexOf('dynamically imported module') !== -1;
+
+      if (isChunkError) {
+        const hasAttempted = safeSessionStorage.getItem('chunk_reload_attempted');
+        if (!hasAttempted) {
+          safeSessionStorage.setItem('chunk_reload_attempted', 'true');
+          console.warn('Chunk loading failed. Dynamic module mismatch, reloading page once...', error);
+          window.location.reload();
+          return new Promise(() => {});
+        }
       }
       throw error;
     })
   );
 }
 
+const BlogDetailPage = safeLazy(() => import('./pages/BlogDetailPage'));
+const DocDetail = safeLazy(() => import('./pages/DocDetail'));
 const ExamDetail = safeLazy(() => import('./pages/ExamDetail'));
 
 function Layout() {
@@ -47,11 +57,12 @@ function Layout() {
 
   return (
     <div className="app-container">
+      <ScrollManager />
       {showHeaderFooter && <Navbar />}
       <main className="main-content">
         <Outlet />
       </main>
-      {showHeaderFooter && <FloatingActions />}
+      {showHeaderFooter && <ContactLauncher />}
       {showHeaderFooter && <Footer />}
     </div>
   );
@@ -80,11 +91,19 @@ const router = createHashRouter([
       },
       {
         path: 'blog/:slug',
-        element: <BlogDetailPage />
+        element: (
+          <Suspense fallback={<div className="loading-doc text-center">Đang tải bài viết chuyên sâu...</div>}>
+            <BlogDetailPage />
+          </Suspense>
+        )
       },
       {
         path: 'payos-api',
         element: <PayOSApiPage />
+      },
+      {
+        path: 'about',
+        element: <AboutPage />
       },
       {
         path: 'resources',
@@ -92,7 +111,11 @@ const router = createHashRouter([
       },
       {
         path: 'document/:id',
-        element: <DocDetail />
+        element: (
+          <Suspense fallback={<div className="loading-doc text-center">Đang tải tài liệu...</div>}>
+            <DocDetail />
+          </Suspense>
+        )
       },
       {
         path: 'exam/:id',
@@ -108,22 +131,22 @@ const router = createHashRouter([
       },
       {
         path: '*',
-        element: <Home />
+        element: <NotFoundPage />
       }
     ]
   }
 ]);
 
 export function AppProviders({ children }) {
-  const [language, setLanguage] = useState(() => localStorage.getItem('ueh_tcc_lang') || 'vi');
-  const [theme, setTheme] = useState(() => localStorage.getItem('ueh_tcc_theme') || 'light');
+  const [language, setLanguage] = useState(() => safeLocalStorage.getItem('ueh_tcc_lang') || 'vi');
+  const [theme, setTheme] = useState(() => safeLocalStorage.getItem('ueh_tcc_theme') || 'light');
 
   useEffect(() => {
-    localStorage.setItem('ueh_tcc_lang', language);
+    safeLocalStorage.setItem('ueh_tcc_lang', language);
   }, [language]);
 
   useEffect(() => {
-    localStorage.setItem('ueh_tcc_theme', theme);
+    safeLocalStorage.setItem('ueh_tcc_theme', theme);
     if (theme === 'light') {
       document.documentElement.classList.add('light-theme');
     } else {

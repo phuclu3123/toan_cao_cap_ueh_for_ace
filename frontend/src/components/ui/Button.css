@@ -1,0 +1,117 @@
+.ui-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: var(--font-body, inherit);
+  font-weight: 600;
+  border-radius: var(--radius-md, 12px);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all var(--duration-fast, 150ms) var(--ease-default);
+  min-height: var(--touch-target-min, 44px);
+  padding: 0 1.25rem;
+  font-size: 0.95rem;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.ui-button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus, rgba(16, 185, 129, 0.4));
+}
+
+.ui-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Size Variants */
+.ui-button.size-sm {
+  min-height: 36px;
+  padding: 0 0.85rem;
+  font-size: 0.85rem;
+  border-radius: var(--radius-sm, 8px);
+}
+
+.ui-button.size-lg {
+  min-height: 52px;
+  padding: 0 1.75rem;
+  font-size: 1.05rem;
+  border-radius: var(--radius-md, 12px);
+}
+
+.ui-button.icon-only {
+  padding: 0;
+  width: var(--touch-target-min, 44px);
+}
+
+.ui-button.icon-only.size-sm {
+  width: 36px;
+}
+
+.ui-button.icon-only.size-lg {
+  width: 52px;
+}
+
+/* Color Variants */
+.ui-button.variant-primary {
+  background-color: var(--color-brand, #10b981);
+  color: #ffffff;
+}
+
+.ui-button.variant-primary:hover:not(:disabled) {
+  background-color: var(--color-brand-hover, #059669);
+}
+
+.ui-button.variant-secondary {
+  background-color: var(--color-surface-raised, #334155);
+  color: var(--color-text, #f8fafc);
+  border-color: var(--color-border, #334155);
+}
+
+.ui-button.variant-secondary:hover:not(:disabled) {
+  border-color: var(--color-border-strong, #475569);
+}
+
+.ui-button.variant-outline {
+  background-color: transparent;
+  color: var(--color-text, #f8fafc);
+  border-color: var(--color-border-strong, #475569);
+}
+
+.ui-button.variant-outline:hover:not(:disabled) {
+  border-color: var(--color-brand, #10b981);
+  color: var(--color-brand, #10b981);
+}
+
+.ui-button.variant-ghost {
+  background-color: transparent;
+  color: var(--color-text-muted, #94a3b8);
+}
+
+.ui-button.variant-ghost:hover:not(:disabled) {
+  color: var(--color-text, #f8fafc);
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.ui-button.variant-danger {
+  background-color: var(--color-danger, #ef4444);
+  color: #ffffff;
+}
+
+/* Spinner for loading state */
+.ui-button-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: ui-button-spin 0.75s linear infinite;
+}
+
+@keyframes ui-button-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

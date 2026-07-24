@@ -1,0 +1,29 @@
+.ui-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface, #1e293b) 25%,
+    var(--color-surface-raised, #334155) 37%,
+    var(--color-surface, #1e293b) 63%
+  );
+  background-size: 400% 100%;
+  animation: ui-skeleton-shimmer 1.4s ease infinite;
+  border-radius: var(--radius-sm, 8px);
+}
+
+.ui-skeleton.variant-circle {
+  border-radius: var(--radius-full, 9999px);
+}
+
+.ui-skeleton.variant-card {
+  border-radius: var(--radius-md, 12px);
+  height: 220px;
+}
+
+@keyframes ui-skeleton-shimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}

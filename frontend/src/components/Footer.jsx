@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { AlertCircle, CheckCircle, Mail, Phone, Send } from 'lucide-react';
 import { LanguageContext } from '../App';
 import { translations } from '../utils/translations';
+import { API_BASE_URL } from '../config';
 import '../assets/styles/Footer.css';
 
 export default function Footer() {
