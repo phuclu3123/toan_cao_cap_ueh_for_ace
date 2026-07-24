@@ -1,9 +1,12 @@
-import React, { createContext, useContext, useState, useEffect, lazy, Suspense } from 'react';
-import { createHashRouter, RouterProvider, Outlet, useLocation } from 'react-router-dom';
+import { createContext, useState, useEffect, lazy, Suspense } from 'react';
+import { createHashRouter, RouterProvider, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ContactLauncher from './components/layout/ContactLauncher';
 import ScrollManager from './components/layout/ScrollManager';
+import AppBootLifecycle from './components/layout/AppBootLifecycle';
+import MotionOrchestrator from './components/layout/MotionOrchestrator';
+import PageTransition from './components/layout/PageTransition';
 import Home from './pages/Home';
 import GiftPage from './pages/GiftPage';
 import ResourcesPage from './pages/ResourcesPage';
@@ -15,9 +18,12 @@ import AboutPage from './pages/AboutPage';
 import NotFoundPage from './pages/NotFoundPage';
 import { safeLocalStorage, safeSessionStorage } from './utils/safeStorage';
 import './App.css';
+import './assets/styles/experience.css';
 
 // Create Global Contexts
+// eslint-disable-next-line react-refresh/only-export-components
 export const LanguageContext = createContext();
+// eslint-disable-next-line react-refresh/only-export-components
 export const ThemeContext = createContext();
 
 // Dynamic chunk fetch error recovery wrapper with loop protection
@@ -57,10 +63,12 @@ function Layout() {
 
   return (
     <div className="app-container">
+      <AppBootLifecycle />
       <ScrollManager />
+      <MotionOrchestrator />
       {showHeaderFooter && <Navbar />}
-      <main className="main-content">
-        <Outlet />
+      <main id="main-content" className="main-content" tabIndex="-1">
+        <PageTransition />
       </main>
       {showHeaderFooter && <ContactLauncher />}
       {showHeaderFooter && <Footer />}
@@ -137,16 +145,19 @@ const router = createHashRouter([
   }
 ]);
 
-export function AppProviders({ children }) {
+function AppProviders({ children }) {
   const [language, setLanguage] = useState(() => safeLocalStorage.getItem('ueh_tcc_lang') || 'vi');
   const [theme, setTheme] = useState(() => safeLocalStorage.getItem('ueh_tcc_theme') || 'light');
 
   useEffect(() => {
     safeLocalStorage.setItem('ueh_tcc_lang', language);
+    document.documentElement.lang = language === 'zh' ? 'zh-Hans' : language;
   }, [language]);
 
   useEffect(() => {
     safeLocalStorage.setItem('ueh_tcc_theme', theme);
+    document.documentElement.setAttribute('data-theme', theme);
+    document.documentElement.style.colorScheme = theme;
     if (theme === 'light') {
       document.documentElement.classList.add('light-theme');
     } else {

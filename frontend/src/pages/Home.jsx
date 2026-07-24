@@ -4,7 +4,6 @@ import {
   ArrowRight,
   CheckCircle,
   Library,
-  Play,
   Search,
   Sparkles,
   Trophy,
@@ -55,6 +54,7 @@ export default function Home() {
   return (
     <div className="home-page enterprise-home">
       <section className="enterprise-hero">
+        <div className="hero-coordinate-grid" aria-hidden="true" />
         <div className="container enterprise-hero-grid">
           <div className="enterprise-copy">
             <span className="hero-badge">
@@ -81,14 +81,62 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="hero-video-panel" aria-label="Video giới thiệu UEH TCC">
-            <div className="hero-video-frame">
-              <img src="/images/hp.avif" alt="Video hướng dẫn học Toán Cao Cấp" />
-              <button type="button" aria-label="Xem video hướng dẫn">
-                <Play size={28} fill="currentColor" />
-              </button>
+          <div className="hero-learning-visual" aria-label="Không gian học tập định lượng UEH TCC">
+            <div className="learning-visual-toolbar">
+              <div className="visual-window-dots" aria-hidden="true">
+                <span />
+                <span />
+                <span />
+              </div>
+              <span>UEH TCC · Learning intelligence</span>
+              <span className="visual-live"><i /> Online</span>
             </div>
-            <div className="hero-video-caption">{t.home.watchVideo}</div>
+
+            <div className="learning-visual-body">
+              <div className="visual-primary-card">
+                <div className="visual-card-label">
+                  <span>QUANTITATIVE PATH</span>
+                  <strong>01 / 04</strong>
+                </div>
+                <div className="visual-formula" aria-label="Công thức rủi ro danh mục">
+                  x<sup>⊤</sup>Σx
+                </div>
+                <p>Statistics → Finance → Stochastic control</p>
+                <svg className="visual-curve" viewBox="0 0 420 118" role="img" aria-label="Đường học tập tăng dần">
+                  <defs>
+                    <linearGradient id="learningArea" x1="0" x2="0" y1="0" y2="1">
+                      <stop offset="0%" stopColor="currentColor" stopOpacity=".28" />
+                      <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
+                    </linearGradient>
+                  </defs>
+                  <path className="curve-grid" d="M0 96H420M0 64H420M0 32H420" />
+                  <path className="curve-area" d="M0 96C58 91 72 81 112 84C154 87 171 52 214 58C260 65 270 31 316 38C356 43 377 17 420 12V118H0Z" />
+                  <path className="curve-line" d="M0 96C58 91 72 81 112 84C154 87 171 52 214 58C260 65 270 31 316 38C356 43 377 17 420 12" />
+                  <circle cx="420" cy="12" r="5" />
+                </svg>
+              </div>
+
+              <div className="visual-side-stack">
+                <div className="visual-metric-card">
+                  <span>Học thuật</span>
+                  <strong>Deep BSDE</strong>
+                  <small>FBSDE · MFG · MFC</small>
+                </div>
+                <div className="visual-metric-card visual-metric-accent">
+                  <span>Thực hành</span>
+                  <strong>75 phút</strong>
+                  <small>Phòng thi tương tác</small>
+                </div>
+              </div>
+            </div>
+
+            <div className="learning-visual-footer">
+              <span><Sparkles size={14} /> Curated knowledge</span>
+              <span>VI · EN · JA · ZH</span>
+              <div className="visual-progress" aria-hidden="true">
+                <i />
+              </div>
+            </div>
           </div>
         </div>
       </section>

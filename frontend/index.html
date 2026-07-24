@@ -6,11 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Trang web hỗ trợ học tập Toán Cao Cấp cho sinh viên trường Đại học Kinh tế TP. Hồ Chí Minh (UEH). Cung cấp đề thi, tài liệu bổ trợ và lời giải chi tiết." />
     <meta name="keywords" content="Toán Cao Cấp, UEH TCC, Hỗ Trợ Học Tập, UEH, Lời Giải Toán Cao Cấp" />
+    <meta name="theme-color" content="#f4f2ec" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#07110f" media="(prefers-color-scheme: dark)" />
     <title>UEH TCC - Hỗ Trợ Học Tập Toán Cao Cấp</title>
 
     <!-- Pre-paint theme synchronization script (Prevents FOUC) -->
     <script>
       (function() {
+        window.__UEH_TCC_BOOT_STARTED__ = performance.now();
         try {
           var savedTheme = localStorage.getItem('ueh_tcc_theme');
           var theme = savedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
@@ -23,6 +26,119 @@
         } catch(e) {}
       })();
     </script>
+
+    <style>
+      #app-boot {
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        color: #0b1715;
+        background: #f4f2ec;
+        isolation: isolate;
+      }
+      [data-theme="dark"] #app-boot {
+        color: #effaf6;
+        background: #07110f;
+      }
+      #app-boot::before,
+      #app-boot::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+      #app-boot::before {
+        z-index: -2;
+        opacity: .7;
+        background:
+          radial-gradient(circle at 18% 22%, rgba(18, 132, 113, .13), transparent 31%),
+          radial-gradient(circle at 82% 78%, rgba(190, 143, 63, .12), transparent 27%);
+      }
+      #app-boot::after {
+        z-index: -1;
+        opacity: .14;
+        background-image:
+          linear-gradient(rgba(15, 118, 110, .18) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(15, 118, 110, .18) 1px, transparent 1px);
+        background-size: 48px 48px;
+        mask-image: radial-gradient(circle, #000 0%, transparent 70%);
+      }
+      .app-boot-inner {
+        width: min(430px, calc(100vw - 48px));
+        text-align: center;
+      }
+      .app-boot-mark {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 11px;
+        font-family: "Be Vietnam Pro", system-ui, sans-serif;
+        font-size: clamp(2.5rem, 9vw, 5rem);
+        font-weight: 800;
+        letter-spacing: -.075em;
+        line-height: 1;
+        animation: boot-mark-in .65s cubic-bezier(.16,1,.3,1) both;
+      }
+      .app-boot-mark span:last-child { color: #0f766e; }
+      [data-theme="dark"] .app-boot-mark span:last-child { color: #5ee0c1; }
+      .app-boot-kicker {
+        margin: 22px 0 18px;
+        font: 600 .69rem/1.4 "Inter", system-ui, sans-serif;
+        letter-spacing: .22em;
+        text-transform: uppercase;
+        opacity: .58;
+        animation: boot-copy-in .5s .12s ease both;
+      }
+      .app-boot-line {
+        position: relative;
+        width: 100%;
+        height: 1px;
+        overflow: hidden;
+        background: currentColor;
+        opacity: .18;
+      }
+      .app-boot-line span {
+        position: absolute;
+        inset: 0;
+        background: #0f766e;
+        transform-origin: left;
+        animation: boot-line 1s cubic-bezier(.65,0,.35,1) both;
+      }
+      #app-boot.is-leaving {
+        pointer-events: none;
+        transform: translateY(-101%);
+        transition: transform .62s cubic-bezier(.76,0,.24,1);
+      }
+      #app-boot.is-leaving .app-boot-inner {
+        opacity: 0;
+        transform: translateY(-18px);
+        transition: opacity .22s ease, transform .38s ease;
+      }
+      @keyframes boot-mark-in {
+        from { opacity: 0; transform: translateY(18px); letter-spacing: -.13em; }
+        to { opacity: 1; transform: translateY(0); letter-spacing: -.075em; }
+      }
+      @keyframes boot-copy-in {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: .58; transform: translateY(0); }
+      }
+      @keyframes boot-line {
+        0% { transform: scaleX(0); }
+        64% { transform: scaleX(.72); }
+        100% { transform: scaleX(1); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #app-boot,
+        #app-boot *,
+        #app-boot::before,
+        #app-boot::after {
+          animation: none !important;
+          transition-duration: .01ms !important;
+        }
+      }
+    </style>
 
     <!-- Google Fonts with full Vietnamese subset -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -48,6 +164,13 @@
     <script id="MathJax-script" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
   </head>
   <body>
+    <div id="app-boot" aria-hidden="true">
+      <div class="app-boot-inner">
+        <div class="app-boot-mark"><span>UEH</span><span>TCC</span></div>
+        <p class="app-boot-kicker">Learning · Research · Quantitative thinking</p>
+        <div class="app-boot-line"><span></span></div>
+      </div>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
