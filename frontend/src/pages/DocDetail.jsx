@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Calendar, Download, Eye, FileText, ArrowLeft, ArrowUpRight, AlertTriangle, BookOpen } from 'lucide-react';
-import { documentsData, midtermExams } from '../data/documentsData';
+import { documentsData, midtermExams, finalExams } from '../data/documentsData';
 import { API_BASE_URL } from '../config';
 import { formatResourceDate } from '../utils/resourceDate';
 import { mergeResourceItems } from '../utils/resourceMerge';
@@ -41,14 +41,15 @@ export default function DocDetail() {
         if (response.ok && data.success && data.resources) {
           const apiDocs = mergeResourceItems(data.resources.documentsData || [], documentsData);
           const apiMidterms = mergeResourceItems(data.resources.midtermExams || [], midtermExams);
-          resourcesList = [...apiDocs, ...apiMidterms];
+          const apiFinals = mergeResourceItems(data.resources.finalExams || [], finalExams);
+          resourcesList = [...apiDocs, ...apiMidterms, ...apiFinals];
           const randomSidebarDocs = apiDocs
             .filter(item => item.id !== id && !item.externalUrl)
             .sort(() => Math.random() - 0.5)
             .slice(0, 5);
           setOtherDocs(randomSidebarDocs);
         } else {
-          resourcesList = [...documentsData, ...midtermExams];
+          resourcesList = [...documentsData, ...midtermExams, ...finalExams];
           const randomSidebarDocs = documentsData
             .filter(item => item.id !== id && !item.externalUrl)
             .sort(() => Math.random() - 0.5)
@@ -56,7 +57,7 @@ export default function DocDetail() {
           setOtherDocs(randomSidebarDocs);
         }
       } catch {
-        resourcesList = [...documentsData, ...midtermExams];
+        resourcesList = [...documentsData, ...midtermExams, ...finalExams];
         const randomSidebarDocs = documentsData
           .filter(item => item.id !== id && !item.externalUrl)
           .sort(() => Math.random() - 0.5)
