@@ -86,7 +86,7 @@ export const documentsData = [
     category: 'latest',
     categoryLabel: 'Tài liệu mới nhất',
     image: 'final chắc là vậy_page-0001.jpg',
-    pdf: 'final 2807.pdf',
+    pdf: 'DE_THI_CHINH/FINAL 2807 (1).pdf',
     desc: 'Tổng hợp chi tiết đề thi trắc nghiệm và tự luận Toán Cao Cấp (TCC) của Đại học Kinh tế TP.HCM (UEH) qua các học kỳ, kèm lời giải giải thích cặn kẽ từng bước giúp sinh viên ôn luyện hiệu quả.'
   },
   {
@@ -96,8 +96,8 @@ export const documentsData = [
     category: 'latest',
     categoryLabel: 'Tài liệu mới nhất',
     image: 'tcccc_page-0001.jpg',
-    pdf: 'tcccc.pdf',
-    desc: 'Hệ thống bài tập Toán Cao Cấp chia theo từng chương học (Ma trận, Định thức, Hệ phương trình, Không gian vectơ, Hàm số một biến, Hàm số nhiều biến...) biên soạn bởi thầy Nguyễn Thanh Vân.'
+    pdf: 'BT_NTV.pdf',
+    desc: 'Hệ thống bài tập Toán Cao Cấp chia theo từng chương học (Ma trận, Định thức, Hệ phương trình, Không gian vectơ, Hàm số nhiều biến...) biên soạn bởi thầy Nguyễn Thanh Vân.'
   },
   {
     id: 'ap6',
@@ -126,7 +126,7 @@ export const documentsData = [
     category: "latest",
     categoryLabel: "Tài liệu mới nhất",
     image: "bg.jpg",
-    pdf: "Chương_mới_tcc.pdf",
+    pdf: "3. TL3_KINH_TE_VPC1.pdf",
     desc: "Tài liệu chương mới Toán Cao Cấp, bổ sung nội dung ôn tập và hệ thống kiến thức mới cho sinh viên UEH."
   },
   {
@@ -306,7 +306,7 @@ export const documentsData = [
     category: 'support',
     categoryLabel: 'Tài liệu chuyên đề',
     image: 'bg.jpg',
-    pdf: '3. TL3_MO_HINH_KINH_TE.pdf',
+    pdf: '3. TL3_KINH_TE_VPC1.pdf',
     desc: 'Bộ tài liệu mô hình kinh tế trong Toán Cao Cấp, tập trung vào cách chuyển bài toán thực tế sang mô hình đại số, giải hệ và diễn giải kết quả.'
   },
   {
@@ -366,7 +366,7 @@ export const midtermExams = [
     professor: 'ndt',
     professorName: 'Thầy Nguyễn Đình Tuấn',
     image: 'ndt.png',
-    pdf: 'tcccc.pdf', // Using a placeholder pdf
+    pdf: 'BT_NTV.pdf',
     desc: 'Hệ thống câu hỏi trắc nghiệm giữa kỳ môn Toán Cao Cấp của thầy Nguyễn Đình Tuấn, giúp rèn luyện phản xạ tính toán nhanh dưới áp lực thời gian.'
   },
   {
@@ -375,7 +375,7 @@ export const midtermExams = [
     professor: 'ntv',
     professorName: 'Thầy Ngô Trấn Vũ',
     image: 'ntv.jpg',
-    pdf: 'c123.pdf', // Using a placeholder pdf
+    pdf: 'c123.pdf',
     desc: 'Đề thi kiểm tra giữa kỳ lý thuyết và bài tập tổng hợp lớp thầy Ngô Trấn Vũ, tập trung khảo sát các dạng bài hệ phương trình và không gian vectơ.'
   },
   {
@@ -384,7 +384,7 @@ export const midtermExams = [
     professor: 'ntvv',
     professorName: 'Thầy Nguyễn Thanh Vân',
     image: 'ntvv.jpg',
-    pdf: 'tcccc.pdf', // Using a placeholder pdf
+    pdf: 'BT_NTV.pdf',
     desc: 'Đề kiểm tra giữa kỳ nâng cao dành cho sinh viên lớp thầy Nguyễn Thanh Vân, tập trung vào cực trị hàm nhiều biến và ứng dụng kinh tế.'
   }
 ];
