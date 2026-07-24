@@ -179,10 +179,16 @@ export default function DocDetail() {
                       <BookOpen size={16} className="text-teal" />
                       <span>{t.docDetail.desktopTitle}</span>
                     </div>
-                    <a href={pdfUrl} download className="btn btn-secondary btn-small">
-                      <Download size={14} />
-                      <span>{t.docDetail.desktopBtn}</span>
-                    </a>
+                    <div className="viewer-actions flex gap-2">
+                      <a href={pdfUrl} target="_blank" rel="noopener noreferrer" className="btn btn-secondary btn-small">
+                        <ArrowUpRight size={14} />
+                        <span>Mở tab mới</span>
+                      </a>
+                      <a href={pdfUrl} download className="btn btn-primary btn-small">
+                        <Download size={14} />
+                        <span>{t.docDetail.desktopBtn}</span>
+                      </a>
+                    </div>
                   </div>
                   <div className="iframe-container">
                     <iframe 

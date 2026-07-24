@@ -7,7 +7,7 @@
       "category": "latest",
       "categoryLabel": "Tài liệu mới nhất",
       "image": "final chắc là vậy_page-0001.jpg",
-      "pdf": "final 2807.pdf",
+      "pdf": "DE_THI_CHINH/FINAL_2807_1.pdf",
       "desc": "Tổng hợp chi tiết đề thi trắc nghiệm và tự luận Toán Cao Cấp (TCC) của Đại học Kinh tế TP.HCM (UEH) qua các học kỳ, kèm lời giải giải thích cặn kẽ từng bước giúp sinh viên ôn luyện hiệu quả."
     },
     {
@@ -17,7 +17,7 @@
       "category": "latest",
       "categoryLabel": "Tài liệu mới nhất",
       "image": "tcccc_page-0001.jpg",
-      "pdf": "tcccc.pdf",
+      "pdf": "BT_NTV.pdf",
       "desc": "Hệ thống bài tập Toán Cao Cấp chia theo từng chương học (Ma trận, Định thức, Hệ phương trình, Không gian vectơ, Hàm số một biến, Hàm số nhiều biến...) biên soạn bởi thầy Nguyễn Thanh Vân."
     },
     {
@@ -47,7 +47,7 @@
       "category": "latest",
       "categoryLabel": "Tài liệu mới nhất",
       "image": "bg.jpg",
-      "pdf": "Chương_mới_tcc.pdf",
+      "pdf": "TL3_KINH_TE_VPC1.pdf",
       "desc": "Tài liệu chương mới Toán Cao Cấp, bổ sung nội dung ôn tập và hệ thống kiến thức mới cho sinh viên UEH."
     },
     {
@@ -77,7 +77,7 @@
       "category": "support",
       "categoryLabel": "Slide Lê Xuân Trường",
       "image": "tccvang.jpg",
-      "pdf": "SLIDE_LXT/công thức biến đổi, tích phân từng phần.pdf",
+      "pdf": "SLIDE_LXT/cong_thuc_bien_doi_tich_phan_tung_phan.pdf",
       "desc": "Slide tổng hợp công thức biến đổi và tích phân từng phần của thầy Lê Xuân Trường, hỗ trợ ôn nhanh phần giải tích."
     },
     {
@@ -167,7 +167,7 @@
       "category": "support",
       "categoryLabel": "Slide Lê Xuân Trường",
       "image": "tccvang.jpg",
-      "pdf": "SLIDE_LXT/slides-lec9[Vie].pdf",
+      "pdf": "SLIDE_LXT/slides-lec9_Vie.pdf",
       "desc": "Bài giảng Lecture 09 bản tiếng Việt trong bộ slide Toán Cao Cấp của thầy Lê Xuân Trường."
     },
     {
@@ -207,7 +207,7 @@
       "category": "support",
       "categoryLabel": "Tài liệu chuyên đề",
       "image": "c123.jpg",
-      "pdf": "1. TL1_HPT_LG.pdf",
+      "pdf": "TL1_HPT_LG.pdf",
       "desc": "Chuyên đề nền tảng về hệ phương trình tuyến tính và lượng giác, tổng hợp kiến thức trọng tâm, dạng bài thường gặp và phương pháp xử lý nhanh khi luyện thi Toán Cao Cấp."
     },
     {
@@ -217,7 +217,7 @@
       "category": "support",
       "categoryLabel": "Tài liệu chuyên đề",
       "image": "c4678.jpg",
-      "pdf": "2. TL2_BIEN_HSCD.pdf",
+      "pdf": "TL2_BIEN_HSCD.pdf",
       "desc": "Tài liệu chuyên sâu về biến số, hàm số và hệ số co giãn trong các bài toán kinh tế, giúp sinh viên luyện cách đọc đề, đặt biến và tính toán chính xác."
     },
     {
@@ -227,7 +227,7 @@
       "category": "support",
       "categoryLabel": "Tài liệu chuyên đề",
       "image": "bg.jpg",
-      "pdf": "3. TL3_MO_HINH_KINH_TE.pdf",
+      "pdf": "TL3_KINH_TE_VPC1.pdf",
       "desc": "Bộ tài liệu mô hình kinh tế trong Toán Cao Cấp, tập trung vào cách chuyển bài toán thực tế sang mô hình đại số, giải hệ và diễn giải kết quả."
     },
     {
@@ -277,7 +277,7 @@
       "professor": "ndt",
       "professorName": "Thầy Nguyễn Đình Tuấn",
       "image": "ndt.png",
-      "pdf": "tcccc.pdf",
+      "pdf": "BT_NTV.pdf",
       "desc": "Hệ thống câu hỏi trắc nghiệm giữa kỳ môn Toán Cao Cấp của thầy Nguyễn Đình Tuấn, giúp rèn luyện phản xạ tính toán nhanh dưới áp lực thời gian."
     },
     {
@@ -295,7 +295,7 @@
       "professor": "ntvv",
       "professorName": "Thầy Nguyễn Thanh Vân",
       "image": "ntvv.jpg",
-      "pdf": "tcccc.pdf",
+      "pdf": "BT_NTV.pdf",
       "desc": "Đề kiểm tra giữa kỳ nâng cao dành cho sinh viên lớp thầy Nguyễn Thanh Vân, tập trung vào cực trị hàm nhiều biến và ứng dụng kinh tế."
     }
   ],
@@ -368,7 +368,7 @@
       "title": "Toán Cao Cấp K48",
       "date": "Đang cập nhật",
       "hasDetailRoute": false,
-      "desc": "Chưa tìm thấy section đề K48 trong final 2807.pdf để chuyển thành bài kiểm tra tương tác."
+      "desc": "Chưa tìm thấy section đề K48 trong DE_THI_CHINH/FINAL_2807_1.pdf để chuyển thành bài kiểm tra tương tác."
     },
     {
       "id": "ap1-f6",

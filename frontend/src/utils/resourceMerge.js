@@ -8,7 +8,9 @@ export const mergeResourceItems = (apiItems = [], localItems = []) => {
     const merged = { ...localItem };
 
     Object.entries(apiItem).forEach(([key, value]) => {
-      if (localItem.hasDetailRoute === true && ['title', 'date', 'desc', 'hasDetailRoute'].includes(key)) {
+      if (key === 'pdf' && localItem.pdf) {
+        merged.pdf = localItem.pdf;
+      } else if (localItem.hasDetailRoute === true && ['title', 'date', 'desc', 'hasDetailRoute'].includes(key)) {
         merged[key] = localItem[key] ?? value;
       } else if (value !== undefined) {
         merged[key] = value;
