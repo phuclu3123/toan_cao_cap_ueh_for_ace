@@ -6,9 +6,9 @@ export const deepBsdeMfgMfcPost = {
   title: 'Deep BSDE, FBSDE và Mean Field: nền tảng xây dựng mô hình Quant Finance số chiều cao',
   category: 'Chuyên khảo · Stochastic Control',
   date: '23/07/2026',
-  updatedAt: 'Đã đối chiếu nguồn học thuật ngày 23/07/2026',
+  updatedAt: 'Cập nhật chuyên sâu và đối chiếu nguồn ngày 24/07/2026',
   author: 'Lữ Võ Hoàng Phúc (K50 UEH)',
-  readingTime: '68 phút đọc · lý thuyết, mô hình và thuật toán',
+  readingTime: '120 phút đọc · từ ký hiệu đến mô hình và kiểm chứng',
   level: 'Xác suất nền tảng → Deep BSDE nâng cao',
   keywords: [
     'Deep BSDE',
@@ -21,6 +21,10 @@ export const deepBsdeMfgMfcPost = {
     'LQ control',
     'Price of Anarchy',
     'Neural network',
+    'Full law',
+    'L2 norm',
+    'Lions derivative',
+    'Pontryagin principle',
   ],
   image: '/images/deep-bsde-cover.svg',
   excerpt:
@@ -32,9 +36,9 @@ export const deepBsdeMfgMfcPost = {
       'Bài viết tập trung vào cấu trúc toán, ý nghĩa kinh tế, kiến trúc thuật toán và kỷ luật đánh giá. Đây là tài liệu nền tảng độc lập, không phải mô tả một dự án, sản phẩm đầu tư hay khuyến nghị giao dịch.',
   },
   highlights: [
-    { value: '20', label: 'section từ nhập môn đến triển khai' },
-    { value: '05', label: 'sơ đồ kiến trúc kỹ thuật' },
-    { value: '04', label: 'tầng benchmark bắt buộc' },
+    { value: '28', label: 'section từ nhập môn đến triển khai' },
+    { value: '07', label: 'sơ đồ kiến trúc kỹ thuật' },
+    { value: '05', label: 'tầng benchmark bắt buộc' },
   ],
   toc: [
     'Dẫn nhập: Deep BSDE đang giải bài toán gì?',
@@ -44,9 +48,10 @@ export const deepBsdeMfgMfcPost = {
     '4. Công thức Itô: chain rule của thế giới ngẫu nhiên',
     '5. SDE, BSDE và ý nghĩa của biến martingale Z',
     '6. FBSDE: vì sao phương trình tiến và lùi phải giải đồng thời?',
-    '7. Stochastic maximum principle và Hamiltonian',
+    '7. Nguyên lý Pontryagin, stochastic maximum principle và Hamiltonian',
     '8. Linear–Quadratic control và phương trình Riccati',
     '9. Almgren–Chriss: benchmark kinh điển của optimal execution',
+    '9A. Almgren–Chriss trong pipeline: diagonal impact, full-covariance risk',
     '10. Từ nhiều agent đến McKean–Vlasov và empirical law',
     '11. Mean Field Game: cân bằng của các agent chiến lược',
     '12. Mean Field Control: social planner tối ưu toàn quần thể',
@@ -56,7 +61,14 @@ export const deepBsdeMfgMfcPost = {
     '16. Thuật toán rời rạc hóa, rollout và hàm loss',
     '17. Xây dựng mô hình execution nhiều tài sản có mean field',
     '18. Benchmark, chẩn đoán và kỷ luật triển khai',
-    '19. Tài liệu tham khảo cốt lõi',
+    '19. Từ điển ký hiệu: đọc công thức mà không bị ngợp',
+    '20. Chuẩn, không gian L² và hình học sai số',
+    '21. Full Law: từ phân phối xác suất đến Deep Sets',
+    '21A. Full Law trong pipeline: moment closure và empirical-law diagnostic',
+    '22. Giải phẫu mô hình mẹ: từ kinh tế đến một bước code',
+    '23. Thiết kế benchmark như scientific unit test',
+    '24. Những cầu nối nâng cao và giới hạn mô hình',
+    '25. Tài liệu tham khảo cốt lõi',
   ],
   sections: [
     {
@@ -96,6 +108,13 @@ $$`,
           title: 'Deep BSDE không thay thế lý thuyết',
           content:
             'Neural network chỉ xấp xỉ các hàm hoặc quá trình chưa biết. Dynamics, terminal condition, Hamiltonian, dấu của control, điều kiện lồi và objective vẫn phải được thiết lập đúng trước khi huấn luyện. Một solver tối ưu tốt cho mô hình sai vẫn cho một kết quả sai rất thuyết phục.',
+        },
+        {
+          type: 'insight',
+          tone: 'amber',
+          title: 'Quy ước đọc: implementation là trục chính',
+          content:
+            'Mỗi chủ đề được tách thành “dạng dùng trong pipeline” và “mở rộng lý thuyết để hiểu bối cảnh”. Công thức triển khai, evaluator và benchmark quyết định claim chính; tài liệu học thuật dùng để giải thích vì sao cấu trúc đó hợp lý hoặc còn giới hạn ở đâu, không tự động biến một mở rộng tổng quát thành thành phần đã được cài đặt.',
         },
         {
           type: 'paragraph',
@@ -181,7 +200,7 @@ $$`,
         {
           type: 'formula',
           label: 'Điều kiện không nhìn trước',
-          content: math`$$\alpha_t\ \text{là }\mathcal F_t\text{-measurable cho mọi }t$$`,
+          content: math`$$\alpha_t\ \text{is }\mathcal F_t\text{-measurable for all }t$$`,
           note:
             'Nếu αt dùng ΔWt của cùng bước trước khi increment được sinh, simulation đã tạo look-ahead bias.',
         },
@@ -413,11 +432,65 @@ $$`,
       ],
     },
     {
-      heading: '7. Stochastic maximum principle và Hamiltonian',
-      eyebrow: 'Điều kiện tối ưu',
+      heading: '7. Nguyên lý Pontryagin, stochastic maximum principle và Hamiltonian',
+      eyebrow: 'Từ biến phân đến FBSDE',
       summary:
-        'Maximum principle đưa gradient của objective vào một adjoint BSDE và biến tối ưu quỹ đạo thành điều kiện tối ưu cục bộ của Hamiltonian.',
+        'Pontryagin biến bài toán tối ưu cả quỹ đạo thành một hệ state–costate cùng điều kiện tối ưu Hamiltonian. Trong môi trường ngẫu nhiên, costate trở thành BSDE và chính cấu trúc này dẫn đến FBSDE.',
       blocks: [
+        {
+          type: 'paragraph',
+          content:
+            'Ý tưởng Pontryagin là hỏi: nếu thay control tối ưu trong một khoảng thời gian rất nhỏ, objective đổi ở bậc nhất như thế nào? Adjoint/costate $p_t$ được đưa vào để gom ảnh hưởng dây chuyền của biến thiên control lên toàn bộ state tương lai. Nhờ đó, thay vì so mọi quỹ đạo khả dĩ trực tiếp, ta kiểm một điều kiện Hamiltonian tại gần như mọi thời điểm.',
+        },
+        {
+          type: 'formula',
+          label: 'Pontryagin deterministic dạng minimization',
+          content: math`$$
+\dot x_t=b(t,x_t,a_t),\qquad
+J(a)=g(x_T)+\int_0^T f(t,x_t,a_t)\,\mathrm dt,
+\qquad
+H(t,x,p,a)=f(t,x,a)+p^\top b(t,x,a),
+$$
+$$
+\dot x_t^\star=\nabla_pH(t,x_t^\star,p_t^\star,a_t^\star),
+\qquad
+\dot p_t^\star=-\nabla_xH(t,x_t^\star,p_t^\star,a_t^\star),
+\qquad
+p_T^\star=\nabla g(x_T^\star),
+$$
+$$
+a_t^\star\in\arg\min_{a\in\mathcal A}
+H(t,x_t^\star,p_t^\star,a)
+\quad\text{a.e. }t.
+$$`,
+          note:
+            'Đây là Pontryagin Minimum Principle vì objective là cost cần tối thiểu. Nếu viết reward cần tối đa hóa hoặc đổi dấu Hamiltonian, tài liệu thường gọi Maximum Principle.',
+        },
+        {
+          type: 'comparison',
+          columns: ['Thành phần Pontryagin', 'Vai trò toán học', 'Cách đọc kinh tế'],
+          rows: [
+            ['$x_t$', 'State đi tiến từ $x_0$', 'Inventory/wealth/risk exposure hiện tại'],
+            ['$a_t$', 'Control có thể chọn', 'Tốc độ giao dịch hay quyết định phân bổ'],
+            ['$p_t$', 'Costate/adjoint đi lùi từ terminal', 'Shadow cost của thêm một đơn vị state'],
+            ['$H$', 'Running cost + state effect được định giá bởi p', 'Cost tức thời cộng hệ quả tương lai biên'],
+            ['$p_T=\\nabla g(x_T)$', 'Transversality/terminal condition', 'Giá bóng của inventory cuối kỳ'],
+            ['$\\arg\\min H$', 'Minimum condition', 'Mỗi control cân bằng liquidity cost và shadow inventory cost'],
+          ],
+        },
+        {
+          type: 'formula',
+          label: 'Control bị ràng buộc: variational inequality',
+          content: math`$$
+\left\langle
+\nabla_aH(t,x_t^\star,p_t^\star,a_t^\star),
+a-a_t^\star
+\right\rangle\ge0
+\qquad \forall a\in\mathcal A
+$$`,
+          note:
+            'FOC ∇ₐH=0 chỉ dành cho nghiệm nội điểm không ràng buộc. Ở biên sell-only/bounded-sell, gradient thường không bằng 0 nhưng không còn hướng khả thi nào làm cost giảm.',
+        },
         {
           type: 'formula',
           label: 'Bài toán control',
@@ -437,10 +510,10 @@ $$`,
         },
         {
           type: 'formula',
-          label: 'Hamiltonian',
+          label: 'Hamiltonian ngẫu nhiên',
           content: math`$$H(t,x,\alpha,p,q)=\ell(t,x,\alpha)+p^\top b(t,x,\alpha)+\operatorname{Tr}\!\left(q^\top\sigma(t,x,\alpha)\right)$$`,
           note:
-            'Convention có thể khác giữa tài liệu; phải giữ nhất quán dấu của adjoint equation và FOC.',
+            'Nếu diffusion không phụ thuộc control, hạng q–σ có thể không ảnh hưởng FOC nhưng vẫn cần trong adjoint BSDE. Convention có thể khác giữa tài liệu; phải giữ nhất quán dấu.',
         },
         {
           type: 'formula',
@@ -459,6 +532,59 @@ $$`,
           content: math`$$\nabla_\alpha H(t,X_t,\alpha_t^\star,p_t,q_t)=0$$`,
           note:
             'Nếu control bị ràng buộc, dùng argmin trên admissible set hoặc projection thay vì FOC không ràng buộc.',
+        },
+        {
+          type: 'formula',
+          label: 'Pontryagin mean-field: MFG và MFC tách ở đâu?',
+          content: math`$$
+\begin{aligned}
+\text{MFG:}\quad&
+\mathrm dp_t=-\partial_xH(t,X_t,\mu_t,p_t,\alpha_t)\,\mathrm dt
++q_t\,\mathrm dW_t+q_t^0\,\mathrm dW_t^0,
+\\
+&\mu_t=\mathcal L(X_t\mid\mathcal F_t^0)
+\quad\text{after the fixed-point step},\\[0.4em]
+\text{MFC:}\quad&
+\mathrm dp_t=-
+\left[
+\partial_xH
++\widetilde{\mathbb E}
+\big[\partial_\mu H(t,\widetilde X_t,\mu_t,\widetilde p_t,\widetilde\alpha_t)(X_t)\big]
+\right]\mathrm dt
++q_t\,\mathrm dW_t+q_t^0\,\mathrm dW_t^0 .
+\end{aligned}
+$$`,
+          note:
+            'MFG agent coi law flow đã cho khi lấy best response; MFC planner nội hóa việc thay policy làm thay đổi law. Terminal condition cũng có law correction tương ứng khi g phụ thuộc μ.',
+        },
+        {
+          type: 'comparison',
+          columns: ['Phiên bản', 'State equation', 'Adjoint/costate', 'Điều kiện bổ sung'],
+          rows: [
+            ['Pontryagin cổ điển', 'ODE', 'ODE đi lùi', 'Minimum/maximum condition'],
+            ['Stochastic maximum principle', 'SDE', 'BSDE với q', 'Adapted control và integrability'],
+            ['Common-noise SMP', 'SDE với W và W⁰', 'BSDE với q và q⁰', 'Conditional information'],
+            ['MFG Pontryagin', 'McKean–Vlasov trước flow đã cho', 'Adjoint của best response', 'Law consistency/fixed point'],
+            ['MFC Pontryagin', 'McKean–Vlasov nội sinh', 'Adjoint có law derivative', 'Social planner optimum'],
+          ],
+        },
+        {
+          type: 'paragraph',
+          content:
+            'Pontryagin cho điều kiện cần trong nhiều setting; nó không tự động chứng minh nghiệm là global optimum. Nếu Hamiltonian lồi theo $(x,a)$, terminal cost lồi và admissible set lồi dưới các giả định regularity phù hợp, điều kiện Pontryagin có thể trở thành đủ. Với control đi vào diffusion, miền control không lồi hoặc hệ fully coupled, stochastic maximum principle có thể cần second-order adjoint hoặc điều kiện tinh tế hơn.',
+        },
+        {
+          type: 'formula',
+          label: 'Liên hệ Pontryagin – HJB – Deep BSDE',
+          content: math`$$
+p_t^\star=\nabla_xV(t,X_t^\star),
+\qquad
+\underbrace{X_0\text{ known}}_{\text{left boundary}},
+\qquad
+\underbrace{p_T=\nabla g(X_T)\text{ known from }X_T}_{\text{right boundary}}.
+$$`,
+          note:
+            'Trong setting Markov trơn, costate là gradient value function dọc optimal path. Shooting phải tìm p₀ và martingale terms sao cho rollout từ biên trái chạm terminal condition ở biên phải; Deep BSDE dùng network để học các đại lượng chưa biết này.',
         },
         {
           type: 'example',
@@ -575,12 +701,102 @@ P_path = P_path[::-1]`,
       heading: '9. Almgren–Chriss: benchmark kinh điển của optimal execution',
       eyebrow: 'Market impact và inventory risk',
       summary:
-        'Almgren–Chriss biến bài toán thanh lý thành trade-off minh bạch giữa chi phí giao dịch và rủi ro giữ vị thế.',
+        'Almgren–Chriss biến bài toán thanh lý thành trade-off minh bạch giữa chi phí giao dịch và rủi ro giữ vị thế; dạng tổng quát còn cho phép covariance và cross-impact giữa nhiều tài sản.',
       blocks: [
         {
           type: 'paragraph',
           content:
             'Một nhà giao dịch cần thanh lý inventory $X_0$ trong horizon $[0,T]$. Bán quá nhanh làm temporary impact cao; bán quá chậm giữ exposure với price volatility lâu hơn. Almgren–Chriss xây efficient frontier giữa expected execution cost và variance của execution cost.',
+        },
+        {
+          type: 'comparison',
+          columns: ['Ký hiệu AC', 'Đọc là', 'Ý nghĩa kinh tế và đơn vị điển hình'],
+          rows: [
+            ['$X,\\;x_k$', 'Inventory đầu kỳ và còn lại sau bước k', 'Số cổ phiếu hoặc tỷ trọng chưa bán'],
+            ['$n_k=x_{k-1}-x_k$', 'Khối lượng bán ở bước k', '$n_k>0$ theo convention sell-positive'],
+            ['$\\alpha_k=n_k/\\tau$', 'Tốc độ bán', 'Khối lượng trên một đơn vị thời gian'],
+            ['$\\gamma$', 'Permanent-impact scale', 'Pressure còn lại sau giao dịch; thường có đơn vị tiền/khối lượng² trong cost'],
+            ['$\\eta$', 'Temporary-impact scale', 'Độ đắt của giao dịch gấp; tiền·thời gian/khối lượng²'],
+            ['$\\epsilon$', 'Fixed/spread cost', 'Phí gần tuyến tính theo $|n_k|$'],
+            ['$\\lambda$', 'Risk aversion', 'Mức đổi một đơn vị variance thành cost tương đương'],
+            ['$\\sigma_{\\rm price}$', 'Price volatility', 'Độ bất định giá trên căn thời gian'],
+            ['$\\kappa$', 'Characteristic liquidation rate', 'Đơn vị $1/\\text{time}$; $1/\\kappa$ là time scale thanh lý'],
+          ],
+        },
+        {
+          type: 'formula',
+          label: 'Lịch giao dịch rời rạc',
+          content: math`$$
+t_k=k\tau,\qquad \tau=\frac{T}{N},\qquad
+x_0=X,\quad x_N=0,\qquad
+n_k=x_{k-1}-x_k,\quad \alpha_k=\frac{n_k}{\tau}.
+$$`,
+          note:
+            'Inventory là stock variable; n là lượng giao dịch trong một interval; α là flow/rate. Nhầm ba đại lượng này thường tạo sai hệ số τ.',
+        },
+        {
+          type: 'formula',
+          label: 'Price shock và hai loại market impact',
+          content: math`$$
+\xi_k\stackrel{\mathrm{iid}}{\sim}\mathcal N(0,I_d),\qquad
+S_k=S_{k-1}+\Sigma_{\rm price}^{1/2}\sqrt{\tau}\,\xi_k
+-\Gamma n_k,
+\qquad
+\widetilde S_k=S_{k-1}-\varepsilon\odot\operatorname{sign}(n_k)-H\alpha_k.
+$$`,
+          note:
+            'S là mid/fundamental price đã chịu permanent impact; S̃ là execution price còn chịu spread và temporary impact. Đây là convention tuyến tính; dấu và timing phải được khóa nhất quán.',
+        },
+        {
+          type: 'formula',
+          label: 'Utility rời rạc của AC',
+          content: math`$$
+\begin{aligned}
+U[x]
+&=\mathbb E[C[x]]+\lambda\,\operatorname{Var}(C[x])\\
+&=
+\underbrace{\frac12X^\top\Gamma X
++\sum_{k=1}^{N}\varepsilon^\top|n_k|
++\frac1{\tau}\sum_{k=1}^{N}n_k^\top\widetilde H\,n_k}_{\text{expected implementation shortfall}}\\
+&\quad+
+\lambda\underbrace{\tau\sum_{k=1}^{N}x_k^\top\Sigma_{\rm price}x_k}_{\text{execution-cost variance}},
+\qquad
+\widetilde H=H-\frac{\tau}{2}\Gamma .
+\end{aligned}
+$$`,
+          note:
+            'Utility ở đây là mean–variance disutility cần tối thiểu hóa, không phải mức thỏa dụng “càng lớn càng tốt”. Với ma trận không chéo, cần tách phần đối xứng/phản đối xứng và kiểm tra quadratic temporary-impact term đủ dương.',
+        },
+        {
+          type: 'formula',
+          label: 'AC đa tài sản tổng quát: phần đối xứng và phản đối xứng',
+          content: math`$$
+H^S=\frac{H+H^\top}{2},\quad
+\Gamma^S=\frac{\Gamma+\Gamma^\top}{2},\quad
+\Gamma^A=\frac{\Gamma-\Gamma^\top}{2},\quad
+\widetilde H=H^S-\frac{\tau}{2}\Gamma^S,
+$$
+$$
+\begin{aligned}
+\mathbb E[C[x]]
+&=
+\varepsilon^\top|X|
++\frac12X^\top\Gamma^SX
++\sum_{k=1}^N\tau\,v_k^\top\widetilde H\,v_k
++\sum_{k=1}^N\tau\,x_k^\top\Gamma^A v_k,\\
+\operatorname{Var}(C[x])
+&=
+\sum_{k=1}^N\tau\,x_k^\top\Sigma_{\rm price}x_k,
+\qquad v_k=\frac{n_k}{\tau}.
+\end{aligned}
+$$`,
+          note:
+            'Nếu Γ đối xứng thì Γᴬ=0 và hạng cuối biến mất. AC tổng quát không buộc mọi impact matrix đều chéo; phần đối xứng kiểm soát quadratic cost, còn phần phản đối xứng có thể làm path phụ thuộc thứ tự và hướng giao dịch.',
+        },
+        {
+          type: 'paragraph',
+          content:
+            'Expected shortfall đo chi phí trung bình do spread và impact; variance shortfall đo rủi ro vì vẫn còn inventory khi giá ngẫu nhiên dịch chuyển. Permanent impact tuyến tính đối xứng thường tạo một hạng gần như không đổi theo hình dạng lịch bán, trong khi temporary impact và inventory risk quyết định bán dồn đầu hay trải đều.',
         },
         {
           type: 'formula',
@@ -596,6 +812,17 @@ $$`,
         },
         {
           type: 'formula',
+          label: 'Từ Euler–Lagrange đến quỹ đạo liên tục',
+          content: math`$$
+\eta\,\ddot X_t-\lambda\sigma^2X_t=0,\qquad
+X(0)=x_0,\quad X(T)=0,\qquad
+\alpha_t=-\dot X_t .
+$$`,
+          note:
+            'Dấu chấm là đạo hàm theo thời gian. Phương trình nói rằng độ cong của lịch thanh lý được quyết định bởi tỷ lệ inventory risk trên temporary liquidity cost.',
+        },
+        {
+          type: 'formula',
           label: 'Quỹ đạo thanh lý dạng hyperbolic',
           content: math`$$
 \kappa=\sqrt{\frac{\lambda\sigma^2}{\eta}},
@@ -606,6 +833,78 @@ X_t^\star=x_0\frac{\sinh(\kappa(T-t))}{\sinh(\kappa T)},
 $$`,
           note:
             'Đây là continuous simplification; discrete AC có temporary/permanent impact và hệ số hiệu chỉnh riêng.',
+        },
+        {
+          type: 'formula',
+          label: 'Kappa rời rạc và giới hạn liên tục',
+          content: math`$$
+\widetilde\kappa^2=\frac{\lambda\sigma_{\rm price}^2}{\widetilde\eta},
+\qquad
+\kappa_{\rm discrete}
+=\frac1\tau\operatorname{arcosh}
+\left(1+\frac{\tau^2\widetilde\kappa^2}{2}\right)
+\xrightarrow[\tau\to0]{}
+\sqrt{\frac{\lambda\sigma_{\rm price}^2}{\eta}} .
+$$`,
+          note:
+            'κ không phải covariance hay crowding weight. κ lớn nghĩa thời gian đặc trưng 1/κ ngắn: nhà giao dịch thoát vị thế sớm hơn.',
+        },
+        {
+          type: 'formula',
+          label: 'AC liên tục nhiều tài sản',
+          content: math`$$
+\min_X\int_0^T
+\left(
+\dot X_t^\top H\dot X_t
++\lambda X_t^\top\Sigma_{\rm price}X_t
+\right)\mathrm dt,
+\qquad
+X(0)=X_0,\quad X(T)=0,
+$$
+$$
+M=\lambda H^{-1/2}\Sigma_{\rm price}H^{-1/2},\qquad
+K=M^{1/2},\qquad
+X_t^\star=
+H^{-1/2}
+\sinh\!\big(K(T-t)\big)
+\sinh(KT)^{-1}
+H^{1/2}X_0.
+$$`,
+          note:
+            'Đây là symmetric continuous form. H≻0 mã hóa liquidity/cross-impact tạm thời; Σprice⪰0 mã hóa rủi ro đồng biến động. Matrix square root làm các eigen-portfolios có tốc độ thanh lý khác nhau.',
+        },
+        {
+          type: 'formula',
+          label: 'Eigenmodes trong AC đa tài sản rời rạc',
+          content: math`$$
+A=\widetilde H^{-1/2}\Sigma_{\rm price}\widetilde H^{-1/2},
+\qquad
+\lambda A
+=U\,\operatorname{diag}(\widetilde\kappa_1^2,\ldots,\widetilde\kappa_d^2)U^\top,
+$$
+$$
+\frac{2}{\tau^2}\big(\cosh(\kappa_j\tau)-1\big)
+=\widetilde\kappa_j^2,
+\qquad
+z_{j,k}
+=
+\frac{\sinh(\kappa_j(T-t_k))}
+{\sinh(\kappa_jT)}z_{j,0},
+$$
+$$
+y_k=\widetilde H^{1/2}x_k,\qquad
+z_k=U^\top y_k,\qquad
+x_k=\widetilde H^{-1/2}Uz_k.
+$$`,
+          note:
+            'Ta xoay danh mục sang các eigen-portfolios của hình học risk–liquidity. Mỗi mode j có κⱼ riêng; vì thế covariance và cross-impact có thể coupling lịch bán giữa các tài sản.',
+        },
+        {
+          type: 'diagram',
+          kind: 'ac-layers',
+          title: 'Ba lớp của Almgren–Chriss',
+          caption:
+            'Bản rời rạc gần implementation shortfall; bản liên tục cho trực giác vi phân; bản đa tài sản đưa covariance và cross-impact vào hình học ma trận.',
         },
         {
           type: 'diagram',
@@ -637,6 +936,161 @@ $$`,
           title: 'Không gọi mọi chênh lệch so với AC là cải thiện',
           content:
             'Nếu hai policy được chấm bằng objective khác nhau, terminal convention khác nhau hoặc mean-flow environment khác nhau thì thứ hạng không có ý nghĩa. AC không “sai”; nó chỉ không được thiết kế cho mọi loại law interaction và strategic crowding.',
+        },
+      ],
+    },
+    {
+      heading: '9A. Almgren–Chriss trong pipeline: diagonal impact, full-covariance risk',
+      eyebrow: 'Dạng triển khai riêng',
+      summary:
+        'Sau AC tổng quát, mục này khóa đúng benchmark được dùng: giải AC vô hướng theo từng tài sản, ghép các path thành ma trận inventory và chấm rủi ro bằng price covariance đầy đủ.',
+      blocks: [
+        {
+          type: 'insight',
+          tone: 'amber',
+          title: 'AC gốc và benchmark triển khai không bị đồng nhất',
+          content:
+            'Phần trước trình bày không gian mô hình AC chuẩn, gồm cả cross-impact và eigenmodes. Phần này chỉ mô tả specialization dùng trong pipeline. Vì impact matrices được chọn chéo, đây không phải nghiệm full-matrix AC; nhưng vì evaluator vẫn dùng covariance đầy đủ, đây cũng không phải mô hình bỏ qua correlation risk.',
+        },
+        {
+          type: 'formula',
+          label: 'Từ return covariance sang price covariance',
+          content: math`$$
+\Sigma_{\rm price}
+=
+\operatorname{diag}(S_0)\,
+\Sigma_{\rm return,annual}\,
+\operatorname{diag}(S_0),
+\qquad
+\sigma_i=\sqrt{(\Sigma_{\rm price})_{ii}}.
+$$`,
+          note:
+            'Return covariance không cùng đơn vị với price-risk covariance. Nhân hai phía bởi mức giá tham chiếu đưa covariance về đơn vị tiền²/thời gian; volatility biên σᵢ được đưa vào solver scalar.',
+        },
+        {
+          type: 'formula',
+          label: 'Disutility rời rạc của evaluator',
+          content: math`$$
+\begin{aligned}
+J_{\rm AC}^{\rm impl}
+&=
+\underbrace{
+\frac12\sum_{i=1}^{d}\gamma_iX_i^2
++\sum_{k=1}^{N}\sum_{i=1}^{d}\epsilon_i|n_{k,i}|
++\frac1{\tau}\sum_{k=1}^{N}\sum_{i=1}^{d}
+\widetilde\eta_i n_{k,i}^2
+}_{\text{expected shortfall}}\\
+&\quad+
+\lambda\underbrace{
+\tau\sum_{k=1}^{N}x_k^\top\Sigma_{\rm price}x_k
+}_{\text{variance shortfall}},
+\qquad
+\widetilde\eta_i=\eta_i-\frac{\gamma_i\tau}{2}>0.
+\end{aligned}
+$$`,
+          note:
+            'Tên utility trong code là mean–variance disutility cần tối thiểu hóa. Permanent, spread và temporary impact tách theo từng tài sản; covariance ngoài đường chéo chỉ xuất hiện trong variance shortfall.',
+        },
+        {
+          type: 'formula',
+          label: 'Dựng từng path rồi chấm jointly',
+          content: math`$$
+\kappa_i=
+\frac1{\tau}\operatorname{arcosh}
+\left(
+1+\frac{\tau^2}{2}
+\frac{\lambda\sigma_i^2}{\widetilde\eta_i}
+\right),
+\qquad
+x_{k,i}
+=X_i
+\frac{\sinh\!\big(\kappa_i(T-t_k)\big)}
+{\sinh(\kappa_iT)},
+$$
+$$
+n_{k,i}=x_{k-1,i}-x_{k,i},
+\qquad
+V_{\rm port}
+=\tau\sum_{k=1}^{N}x_k^\top\Sigma_{\rm price}x_k .
+$$`,
+          note:
+            'Nếu λ=0, implementation dùng đường thẳng $x_{k,i}=X_i(1-t_k/T)$ và đặt κᵢ=0. Nếu λ>0, mỗi tài sản dùng nghiệm hyperbolic riêng; evaluator mới ghép các cột qua full covariance.',
+        },
+        {
+          type: 'comparison',
+          columns: ['Thành phần', 'Specialization dùng', 'Không nên diễn giải thành'],
+          rows: [
+            ['Permanent impact', 'Vector $\\gamma_i$', 'Permanent cross-impact tổng quát $\\Gamma_{ij}$'],
+            ['Temporary impact', 'Vector $\\eta_i$', 'Temporary cross-impact tổng quát $H_{ij}$'],
+            ['Liquidation path', 'Một scalar AC solve cho mỗi tài sản', 'Joint eigenmode optimum'],
+            ['Portfolio risk', '$x_k^\\top\\Sigma_{\\rm price}x_k$', 'Chỉ dùng variance riêng lẻ'],
+            ['Terminal handling', 'Đo leftover trước khi có thể force-liquidate', 'Policy tự hoàn thành nếu phần dư bị che'],
+          ],
+        },
+        {
+          type: 'code',
+          label: 'Python · specialization đúng với benchmark',
+          content: code`def ac_optimal_trajectory(
+    X, T, N, sigma_price, gamma, eta, epsilon, risk_lambda
+):
+    tau = T / N
+    time = np.linspace(0.0, T, N + 1)
+    eta_tilde = eta - 0.5 * gamma * tau
+    if eta_tilde <= 0:
+        raise ValueError("AC requires eta_tilde > 0")
+
+    if risk_lambda <= 0:
+        x = X * (1.0 - time / T)
+        kappa = 0.0
+    else:
+        kappa_sq = risk_lambda * sigma_price**2 / eta_tilde
+        kappa = np.arccosh(1.0 + 0.5 * tau**2 * kappa_sq) / tau
+        x = X * np.sinh(kappa * (T - time)) / np.sinh(kappa * T)
+        x[0], x[-1] = X, 0.0
+
+    n = x[:-1] - x[1:]
+    shortfall = (
+        0.5 * gamma * X**2
+        + epsilon * np.abs(n).sum()
+        + (eta_tilde / tau) * np.square(n).sum()
+    )
+    variance = sigma_price**2 * tau * np.square(x[1:]).sum()
+    return x, n, shortfall, variance, kappa
+
+
+def compose_multidim_ac(
+    x0, prices0, cov_return_annual, gamma, eta, epsilon,
+    risk_lambda, T, N,
+):
+    cov_price = (
+        np.diag(prices0) @ cov_return_annual @ np.diag(prices0)
+    )
+    sigma = np.sqrt(np.diag(cov_price))
+    solved = [
+        ac_optimal_trajectory(
+            x0[i], T, N, sigma[i], gamma[i], eta[i],
+            epsilon[i], risk_lambda,
+        )
+        for i in range(len(x0))
+    ]
+    inventory = np.column_stack([item[0] for item in solved])
+    trades = np.column_stack([item[1] for item in solved])
+    expected_shortfall = sum(item[2] for item in solved)
+
+    tau = T / N
+    variance = sum(
+        tau * inventory[k] @ cov_price @ inventory[k]
+        for k in range(1, N + 1)
+    )
+    utility = expected_shortfall + risk_lambda * variance
+    return inventory, trades, utility`,
+        },
+        {
+          type: 'insight',
+          tone: 'teal',
+          title: 'Vì sao specialization này vẫn hữu ích?',
+          content:
+            'Nó cho một baseline có nghiệm ổn định, cost decomposition rõ và đủ nhạy với rủi ro danh mục khi chấm điểm. Sau đó mean-field model mới được kiểm tra dưới một objective mở rộng. Giá trị của benchmark nằm ở khả năng cô lập lỗi và tạo mốc đối chứng, không nằm ở việc giả vờ rằng mọi cross-impact đã được giải.',
         },
       ],
     },
@@ -812,9 +1266,9 @@ $$`,
           content: math`$$
 \frac{\mathrm d}{\mathrm d\varepsilon}J(\alpha+\varepsilon\beta)\Big|_{\varepsilon=0}
 =
-\underbrace{\text{direct state/control effect}}_{\text{ảnh hưởng lên agent đại diện}}
+\underbrace{\text{direct state/control effect}}_{\text{representative-agent effect}}
 +
-\underbrace{\text{law effect}}_{\text{ảnh hưởng lên toàn population}}
+\underbrace{\text{law effect}}_{\text{population-distribution effect}}
 $$`,
           note:
             'MFG representative agent thường chỉ có direct effect trong best response; MFC phải tính cả law effect.',
@@ -865,7 +1319,7 @@ $$`,
         {
           type: 'formula',
           label: 'Diễn giải',
-          content: math`$$\operatorname{PoA}=1\ \Longrightarrow\ \text{equilibrium hiệu quả xã hội},\qquad \operatorname{PoA}>1\ \Longrightarrow\ \text{có inefficiency do phi hợp tác}$$`,
+          content: math`$$\operatorname{PoA}=1\ \Longrightarrow\ \text{socially efficient equilibrium},\qquad \operatorname{PoA}>1\ \Longrightarrow\ \text{non-cooperative inefficiency}$$`,
           note:
             'PoA≥1 khi cost không âm, cùng social objective, cùng admissible set và MFC thật sự đạt social optimum.',
         },
@@ -948,9 +1402,6 @@ relative_gap = (mfg_cost - mfc_cost) / mfc_cost`,
             ['Finite difference / finite element', 'Chính xác, dễ audit ở low dimension', 'Grid tăng theo cấp số nhân'],
             ['Regression BSDE', 'Monte Carlo, có nền BSDE rõ', 'Basis selection khó khi d lớn'],
             ['Deep BSDE', 'Không cần state grid, dùng GPU/mini-batch', 'Training phi lồi, terminal loss có thể khó'],
-            ['DGM / PINN', 'Tối ưu PDE residual liên tục', 'Cân bằng nhiều residual/boundary losses'],
-            ['Direct policy optimization', 'Đơn giản khi objective differentiable', 'Có thể bỏ cấu trúc adjoint'],
-            ['Reinforcement learning', 'Linh hoạt với môi trường/simulator', 'Sample cost và variance cao, audit khó hơn'],
           ],
         },
         {
@@ -1077,6 +1528,38 @@ relative_gap = (mfg_cost - mfc_cost) / mfc_cost`,
           content: math`$$\mathcal L_{\mathrm{terminal}}(\theta)=\mathbb E\!\left[\left\|p_N^\theta-\nabla_xg(X_N^\theta,\mu_N^\theta)\right\|_2^2\right]$$`,
           note:
             'Đây là supervision nội sinh: không cần nhãn policy từ Riccati hay AC.',
+        },
+        {
+          type: 'formula',
+          label: 'Bài toán shooting phụ trợ',
+          content: math`$$
+\inf_{y_0,z}
+J_{\rm FBSDE}(y_0,z)
+=
+\mathbb E\!\left[
+\left\|
+Y_T^{y_0,z}
+-G\!\left(X_T^{y_0,z},\mathcal L(X_T^{y_0,z})\right)
+\right\|_2^2
+\right],
+$$
+$$
+\begin{cases}
+\mathrm dX_t=B(t,X_t,\mu_t,Y_t)\,\mathrm dt+\sigma\,\mathrm dW_t,\\
+\mathrm dY_t=-F(t,X_t,\mu_t,Y_t)\,\mathrm dt
++z(t,X_t,\mu_t)\,\mathrm dW_t,\\
+Y_0=y_0(X_0,\mu_0).
+\end{cases}
+$$`,
+          note:
+            'Sau khi chọn y₀ và z, cả X lẫn Y đều được rollout theo chiều tiến. Neural network tham số hóa y₀ và z; terminal mismatch kiểm xem đường tiến có chạm biên lùi hay không.',
+        },
+        {
+          type: 'insight',
+          tone: 'amber',
+          title: 'Shooting problem không phải economic control problem ban đầu',
+          content:
+            'Bài toán gốc tối ưu control kinh tế $\\alpha$. Sau Pontryagin, nghiệm được đặc trưng bởi FBSDE. Deep BSDE lại tạo một bài toán số phụ trợ tối ưu $y_0,z$ để thỏa terminal boundary. Hai tầng liên hệ qua điều kiện tối ưu, nhưng không được gọi terminal loss là economic objective.',
         },
         {
           type: 'steps',
@@ -1223,12 +1706,13 @@ $$`,
       blocks: [
         {
           type: 'steps',
-          title: 'Bốn tầng benchmark khuyến nghị',
+          title: 'Năm tầng benchmark khuyến nghị',
           items: [
             'Tầng 1 — LQ/Riccati: kiểm dấu, terminal adjoint, feedback control và matrix coupling.',
-            'Tầng 2 — Almgren–Chriss: kiểm liquidation geometry, inventory path và impact–risk trade-off.',
-            'Tầng 3 — Stochastic mean field: bật private/common noise, empirical law và kiểm fixed-point/path stability.',
-            'Tầng 4 — Economic comparison: so MFG, MFC và baseline dưới cùng evaluator, objective và noise paths.',
+            'Tầng 2 — Almgren–Chriss: kiểm scalar path, diagonal-impact evaluator, completion và impact–risk trade-off.',
+            'Tầng 3 — Mean-control bridge: bật interaction nhỏ, kiểm mean-flow update và zero-interaction limit.',
+            'Tầng 4 — Empirical-law/noise diagnostic: bật Deep Sets, private/common noise, q/q⁰ và particle refinement.',
+            'Tầng 5 — Economic comparison: so MFG, MFC và baseline dưới cùng crowding evaluator, terminal rule và noise paths.',
           ],
         },
         {
@@ -1304,7 +1788,1000 @@ seed_summary["ci95_high"] = (
       ],
     },
     {
-      heading: '19. Tài liệu tham khảo cốt lõi',
+      heading: '19. Từ điển ký hiệu: đọc công thức mà không bị ngợp',
+      eyebrow: 'Notation literacy',
+      summary:
+        'Ký hiệu toán học là một ngôn ngữ nén. Tách từng lớp — loại đối tượng, phép toán, điều kiện và ý nghĩa kinh tế — sẽ biến một hệ phương trình dài thành một chuỗi mệnh đề có thể đọc được.',
+      blocks: [
+        {
+          type: 'formula',
+          label: 'Giải mã một dòng Gaussian thường gặp',
+          content: math`$$
+\xi_k^{\mathrm{iid}}\sim\mathcal N(0,I_d)
+$$`,
+          note:
+            'Đọc: các vector shock ξ ở từng bước k độc lập và cùng phân phối Gaussian d chiều, có mean vector bằng 0 và covariance bằng ma trận đơn vị Iᵈ.',
+        },
+        {
+          type: 'comparison',
+          columns: ['Ký hiệu', 'Đọc như thế nào?', 'Nó khẳng định điều gì?'],
+          rows: [
+            ['$\\sim$', '“có phân phối”', '$X\\sim\\mathcal N(0,1)$ không có nghĩa X xấp xỉ 0'],
+            ['$\\stackrel{\\mathrm{iid}}{\\sim}$', 'independent and identically distributed', 'Độc lập giữa mẫu và dùng cùng một law'],
+            ['$\\mathcal N(m,\\Sigma)$', 'Gaussian mean m, covariance Σ', 'Tham số thứ hai là covariance, không phải standard deviation'],
+            ['$0$', 'Zero scalar/vector theo ngữ cảnh', 'Trong Gaussian d chiều, đây là vector $0_d$'],
+            ['$I_d$', 'Identity matrix cấp d', 'Variance mỗi chiều bằng 1; Gaussian joint còn cho độc lập giữa các component'],
+            ['$:=\\;$ hoặc $\\equiv$', 'Được định nghĩa là', 'Quan hệ định nghĩa, mạnh hơn một phép tính tình cờ'],
+            ['$\\in$', 'Thuộc về', '$x\\in\\mathbb R^d$ nói loại và số chiều của x'],
+            ['$\\forall,\\exists$', 'Với mọi, tồn tại', 'Lượng từ quyết định độ mạnh của mệnh đề'],
+            ['$\\text{a.s.}$', 'Almost surely', 'Đúng ngoại trừ một tập biến cố xác suất 0'],
+          ],
+        },
+        {
+          type: 'formula',
+          label: 'Gradient, Hessian, divergence và trace',
+          content: math`$$
+\nabla_x f=
+\begin{bmatrix}
+\partial f/\partial x_1\\[-0.1em]\vdots\\[-0.1em]\partial f/\partial x_d
+\end{bmatrix},
+\qquad
+\nabla_x^2f=
+\left[\frac{\partial^2f}{\partial x_i\partial x_j}\right]_{i,j},
+\qquad
+\operatorname{Tr}(A)=\sum_{i=1}^d A_{ii}.
+$$`,
+          note:
+            'Tam giác ngược ∇ là nabla/gradient; ∇² là Hessian. Tr là trace: tổng đường chéo, đồng thời bằng tổng eigenvalue kể cả khi không cần tính từng eigenvalue.',
+        },
+        {
+          type: 'formula',
+          label: 'Vì sao trace xuất hiện trong Itô',
+          content: math`$$
+\mathrm dV(t,X_t)
+=
+\left(
+\partial_tV+\nabla V^\top b
++\frac12\operatorname{Tr}
+\big(\sigma\sigma^\top\nabla^2V\big)
+\right)\mathrm dt
++\nabla V^\top\sigma\,\mathrm dW_t.
+$$`,
+          note:
+            'Trace co toàn bộ covariance của shock với độ cong của value function thành một scalar risk correction. Curvature lớn theo hướng biến động mạnh tạo Itô adjustment lớn.',
+        },
+        {
+          type: 'comparison',
+          columns: ['Ký hiệu', 'Tên', 'Cách hiểu trong mô hình'],
+          rows: [
+            ['$P_t$', 'Ma trận phụ thuộc thời gian', 'Riccati curvature tại thời điểm t'],
+            ['$\\dot P_t=\\mathrm dP_t/\\mathrm dt$', 'Time derivative', 'Tốc độ từng phần tử của P thay đổi theo thời gian'],
+            ['$A^\\top$', 'Transpose', 'Đổi hàng thành cột; dùng trong quadratic form và covariance'],
+            ['$A^{-1}$', 'Inverse', 'Chỉ tồn tại khi A khả nghịch; code nên solve thay vì tạo inverse trực tiếp'],
+            ['$A^{1/2}$', 'Matrix square root', 'Ma trận B sao cho $BB=A$ theo convention phù hợp; khác square từng phần tử'],
+            ['$\\langle x,y\\rangle=x^\\top y$', 'Inner product', 'Mức cùng hướng; trong Hamiltonian ghép drift với shadow price'],
+            ['$\\odot$', 'Hadamard product', 'Nhân từng phần tử, khác nhân ma trận'],
+            ['$\\operatorname{diag}(v)$', 'Diagonal matrix', 'Đưa vector lên đường chéo'],
+            ['$\\det(A)$', 'Determinant', 'Bằng tích eigenvalue; det gần 0 báo gần suy biến'],
+          ],
+        },
+        {
+          type: 'comparison',
+          columns: ['Ký hiệu tối ưu', 'Kết quả trả về', 'Ví dụ đọc'],
+          rows: [
+            ['$\\min_a f(a)$', 'Giá trị nhỏ nhất', 'Chi phí nhỏ nhất đạt được'],
+            ['$\\arg\\min_a f(a)$', 'Điểm/nghiệm tối ưu', 'Control $a^\\star$ làm cost nhỏ nhất'],
+            ['$\\max,\\arg\\max$', 'Giá trị lớn nhất và điểm đạt nó', 'Dùng khi viết reward/utility cần tối đa hóa'],
+            ['$\\inf$', 'Greatest lower bound', 'Có thể không có điểm nào thực sự đạt cận dưới'],
+            ['$\\sup$', 'Least upper bound', 'Có thể không có maximizer; “sup” không tự động là “max”'],
+            ['$a^\\star$ hoặc $a^*$', 'Optimal candidate/solution', 'Dấu sao nghĩa tối ưu trong bài toán đang xét, không phải phép nhân'],
+            ['$V^\\star$', 'Optimal value', 'Giá trị objective khi dùng policy tối ưu'],
+            ['$\\widehat a$', 'Estimator/ước lượng', 'Kết quả từ dữ liệu hoặc thuật toán, chưa chắc tối ưu'],
+            ['$a^\\theta$', 'Hàm tham số hóa', 'Policy/network phụ thuộc trọng số θ'],
+          ],
+        },
+        {
+          type: 'comparison',
+          columns: ['Ký hiệu law', 'Ý nghĩa chính xác'],
+          rows: [
+            ['$\\mathcal L(X)$ hoặc $\\operatorname{Law}(X)$', 'Phân phối xác suất của random variable X'],
+            ['$\\mu_t$', 'Một probability measure tại thời điểm t; không mặc nhiên là mean'],
+            ['$\\mu_t^N=N^{-1}\\sum_i\\delta_{X_t^i}$', 'Empirical measure từ N particles'],
+            ['$\\delta_x$', 'Dirac mass: toàn bộ khối lượng xác suất đặt tại x'],
+            ['$\\mathcal F_t^0$', 'Thông tin sinh bởi common noise đến thời điểm t'],
+            ['$\\mathcal L(X_t\\mid\\mathcal F_t^0)$', 'Conditional law; bản thân nó ngẫu nhiên theo common-noise history'],
+            ['$\\widetilde X$', 'Independent copy dùng để viết law derivative/expectation'],
+            ['$\\widetilde{\\mathbb E}$', 'Expectation chỉ theo independent copy, giữ biến gốc cố định'],
+          ],
+        },
+        {
+          type: 'worked-example',
+          meta: 'Giải mã ký hiệu · đọc từ trái sang phải',
+          title: 'Đọc hệ MFG có common noise',
+          prompt: math`$$
+\mathrm dX_t=b(t,X_t,\mu_t,\alpha_t)\mathrm dt
++\Sigma\,\mathrm dW_t+\Sigma_0\,\mathrm dW_t^0,
+\qquad
+\mu_t=\operatorname{Law}(X_t\mid\mathcal F_t^0).
+$$`,
+          method:
+            'Xác định loại của từng đối tượng trước, rồi mới đọc phép toán và quan hệ kinh tế.',
+          steps: [
+            {
+              label: 'State',
+              content: '$X_t\\in\\mathbb R^d$ là inventory của một agent đại diện.',
+            },
+            {
+              label: 'Drift',
+              content: '$b\\,\\mathrm dt$ là thay đổi có hệ thống do control và interaction với population law.',
+            },
+            {
+              label: 'Private shock',
+              content: '$\\Sigma\\,\\mathrm dW_t$ làm agent lệch khỏi quần thể.',
+            },
+            {
+              label: 'Common shock',
+              content: '$\\Sigma_0\\,\\mathrm dW_t^0$ dịch chuyển nhiều agent cùng lúc.',
+            },
+            {
+              label: 'Consistency',
+              content: '$\\mu_t$ không được chọn tùy ý; nó phải là conditional law do chính dynamics sinh ra.',
+            },
+          ],
+          result:
+            'Một phương trình ngắn đồng thời chứa dynamics cá nhân, covariance geometry, cấu trúc thông tin và điều kiện nhất quán quần thể.',
+          interpretation:
+            'Private noise là khác biệt riêng; common noise là cú sốc vĩ mô/thanh khoản chung; law là trạng thái tổng hợp của thị trường.',
+        },
+        {
+          type: 'insight',
+          tone: 'amber',
+          title: 'Ký hiệu chỉ có nghĩa sau khi khóa convention',
+          content:
+            '$\\alpha>0$ có thể được định nghĩa là bán hoặc mua; Hamiltonian có thể viết cho bài toán min hoặc max; quadratic cost có thể có hoặc không có hệ số $1/2$. Vì vậy dấu sao, FOC và hệ số 2 phải được đọc cùng định nghĩa objective, không đọc tách rời.',
+        },
+      ],
+    },
+    {
+      heading: '20. Chuẩn, không gian L² và hình học sai số',
+      eyebrow: 'Geometry của sai số',
+      summary:
+        'Norm biến “độ lớn” và “độ gần” thành đại lượng có thể tối ưu. Chuẩn L² đặc biệt quan trọng vì nó tạo một Hilbert space, nơi trực giao, phép chiếu và Pythagoras giải thích MSE, conditional expectation và nhiều loss của Deep BSDE.',
+      blocks: [
+        {
+          type: 'formula',
+          label: 'Các chuẩn vector thường gặp',
+          content: math`$$
+\|x\|_1=\sum_{i=1}^d|x_i|,
+\qquad
+\|x\|_2=\sqrt{\sum_{i=1}^dx_i^2},
+\qquad
+\|x\|_\infty=\max_i|x_i|,
+\qquad
+\|x\|_Q^2=x^\top Qx.
+$$`,
+          note:
+            'Chuẩn L1 đo tổng độ lớn, L2 là khoảng cách Euclid, L∞ nhìn component tệ nhất. Weighted norm dùng Q để phạt mạnh hơn theo các hướng kinh tế/rủi ro quan trọng.',
+        },
+        {
+          type: 'comparison',
+          columns: ['Đối tượng', 'Chuẩn', 'Dùng để đo'],
+          rows: [
+            ['Vector $x$', '$\\|x\\|_2$', 'Độ lớn inventory/control tại một thời điểm'],
+            ['Ma trận $A$', '$\\|A\\|_F=\\sqrt{\\operatorname{Tr}(A^\\top A)}$', 'Tổng năng lượng phần tử; Frobenius norm'],
+            ['Toán tử $A$', '$\\|A\\|_2=\\sup_{x\\ne0}\\|Ax\\|_2/\\|x\\|_2$', 'Mức khuếch đại lớn nhất; spectral norm'],
+            ['Random variable $X$', '$\\|X\\|_{L^2}=(\\mathbb E|X|^2)^{1/2}$', 'RMS dưới probability law'],
+            ['Process $X_t$', '$(\\mathbb E\\int_0^T\\|X_t\\|_2^2\\,dt)^{1/2}$', 'Năng lượng trung bình trên cả horizon'],
+            ['Path array', '$\\|A-B\\|_F/\\|B\\|_F$', 'Relative L2/Frobenius error trong benchmark'],
+          ],
+        },
+        {
+          type: 'formula',
+          label: 'Không gian Lᵖ của random variables',
+          content: math`$$
+L^p(\Omega,\mathcal F,\mathbb P)
+=
+\left\{X:\mathbb E|X|^p<\infty\right\},
+\qquad
+\|X\|_{L^p}=\big(\mathbb E|X|^p\big)^{1/p}.
+$$`,
+          note:
+            'Chữ L² không có nghĩa “bình phương một vector”. Nó là không gian các random variables có second moment hữu hạn, với norm lấy cả độ lớn lẫn xác suất.',
+        },
+        {
+          type: 'formula',
+          label: 'Pythagoras trong inner-product space',
+          content: math`$$
+\langle u,v\rangle=0
+\quad\Longrightarrow\quad
+\|u+v\|_2^2=\|u\|_2^2+\|v\|_2^2.
+$$`,
+          note:
+            'Đây là phiên bản tổng quát của tam giác vuông. Điều kiện quyết định là trực giao; không được áp dụng cho hai vector bất kỳ.',
+        },
+        {
+          type: 'formula',
+          label: 'Conditional expectation là phép chiếu L²',
+          content: math`$$
+\widehat X=\mathbb E[X\mid\mathcal G],
+\qquad
+\mathbb E\!\left[(X-\widehat X)Z\right]=0
+\quad \forall Z\in L^2(\mathcal G),
+$$
+$$
+\mathbb E|X-Z|^2
+=
+\mathbb E|X-\widehat X|^2
++\mathbb E|\widehat X-Z|^2.
+$$`,
+          note:
+            'Pythagorean identity chứng minh E[X|G] là estimator dùng thông tin G có MSE nhỏ nhất. Đây là hình học nền sau least squares, regression và việc xấp xỉ các conditional objects bằng neural network.',
+        },
+        {
+          type: 'paragraph',
+          content:
+            'Trong BSDE, martingale integrand $Z_t$ hoặc $q_t$ mã hóa phần phản ứng tối ưu với thông tin ngẫu nhiên mới. Khi network học một hàm của $(t,X_t,\\mu_t)$ bằng squared loss, ta đang tìm một phép chiếu gần đúng trong một lớp hàm hữu hạn. Pythagoras không đảm bảo neural optimizer tìm global optimum, nhưng giải thích vì sao bình phương sai số là objective tự nhiên khi đối tượng lý tưởng là một conditional expectation hoặc projection.',
+        },
+        {
+          type: 'formula',
+          label: 'Sample variance và câu hỏi s² có phải variance?',
+          content: math`$$
+s^2
+=
+\frac{1}{n-1}\sum_{i=1}^n(x_i-\bar x)^2,
+\qquad
+\bar x=\frac1n\sum_{i=1}^nx_i.
+$$`,
+          note:
+            'Đúng: s² thường ký hiệu sample variance không chệch. Population variance thường là σ². Nếu code dùng mean(...²) với mẫu số n thì đó là empirical second central moment theo convention MLE, không đúng y hệt s² mẫu số n−1.',
+        },
+        {
+          type: 'formula',
+          label: 'Relative L², RMSE và cosine đo ba điều khác nhau',
+          content: math`$$
+\operatorname{RelL2}(a,b)
+=
+\frac{\|a-b\|_2}{\max(\|b\|_2,\varepsilon)},
+\qquad
+\operatorname{RMSE}(a,b)
+=
+\sqrt{\frac1m\sum_{j=1}^m(a_j-b_j)^2},
+$$
+$$
+\operatorname{CosSim}(a,b)
+=
+\frac{\langle a,b\rangle}
+{\max(\|a\|_2\|b\|_2,\varepsilon)}.
+$$`,
+          note:
+            'Relative L2 đo sai số theo scale reference; RMSE giữ đơn vị gốc; cosine chủ yếu đo hướng/shape. Một policy có cosine cao vẫn có thể sai amplitude.',
+        },
+        {
+          type: 'code',
+          label: 'Python · gọi đúng loại chuẩn',
+          content: code`def relative_l2(value, reference, eps=1e-12):
+    value = np.asarray(value, dtype=float)
+    reference = np.asarray(reference, dtype=float)
+    return np.linalg.norm(value - reference) / max(
+        np.linalg.norm(reference), eps
+    )
+
+rmse = np.sqrt(np.mean((value - reference) ** 2))
+frobenius = np.linalg.norm(matrix, ord="fro")
+spectral = np.linalg.norm(matrix, ord=2)
+
+# PyTorch terminal L² loss:
+terminal_loss = torch.mean(
+    torch.sum((p_T - terminal_target) ** 2, dim=-1)
+)`,
+        },
+        {
+          type: 'insight',
+          tone: 'rose',
+          title: '“Norm nhỏ” chỉ có nghĩa khi biết scale và denominator',
+          content:
+            'Sai số tuyệt đối 0.01 có thể nhỏ với inventory 1 nhưng lớn với inventory 0.001. Relative error lại bùng nổ khi reference gần 0. Vì vậy phải báo cả absolute metric, relative metric, denominator guard ε và đơn vị.',
+        },
+      ],
+    },
+    {
+      heading: '21. Full Law: từ phân phối xác suất đến Deep Sets',
+      eyebrow: 'Measure-valued state',
+      summary:
+        '“Full Law” nghĩa policy hoặc dynamics có thể phụ thuộc vào hình dạng của cả phân phối, không chỉ mean. Trong tính toán, law vô hạn chiều thường được thay bằng empirical particles và một representation bất biến theo thứ tự.',
+      blocks: [
+        {
+          type: 'comparison',
+          columns: ['Mức representation', 'Giữ được gì?', 'Có thể làm mất gì?'],
+          rows: [
+            ['Mean only $m_t$', 'Vị trí trung tâm', 'Dispersion, skewness, tails, multimodality'],
+            ['Mean + covariance', 'Trung tâm và độ phân tán tuyến tính', 'Asymmetry và cấu trúc tail'],
+            ['Một số moments/quantiles', 'Các đặc trưng được chọn trước', 'Thông tin ngoài feature set'],
+            ['Empirical law $\\mu_t^N$', 'Cloud hạt hữu hạn', 'Sampling error giữa empirical và population law'],
+            ['Deep Sets embedding', 'Set feature học được, permutation invariant', 'Bị giới hạn bởi N, latent dimension và training'],
+            ['Exact law $\\mu_t$', 'Probability measure đầy đủ', 'Đối tượng vô hạn chiều, khó tính trực tiếp'],
+          ],
+        },
+        {
+          type: 'formula',
+          label: 'Không gian luật có second moment hữu hạn',
+          content: math`$$
+\mathcal P_2(\mathbb R^d)
+=
+\left\{
+\mu:\mu\text{ is a probability measure},\;
+\int_{\mathbb R^d}\|x\|_2^2\,\mu(\mathrm dx)<\infty
+\right\}.
+$$`,
+          note:
+            'Chỉ số 2 nối Full Law với geometry L²/Wasserstein: second moment phải hữu hạn để nhiều cost bậc hai và khoảng cách W₂ có nghĩa.',
+        },
+        {
+          type: 'formula',
+          label: 'Empirical measure và Deep Sets encoder',
+          content: math`$$
+\mu_t^N=\frac1N\sum_{j=1}^N\delta_{X_t^j},
+\qquad
+e_t^\theta
+=
+\rho_\theta\!\left(
+\frac1N\sum_{j=1}^N\phi_\theta(X_t^j)
+\right).
+$$`,
+          note:
+            'Dùng cùng φ cho mọi particle rồi mean-pool khiến embedding không đổi khi hoán vị thứ tự agent. ρ sau pooling biến summary thành law feature.',
+        },
+        {
+          type: 'diagram',
+          kind: 'full-law-encoder',
+          title: 'Từ particle cloud đến policy phụ thuộc law',
+          caption:
+            'Các agent không có thứ tự tự nhiên. Shared encoder và symmetric pooling tạo law embedding, sau đó adjoint/control network nhận state cá nhân cùng thông tin quần thể.',
+        },
+        {
+          type: 'formula',
+          label: 'Policy và martingale heads phụ thuộc law',
+          content: math`$$
+p_0^\theta=p_0^\theta(X_0,e_0),\qquad
+q_t^\theta=q^\theta(t,X_t,e_t),\qquad
+q_t^{0,\theta}=q^{0,\theta}(t,X_t,e_t),
+\qquad
+\alpha_t^\theta=\mathcal C\!\left(\tfrac12R^{-1}p_t^\theta,X_t\right).
+$$`,
+          note:
+            'C là control map áp ràng buộc. q phản ứng private noise; q⁰ phản ứng common noise. Law embedding là input, không thay thế terminal condition hay Hamiltonian.',
+        },
+        {
+          type: 'formula',
+          label: 'Common noise biến law thành random measure',
+          content: math`$$
+\mu_t=\mathcal L(X_t\mid\mathcal F_t^0),
+\qquad
+\mu_t(\omega^0)\in\mathcal P_2(\mathbb R^d).
+$$`,
+          note:
+            'Sau khi cố định một common-noise path ω⁰, ta có một conditional distribution của agent. Đổi common shock thì cả distribution này đổi.',
+        },
+        {
+          type: 'formula',
+          label: 'Lions derivative: đạo hàm theo một probability law',
+          content: math`$$
+F(\mu)=\widetilde F(\xi),\qquad \mu=\mathcal L(\xi),
+\qquad
+D\widetilde F(\xi)
+=
+\partial_\mu F(\mu)(\xi),
+$$
+$$
+\mathrm dp_t
+=-
+\left[
+\partial_xH(t,X_t,\mu_t,p_t,\alpha_t)
++\widetilde{\mathbb E}\!
+\left[
+\partial_\mu H(t,\widetilde X_t,\mu_t,\widetilde p_t,\widetilde\alpha_t)(X_t)
+\right]
+\right]\mathrm dt
++q_t\,\mathrm dW_t+q_t^0\,\mathrm dW_t^0.
+$$`,
+          note:
+            'Ta “lift” hàm trên measures thành hàm của random variable trong L² rồi lấy Fréchet derivative. Biến trong ngoặc cuối $X_t$ là điểm tại đó measure derivative được đánh giá.',
+        },
+        {
+          type: 'paragraph',
+          content:
+            'MFG và MFC xử lý law khác nhau. Trong MFG, một agent đại diện xem flow $\\mu$ là môi trường ngoại sinh khi giải best response, sau đó áp consistency $\\mu=\\operatorname{Law}(X^{\\alpha^\\star})$. Trong MFC, planner thay policy của cả quần thể nên phải nội hóa tác động lên law. Không nên chèn hạng Lions derivative vào mọi nhánh chỉ vì công thức tổng quát có nó: dependency thực sự của objective mới quyết định hạng nào tồn tại.',
+        },
+        {
+          type: 'comparison',
+          columns: ['Cụm từ', 'Khẳng định hợp lý', 'Khẳng định quá mức'],
+          rows: [
+            ['Full-law input', 'Network nhận empirical particle cloud qua set encoder', 'Đã quan sát probability law liên tục chính xác'],
+            ['Full-MV rollout', 'Có empirical law, private và common noise', 'Đã giải chính xác master equation'],
+            ['Permutation invariant', 'Đổi thứ tự particles không đổi pooled embedding', 'Embedding giữ mọi thông tin của distribution'],
+            ['Particle approximation', 'Hội tụ có thể xảy ra dưới giả định và N→∞', 'N hữu hạn không có sampling error'],
+            ['Law derivative correction', 'Planner nội hóa distribution effect đã đặc tả', 'Mọi MFC luôn có cùng multiplier/công thức'],
+          ],
+        },
+        {
+          type: 'code',
+          label: 'PyTorch · Deep Sets tối giản',
+          content: code`class EmpiricalLawEncoder(nn.Module):
+    def __init__(self, d, hidden, law_dim):
+        super().__init__()
+        self.phi = nn.Sequential(
+            nn.Linear(d, hidden), nn.ReLU(),
+            nn.Linear(hidden, law_dim),
+        )
+        self.rho = nn.Sequential(
+            nn.Linear(law_dim, hidden), nn.ReLU(),
+            nn.Linear(hidden, law_dim),
+        )
+
+    def forward(self, particles):
+        # particles: [batch, agents, d]
+        encoded = self.phi(particles)
+        pooled = encoded.mean(dim=1)  # invariant theo thứ tự agents
+        return self.rho(pooled)
+
+# Unit test symmetry:
+e1 = encoder(x)
+e2 = encoder(x[:, torch.randperm(x.shape[1])])
+assert torch.allclose(e1, e2, atol=1e-6)`,
+        },
+        {
+          type: 'steps',
+          title: 'Full-Law audit tối thiểu',
+          items: [
+            'Permutation test: hoán vị particles không đổi law embedding/policy aggregate.',
+            'Particle-size test: tăng N và theo dõi objective, law moments, fixed-point residual.',
+            'Moment collision test: tạo hai distributions cùng mean nhưng khác variance/tail để xem encoder có phân biệt.',
+            'Noise channel test: tắt riêng private và common noise; theo dõi q và q⁰ norms.',
+            'Conditional test: dùng chung common-noise path khi so các policy.',
+            'Law ablation: thay Deep Sets bằng mean/moments để đo giá trị thật của representation giàu hơn.',
+          ],
+        },
+        {
+          type: 'insight',
+          tone: 'rose',
+          title: '“Full Law” là mục tiêu representation, không phải giấy chứng nhận chính xác',
+          content:
+            'Một empirical cloud hữu hạn đi qua neural encoder vẫn có particle error, approximation error và optimization error. Cách viết chuyên nghiệp là “particle approximation với permutation-invariant law encoder”, kèm N, latent dimension và diagnostics.',
+        },
+      ],
+    },
+    {
+      heading: '21A. Full Law trong pipeline: moment closure và empirical-law diagnostic',
+      eyebrow: 'Dạng triển khai riêng',
+      summary:
+        'Lý thuyết Full Law ở mục trước được dùng để thiết kế hai specialization khác nhau: một nhánh Deep Sets để stress-test biểu diễn law/noise và một nhánh moment closure để so sánh MFG/MFC về kinh tế.',
+      blocks: [
+        {
+          type: 'comparison',
+          columns: ['Nhánh', 'Population descriptor', 'Nhiệm vụ'],
+          rows: [
+            ['Economic MFG/MFC', '$m_t^N$ và $\\bar\\alpha_t^N$', 'Best response, planner, crowding và Price-of-Anarchy diagnostics'],
+            ['Empirical-law diagnostic', '$\\mu_t^N$ qua Deep Sets', 'Permutation invariance, $p_0$, private/common noise, $q$ và $q^0$'],
+            ['Exact Full Law theory', '$\\mu_t=\\mathcal L(X_t\\mid\\mathcal F_t^0)$', 'Nền khái niệm; không phải exact master-equation solver'],
+          ],
+        },
+        {
+          type: 'formula',
+          label: 'Moment closure dùng cho nhánh kinh tế',
+          content: math`$$
+m_t^N=\frac1N\sum_{i=1}^{N}X_t^i,
+\qquad
+\bar\alpha_t^N=\frac1N\sum_{i=1}^{N}\alpha_t^i,
+$$
+$$
+F_{\rm crowd}(x,\alpha,\bar\alpha)
+=
+\omega_p\,x^\top C\bar\alpha
++\omega_\tau\,\alpha^\top C\bar\alpha .
+$$`,
+          note:
+            'MFG nhận mean-control flow như môi trường trong best response rồi cập nhật flow bằng outer fixed point. MFC sinh flow nội sinh từ population rollout và dùng planner driver. Nhánh này không gọi Deep Sets trong vòng lặp kinh tế.',
+        },
+        {
+          type: 'formula',
+          label: 'Dispersion term dùng cho empirical-law diagnostic',
+          content: math`$$
+m_t^N=\frac1N\sum_{i=1}^{N}X_t^i,
+\qquad
+F_{\rm disp}^N
+=\frac1N\sum_{i=1}^{N}
+(X_t^i-m_t^N)^\top G(X_t^i-m_t^N),
+$$
+$$
+\nabla_xH_{\rm MFG}^{\rm diag}
+=2Qx+2G(x-m),
+\qquad
+\nabla_xH_{\rm MFC}^{\rm diag}
+=2Qx+4G(x-m).
+$$`,
+          note:
+            'Hệ số 2/4 là convention của diagnostic adapter để tạo hai chế độ direct/social effect. Objective này khác adverse-crowding objective ở trên, nên không dùng hai cost của nhánh này để lập PoA kinh tế.',
+        },
+        {
+          type: 'code',
+          label: 'Pseudocode · routing đúng population feature',
+          content: code`if branch == "economic":
+    population_feature = {
+        "mean_inventory": particles.mean(dim=0),
+        "mean_control": mean_alpha_flow[k],
+    }
+    driver = economic_mfg_or_mfc_driver(population_feature)
+
+elif branch == "empirical_law_diagnostic":
+    law_embed = law_encoder(particles)
+    q = q_net(t, particles, law_embed)
+    q0 = q0_net(t, particles, law_embed)
+    driver = dispersion_driver(mode="MFG" or "MFC")
+
+# Không đổi objective/evaluator chỉ vì hai nhánh cùng dùng particles.`,
+        },
+        {
+          type: 'insight',
+          tone: 'rose',
+          title: 'Tên “Full-MV” không đồng nghĩa exact Full Law',
+          content:
+            'Có empirical particles, Deep Sets, private noise và common noise mới chứng minh rằng solver có một representation giàu hơn mean-only. Nó chưa chứng minh hội tụ tới law liên tục, chưa giải master equation và chưa thay thế moment-closure objective dùng trong economic comparison.',
+        },
+      ],
+    },
+    {
+      heading: '22. Giải phẫu mô hình mẹ: từ kinh tế đến một bước code',
+      eyebrow: 'Source of truth của các nhánh',
+      summary:
+        'Thân cây chung là hệ state–objective–adjoint với terminal target $2AX_T$. Các nhánh chỉ thay population descriptor, interaction driver, control constraints và protocol fixed point; không thay tùy ý objective để có kết quả đẹp.',
+      blocks: [
+        {
+          type: 'paragraph',
+          content:
+            'Câu chuyện kinh tế bắt đầu trước phương trình: một agent giữ vector inventory, muốn giảm vị thế trong thời hạn hữu hạn, trả liquidity cost khi giao dịch, chịu rủi ro khi còn giữ hàng và có thể bị ảnh hưởng bởi dòng lệnh của quần thể. Mô hình toán chỉ là cách ghi chính xác năm câu hỏi: state là gì, agent điều khiển gì, noise nào quan sát được, cost nào cần tối thiểu và market interaction đi qua mean hay full law.',
+        },
+        {
+          type: 'formula',
+          label: 'Mô hình mẹ reduced-form được dùng',
+          content: math`$$
+\begin{aligned}
+\mathrm dX_t^i
+&=-\alpha_t^i\,\mathrm dt
++\Sigma_{\rm id}\,\mathrm dW_t^i
++\Sigma_0\,\mathrm dW_t^0,\\
+J(\alpha)
+&=\mathbb E\!\left[
+\int_0^T
+\Big(
+\alpha_t^\top R\alpha_t
++X_t^\top QX_t
++F_{\rm pop}(X_t,\alpha_t;\mathsf P_t)
+\Big)\mathrm dt
++X_T^\top AX_T
+\right].
+\end{aligned}
+$$`,
+          note:
+            'R≻0 phạt tốc độ giao dịch, Q⪰0 phạt inventory trong kỳ, A⪰0 phạt tồn kho cuối kỳ. Population descriptor $\\mathsf P_t$ là mean flow trong nhánh kinh tế hoặc empirical-law embedding trong nhánh diagnostic. Reduced-form nghĩa price risk và liquidity được nén vào R, Q, A, C và evaluator.',
+        },
+        {
+          type: 'formula',
+          label: 'Population term và common economic evaluator',
+          content: math`$$
+F_{\rm pop}^{\rm econ}
+=
+\omega_pX_t^\top C\bar\alpha_t
++\omega_\tau\alpha_t^\top C\bar\alpha_t,
+$$
+$$
+\widehat J_{\rm econ}
+=
+\sum_{k=0}^{N-1}\!\Delta t\,
+\left(
+\alpha_k^\top R\alpha_k
++X_k^\top QX_k
++\omega_pX_k^\top C\bar\alpha_k
++\omega_\tau\alpha_k^\top C\bar\alpha_k
+\right)
++X_N^\top AX_N .
+$$`,
+          note:
+            'Đây là objective dùng để chấm chung các policy kinh tế. Hạng permanent crowding đo cost khi còn giữ inventory trong một dòng bán đồng hướng; hạng temporary crowding đo cost khi chính tốc độ giao dịch trùng với dòng bán của quần thể.',
+        },
+        {
+          type: 'formula',
+          label: 'Hamiltonian, FOC và control map',
+          content: math`$$
+H(t,x,\mu,p,a)
+=f(t,x,\mu,a)+\langle b(t,x,\mu,a),p\rangle,
+\qquad
+\nabla_aH=2Ra-p=0,
+$$
+$$
+a_{\rm raw}^\star=\frac12R^{-1}p,
+\qquad
+\alpha^\star=\mathcal C(a_{\rm raw}^\star,x,\Delta t).
+$$`,
+          note:
+            'Raw FOC đúng cho phần Hamiltonian có drift b=−a và control cost aᵀRa. Trong pipeline, temporary-crowding cost vẫn nằm trong training objective/evaluator nhưng raw map vẫn là $\\tfrac12R^{-1}p$ rồi mới qua constraint map. Vì vậy không nên gọi raw map này là closed-form argmin của Hamiltonian đã cộng đầy đủ temporary crowding.',
+        },
+        {
+          type: 'comparison',
+          columns: ['Control mode', 'Công thức', 'Ý nghĩa kinh tế'],
+          rows: [
+            ['Unconstrained', '$\\mathcal C(a,x)=a$', 'Cho phép mua lại/short inventory; thuận lợi cho benchmark giải tích'],
+            ['Sell only', '$\\mathcal C(a,x)=\\max(a,0)$', 'Không cho buyback nhưng có thể bán quá inventory trong một step'],
+            ['Bounded sell', '$0\\le\\alpha\\le x/\\Delta t$', 'Không âm và không oversell ở bước kế tiếp'],
+            ['State floor', '$X_{k+1}\\leftarrow\\max(X_{k+1},0)$', 'Numerical guard, nhưng có thể làm dynamics không trơn'],
+            ['Forced terminal', '$n_N\\leftarrow n_N+X_{N^-}$', 'Accounting/evaluation rule, không phải policy đã tự thanh lý'],
+          ],
+        },
+        {
+          type: 'formula',
+          label: 'State–adjoint system tổng quát',
+          content: math`$$
+\begin{cases}
+\mathrm dX_t=b(t,X_t,\mu_t,\alpha_t)\,\mathrm dt
++\Sigma\,\mathrm dW_t+\Sigma_0\,\mathrm dW_t^0,\\
+\mathrm dp_t=-\mathcal D_xH(t,X_t,\mu_t,p_t,\alpha_t)\,\mathrm dt
++q_t\,\mathrm dW_t+q_t^0\,\mathrm dW_t^0,\\
+p_T=\mathcal D_xg(X_T,\mu_T),\\
+\alpha_t=\arg\min_{a\in\mathcal A}H(t,X_t,\mu_t,p_t,a).
+\end{cases}
+$$`,
+          note:
+            'Với terminal cost được dùng ở đây, $g(X_T)=X_T^\\top AX_T$ nên terminal target cụ thể là $p_T=2AX_T$. MFG dùng mean-flow consistency/fixed point; MFC dùng planner driver. q và q⁰ giữ private/common martingale channels.',
+        },
+        {
+          type: 'code',
+          label: 'Pseudocode · một time step Deep adjoint',
+          content: code`# Nhánh kinh tế: population_feature = (mean_inventory, mean_alpha)
+# Nhánh diagnostic: law_feature = deepsets(particles)
+p = p0_net(x0, population_feature0)
+
+for k in range(n_steps):
+    q = q_net(t[k], x, population_feature)
+    q0 = q0_net(t[k], x, population_feature)
+
+    alpha_raw = 0.5 * torch.linalg.solve(R, p.T).T
+    alpha = control_map(alpha_raw, inventory=x, dt=dt)
+
+    p = p - implemented_driver_gradient(
+        t[k], x, alpha, population_feature
+    ) * dt + q * dW[k] + q0 * dW0[k]
+
+    x = x - alpha * dt \
+          + sigma_id @ dW[k] + sigma0 @ dW0[k]
+
+terminal_target = 2.0 * x @ A
+loss = ((p - terminal_target) ** 2).sum(-1).mean()`,
+        },
+        {
+          type: 'comparison',
+          columns: ['Nhánh khái niệm', 'Giữ từ mô hình mẹ', 'Bật/thay thành phần nào?'],
+          rows: [
+            ['Clean LQ', 'Quadratic cost, linear dynamics', 'Tắt law/constraint phức tạp; so Riccati'],
+            ['AC diagonal-impact', 'Inventory, impact, risk', 'Scalar path từng tài sản; full covariance khi chấm risk'],
+            ['Mean-control bridge', 'State–adjoint core', 'Thêm mean control và outer relaxation đơn giản'],
+            ['Empirical-law diagnostic', 'FBSDE + particles', 'Deep Sets, private/common noise, p₀, q và q⁰'],
+            ['Economic MFG', 'Best-response solver', 'Mean-control flow ngoại sinh bên trong; fixed point bên ngoài'],
+            ['Economic MFC', 'Population rollout', 'Mean inventory/control và planner crowding gradient'],
+            ['Common evaluator', 'Policy từ MFG, MFC và AC', 'Cùng crowding objective, terminal rule và noise protocol'],
+          ],
+        },
+        {
+          type: 'steps',
+          title: 'Tách tham số kinh tế khỏi hyperparameter',
+          items: [
+            'Structural/economic: R, Q, A, impact matrix, risk aversion, horizon, control constraints.',
+            'Stochastic: Σid, Σ0, initial law, Brownian dimension và correlation structure.',
+            'Game/control: interaction function Ψ, MFG consistency map, MFC law derivative.',
+            'Discretization: Δt, số particles, numerical scheme và terminal treatment.',
+            'Learning: network depth/width, activation, optimizer, learning rate, clipping và regularization weights.',
+            'Evaluation: seed registry, held-out paths, same-noise protocol, metrics và confidence intervals.',
+          ],
+        },
+        {
+          type: 'insight',
+          tone: 'teal',
+          title: 'Model gốc là hệ phương trình và interface, không phải tên một class',
+          content:
+            'Hai class có thể không kế thừa nhau trong Python nhưng vẫn là hai specialization của cùng dynamics–objective–adjoint interface. Ngược lại, dùng chung một neural module không chứng minh hai nhánh đang giải cùng bài toán kinh tế. Source of truth luôn là phương trình, cost decomposition và evaluator đi kèm.',
+        },
+        {
+          type: 'insight',
+          tone: 'rose',
+          title: 'Reduced-form execution không phải price-process hoàn chỉnh',
+          content:
+            'Nếu state chỉ là inventory và covariance đi vào Q/evaluator, mô hình không trực tiếp dự báo midprice, spread động, queue position hay transient resilience. Đây là lựa chọn phạm vi hợp lý cho việc nghiên cứu execution control, nhưng phải nói rõ khi diễn giải kết quả.',
+        },
+      ],
+    },
+    {
+      heading: '23. Thiết kế benchmark như scientific unit test',
+      eyebrow: 'Evidence architecture',
+      summary:
+        'Benchmark tốt không chỉ xếp hạng model; nó cô lập một nghi ngờ. Chuỗi kiểm chứng nên đi từ bài có nghiệm biết đến interaction phức tạp, để khi thất bại còn xác định được lỗi nằm ở đại số, stochastic rollout, law encoder hay evaluator.',
+      blocks: [
+        {
+          type: 'comparison',
+          columns: ['Tầng kiểm chứng', 'Reference/đối chứng', 'Nghi ngờ cần loại', 'Metric chính'],
+          rows: [
+            ['LQ/Riccati', 'ODE ma trận độc lập neural', 'Sai dấu, factor 2, terminal map, Δt', 'Relative L2 control, costate và terminal residual'],
+            ['AC specialization', 'Scalar AC + diagonal-impact evaluator', 'Sai τ, η̃, covariance conversion hoặc completion', 'α/X path, cost components, AC self-check'],
+            ['Mean-field bridge', 'Zero/small interaction limits', 'Outer update không ổn hoặc mean feedback sai', 'Fixed-point residual và limiting behavior'],
+            ['Empirical-law/noise diagnostic', 'Noise-off, moment encoder, particle refinement', 'q/q⁰, set symmetry hoặc law sampling sai', 'Law features, q norms, N sensitivity'],
+            ['Economic MFG/MFC', 'Các policy qua cùng moment-closure evaluator', 'False dominance do objective/noise khác', 'Objective gap, decomposition, fitted PoA, multi-seed'],
+          ],
+        },
+        {
+          type: 'paragraph',
+          content:
+            'AC có ít nhất ba vai trò khác nhau. Thứ nhất, nó là nghiệm tham chiếu trong môi trường cổ điển, nơi một solver mới phải xấp xỉ chứ không nên “đánh bại” AC nếu objective và feasible set thật sự giống hệt. Thứ hai, nó là initializer hoặc structured prior cho một bài mean-field khó hơn. Thứ ba, nó là economic baseline được chấm lại dưới objective mở rộng. Trộn ba vai trò này sẽ dẫn đến kết luận sai.',
+        },
+        {
+          type: 'formula',
+          label: 'Bộ metric tối thiểu cho state–control–boundary',
+          content: math`$$
+e_\alpha^{\rm rel}
+=\frac{\|\alpha-\alpha^{\rm ref}\|_2}
+{\max(\|\alpha^{\rm ref}\|_2,\varepsilon)},
+\qquad
+e_X^{\rm rel}
+=\frac{\|X-X^{\rm ref}\|_2}
+{\max(\|X^{\rm ref}\|_2,\varepsilon)},
+$$
+$$
+e_T
+=
+\left(\mathbb E\|p_T-\mathcal D_xg(X_T,\mu_T)\|_2^2\right)^{1/2},
+\qquad
+r_{\rm fp}
+=\|\mu-\Phi(\mu)\|.
+$$`,
+          note:
+            'Không metric đơn nào đủ: control đúng shape có thể sai completion; terminal residual thấp có thể đi cùng objective xấu; fixed-point tốt không nói equilibrium hiệu quả xã hội.',
+        },
+        {
+          type: 'formula',
+          label: 'Common evaluator cho so sánh kinh tế',
+          content: math`$$
+\widehat J_m
+=
+\frac1M\sum_{r=1}^{M}
+C\!\left(
+\alpha_m^{(r)},X_m^{(r)},\bar\alpha_{\rm env}^{(r)};
+\omega_r
+\right),
+\qquad
+\omega_r\text{ shared by every method }m.
+$$`,
+          note:
+            'Common random numbers giảm variance của chênh lệch pairwise. Cần cùng initial states, common/private shocks, horizon, terminal rule, normalization và cost decomposition.',
+        },
+        {
+          type: 'comparison',
+          columns: ['Chế độ đánh giá', 'Làm gì?', 'Dùng để kết luận'],
+          rows: [
+            ['Native', 'Mỗi policy tạo population flow của chính nó', 'Kết quả kinh tế chính trong môi trường endogenous'],
+            ['Same-flow', 'Chấm nhiều controls dưới cùng một mean flow', 'Tách chất lượng control khỏi khác biệt môi trường'],
+            ['Forced terminal', 'Cộng inventory còn lại vào trade cuối và ghi cost', 'Robustness/accounting; không che terminal failure'],
+            ['Pre-forced terminal', 'Đo inventory ngay trước khi cưỡng bức', 'Khả năng policy tự hoàn thành'],
+            ['Noise matched', 'Dùng cùng Brownian draws giữa methods', 'So sánh pairwise ít nhiễu hơn'],
+            ['Held-out', 'Tách paths/seeds train và evaluate', 'Generalization Monte Carlo, tránh chọn seed đẹp'],
+          ],
+        },
+        {
+          type: 'formula',
+          label: 'PoA chuẩn và fitted ratio',
+          content: math`$$
+\operatorname{PoA}
+=
+\frac{\sup_{\alpha\in\mathcal E_{\rm MFG}}J_{\rm social}(\alpha)}
+{\inf_{\beta\in\mathcal A_{\rm planner}}J_{\rm social}(\beta)}
+\ge1,
+\qquad
+\widehat{\operatorname{PoA}}
+=
+\frac{\widehat J_{\rm MFG}}{\widehat J_{\rm MFC}}.
+$$`,
+          note:
+            'PoA lý thuyết dùng worst equilibrium và exact planner optimum. Ratio từ hai solver fitted chỉ là diagnostic; nhỏ hơn 1 báo cần audit approximation, seed, regularization, fixed-point và evaluator.',
+        },
+        {
+          type: 'comparison',
+          columns: ['Ablation', 'Câu hỏi nó trả lời'],
+          rows: [
+            ['Tắt law encoder ở diagnostic branch', 'Representation empirical-law có thực sự dùng thông tin ngoài mean/moments?'],
+            ['Tắt private noise', 'q head có đang học idiosyncratic sensitivity?'],
+            ['Tắt common noise', 'q⁰ và conditional law có vai trò gì?'],
+            ['Tắt crowding term ở economic branch', 'Chênh lệch đến từ strategic interaction hay optimizer?'],
+            ['Tắt auxiliary losses', 'Kết quả có phụ thuộc regularization hơn objective gốc?'],
+            ['Đổi N và Δt', 'Particle error và time discretization có ổn định?'],
+            ['Đổi seed/initialization', 'Optimization variance lớn đến đâu?'],
+            ['Riccati/AC không đưa vào loss', 'Reference có thật sự độc lập với solver?'],
+          ],
+        },
+        {
+          type: 'steps',
+          title: 'Điều kiện để một bảng benchmark có sức thuyết phục',
+          items: [
+            'Khóa trước objective, feasible set, metric chính và threshold; không chọn sau khi xem kết quả.',
+            'Báo cả total cost lẫn execution, inventory risk, terminal và crowding components.',
+            'Báo mean, standard deviation, số seed và pairwise differences; tránh chỉ một seed.',
+            'Lưu best checkpoint theo validation rule, đồng thời phân biệt best train với last train.',
+            'Ghi dimension, time steps, particles, network size, optimizer budget, hardware và runtime.',
+            'Không dùng reference analytical trong training loss nếu mục tiêu là kiểm numerical recovery độc lập.',
+            'Nếu tầng đơn giản thất bại, dừng claim ở tầng phức tạp thay vì lấy loss thấp làm bằng chứng thay thế.',
+          ],
+        },
+        {
+          type: 'code',
+          label: 'Python · paired benchmark summary',
+          content: code`paired = (
+    results.pivot_table(
+        index=["seed", "dimension"],
+        columns="method",
+        values="objective",
+    )
+    .dropna()
+)
+paired["MFG_minus_MFC"] = paired["MFG"] - paired["MFC"]
+paired["MFG_minus_AC"] = paired["MFG"] - paired["AC"]
+
+summary = paired.agg(["mean", "std", "count"]).T
+summary["se"] = summary["std"] / np.sqrt(summary["count"])
+summary["ci95_halfwidth"] = 1.96 * summary["se"]
+
+# Luôn giữ terminal inventory trước forced liquidation.
+assert "terminal_inventory_before_forced" in results.columns`,
+        },
+        {
+          type: 'insight',
+          tone: 'teal',
+          title: 'Benchmark là kiến trúc bằng chứng',
+          content:
+            'Một hierarchy mạnh cho biết chính xác mỗi tầng cho phép nói gì và chưa cho phép nói gì. Kết quả economic tốt không tự sửa một FBSDE sai; ngược lại, khớp Riccati không tự chứng minh giá trị kinh tế trong crowding environment.',
+        },
+      ],
+    },
+    {
+      heading: '24. Những cầu nối nâng cao và giới hạn mô hình',
+      eyebrow: 'Beyond the core',
+      summary:
+        'FBSDE chỉ là một mặt của hệ sinh thái stochastic control. Hiểu các cầu nối sang density PDE, value PDE, master equation và market microstructure giúp biết khi nào mô hình hiện tại đủ dùng và khi nào cần mở rộng.',
+      blocks: [
+        {
+          type: 'formula',
+          label: 'Fokker–Planck: dynamics của density',
+          content: math`$$
+\partial_t m_t(x)
+=
+-\nabla_x\!\cdot\!\big(b(t,x,\alpha_t,m_t)m_t(x)\big)
++\frac12\sum_{i,j}
+\partial_{x_ix_j}^2
+\left(
+[\sigma\sigma^\top]_{ij}m_t(x)
+\right).
+$$`,
+          note:
+            'SDE theo dõi một path; Fokker–Planck theo dõi distribution/density của cả population. Trong MFG không common noise, HJB và Fokker–Planck thường tạo một hệ backward–forward PDE.',
+        },
+        {
+          type: 'formula',
+          label: 'HJB, Feynman–Kac và decoupling field',
+          content: math`$$
+0=\partial_tV+\inf_a
+\left\{
+f+\nabla V^\top b
++\tfrac12\operatorname{Tr}(\sigma\sigma^\top\nabla^2V)
+\right\},
+\qquad
+V(T,x)=g(x),
+$$
+$$
+p_t\approx\nabla_xV(t,X_t),\qquad
+q_t\approx\nabla_x^2V(t,X_t)\sigma
+\quad\text{under a smooth Markov setting}.
+$$`,
+          note:
+            'HJB nhìn toàn state space; FBSDE nhìn sampled trajectories. Feynman–Kac nối PDE bán tuyến tính với BSDE khi các giả định regularity và integrability thỏa.',
+        },
+        {
+          type: 'comparison',
+          columns: ['Đối tượng', 'Không gian đầu vào', 'Khó khăn số'],
+          rows: [
+            ['Value function $V(t,x)$', 'Thời gian × state', 'Curse of dimensionality theo d'],
+            ['Decoupling field $u(t,x)$', 'State → adjoint/value', 'Hàm cao chiều nhưng có thể học từ paths'],
+            ['MFG HJB–FP system', 'State + density flow', 'Forward–backward coupling'],
+            ['Master equation $U(t,x,\\mu)$', 'State + probability measure', 'Đạo hàm theo law, vô hạn chiều'],
+            ['Particle FBSDE', 'N particles × d', 'Sampling/interaction cost tăng theo N và d'],
+          ],
+        },
+        {
+          type: 'formula',
+          label: 'Error budget theo các giới hạn',
+          content: math`$$
+\mathfrak E
+\lesssim
+C_{\rm time}\Delta t^{\,r}
++C_{\rm particle}\,\varepsilon_N
++C_{\rm net}\,\varepsilon_{\rm approx}
++C_{\rm opt}\,\varepsilon_{\rm train}
++C_{\rm fp}\,r_{\rm fp}
++C_{\rm MC}M^{-1/2}.
+$$`,
+          note:
+            'Đây là sơ đồ tư duy, không phải bound phổ quát. Mỗi hạng cần assumptions riêng: regularity, moment bounds, stability/monotonicity, network capacity và optimizer.',
+        },
+        {
+          type: 'formula',
+          label: 'Banach fixed point và outer loop MFG',
+          content: math`$$
+\Phi:\mu\longmapsto
+\mathcal L\!\left(X^{\operatorname{BR}(\mu)}\right),
+\qquad
+\|\Phi(\mu)-\Phi(\nu)\|_{\mathcal B}
+\le \rho\,\|\mu-\nu\|_{\mathcal B},
+\qquad 0\le\rho<1.
+$$`,
+          note:
+            'Nếu best-response law map Φ là contraction trong một norm thích hợp, Banach fixed-point theorem cho fixed point duy nhất và iteration hội tụ. Trong thực nghiệm, relaxation có thể giúp ổn định nhưng không tự chứng minh ρ<1.',
+        },
+        {
+          type: 'comparison',
+          columns: ['Điều kiện lý thuyết', 'Nó bảo vệ điều gì?'],
+          rows: [
+            ['Lipschitz/linear growth', 'SDE/BSDE có nghiệm ổn định và moment hữu hạn'],
+            ['Convexity theo control', 'FOC đủ mạnh hơn và optimizer ít mơ hồ'],
+            ['$R\\succ0$', 'Temporary/control cost coercive; raw control map xác định'],
+            ['$Q,A\\succeq0$', 'Inventory penalties không tạo reward vô lý theo hướng âm'],
+            ['Lasry–Lions monotonicity', 'Hỗ trợ uniqueness/stability cho mean-field coupling'],
+            ['Small horizon/coupling hoặc Riccati solvability', 'Giảm nguy cơ FBSDE fully coupled mất ổn định'],
+            ['Uniform moment bounds', 'Particle approximation và law costs không bùng nổ'],
+          ],
+        },
+        {
+          type: 'comparison',
+          columns: ['Mở rộng execution', 'Thêm điều gì?', 'Khi nào cần?'],
+          rows: [
+            ['TWAP/VWAP', 'Time/volume benchmark', 'Baseline vận hành đơn giản và sanity limit risk-neutral'],
+            ['Transient impact', 'Impact decay/resilience state', 'Khi impact không mất ngay và không tồn tại vĩnh viễn'],
+            ['Obizhaeva–Wang style', 'Order-book resilience', 'Khi muốn nối optimal execution với liquidity recovery'],
+            ['Signals/order flow', 'Alpha state và market flow', 'Khi timing dùng forecast ngắn hạn'],
+            ['Limit orders', 'Fill probability và queue state', 'Khi execution venue/microstructure quan trọng'],
+            ['Price limits', 'State/control constraints phi tuyến', 'Thị trường có biên dao động và regime effects'],
+            ['Transaction-cost nonlinearity', 'Power-law hoặc concave/convex impact', 'Khi linear impact không phù hợp dữ liệu'],
+          ],
+        },
+        {
+          type: 'paragraph',
+          content:
+            'Một blog nền tảng nên tách hai câu hỏi. Câu hỏi thứ nhất là “solver có giải đúng mô hình đã viết không?” — trả lời bằng Riccati, AC, residual, refinement và unit tests. Câu hỏi thứ hai là “mô hình có mô tả dữ liệu/thị trường đủ tốt không?” — cần calibration ngoài mẫu, microstructure diagnostics, stability theo regime và đánh giá chi phí thực. Thành công ở câu hỏi đầu là điều kiện cần, không phải câu trả lời cho câu hỏi sau.',
+        },
+        {
+          type: 'steps',
+          title: 'Lộ trình học sâu sau chuyên khảo này',
+          items: [
+            'Đọc stochastic calculus theo hướng L²: martingale representation, conditional expectation và Itô isometry.',
+            'Học HJB–Fokker–Planck song song với stochastic maximum principle để thấy hai representation.',
+            'Học Wasserstein space và Lions derivative trước khi đọc master equation/full-law MFC.',
+            'Tự triển khai LQ/Riccati và AC rời rạc trước khi dùng neural solver.',
+            'Thực hiện particle-refinement, time-refinement, law ablation và common-noise tests.',
+            'Mở rộng execution lần lượt: transient impact, signals, constraints và order-book state.',
+          ],
+        },
+        {
+          type: 'insight',
+          tone: 'amber',
+          title: 'Hiện đại không đồng nghĩa phức tạp tối đa',
+          content:
+            'Một mô hình nhỏ có benchmark độc lập, đơn vị nhất quán và phạm vi rõ thường đáng tin hơn một kiến trúc Full-Law rất lớn nhưng không có refinement test. Chỉ thêm state/law feature khi cơ chế kinh tế và bằng chứng thực nghiệm yêu cầu.',
+        },
+      ],
+    },
+    {
+      heading: '25. Tài liệu tham khảo cốt lõi',
       eyebrow: 'Nguồn học thuật',
       summary:
         'Các nguồn được chọn để người đọc có thể đi từ original papers đến tài liệu tổng quan và kiểm tra từng lớp lập luận.',
@@ -1319,14 +2796,34 @@ seed_summary["ci95_high"] = (
               href: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC6112690/',
             },
             {
+              title: 'Yong & Zhou · Stochastic Controls: Hamiltonian Systems and HJB Equations',
+              note: 'Tài liệu hệ thống về Pontryagin stochastic maximum principle, adjoint systems và liên hệ với HJB.',
+              href: 'https://link.springer.com/book/10.1007/978-1-4612-1466-3',
+            },
+            {
+              title: 'Peng · A General Stochastic Maximum Principle for Optimal Control Problems',
+              note: 'Kết quả nền tảng cho stochastic maximum principle trong setting nonlinear tổng quát.',
+              href: 'https://epubs.siam.org/doi/10.1137/0328054',
+            },
+            {
               title: 'Almgren & Chriss · Optimal Execution of Portfolio Transactions',
-              note: 'Efficient frontier giữa market impact và volatility risk trong optimal execution.',
-              href: 'https://docslib.org/doc/1384720/optimal-execution-of-portfolio-transactions',
+              note: 'Mô hình rời rạc, expected shortfall, variance và efficient frontier giữa impact với volatility risk.',
+              href: 'https://doi.org/10.21314/JOR.2001.041',
+            },
+            {
+              title: 'Romero & Bautista · Exact Solutions for Optimal Execution and Riccati Equation',
+              note: 'Cầu nối giữa nghiệm Almgren–Chriss, phương trình ma trận và Riccati.',
+              href: 'https://arxiv.org/abs/1601.07961',
             },
             {
               title: 'Cardaliaguet & Lehalle · Mean Field Game of Controls and Trade Crowding',
               note: 'Đưa optimal liquidation vào extended MFG với interaction qua controls và crowding.',
               href: 'https://arxiv.org/abs/1610.09904',
+            },
+            {
+              title: 'Bensoussan et al. · Linear–Quadratic Mean Field Games',
+              note: 'Adjoint approach, Riccati structure, Banach fixed point và điều kiện tồn tại–duy nhất cho LQ-MFG.',
+              href: 'https://arxiv.org/abs/1404.5741',
             },
             {
               title: 'Carmona & Laurière · Deep Learning for MFG and MFC with Applications to Finance',
@@ -1344,9 +2841,24 @@ seed_summary["ci95_high"] = (
               href: 'https://arxiv.org/abs/1908.01613',
             },
             {
+              title: 'Carmona & Delarue · Controlled McKean–Vlasov Dynamics',
+              note: 'Stochastic maximum principle, FBSDE mean-field và điều kiện đủ cho optimal control.',
+              href: 'https://arxiv.org/abs/1303.5835',
+            },
+            {
+              title: 'Zaheer et al. · Deep Sets',
+              note: 'Cấu trúc neural permutation-invariant dùng để mã hóa empirical particle clouds.',
+              href: 'https://arxiv.org/abs/1703.06114',
+            },
+            {
               title: 'MIT OpenCourseWare · Stochastic Calculus',
               note: 'Brownian motion, Itô calculus và các building blocks của continuous-time finance.',
               href: 'https://ocw.mit.edu/courses/15-450-analytics-of-finance-fall-2010/511a32446b77d2566dae5d97253e83c9_MIT15_450F10_rec03.pdf',
+            },
+            {
+              title: 'Aalto University · Probability Theory',
+              note: 'Không gian L², conditional expectation như phép chiếu trực giao và Pythagorean identity.',
+              href: 'https://mooc.math.aalto.fi/~kkytola/files_KK/lectures_files_KK/ProbaTh-2019.pdf',
             },
             {
               title: 'Lasry & Lions · Mean Field Games',

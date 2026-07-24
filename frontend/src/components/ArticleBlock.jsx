@@ -229,6 +229,97 @@ function DiagramArtwork({ kind }) {
     );
   }
 
+  if (kind === 'ac-layers') {
+    return (
+      <svg viewBox="0 0 760 390" role="img" aria-label="Ba lớp mô hình Almgren Chriss">
+        <defs>
+          <marker id="ac-layer-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L9,3 z" className="diagram-arrow-head" />
+          </marker>
+        </defs>
+        <rect x="42" y="94" width="196" height="190" rx="20" className="diagram-card diagram-card-soft" />
+        <rect x="282" y="94" width="196" height="190" rx="20" className="diagram-card diagram-card-accent" />
+        <rect x="522" y="94" width="196" height="190" rx="20" className="diagram-card diagram-card-warm" />
+        <path d="M244 189 H266" markerEnd="url(#ac-layer-arrow)" className="diagram-flow-line" />
+        <path d="M484 189 H506" markerEnd="url(#ac-layer-arrow)" className="diagram-flow-line" />
+
+        <text x="140" y="133" textAnchor="middle" className="diagram-card-title">RỜI RẠC</text>
+        <text x="140" y="166" textAnchor="middle" className="diagram-card-value">nₖ · xₖ · τ</text>
+        <text x="140" y="201" textAnchor="middle" className="diagram-small-label">Implementation shortfall</text>
+        <text x="140" y="228" textAnchor="middle" className="diagram-small-label">Spread + impact</text>
+        <text x="140" y="255" textAnchor="middle" className="diagram-equation">E[C] + λ Var(C)</text>
+
+        <text x="380" y="133" textAnchor="middle" className="diagram-card-title">LIÊN TỤC</text>
+        <text x="380" y="166" textAnchor="middle" className="diagram-card-value">Ẋₜ = −αₜ</text>
+        <text x="380" y="201" textAnchor="middle" className="diagram-small-label">Euler–Lagrange</text>
+        <text x="380" y="228" textAnchor="middle" className="diagram-small-label">Hyperbolic path</text>
+        <text x="380" y="255" textAnchor="middle" className="diagram-equation">κ = √(λσ²/η)</text>
+
+        <text x="620" y="133" textAnchor="middle" className="diagram-card-title">ĐA TÀI SẢN</text>
+        <text x="620" y="166" textAnchor="middle" className="diagram-card-value">H · Σprice</text>
+        <text x="620" y="201" textAnchor="middle" className="diagram-small-label">Cross-impact</text>
+        <text x="620" y="228" textAnchor="middle" className="diagram-small-label">Risk eigenmodes</text>
+        <text x="620" y="255" textAnchor="middle" className="diagram-equation">K = M½</text>
+
+        <text x="380" y="54" textAnchor="middle" className="diagram-card-value">Một trade-off, ba độ phân giải</text>
+        <text x="380" y="332" textAnchor="middle" className="diagram-small-label">
+          Dữ liệu giao dịch → trực giác vi phân → geometry ma trận
+        </text>
+      </svg>
+    );
+  }
+
+  if (kind === 'full-law-encoder') {
+    return (
+      <svg viewBox="0 0 760 390" role="img" aria-label="Deep Sets mã hóa empirical law thành policy">
+        <defs>
+          <marker id="law-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L9,3 z" className="diagram-arrow-head" />
+          </marker>
+        </defs>
+
+        <rect x="34" y="76" width="174" height="238" rx="20" className="diagram-zone diagram-zone-neutral" />
+        <text x="121" y="110" textAnchor="middle" className="diagram-card-title">PARTICLE CLOUD</text>
+        <circle cx="81" cy="155" r="14" className="diagram-point" />
+        <circle cx="145" cy="147" r="14" className="diagram-point" />
+        <circle cx="112" cy="205" r="14" className="diagram-point" />
+        <circle cx="166" cy="230" r="14" className="diagram-point" />
+        <circle cx="72" cy="259" r="14" className="diagram-point" />
+        <text x="121" y="295" textAnchor="middle" className="diagram-equation">μᴺ = N⁻¹ΣδXⁱ</text>
+
+        <rect x="260" y="106" width="160" height="76" rx="16" className="diagram-card diagram-card-soft" />
+        <text x="340" y="136" textAnchor="middle" className="diagram-card-title">SHARED φθ</text>
+        <text x="340" y="163" textAnchor="middle" className="diagram-small-label">Mã hóa từng agent</text>
+
+        <rect x="260" y="228" width="160" height="76" rx="16" className="diagram-card diagram-card-accent" />
+        <text x="340" y="258" textAnchor="middle" className="diagram-card-title">SYMMETRIC POOL</text>
+        <text x="340" y="285" textAnchor="middle" className="diagram-small-label">Mean / sum pooling</text>
+
+        <rect x="478" y="106" width="116" height="76" rx="16" className="diagram-card diagram-card-warm" />
+        <text x="536" y="136" textAnchor="middle" className="diagram-card-title">ρθ</text>
+        <text x="536" y="163" textAnchor="middle" className="diagram-equation">eₜ</text>
+
+        <rect x="626" y="106" width="104" height="198" rx="18" className="diagram-zone diagram-zone-teal" />
+        <text x="678" y="139" textAnchor="middle" className="diagram-card-title">HEADS</text>
+        <text x="678" y="180" textAnchor="middle" className="diagram-card-value">p₀</text>
+        <text x="678" y="217" textAnchor="middle" className="diagram-card-value">q · q⁰</text>
+        <text x="678" y="254" textAnchor="middle" className="diagram-card-value">α*</text>
+        <text x="678" y="283" textAnchor="middle" className="diagram-small-label">State + law</text>
+
+        <path d="M214 144 H244" markerEnd="url(#law-arrow)" className="diagram-flow-line" />
+        <path d="M340 190 V212" markerEnd="url(#law-arrow)" className="diagram-flow-line" />
+        <path d="M426 266 C468 266 454 144 462 144" markerEnd="url(#law-arrow)" className="diagram-flow-line" />
+        <path d="M600 144 H610" markerEnd="url(#law-arrow)" className="diagram-flow-line" />
+        <text x="380" y="54" textAnchor="middle" className="diagram-card-value">
+          Permutation-invariant law representation
+        </text>
+        <text x="380" y="350" textAnchor="middle" className="diagram-small-label">
+          Hoán vị agents không làm đổi pooled embedding
+        </text>
+      </svg>
+    );
+  }
+
   if (kind === 'mfg-mfc') {
     return (
       <svg viewBox="0 0 760 390" role="img" aria-label="So sánh Mean Field Game và Mean Field Control">
