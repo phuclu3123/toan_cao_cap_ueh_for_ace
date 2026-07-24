@@ -1,10 +1,11 @@
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, ArrowUpRight } from 'lucide-react';
+import { Calendar, Eye, ArrowUpRight } from 'lucide-react';
 import { LanguageContext } from '../App';
 import { translations } from '../utils/translations';
 import '../assets/styles/DocCard.css';
 import { formatResourceDate } from '../utils/resourceDate';
+import { getViewCount, formatViewCount } from '../utils/viewCounter';
 
 export default function DocCard({ doc }) {
   const { language } = useContext(LanguageContext);
@@ -13,6 +14,7 @@ export default function DocCard({ doc }) {
   // Safe image path checking
   const imageSrc = doc.image ? `/images/${doc.image}` : '/images/tccvang.jpg';
   const displayDate = formatResourceDate(doc);
+  const views = getViewCount(doc.id);
 
   return (
     <div className="doc-card glass-panel animate-on-scroll">
@@ -29,9 +31,9 @@ export default function DocCard({ doc }) {
         <div className="card-category-tag">{doc.categoryLabel}</div>
       </div>
       <div className="card-body">
-        <div className="card-meta">
-          <Calendar size={13} />
-          <span>{displayDate}</span>
+        <div className="card-meta flex items-center justify-between text-xs text-slate-400 mb-2">
+          <span className="flex items-center gap-1"><Calendar size={13} /> {displayDate}</span>
+          <span className="flex items-center gap-1"><Eye size={13} /> {formatViewCount(views)} lượt xem</span>
         </div>
         <h3 className="card-title">
           <Link to={`/document/${doc.id}`}>{doc.title}</Link>

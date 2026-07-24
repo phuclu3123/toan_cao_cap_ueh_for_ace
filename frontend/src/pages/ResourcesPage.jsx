@@ -49,19 +49,13 @@ export default function ResourcesPage() {
       try {
         const response = await fetch(`${API_BASE_URL}/api/resources`);
         const data = await response.json();
-        if (response.ok && data.success && data.resources) {
-          setDocs(mergeResourceItems(data.resources.documentsData || [], localDocs));
-          setMidterms(mergeResourceItems(data.resources.midtermExams || [], localMidterms));
-          setFinals(mergeResourceItems(data.resources.finalExams || [], localFinals));
+        if (response.ok && data.success && data.resources?.documentsData) {
+          setDocs(mergeResourceItems(data.resources.documentsData, localDocs));
         } else {
           setDocs(localDocs);
-          setMidterms(localMidterms);
-          setFinals(localFinals);
         }
       } catch {
         setDocs(localDocs);
-        setMidterms(localMidterms);
-        setFinals(localFinals);
       } finally {
         setLoading(false);
       }
@@ -70,133 +64,21 @@ export default function ResourcesPage() {
     fetchResources();
   }, []);
 
-  const isPracticeExam = (exam) => exam.hasDetailRoute;
-  
-  const practiceFinalExams = useMemo(() => {
-    return sortResourcesByNewest(
-      finals
-        .filter(isPracticeExam)
-        .map((exam, index) => ({
-          ...exam,
-          publishedAt: exam.publishedAt || (
-            exam.id.startsWith('k51-')
-              ? `2026-07-23T${String(12 - Math.min(index, 5)).padStart(2, '0')}:00:00+07:00`
-              : `2026-07-11T${String(18 - Math.min(index, 10)).padStart(2, '0')}:00:00+07:00`
-          )
-        }))
-    );
-  }, [finals]);
-
-  const toPublicMidterm = useCallback((item, index) => {
-    let title = item.title;
-    let desc = item.desc;
-    let professorName = item.professorName;
-    
-    if (language !== 'vi') {
-      if (item.professorName) {
-        const engProfName = item.professorName.replace('Thầy ', 'Prof. ');
-        professorName = engProfName;
-        if (language === 'en') {
-          title = `Midterm Exam - ${engProfName}`;
-          desc = `Collection of midterm exam papers for ${engProfName}'s class at UEH, with step-by-step detailed explanations.`;
-        } else if (language === 'ja') {
-          title = `中間試験 - ${item.professorName.replace('Thầy ', '')}先生`;
-          desc = `UEHにおける${item.professorName.replace('Thầy ', '')}先生クラスの中間試験問題集。詳細な解説付き。`;
-        } else if (language === 'zh') {
-          title = `期中考试 - ${item.professorName.replace('Thầy ', '')}老师`;
-          desc = `UEH${item.professorName.replace('Thầy ', '')}老师班级期中考试真题及详解。`;
-        }
-      } else {
-        title = language === 'en' 
-          ? `Midterm Calculus resource ${String(index + 1).padStart(2, '0')}`
-          : language === 'ja'
-            ? `中間微分積分リソース ${String(index + 1).padStart(2, '0')}`
-            : `期中微积分资料 ${String(index + 1).padStart(2, '0')}`;
-        desc = language === 'en'
-          ? 'Midterm reference materials, grouped by topics, used as revision PDF materials.'
-          : language === 'ja'
-            ? 'トピックごとにグループ化された中間テスト対策用PDF資料。'
-            : '按主题分组的期中复习PDF资料。';
-      }
-    }
-    
-    return {
-      ...item,
-      title,
-      desc,
-      publishedAt: item.publishedAt || `2026-05-29T${String(16 - Math.min(index, 9)).padStart(2, '0')}:00:00+07:00`,
-      categoryLabel: t.resources.tabMidterm,
-      displayCategory: t.resources.tabMidterm,
-      image: item.image || midtermCovers[index % midtermCovers.length],
-      professorName: professorName || ''
-    };
-  }, [language, t]);
-
-  const toPublicFinal = useCallback((f) => {
-    let title = f.title;
-    let desc = f.desc;
-    
-    if (language !== 'vi') {
-      const kMatch = f.title.match(/K\d+/);
-      const codeMatch = f.title.match(/Mã Đề \d+/);
-      const kStr = kMatch ? kMatch[0] : '';
-      const codeStr = codeMatch ? codeMatch[0].replace('Mã Đề ', 'Code ') : '';
-      
-      if (language === 'en') {
-        title = `Advanced Calculus ${kStr} ${codeStr || 'Practice Exam'}`;
-        desc = f.desc
-          .replace('Đề K51 mới nhất mã 204 từ main.pdf, làm bài trong 30 phút với chấm điểm tự động, cắm cờ câu khó và thống kê sau khi nộp.', 'Latest K51 exam code 204 from main.pdf, practice in 30 minutes with auto-grading, flags and statistics after submission.')
-          .replace('mô phỏng bài kiểm tra cuối kỳ 30 phút chuyên nghiệp.', 'simulating a professional 30-minute final exam.')
-          .replace('chuyển thành phòng luyện thi tương tác theo nhịp bài thi thật.', 'converted to an interactive exam room mimicking real exam pacing.')
-          .replace('dùng để luyện tốc độ làm trắc nghiệm và kiểm tra đáp án sau khi nộp.', 'used for speed training and checking answers after submission.')
-          .replace('Timer, cắm cờ và nộp bài tự động khi hết giờ.', 'Timer, flagging, and auto-submission when time is up.')
-          .replace('đã chuyển thành bài kiểm tra tương tác thay vì chỉ xem lời giải.', 'converted to interactive test instead of static solution.')
-          .replace('có chấm điểm tự động và bảng phân tích câu trả lời.', 'featuring auto-grading and detailed response analysis.')
-          .replace('dùng để luyện phản xạ làm bài cuối kỳ theo cấu trúc đề thật.', 'used to build final exam reflexes modeled after real exam structure.')
-          .replace('giữ đúng ghi chú đáp án của tài liệu nguồn khi luyện thi.', 'retains original answer keys from source document for study.')
-          .replace('Chưa tìm thấy section đề K48 trong final 2807.pdf để chuyển thành bài kiểm tra tương tác.', 'K48 exam section not yet found in final 2807.pdf for interactive conversion.')
-          .replace('gồm 20 câu trắc nghiệm để luyện bài dài hơn trong phòng thi.', 'includes 20 multiple-choice questions for longer exam practice.')
-          .replace('chuyển từ tài liệu lời giải sang bài kiểm tra tương tác 30 phút.', 'converted from solution guide to interactive 30-minute exam.');
-      } else if (language === 'ja') {
-        title = `高等微積分 ${kStr} ${codeStr ? '問題' + codeStr.replace('Code ', '') : '模擬試験'}`;
-        desc = `75分間のインタラクティブ模擬試験。自動採点、問題フラグ、詳細な結果分析に対応しています。`;
-      } else if (language === 'zh') {
-        title = `高等微积分 ${kStr} ${codeStr ? '试卷' + codeStr.replace('Code ', '') : '模拟考试'}`;
-        desc = `75分钟互动式模拟考试。支持自动评分、标记难题和提交后的统计分析。`;
-      }
-    }
-    
-    return {
-      ...f,
-      title,
-      desc,
-      type: 'final',
-      displayCategory: t.resources.badgeFinal
-    };
-  }, [language, t]);
-
   const allItems = useMemo(() => {
     const publications = docs.map((doc) => ({
       ...doc,
       type: 'publication',
-      displayCategory: doc.categoryLabel || t.resources.tabPub
-    }));
-    const publicMidterms = midterms.map((item, index) => ({
-      ...toPublicMidterm(item, index),
-      type: 'midterm'
-    }));
-    const publicFinals = practiceFinalExams.map((f) => ({
-      ...toPublicFinal(f),
-      type: 'final'
+      displayCategory: doc.categoryLabel || (language === 'vi' ? 'Tài liệu học tập' : 'Study Material')
     }));
 
-    const source = activeTab === 'publication'
-      ? publications
-      : activeTab === 'midterm'
-        ? publicMidterms
-        : activeTab === 'final'
-          ? publicFinals
-          : [...publications, ...publicMidterms, ...publicFinals];
+    let source = publications;
+    if (activeTab === 'slide') {
+      source = publications.filter(item => item.id.startsWith('slide-') || item.id.startsWith('lxt-'));
+    } else if (activeTab === 'support') {
+      source = publications.filter(item => item.category === 'support' || item.id.startsWith('tl'));
+    } else if (activeTab === 'latest') {
+      source = publications.filter(item => item.category === 'latest');
+    }
 
     const newestFirst = sortResourcesByNewest(source);
     const query = searchQuery.trim().toLowerCase();
@@ -206,7 +88,7 @@ export default function ResourcesPage() {
       const haystack = [item.title, item.desc, item.displayCategory, item.categoryLabel].join(' ').toLowerCase();
       return haystack.includes(query);
     });
-  }, [activeTab, docs, midterms, practiceFinalExams, searchQuery, t.resources.tabPub, toPublicFinal, toPublicMidterm]);
+  }, [activeTab, docs, searchQuery, language]);
 
   const totalPages = Math.max(1, Math.ceil(allItems.length / itemsPerPage));
   const paginatedItems = allItems.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
@@ -226,9 +108,11 @@ export default function ResourcesPage() {
       <section className="resources-banner">
         <div className="container">
           <span className="resources-banner-subtitle">{t.resources.bannerSubtitle}</span>
-          <h1 className="resources-banner-title">{t.resources.bannerTitle}</h1>
+          <h1 className="resources-banner-title">{language === 'vi' ? 'Thư Viện Ấn Phẩm & Tài Liệu Học Tập' : 'Publications & Study Library'}</h1>
           <p className="resources-banner-desc">
-            {t.resources.bannerDesc}
+            {language === 'vi' 
+              ? 'Tổng hợp giáo trình chuẩn, slide bài giảng giảng viên, tài liệu chuyên đề và bài tập chương Toán Cao Cấp UEH.'
+              : 'Official textbooks, lecture slides, topic notes, and practice exercises for UEH Advanced Calculus.'}
           </p>
         </div>
       </section>
@@ -258,13 +142,12 @@ export default function ResourcesPage() {
           </div>
 
           <div className="resources-tabs-wrapper">
-            <button className={`tab-btn ${activeTab === 'all' ? 'active' : ''}`} onClick={() => handleTabClick('all')}>{t.resources.tabAllRes} ({docs.length + midterms.length + practiceFinalExams.length})</button>
-            <button className={`tab-btn ${activeTab === 'midterm' ? 'active' : ''}`} onClick={() => handleTabClick('midterm')}>{t.resources.tabMidterm} ({midterms.length})</button>
-            <button className={`tab-btn ${activeTab === 'final' ? 'active' : ''}`} onClick={() => handleTabClick('final')}>{t.resources.tabFinal} ({practiceFinalExams.length})</button>
-            <button className={`tab-btn ${activeTab === 'publication' ? 'active' : ''}`} onClick={() => handleTabClick('publication')}>{t.resources.tabPub} ({docs.length})</button>
-            <span className="resource-sort-status" aria-label="Thứ tự hiển thị">
-              {language === 'vi' ? 'Mới nhất trước' : 'Newest first'}
-            </span>
+            <button className={`tab-btn ${activeTab === 'all' ? 'active' : ''}`} onClick={() => handleTabClick('all')}>{language === 'vi' ? 'Tất cả tài liệu' : 'All Docs'} ({docs.length})</button>
+            <button className={`tab-btn ${activeTab === 'slide' ? 'active' : ''}`} onClick={() => handleTabClick('slide')}>{language === 'vi' ? 'Slide Bài Giảng' : 'Lecture Slides'}</button>
+            <button className={`tab-btn ${activeTab === 'support' ? 'active' : ''}`} onClick={() => handleTabClick('support')}>{language === 'vi' ? 'Chuyên Đề & Bài Tập' : 'Topics & Exercises'}</button>
+            <Link to="/exams" className="tab-btn highlight-exam-tab">
+              📝 {language === 'vi' ? 'Đến Phòng Thi TCC (Đề Thi Giữa/Cuối Kỳ)' : 'Go to Exams Page'}
+            </Link>
           </div>
         </div>
       </div>
@@ -297,25 +180,6 @@ export default function ResourcesPage() {
           ) : viewMode === 'grid' ? (
             <div className="resources-grid">
               {paginatedItems.map((item) => {
-                if (item.type === 'final') {
-                  return (
-                    <div key={item.id} className="exam-card glass-panel flex flex-col justify-between">
-                      <div className="exam-card-header">
-                        <span className="exam-index">📝</span>
-                        <span className="exam-date">{formatResourceDate(item)}</span>
-                      </div>
-                      <div className="exam-card-body">
-                        <span className="list-category-badge">{t.resources.badgeFinal}</span>
-                        <h3 className="text-lg font-bold mt-1 mb-2 text-white">{item.title}</h3>
-                        <p className="text-sm text-gray-400 line-clamp-3">{item.desc}</p>
-                      </div>
-                      <div className="exam-card-footer mt-4">
-                        <Link to={`/exam/${item.id}`} className="btn-exam-action">{t.finals.btnAction}</Link>
-                      </div>
-                    </div>
-                  );
-                }
-
                 return item.externalUrl ? (
                   <div key={item.id} className="doc-card glass-panel external-card">
                     <div className="card-image-wrapper">
@@ -372,8 +236,6 @@ export default function ResourcesPage() {
                           <Download size={14} />
                           <span>{t.resources.btnDriveShort}</span>
                         </a>
-                      ) : item.type === 'final' ? (
-                        <Link to={`/exam/${item.id}`} className="btn btn-primary btn-small">{t.resources.btnPracticeShort}</Link>
                       ) : (
                         <Link to={`/document/${item.id}`} className="btn btn-primary btn-small">{t.resources.btnPdfShort}</Link>
                       )}

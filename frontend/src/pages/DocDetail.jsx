@@ -5,6 +5,7 @@ import { documentsData, midtermExams, finalExams } from '../data/documentsData';
 import { API_BASE_URL } from '../config';
 import { formatResourceDate } from '../utils/resourceDate';
 import { mergeResourceItems } from '../utils/resourceMerge';
+import { getViewCount, incrementViewCount, formatViewCount } from '../utils/viewCounter';
 import { LanguageContext } from '../App';
 import { translations } from '../utils/translations';
 import BrandLoader from '../components/ui/BrandLoader';
@@ -19,6 +20,7 @@ export default function DocDetail() {
   const [otherDocs, setOtherDocs] = useState([]);
   const [isMobile, setIsMobile] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [views, setViews] = useState(0);
 
   // Screen size check for responsive PDF rendering
   useEffect(() => {
@@ -72,6 +74,10 @@ export default function DocDetail() {
         return;
       }
       setDoc(currentDoc);
+      // Increment real view count
+      const updatedViews = incrementViewCount(currentDoc.id);
+      setViews(updatedViews);
+
       setLoading(false);
     };
 
@@ -104,7 +110,7 @@ export default function DocDetail() {
             <ArrowLeft size={16} />
             <span>{t.docDetail.btnBack}</span>
           </Link>
-          <span className="doc-detail-category">{doc.categoryLabel || t.resources.tabMidterm}</span>
+          <span className="doc-detail-category">{doc.categoryLabel || t.resources.tabPub}</span>
           <h1 className="doc-detail-title">{doc.title}</h1>
           <div className="doc-detail-meta">
             <div className="meta-item">
@@ -113,7 +119,7 @@ export default function DocDetail() {
             </div>
             <div className="meta-item">
               <Eye size={14} />
-              <span>1,200{t.docDetail.viewsSuffix}</span>
+              <span>{formatViewCount(views || getViewCount(doc.id))} {t.docDetail.viewsSuffix || 'lượt xem'}</span>
             </div>
             <div className="meta-item">
               <FileText size={14} />

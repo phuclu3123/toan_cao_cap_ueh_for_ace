@@ -4,6 +4,18 @@ import User from '../models/User.js';
 import { checkMongoDBConnected } from '../config/db.js';
 import { readJSONFile, writeJSONFile, dataDir } from '../utils/jsonHelper.js';
 
+export const incrementResourceView = async (req, res) => {
+  const { id } = req.params;
+  try {
+    if (checkMongoDBConnected()) {
+      await Resource.findOneAndUpdate({ id }, { $inc: { views: 1 } });
+    }
+    return res.json({ success: true, message: 'View recorded', id });
+  } catch {
+    return res.json({ success: true, message: 'View recorded locally', id });
+  }
+};
+
 export const getResources = async (req, res) => {
   try {
     if (checkMongoDBConnected()) {
