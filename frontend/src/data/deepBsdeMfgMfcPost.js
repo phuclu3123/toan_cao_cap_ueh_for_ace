@@ -437,18 +437,20 @@ check = np.cov(dW_correlated[:, 0, :], rowvar=False)`,
         {
           type: 'formula',
           label: 'Pontryagin deterministic dạng minimization',
-          content: math`$$\begin{aligned}
-\text{State and Objective:} \quad & \begin{cases}
+          content: math`$$
+\begin{gather}
+\textbf{State and Objective} \\[4pt]
 \dot x_t = b(t,x_t,a_t), \quad x(0) = x_0 \\[4pt]
-J(a) = g(x_T) + \int_0^T f(t,x_t,a_t)\,\mathrm dt
-\end{cases} \\[10pt]
-\text{Hamiltonian:} \quad & H(t,x,p,a) = f(t,x,a) + p^\top b(t,x,a) \\[10pt]
-\text{Canonical System:} \quad & \begin{cases}
+J(a) = g(x_T) + \int_0^T f(t,x_t,a_t)\,\mathrm dt \\[10pt]
+\textbf{Hamiltonian} \\[4pt]
+H(t,x,p,a) = f(t,x,a) + p^\top b(t,x,a) \\[10pt]
+\textbf{Canonical System} \\[4pt]
 \dot x_t^\star = \nabla_p H(t,x_t^\star,p_t^\star,a_t^\star) \\[4pt]
-\dot p_t^\star = -\nabla_x H(t,x_t^\star,p_t^\star,a_t^\star), \quad p_T^\star = \nabla g(x_T^\star)
-\end{cases} \\[10pt]
-\text{Optimality Condition:} \quad & a_t^\star \in \arg\min_{a\in\mathcal A} H(t,x_t^\star,p_t^\star,a) \quad \text{a.e. } t.
-\end{aligned}$$`,
+\dot p_t^\star = -\nabla_x H(t,x_t^\star,p_t^\star,a_t^\star), \quad p_T^\star = \nabla g(x_T^\star) \\[10pt]
+\textbf{Optimality Condition} \\[4pt]
+a_t^\star \in \arg\min_{a\in\mathcal A} H(t,x_t^\star,p_t^\star,a) \quad \text{a.e. } t.
+\end{gather}
+$$`,
           note:
             'Đây là Pontryagin Minimum Principle vì objective là cost cần tối thiểu. Nếu viết reward cần tối đa hóa hoặc đổi dấu Hamiltonian, tài liệu thường gọi Maximum Principle.',
         },
@@ -478,10 +480,12 @@ a-a_t^\star
         {
           type: 'formula',
           label: 'Bài toán control',
-          content: math`$$\begin{cases}
-\text{Objective:} & \displaystyle \inf_{\alpha\in\mathcal A} J(\alpha) = \mathbb E\!\left[\int_0^T \ell(t,X_t,\alpha_t)\,\mathrm dt + g(X_T)\right] \\[10pt]
-\text{Dynamics:} & \mathrm dX_t = b(t,X_t,\alpha_t)\,\mathrm dt + \sigma(t,X_t,\alpha_t)\,\mathrm dW_t
-\end{cases}$$`,
+          content: math`$$
+\begin{gather}
+\inf_{\alpha\in\mathcal A} J(\alpha) = \mathbb E\!\left[\int_0^T \ell(t,X_t,\alpha_t)\,\mathrm dt + g(X_T)\right] \\[8pt]
+\mathrm dX_t = b(t,X_t,\alpha_t)\,\mathrm dt + \sigma(t,X_t,\alpha_t)\,\mathrm dW_t
+\end{gather}
+$$`,
           note:
             'Ta viết bài toán minimization; với maximization, dấu và điều kiện Hamiltonian đổi tương ứng.',
         },
@@ -511,18 +515,17 @@ p_T=\nabla_xg(X_T)$$`,
         {
           type: 'formula',
           label: 'Pontryagin mean-field: MFG và MFC tách ở đâu?',
-          content: math`$$\begin{array}{ll}
-\textbf{MFG System:} & 
-\begin{aligned}
-\mathrm dp_t &= -\partial_x H(t,X_t,\mu_t,p_t,\alpha_t)\,\mathrm dt + q_t\,\mathrm dW_t + q_t^0\,\mathrm dW_t^0 \\[2pt]
-\mu_t &= \mathcal L(X_t\mid\mathcal F_t^0) \quad \text{(after fixed-point step)}
-\end{aligned} \\[14pt]
-\hline \\[-6pt]
-\textbf{MFC System:} & 
-\begin{aligned}
-\mathrm dp_t &= -\left[\partial_x H + \widetilde{\mathbb E}\big[\partial_\mu H(t,\widetilde X_t,\mu_t,\widetilde p_t,\widetilde\alpha_t)(X_t)\big]\right]\mathrm dt + q_t\,\mathrm dW_t + q_t^0\,\mathrm dW_t^0
-\end{aligned}
-\end{array}$$`,
+          content: math`$$
+\begin{gather}
+\textbf{MFG System} \\[4pt]
+\mathrm dp_t = -\partial_x H(t,X_t,\mu_t,p_t,\alpha_t)\,\mathrm dt + q_t\,\mathrm dW_t + q_t^0\,\mathrm dW_t^0 \\[4pt]
+\mu_t = \mathcal L(X_t\mid\mathcal F_t^0) \quad \text{(after fixed-point step)} \\[10pt]
+\rule{16em}{0.5pt} \\[10pt]
+\textbf{MFC System} \\[4pt]
+\mathrm dp_t = -\Big[\partial_x H + \widetilde{\mathbb E}\big[\partial_\mu H(t,\widetilde X_t,\mu_t,\widetilde p_t,\widetilde\alpha_t)(X_t)\big]\Big]\mathrm dt \\[4pt]
++ q_t\,\mathrm dW_t + q_t^0\,\mathrm dW_t^0
+\end{gather}
+$$`,
           note:
             'MFG agent coi law flow đã cho khi lấy best response; MFC planner nội hóa việc thay policy làm thay đổi law. Terminal condition cũng có law correction tương ứng khi g phụ thuộc μ.',
         },
@@ -723,11 +726,13 @@ U[x]
         {
           type: 'formula',
           label: 'AC đa tài sản tổng quát: phần đối xứng và phản đối xứng',
-          content: math`$$\begin{aligned}
-\text{Decomposition:} \quad & H^S = \frac{H+H^\top}{2}, \quad \Gamma^S = \frac{\Gamma+\Gamma^\top}{2}, \quad \Gamma^A = \frac{\Gamma-\Gamma^\top}{2}, \quad \widetilde H = H^S - \frac{\tau}{2}\Gamma^S \\[8pt]
-\text{Expected Cost:} \quad & \mathbb E[C[x]] = \varepsilon^\top|X| + \frac{1}{2}X^\top\Gamma^SX + \sum_{k=1}^N\tau\,v_k^\top\widetilde H\,v_k + \sum_{k=1}^N\tau\,x_k^\top\Gamma^A v_k \\[8pt]
-\text{Variance and Velocity:} \quad & \operatorname{Var}(C[x]) = \sum_{k=1}^N\tau\,x_k^\top\Sigma_{\rm price}x_k, \qquad v_k = \frac{n_k}{\tau}
-\end{aligned}$$`,
+          content: math`$$
+\begin{gather}
+H^S = \frac{H+H^\top}{2}, \quad \Gamma^S = \frac{\Gamma+\Gamma^\top}{2}, \quad \Gamma^A = \frac{\Gamma-\Gamma^\top}{2}, \quad \widetilde H = H^S - \frac{\tau}{2}\Gamma^S \\[8pt]
+\mathbb E[C[x]] = \varepsilon^\top|X| + \frac{1}{2}X^\top\Gamma^SX + \sum_{k=1}^N\tau\,v_k^\top\widetilde H\,v_k + \sum_{k=1}^N\tau\,x_k^\top\Gamma^A v_k \\[8pt]
+\operatorname{Var}(C[x]) = \sum_{k=1}^N\tau\,x_k^\top\Sigma_{\rm price}x_k, \qquad v_k = \frac{n_k}{\tau}
+\end{gather}
+$$`,
           note:
             'Nếu Γ đối xứng thì Γᴬ=0 và hạng cuối biến mất. AC tổng quát không buộc mọi impact matrix đều chéo; phần đối xứng kiểm soát quadratic cost, còn phần phản đối xứng có thể làm path phụ thuộc thứ tự và hướng giao dịch.',
         },
@@ -782,22 +787,26 @@ U[x]
         {
           type: 'formula',
           label: 'AC liên tục nhiều tài sản',
-          content: math`$$\begin{aligned}
-\text{Optimization Problem:} \quad & \min_X \int_0^T \left(\dot X_t^\top H\dot X_t + \lambda X_t^\top\Sigma_{\rm price}X_t\right)\mathrm dt \quad \text{s.t. } X(0)=X_0,\ X(T)=0 \\[10pt]
-\text{Matrix Operators:} \quad & M = \lambda H^{-1/2}\Sigma_{\rm price}H^{-1/2}, \qquad K = M^{1/2} \\[10pt]
-\text{Optimal Trajectory:} \quad & X_t^\star = H^{-1/2}\sinh\!\big(K(T-t)\big)\sinh(KT)^{-1}H^{1/2}X_0
-\end{aligned}$$`,
+          content: math`$$
+\begin{gather}
+\min_X \int_0^T \left(\dot X_t^\top H\dot X_t + \lambda X_t^\top\Sigma_{\rm price}X_t\right)\mathrm dt \quad \text{s.t. } X(0)=X_0,\ X(T)=0 \\[8pt]
+M = \lambda H^{-1/2}\Sigma_{\rm price}H^{-1/2}, \qquad K = M^{1/2} \\[8pt]
+X_t^\star = H^{-1/2}\sinh\!\big(K(T-t)\big)\sinh(KT)^{-1}H^{1/2}X_0
+\end{gather}
+$$`,
           note:
             'Đây là symmetric continuous form. H≻0 mã hóa liquidity/cross-impact tạm thời; Σprice⪰0 mã hóa rủi ro đồng biến động. Matrix square root làm các eigen-portfolios có tốc độ thanh lý khác nhau.',
         },
         {
           type: 'formula',
           label: 'Eigenmodes trong AC đa tài sản rời rạc',
-          content: math`$$\begin{aligned}
-\text{Eigendecomposition:} \quad & A = \widetilde H^{-1/2}\Sigma_{\rm price}\widetilde H^{-1/2}, \qquad \lambda A = U\,\operatorname{diag}(\widetilde\kappa_1^2,\ldots,\widetilde\kappa_d^2)U^\top \\[8pt]
-\text{Decoupled Dynamics:} \quad & \frac{2}{\tau^2}\big(\cosh(\kappa_j\tau)-1\big) = \widetilde\kappa_j^2, \qquad z_{j,k} = \frac{\sinh(\kappa_j(T-t_k))}{\sinh(\kappa_jT)}z_{j,0} \\[8pt]
-\text{Coordinate Transformations:} \quad & y_k = \widetilde H^{1/2}x_k, \qquad z_k = U^\top y_k \implies x_k = \widetilde H^{-1/2} U z_k
-\end{aligned}$$`,
+          content: math`$$
+\begin{gather}
+A = \widetilde H^{-1/2}\Sigma_{\rm price}\widetilde H^{-1/2}, \qquad \lambda A = U\,\operatorname{diag}(\widetilde\kappa_1^2,\ldots,\widetilde\kappa_d^2)U^\top \\[8pt]
+\frac{2}{\tau^2}\big(\cosh(\kappa_j\tau)-1\big) = \widetilde\kappa_j^2, \qquad z_{j,k} = \frac{\sinh(\kappa_j(T-t_k))}{\sinh(\kappa_jT)}z_{j,0} \\[8pt]
+y_k = \widetilde H^{1/2}x_k, \qquad z_k = U^\top y_k \implies x_k = \widetilde H^{-1/2} U z_k
+\end{gather}
+$$`,
           note:
             'Ta xoay danh mục sang các eigen-portfolios của hình học risk–liquidity. Mỗi mode j có κⱼ riêng; vì thế covariance và cross-impact có thể coupling lịch bán giữa các tài sản.',
         },
@@ -870,22 +879,12 @@ U[x]
         {
           type: 'formula',
           label: 'Disutility rời rạc của evaluator',
-          content: math`$$\begin{aligned}
-J_{\rm AC}^{\rm impl}
-&=
-\underbrace{
-\frac12\sum_{i=1}^{d}\gamma_iX_i^2
-+\sum_{k=1}^{N}\sum_{i=1}^{d}\epsilon_i|n_{k,i}|
-+\frac1{\tau}\sum_{k=1}^{N}\sum_{i=1}^{d}
-\widetilde\eta_i n_{k,i}^2
-}_{\text{expected shortfall}}\\
-&\quad+
-\lambda\underbrace{
-\tau\sum_{k=1}^{N}x_k^\top\Sigma_{\rm price}x_k
-}_{\text{variance shortfall}},
-\qquad
-\widetilde\eta_i=\eta_i-\frac{\gamma_i\tau}{2}>0.
-\end{aligned}$$`,
+          content: math`$$
+\begin{gather}
+J_{\rm AC}^{\rm impl} = \underbrace{\frac{1}{2}\sum_{i=1}^{d}\gamma_iX_i^2 + \sum_{k=1}^{N}\sum_{i=1}^{d}\epsilon_i|n_{k,i}| + \frac{1}{\tau}\sum_{k=1}^{N}\sum_{i=1}^{d}\widetilde\eta_i n_{k,i}^2}_{\text{expected shortfall}} \\[8pt]
++ \lambda\underbrace{\tau\sum_{k=1}^{N}x_k^\top\Sigma_{\rm price}x_k}_{\text{variance shortfall}}, \qquad \widetilde\eta_i = \eta_i - \frac{\gamma_i\tau}{2} > 0
+\end{gather}
+$$`,
           note:
             'Tên utility trong code là mean–variance disutility cần tối thiểu hóa. Permanent, spread và temporary impact tách theo từng tài sản; covariance ngoài đường chéo chỉ xuất hiện trong variance shortfall.',
         },
