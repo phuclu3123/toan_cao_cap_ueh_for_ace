@@ -446,22 +446,18 @@ $$`,
           type: 'formula',
           label: 'Pontryagin deterministic dạng minimization',
           content: math`$$
-\dot x_t=b(t,x_t,a_t),\qquad
-J(a)=g(x_T)+\int_0^T f(t,x_t,a_t)\,\mathrm dt,
-\qquad
-H(t,x,p,a)=f(t,x,a)+p^\top b(t,x,a),
-$$
-$$
-\dot x_t^\star=\nabla_pH(t,x_t^\star,p_t^\star,a_t^\star),
-\qquad
-\dot p_t^\star=-\nabla_xH(t,x_t^\star,p_t^\star,a_t^\star),
-\qquad
-p_T^\star=\nabla g(x_T^\star),
-$$
-$$
-a_t^\star\in\arg\min_{a\in\mathcal A}
-H(t,x_t^\star,p_t^\star,a)
-\quad\text{a.e. }t.
+\begin{aligned}
+\text{State & Objective:} \quad & \begin{cases}
+\dot x_t = b(t,x_t,a_t), \quad x(0) = x_0 \\[4pt]
+J(a) = g(x_T) + \int_0^T f(t,x_t,a_t)\,\mathrm dt
+\end{cases} \\[10pt]
+\text{Hamiltonian:} \quad & H(t,x,p,a) = f(t,x,a) + p^\top b(t,x,a) \\[10pt]
+\text{Canonical System:} \quad & \begin{cases}
+\dot x_t^\star = \nabla_p H(t,x_t^\star,p_t^\star,a_t^\star) \\[4pt]
+\dot p_t^\star = -\nabla_x H(t,x_t^\star,p_t^\star,a_t^\star), \quad p_T^\star = \nabla g(x_T^\star)
+\end{cases} \\[10pt]
+\text{Optimality Condition:} \quad & a_t^\star \in \arg\min_{a\in\mathcal A} H(t,x_t^\star,p_t^\star,a) \quad \text{a.e. } t.
+\end{aligned}
 $$`,
           note:
             'Đây là Pontryagin Minimum Principle vì objective là cost cần tối thiểu. Nếu viết reward cần tối đa hóa hoặc đổi dấu Hamiltonian, tài liệu thường gọi Maximum Principle.',
@@ -495,15 +491,10 @@ $$`,
           type: 'formula',
           label: 'Bài toán control',
           content: math`$$
-\inf_{\alpha\in\mathcal A}
-J(\alpha)
-=
-\mathbb E\!\left[
-\int_0^T \ell(t,X_t,\alpha_t)\,\mathrm dt
-+g(X_T)
-\right],
-\qquad
-\mathrm dX_t=b(t,X_t,\alpha_t)\,\mathrm dt+\sigma(t,X_t,\alpha_t)\,\mathrm dW_t
+\begin{cases}
+\text{Objective:} & \displaystyle \inf_{\alpha\in\mathcal A} J(\alpha) = \mathbb E\!\left[\int_0^T \ell(t,X_t,\alpha_t)\,\mathrm dt + g(X_T)\right] \\[10pt]
+\text{Dynamics:} & \mathrm dX_t = b(t,X_t,\alpha_t)\,\mathrm dt + \sigma(t,X_t,\alpha_t)\,\mathrm dW_t
+\end{cases}
 $$`,
           note:
             'Ta viết bài toán minimization; với maximization, dấu và điều kiện Hamiltonian đổi tương ứng.',
@@ -537,22 +528,18 @@ $$`,
           type: 'formula',
           label: 'Pontryagin mean-field: MFG và MFC tách ở đâu?',
           content: math`$$
+\begin{array}{ll}
+\textbf{MFG System:} & 
 \begin{aligned}
-\text{MFG:}\quad&
-\mathrm dp_t=-\partial_xH(t,X_t,\mu_t,p_t,\alpha_t)\,\mathrm dt
-+q_t\,\mathrm dW_t+q_t^0\,\mathrm dW_t^0,
-\\
-&\mu_t=\mathcal L(X_t\mid\mathcal F_t^0)
-\quad\text{after the fixed-point step},\\[0.4em]
-\text{MFC:}\quad&
-\mathrm dp_t=-
-\left[
-\partial_xH
-+\widetilde{\mathbb E}
-\big[\partial_\mu H(t,\widetilde X_t,\mu_t,\widetilde p_t,\widetilde\alpha_t)(X_t)\big]
-\right]\mathrm dt
-+q_t\,\mathrm dW_t+q_t^0\,\mathrm dW_t^0 .
+\mathrm dp_t &= -\partial_x H(t,X_t,\mu_t,p_t,\alpha_t)\,\mathrm dt + q_t\,\mathrm dW_t + q_t^0\,\mathrm dW_t^0 \\[2pt]
+\mu_t &= \mathcal L(X_t\mid\mathcal F_t^0) \quad \text{(after fixed-point step)}
+\end{aligned} \\[14pt]
+\hline \\[-6pt]
+\textbf{MFC System:} & 
+\begin{aligned}
+\mathrm dp_t &= -\left[\partial_x H + \widetilde{\mathbb E}\big[\partial_\mu H(t,\widetilde X_t,\mu_t,\widetilde p_t,\widetilde\alpha_t)(X_t)\big]\right]\mathrm dt + q_t\,\mathrm dW_t + q_t^0\,\mathrm dW_t^0
 \end{aligned}
+\end{array}
 $$`,
           note:
             'MFG agent coi law flow đã cho khi lấy best response; MFC planner nội hóa việc thay policy làm thay đổi law. Terminal condition cũng có law correction tương ứng khi g phụ thuộc μ.',
@@ -622,12 +609,10 @@ $$`,
           type: 'formula',
           label: 'Dynamics và objective LQ',
           content: math`$$
-\mathrm dX_t=(BX_t+D\alpha_t)\,\mathrm dt+\Sigma\,\mathrm dW_t,
-\qquad
-J(\alpha)=\mathbb E\!\left[
-\int_0^T(X_t^\top QX_t+\alpha_t^\top R\alpha_t)\,\mathrm dt
-+X_T^\top AX_T
-\right]
+\begin{cases}
+\text{Dynamics:} & \mathrm dX_t = (BX_t + D\alpha_t)\,\mathrm dt + \Sigma\,\mathrm dW_t \\[6pt]
+\text{Objective:} & \displaystyle J(\alpha) = \mathbb E\!\left[\int_0^T (X_t^\top Q X_t + \alpha_t^\top R \alpha_t)\,\mathrm dt + X_T^\top A X_T\right]
+\end{cases}
 $$`,
           note:
             'Thường yêu cầu R≻0, Q⪰0 và A⪰0 để bài toán lồi theo control/state cost.',
@@ -643,13 +628,10 @@ $$`,
           type: 'formula',
           label: 'Riccati differential equation',
           content: math`$$
--\dot P_t
-=
-B^\top P_t+P_tB
--P_tDR^{-1}D^\top P_t
-+Q,
-\qquad
-P_T=A
+\begin{cases}
+-\dot P_t = B^\top P_t + P_t B - P_t D R^{-1} D^\top P_t + Q \\[6pt]
+P_T = A
+\end{cases}
 $$`,
           note:
             'Công thức ứng với objective không có hệ số 1/2 và control law bên dưới; convention khác có thể đổi hệ số.',
@@ -727,9 +709,11 @@ P_path = P_path[::-1]`,
           type: 'formula',
           label: 'Lịch giao dịch rời rạc',
           content: math`$$
-t_k=k\tau,\qquad \tau=\frac{T}{N},\qquad
-x_0=X,\quad x_N=0,\qquad
-n_k=x_{k-1}-x_k,\quad \alpha_k=\frac{n_k}{\tau}.
+\begin{aligned}
+\text{Grid \& Horizon:} \quad & t_k = k\tau, \quad \tau = \frac{T}{N} \\[6pt]
+\text{Inventory Constraints:} \quad & x_0 = X, \quad x_N = 0 \\[6pt]
+\text{Trading Rates:} \quad & n_k = x_{k-1} - x_k, \quad \alpha_k = \frac{n_k}{\tau}
+\end{aligned}
 $$`,
           note:
             'Inventory là stock variable; n là lượng giao dịch trong một interval; α là flow/rate. Nhầm ba đại lượng này thường tạo sai hệ số τ.',
@@ -738,11 +722,10 @@ $$`,
           type: 'formula',
           label: 'Price shock và hai loại market impact',
           content: math`$$
-\xi_k\stackrel{\mathrm{iid}}{\sim}\mathcal N(0,I_d),\qquad
-S_k=S_{k-1}+\Sigma_{\rm price}^{1/2}\sqrt{\tau}\,\xi_k
--\Gamma n_k,
-\qquad
-\widetilde S_k=S_{k-1}-\varepsilon\odot\operatorname{sign}(n_k)-H\alpha_k.
+\begin{cases}
+\text{Fundamental Price:} & S_k = S_{k-1} + \Sigma_{\rm price}^{1/2}\sqrt{\tau}\,\xi_k - \Gamma n_k, \quad \xi_k\overset{\mathrm{iid}}{\sim}\mathcal N(0,I_d) \\[6pt]
+\text{Execution Price:} & \widetilde S_k = S_{k-1} - \varepsilon\odot\operatorname{sign}(n_k) - H\alpha_k
+\end{cases}
 $$`,
           note:
             'S là mid/fundamental price đã chịu permanent impact; S̃ là execution price còn chịu spread và temporary impact. Đây là convention tuyến tính; dấu và timing phải được khóa nhất quán.',
@@ -771,23 +754,10 @@ $$`,
           type: 'formula',
           label: 'AC đa tài sản tổng quát: phần đối xứng và phản đối xứng',
           content: math`$$
-H^S=\frac{H+H^\top}{2},\quad
-\Gamma^S=\frac{\Gamma+\Gamma^\top}{2},\quad
-\Gamma^A=\frac{\Gamma-\Gamma^\top}{2},\quad
-\widetilde H=H^S-\frac{\tau}{2}\Gamma^S,
-$$
-$$
 \begin{aligned}
-\mathbb E[C[x]]
-&=
-\varepsilon^\top|X|
-+\frac12X^\top\Gamma^SX
-+\sum_{k=1}^N\tau\,v_k^\top\widetilde H\,v_k
-+\sum_{k=1}^N\tau\,x_k^\top\Gamma^A v_k,\\
-\operatorname{Var}(C[x])
-&=
-\sum_{k=1}^N\tau\,x_k^\top\Sigma_{\rm price}x_k,
-\qquad v_k=\frac{n_k}{\tau}.
+\text{Decomposition:} \quad & H^S = \frac{H+H^\top}{2}, \quad \Gamma^S = \frac{\Gamma+\Gamma^\top}{2}, \quad \Gamma^A = \frac{\Gamma-\Gamma^\top}{2}, \quad \widetilde H = H^S - \frac{\tau}{2}\Gamma^S \\[8pt]
+\text{Expected Cost:} \quad & \mathbb E[C[x]] = \varepsilon^\top|X| + \frac{1}{2}X^\top\Gamma^SX + \sum_{k=1}^N\tau\,v_k^\top\widetilde H\,v_k + \sum_{k=1}^N\tau\,x_k^\top\Gamma^A v_k \\[8pt]
+\text{Variance \& Velocity:} \quad & \operatorname{Var}(C[x]) = \sum_{k=1}^N\tau\,x_k^\top\Sigma_{\rm price}x_k, \qquad v_k = \frac{n_k}{\tau}
 \end{aligned}
 $$`,
           note:
@@ -802,10 +772,10 @@ $$`,
           type: 'formula',
           label: 'Continuous-time LQ approximation',
           content: math`$$
-\min_{\alpha}
-\int_0^T\left(\eta\alpha_t^2+\lambda\sigma^2X_t^2\right)\mathrm dt,
-\qquad
-\dot X_t=-\alpha_t,\quad X_0=x_0,\quad X_T=0
+\begin{cases}
+\text{Objective:} & \displaystyle \min_{\alpha} \int_0^T \left(\eta\alpha_t^2 + \lambda\sigma^2X_t^2\right)\mathrm dt \\[6pt]
+\text{Constraints:} & \dot X_t = -\alpha_t, \quad X_0 = x_0, \quad X_T = 0
+\end{cases}
 $$`,
           note:
             'η là temporary-impact scale; λ là risk aversion; σ là price volatility.',
@@ -814,9 +784,11 @@ $$`,
           type: 'formula',
           label: 'Từ Euler–Lagrange đến quỹ đạo liên tục',
           content: math`$$
-\eta\,\ddot X_t-\lambda\sigma^2X_t=0,\qquad
-X(0)=x_0,\quad X(T)=0,\qquad
-\alpha_t=-\dot X_t .
+\begin{cases}
+\text{Euler--Lagrange ODE:} & \eta\,\ddot X_t - \lambda\sigma^2X_t = 0 \\[6pt]
+\text{Boundary Values:} & X(0) = x_0, \quad X(T) = 0 \\[6pt]
+\text{Trading Speed:} & \alpha_t = -\dot X_t
+\end{cases}
 $$`,
           note:
             'Dấu chấm là đạo hàm theo thời gian. Phương trình nói rằng độ cong của lịch thanh lý được quyết định bởi tỷ lệ inventory risk trên temporary liquidity cost.',
@@ -825,11 +797,11 @@ $$`,
           type: 'formula',
           label: 'Quỹ đạo thanh lý dạng hyperbolic',
           content: math`$$
-\kappa=\sqrt{\frac{\lambda\sigma^2}{\eta}},
-\qquad
-X_t^\star=x_0\frac{\sinh(\kappa(T-t))}{\sinh(\kappa T)},
-\qquad
-\alpha_t^\star=-\dot X_t^\star
+\begin{cases}
+\text{Liquidation Scale:} & \kappa = \sqrt{\displaystyle\frac{\lambda\sigma^2}{\eta}} \\[8pt]
+\text{Optimal Trajectory:} & X_t^\star = x_0 \displaystyle\frac{\sinh(\kappa(T-t))}{\sinh(\kappa T)} \\[8pt]
+\text{Optimal Trading Rate:} & \alpha_t^\star = -\dot X_t^\star
+\end{cases}
 $$`,
           note:
             'Đây là continuous simplification; discrete AC có temporary/permanent impact và hệ số hiệu chỉnh riêng.',
@@ -838,13 +810,11 @@ $$`,
           type: 'formula',
           label: 'Kappa rời rạc và giới hạn liên tục',
           content: math`$$
-\widetilde\kappa^2=\frac{\lambda\sigma_{\rm price}^2}{\widetilde\eta},
-\qquad
-\kappa_{\rm discrete}
-=\frac1\tau\operatorname{arcosh}
-\left(1+\frac{\tau^2\widetilde\kappa^2}{2}\right)
-\xrightarrow[\tau\to0]{}
-\sqrt{\frac{\lambda\sigma_{\rm price}^2}{\eta}} .
+\begin{cases}
+\text{Discrete Ratio:} & \widetilde\kappa^2 = \displaystyle\frac{\lambda\sigma_{\rm price}^2}{\widetilde\eta} \\[8pt]
+\text{Discrete Rate:} & \kappa_{\rm discrete} = \displaystyle\frac{1}{\tau}\operatorname{arcosh}\left(1 + \frac{\tau^2\widetilde\kappa^2}{2}\right) \\[8pt]
+\text{Continuous Limit:} & \displaystyle \lim_{\tau\to 0} \kappa_{\rm discrete} = \sqrt{\frac{\lambda\sigma_{\rm price}^2}{\eta}}
+\end{cases}
 $$`,
           note:
             'κ không phải covariance hay crowding weight. κ lớn nghĩa thời gian đặc trưng 1/κ ngắn: nhà giao dịch thoát vị thế sớm hơn.',
@@ -853,22 +823,11 @@ $$`,
           type: 'formula',
           label: 'AC liên tục nhiều tài sản',
           content: math`$$
-\min_X\int_0^T
-\left(
-\dot X_t^\top H\dot X_t
-+\lambda X_t^\top\Sigma_{\rm price}X_t
-\right)\mathrm dt,
-\qquad
-X(0)=X_0,\quad X(T)=0,
-$$
-$$
-M=\lambda H^{-1/2}\Sigma_{\rm price}H^{-1/2},\qquad
-K=M^{1/2},\qquad
-X_t^\star=
-H^{-1/2}
-\sinh\!\big(K(T-t)\big)
-\sinh(KT)^{-1}
-H^{1/2}X_0.
+\begin{aligned}
+\text{Optimization Problem:} \quad & \min_X \int_0^T \left(\dot X_t^\top H\dot X_t + \lambda X_t^\top\Sigma_{\rm price}X_t\right)\mathrm dt \quad \text{s.t. } X(0)=X_0,\ X(T)=0 \\[10pt]
+\text{Matrix Operators:} \quad & M = \lambda H^{-1/2}\Sigma_{\rm price}H^{-1/2}, \qquad K = M^{1/2} \\[10pt]
+\text{Optimal Trajectory:} \quad & X_t^\star = H^{-1/2}\sinh\!\big(K(T-t)\big)\sinh(KT)^{-1}H^{1/2}X_0
+\end{aligned}
 $$`,
           note:
             'Đây là symmetric continuous form. H≻0 mã hóa liquidity/cross-impact tạm thời; Σprice⪰0 mã hóa rủi ro đồng biến động. Matrix square root làm các eigen-portfolios có tốc độ thanh lý khác nhau.',
@@ -877,24 +836,11 @@ $$`,
           type: 'formula',
           label: 'Eigenmodes trong AC đa tài sản rời rạc',
           content: math`$$
-A=\widetilde H^{-1/2}\Sigma_{\rm price}\widetilde H^{-1/2},
-\qquad
-\lambda A
-=U\,\operatorname{diag}(\widetilde\kappa_1^2,\ldots,\widetilde\kappa_d^2)U^\top,
-$$
-$$
-\frac{2}{\tau^2}\big(\cosh(\kappa_j\tau)-1\big)
-=\widetilde\kappa_j^2,
-\qquad
-z_{j,k}
-=
-\frac{\sinh(\kappa_j(T-t_k))}
-{\sinh(\kappa_jT)}z_{j,0},
-$$
-$$
-y_k=\widetilde H^{1/2}x_k,\qquad
-z_k=U^\top y_k,\qquad
-x_k=\widetilde H^{-1/2}Uz_k.
+\begin{aligned}
+\text{Eigendecomposition:} \quad & A = \widetilde H^{-1/2}\Sigma_{\rm price}\widetilde H^{-1/2}, \qquad \lambda A = U\,\operatorname{diag}(\widetilde\kappa_1^2,\ldots,\widetilde\kappa_d^2)U^\top \\[8pt]
+\text{Decoupled Dynamics:} \quad & \frac{2}{\tau^2}\big(\cosh(\kappa_j\tau)-1\big) = \widetilde\kappa_j^2, \qquad z_{j,k} = \frac{\sinh(\kappa_j(T-t_k))}{\sinh(\kappa_jT)}z_{j,0} \\[8pt]
+\text{Coordinate Transformations:} \quad & y_k = \widetilde H^{1/2}x_k, \qquad z_k = U^\top y_k \implies x_k = \widetilde H^{-1/2} U z_k
+\end{aligned}
 $$`,
           note:
             'Ta xoay danh mục sang các eigen-portfolios của hình học risk–liquidity. Mỗi mode j có κⱼ riêng; vì thế covariance và cross-impact có thể coupling lịch bán giữa các tài sản.',
