@@ -19,6 +19,7 @@ import { translations } from '../utils/translations';
 import ArticleBlock from '../components/ArticleBlock';
 import BlogEngagement from '../components/BlogEngagement';
 import MathRenderer from '../components/MathRenderer';
+import NotFoundPage from './NotFoundPage';
 import '../assets/styles/Home.css';
 import '../assets/styles/BlogDetail.css';
 
@@ -27,6 +28,10 @@ export default function BlogDetailPage() {
   const t = translations[language];
   const { slug } = useParams();
   const post = getBlogPostBySlug(slug);
+
+  if (!post) {
+    return <NotFoundPage />;
+  }
   const [activeSectionId, setActiveSectionId] = useState('');
   const [copiedSectionId, setCopiedSectionId] = useState('');
   const [readingProgress, setReadingProgress] = useState(0);

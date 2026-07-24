@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { Calendar, Download, Eye, FileText, ArrowLeft, ArrowUpRight, AlertTriangle, BookOpen } from 'lucide-react';
 import { documentsData, midtermExams, finalExams } from '../data/documentsData';
 import { API_BASE_URL } from '../config';
@@ -8,13 +8,13 @@ import { mergeResourceItems } from '../utils/resourceMerge';
 import { LanguageContext } from '../App';
 import { translations } from '../utils/translations';
 import BrandLoader from '../components/ui/BrandLoader';
+import NotFoundPage from './NotFoundPage';
 import '../assets/styles/Document.css';
 
 export default function DocDetail() {
   const { language } = useContext(LanguageContext);
   const t = translations[language];
   const { id } = useParams();
-  const navigate = useNavigate();
   const [doc, setDoc] = useState(null);
   const [otherDocs, setOtherDocs] = useState([]);
   const [isMobile, setIsMobile] = useState(false);
@@ -67,12 +67,11 @@ export default function DocDetail() {
 
       const currentDoc = resourcesList.find(item => item.id === id);
       if (!currentDoc) {
-        // If document not found, redirect to Home
-        navigate('/');
+        setDoc(null);
+        setLoading(false);
         return;
       }
       setDoc(currentDoc);
-
       setLoading(false);
     };
 
@@ -80,10 +79,14 @@ export default function DocDetail() {
     
     // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [id, navigate]);
+  }, [id]);
 
-  if (loading || !doc) {
+  if (loading) {
     return <BrandLoader label={t.docDetail.loading} />;
+  }
+
+  if (!doc) {
+    return <NotFoundPage />;
   }
 
   const pdfUrl = `/docs/${doc.pdf}`;

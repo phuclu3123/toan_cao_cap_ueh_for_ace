@@ -17,10 +17,11 @@ import {
   ShieldCheck,
   XCircle
 } from 'lucide-react';
-import { getPracticeExamById } from '../data/practiceExams';
+import { getPracticeExamById, isPracticeExamId } from '../data/practiceExams';
 import { LanguageContext } from '../App';
 import { translations } from '../utils/translations';
 import MathRenderer from '../components/MathRenderer';
+import NotFoundPage from './NotFoundPage';
 import '../assets/styles/ExamDetail.css';
 
 const DEFAULT_DURATION_MINUTES = 30;
@@ -60,8 +61,14 @@ export default function ExamDetail() {
   const t = translations[language];
   const navigate = useNavigate();
   const { id } = useParams();
-  const exam = useMemo(() => getPracticeExamById(id), [id]);
-  const questions = exam.questions;
+  const isValidExam = isPracticeExamId(id);
+  const exam = useMemo(() => (isValidExam ? getPracticeExamById(id) : null), [id, isValidExam]);
+
+  if (!isValidExam || !exam) {
+    return <NotFoundPage />;
+  }
+
+  const questions = exam.questions || [];
   const durationMinutes = exam.durationMinutes || DEFAULT_DURATION_MINUTES;
   const durationSeconds = durationMinutes * 60;
 
