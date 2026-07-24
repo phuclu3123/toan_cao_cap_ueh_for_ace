@@ -144,14 +144,14 @@ export const deepBsdeMfgMfcPost = {
         {
           type: 'formula',
           label: 'Hai con đường phổ biến',
-          content: math`$$\begin{gather}
+          content: math`$$\begin{aligned}
 \text{Stochastic control}
 \longrightarrow
 \begin{cases}
 \text{Dynamic programming}\longrightarrow\text{HJB PDE},\\
 \text{Maximum principle}\longrightarrow\text{FBSDE}.
 \end{cases}
-\end{gather}$$`,
+\end{aligned}$$`,
           note:
             'Hai biểu diễn có thể tương đương khi nghiệm đủ trơn và các giả định phù hợp, nhưng dẫn đến phương pháp số khác nhau.',
         },
@@ -438,18 +438,16 @@ check = np.cov(dW_correlated[:, 0, :], rowvar=False)`,
           type: 'formula',
           label: 'Pontryagin deterministic dạng minimization',
           content: math`$$
-\begin{gather}
-\textbf{State and Objective} \\[4pt]
-\dot x_t = b(t,x_t,a_t), \quad x(0) = x_0 \\[4pt]
-J(a) = g(x_T) + \int_0^T f(t,x_t,a_t)\,\mathrm dt \\[10pt]
-\textbf{Hamiltonian} \\[4pt]
-H(t,x,p,a) = f(t,x,a) + p^\top b(t,x,a) \\[10pt]
-\textbf{Canonical System} \\[4pt]
-\dot x_t^\star = \nabla_p H(t,x_t^\star,p_t^\star,a_t^\star) \\[4pt]
-\dot p_t^\star = -\nabla_x H(t,x_t^\star,p_t^\star,a_t^\star), \quad p_T^\star = \nabla g(x_T^\star) \\[10pt]
-\textbf{Optimality Condition} \\[4pt]
-a_t^\star \in \arg\min_{a\in\mathcal A} H(t,x_t^\star,p_t^\star,a) \quad \text{a.e. } t.
-\end{gather}
+\begin{aligned}
+&\textbf{1. State and Objective:} \\
+&\quad \dot x_t = b(t,x_t,a_t), \qquad J(a) = g(x_T) + \int_0^T f(t,x_t,a_t)\,\mathrm dt \\[8pt]
+&\textbf{2. Hamiltonian Function:} \\
+&\quad H(t,x,p,a) = f(t,x,a) + p^\top b(t,x,a) \\[8pt]
+&\textbf{3. Canonical System (Adjoint SDE):} \\
+&\quad \dot x_t^\star = \nabla_p H(t,x_t^\star,p_t^\star,a_t^\star), \qquad \dot p_t^\star = -\nabla_x H(t,x_t^\star,p_t^\star,a_t^\star), \qquad p_T^\star = \nabla g(x_T^\star) \\[8pt]
+&\textbf{4. Minimum Principle Condition:} \\
+&\quad a_t^\star \in \arg\min_{a\in\mathcal A} H(t,x_t^\star,p_t^\star,a) \quad \text{a.e. } t.
+\end{aligned}
 $$`,
           note:
             'Đây là Pontryagin Minimum Principle vì objective là cost cần tối thiểu. Nếu viết reward cần tối đa hóa hoặc đổi dấu Hamiltonian, tài liệu thường gọi Maximum Principle.',
@@ -481,10 +479,10 @@ a-a_t^\star
           type: 'formula',
           label: 'Bài toán control',
           content: math`$$
-\begin{gather}
-\inf_{\alpha\in\mathcal A} J(\alpha) = \mathbb E\!\left[\int_0^T \ell(t,X_t,\alpha_t)\,\mathrm dt + g(X_T)\right] \\[8pt]
-\mathrm dX_t = b(t,X_t,\alpha_t)\,\mathrm dt + \sigma(t,X_t,\alpha_t)\,\mathrm dW_t
-\end{gather}
+\begin{aligned}
+&\textbf{1. Objective Function:} \qquad \inf_{\alpha\in\mathcal A} J(\alpha) = \mathbb E\!\left[\int_0^T \ell(t,X_t,\alpha_t)\,\mathrm dt + g(X_T)\right] \\[6pt]
+&\textbf{2. Stochastic Dynamics:} \qquad \mathrm dX_t = b(t,X_t,\alpha_t)\,\mathrm dt + \sigma(t,X_t,\alpha_t)\,\mathrm dW_t
+\end{aligned}
 $$`,
           note:
             'Ta viết bài toán minimization; với maximization, dấu và điều kiện Hamiltonian đổi tương ứng.',
@@ -516,15 +514,15 @@ p_T=\nabla_xg(X_T)$$`,
           type: 'formula',
           label: 'Pontryagin mean-field: MFG và MFC tách ở đâu?',
           content: math`$$
-\begin{gather}
-\textbf{MFG System} \\[4pt]
-\mathrm dp_t = -\partial_x H(t,X_t,\mu_t,p_t,\alpha_t)\,\mathrm dt + q_t\,\mathrm dW_t + q_t^0\,\mathrm dW_t^0 \\[4pt]
-\mu_t = \mathcal L(X_t\mid\mathcal F_t^0) \quad \text{(after fixed-point step)} \\[10pt]
-\rule{16em}{0.5pt} \\[10pt]
-\textbf{MFC System} \\[4pt]
-\mathrm dp_t = -\Big[\partial_x H + \widetilde{\mathbb E}\big[\partial_\mu H(t,\widetilde X_t,\mu_t,\widetilde p_t,\widetilde\alpha_t)(X_t)\big]\Big]\mathrm dt \\[4pt]
-+ q_t\,\mathrm dW_t + q_t^0\,\mathrm dW_t^0
-\end{gather}
+\begin{aligned}
+&\textbf{MFG (Mean Field Game):} \\
+&\quad \mathrm dp_t = -\partial_x H(t,X_t,\mu_t,p_t,\alpha_t)\,\mathrm dt + q_t\,\mathrm dW_t + q_t^0\,\mathrm dW_t^0 \\[4pt]
+&\quad \mu_t = \mathcal L(X_t\mid\mathcal F_t^0) \quad \text{(fixed-point step)} \\[10pt]
+\hline \\[-6pt]
+&\textbf{MFC (Mean Field Control):} \\
+&\quad \mathrm dp_t = -\Big[\partial_x H + \widetilde{\mathbb E}\big[\partial_\mu H(t,\widetilde X_t,\mu_t,\widetilde p_t,\widetilde\alpha_t)(X_t)\big]\Big]\mathrm dt \\[4pt]
+&\qquad\qquad + q_t\,\mathrm dW_t + q_t^0\,\mathrm dW_t^0
+\end{aligned}
 $$`,
           note:
             'MFG agent coi law flow đã cho khi lấy best response; MFC planner nội hóa việc thay policy làm thay đổi law. Terminal condition cũng có law correction tương ứng khi g phụ thuộc μ.',
@@ -591,10 +589,12 @@ $$`,
         {
           type: 'formula',
           label: 'Dynamics và objective LQ',
-          content: math`$$\begin{cases}
-\text{Dynamics:} & \mathrm dX_t = (BX_t + D\alpha_t)\,\mathrm dt + \Sigma\,\mathrm dW_t \\[6pt]
-\text{Objective:} & \displaystyle J(\alpha) = \mathbb E\!\left[\int_0^T (X_t^\top Q X_t + \alpha_t^\top R \alpha_t)\,\mathrm dt + X_T^\top A X_T\right]
-\end{cases}$$`,
+          content: math`$$
+\begin{aligned}
+&\textbf{1. State Dynamics:} \qquad \mathrm dX_t = (BX_t + D\alpha_t)\,\mathrm dt + \Sigma\,\mathrm dW_t \\[6pt]
+&\textbf{2. Global Objective Function:} \qquad J(\alpha) = \mathbb E\!\left[\int_0^T (X_t^\top Q X_t + \alpha_t^\top R \alpha_t)\,\mathrm dt + X_T^\top A X_T\right]
+\end{aligned}
+$$`,
           note:
             'Thường yêu cầu R≻0, Q⪰0 và A⪰0 để bài toán lồi theo control/state cost.',
         },
@@ -608,10 +608,12 @@ $$`,
         {
           type: 'formula',
           label: 'Riccati differential equation',
-          content: math`$$\begin{cases}
--\dot P_t = B^\top P_t + P_t B - P_t D R^{-1} D^\top P_t + Q \\[6pt]
-P_T = A
-\end{cases}$$`,
+          content: math`$$
+\begin{aligned}
+&\textbf{1. Backward Riccati Differential ODE:} \qquad -\dot P_t = B^\top P_t + P_t B - P_t D R^{-1} D^\top P_t + Q \\[6pt]
+&\textbf{2. Terminal Condition:} \qquad P_T = A
+\end{aligned}
+$$`,
           note:
             'Công thức ứng với objective không có hệ số 1/2 và control law bên dưới; convention khác có thể đổi hệ số.',
         },
@@ -687,21 +689,25 @@ P_path = P_path[::-1]`,
         {
           type: 'formula',
           label: 'Lịch giao dịch rời rạc',
-          content: math`$$\begin{aligned}
-\text{Grid and Horizon:} \quad & t_k = k\tau, \quad \tau = \frac{T}{N} \\[6pt]
-\text{Inventory Constraints:} \quad & x_0 = X, \quad x_N = 0 \\[6pt]
-\text{Trading Rates:} \quad & n_k = x_{k-1} - x_k, \quad \alpha_k = \frac{n_k}{\tau}
-\end{aligned}$$`,
+          content: math`$$
+\begin{aligned}
+&\textbf{1. Time Grid and Horizon:} \qquad t_k = k\tau, \quad \tau = \frac{T}{N} \\[6pt]
+&\textbf{2. Inventory Boundary Constraints:} \qquad x_0 = X, \quad x_N = 0 \\[6pt]
+&\textbf{3. Discrete Trading Rate:} \qquad n_k = x_{k-1} - x_k, \quad \alpha_k = \frac{n_k}{\tau}
+\end{aligned}
+$$`,
           note:
             'Inventory là stock variable; n là lượng giao dịch trong một interval; α là flow/rate. Nhầm ba đại lượng này thường tạo sai hệ số τ.',
         },
         {
           type: 'formula',
           label: 'Price shock và hai loại market impact',
-          content: math`$$\begin{cases}
-\text{Fundamental Price:} & S_k = S_{k-1} + \Sigma_{\rm price}^{1/2}\sqrt{\tau}\,\xi_k - \Gamma n_k, \quad \xi_k\overset{\mathrm{iid}}{\sim}\mathcal N(0,I_d) \\[6pt]
-\text{Execution Price:} & \widetilde S_k = S_{k-1} - \varepsilon\odot\operatorname{sign}(n_k) - H\alpha_k
-\end{cases}$$`,
+          content: math`$$
+\begin{aligned}
+&\textbf{1. Fundamental Price (Permanent Impact):} \qquad S_k = S_{k-1} + \Sigma_{\rm price}^{1/2}\sqrt{\tau}\,\xi_k - \Gamma n_k, \quad \xi_k\overset{\mathrm{iid}}{\sim}\mathcal N(0,I_d) \\[6pt]
+&\textbf{2. Execution Price (Spread \& Temporary Impact):} \qquad \widetilde S_k = S_{k-1} - \varepsilon\odot\operatorname{sign}(n_k) - H\alpha_k
+\end{aligned}
+$$`,
           note:
             'S là mid/fundamental price đã chịu permanent impact; S̃ là execution price còn chịu spread và temporary impact. Đây là convention tuyến tính; dấu và timing phải được khóa nhất quán.',
         },
@@ -727,11 +733,14 @@ U[x]
           type: 'formula',
           label: 'AC đa tài sản tổng quát: phần đối xứng và phản đối xứng',
           content: math`$$
-\begin{gather}
-H^S = \frac{H+H^\top}{2}, \quad \Gamma^S = \frac{\Gamma+\Gamma^\top}{2}, \quad \Gamma^A = \frac{\Gamma-\Gamma^\top}{2}, \quad \widetilde H = H^S - \frac{\tau}{2}\Gamma^S \\[8pt]
-\mathbb E[C[x]] = \varepsilon^\top|X| + \frac{1}{2}X^\top\Gamma^SX + \sum_{k=1}^N\tau\,v_k^\top\widetilde H\,v_k + \sum_{k=1}^N\tau\,x_k^\top\Gamma^A v_k \\[8pt]
-\operatorname{Var}(C[x]) = \sum_{k=1}^N\tau\,x_k^\top\Sigma_{\rm price}x_k, \qquad v_k = \frac{n_k}{\tau}
-\end{gather}
+\begin{aligned}
+&\textbf{1. Impact Matrix Decomposition:} \\
+&\quad H^S = \frac{H+H^\top}{2}, \quad \Gamma^S = \frac{\Gamma+\Gamma^\top}{2}, \quad \Gamma^A = \frac{\Gamma-\Gamma^\top}{2}, \quad \widetilde H = H^S - \frac{\tau}{2}\Gamma^S \\[8pt]
+&\textbf{2. Expected Execution Shortfall:} \\
+&\quad \mathbb E[C[x]] = \varepsilon^\top|X| + \frac{1}{2}X^\top\Gamma^SX + \sum_{k=1}^N\tau\,v_k^\top\widetilde H\,v_k + \sum_{k=1}^N\tau\,x_k^\top\Gamma^A v_k \\[8pt]
+&\textbf{3. Variance Shortfall and Trading Velocity:} \\
+&\quad \operatorname{Var}(C[x]) = \sum_{k=1}^N\tau\,x_k^\top\Sigma_{\rm price}x_k, \qquad v_k = \frac{n_k}{\tau}
+\end{aligned}
 $$`,
           note:
             'Nếu Γ đối xứng thì Γᴬ=0 và hạng cuối biến mất. AC tổng quát không buộc mọi impact matrix đều chéo; phần đối xứng kiểm soát quadratic cost, còn phần phản đối xứng có thể làm path phụ thuộc thứ tự và hướng giao dịch.',
@@ -744,43 +753,51 @@ $$`,
         {
           type: 'formula',
           label: 'Continuous-time LQ approximation',
-          content: math`$$\begin{cases}
-\text{Objective:} & \displaystyle \min_{\alpha} \int_0^T \left(\eta\alpha_t^2 + \lambda\sigma^2X_t^2\right)\mathrm dt \\[6pt]
-\text{Constraints:} & \dot X_t = -\alpha_t, \quad X_0 = x_0, \quad X_T = 0
-\end{cases}$$`,
+          content: math`$$
+\begin{aligned}
+&\textbf{1. Objective Function:} \qquad \min_{\alpha} \int_0^T \left(\eta\alpha_t^2 + \lambda\sigma^2X_t^2\right)\mathrm dt \\[6pt]
+&\textbf{2. Boundary Constraints:} \qquad \dot X_t = -\alpha_t, \quad X_0 = x_0, \quad X_T = 0
+\end{aligned}
+$$`,
           note:
             'η là temporary-impact scale; λ là risk aversion; σ là price volatility.',
         },
         {
           type: 'formula',
           label: 'Từ Euler–Lagrange đến quỹ đạo liên tục',
-          content: math`$$\begin{cases}
-\text{Euler--Lagrange ODE:} & \eta\,\ddot X_t - \lambda\sigma^2X_t = 0 \\[6pt]
-\text{Boundary Values:} & X(0) = x_0, \quad X(T) = 0 \\[6pt]
-\text{Trading Speed:} & \alpha_t = -\dot X_t
-\end{cases}$$`,
+          content: math`$$
+\begin{aligned}
+&\textbf{1. Euler--Lagrange ODE:} \qquad \eta\,\ddot X_t - \lambda\sigma^2X_t = 0 \\[6pt]
+&\textbf{2. Boundary Conditions:} \qquad X(0) = x_0, \quad X(T) = 0 \\[6pt]
+&\textbf{3. Trading Rate:} \qquad \alpha_t = -\dot X_t
+\end{aligned}
+$$`,
           note:
             'Dấu chấm là đạo hàm theo thời gian. Phương trình nói rằng độ cong của lịch thanh lý được quyết định bởi tỷ lệ inventory risk trên temporary liquidity cost.',
         },
         {
           type: 'formula',
           label: 'Quỹ đạo thanh lý dạng hyperbolic',
-          content: math`$$\begin{cases}
-\text{Liquidation Scale:} & \kappa = \sqrt{\displaystyle\frac{\lambda\sigma^2}{\eta}} \\[8pt]
-\text{Optimal Trajectory:} & X_t^\star = x_0 \displaystyle\frac{\sinh(\kappa(T-t))}{\sinh(\kappa T)} \\[8pt]
-\text{Optimal Trading Rate:} & \alpha_t^\star = -\dot X_t^\star
-\end{cases}$$`,
+          content: math`$$
+\begin{aligned}
+&\textbf{1. Characteristic Liquidation Scale:} \qquad \kappa = \sqrt{\frac{\lambda\sigma^2}{\eta}} \\[6pt]
+&\textbf{2. Optimal Trajectory:} \qquad X_t^\star = x_0 \frac{\sinh(\kappa(T-t))}{\sinh(\kappa T)} \\[6pt]
+&\textbf{3. Optimal Trading Rate:} \qquad \alpha_t^\star = -\dot X_t^\star
+\end{aligned}
+$$`,
           note:
             'Đây là continuous simplification; discrete AC có temporary/permanent impact và hệ số hiệu chỉnh riêng.',
         },
         {
           type: 'formula',
           label: 'Kappa rời rạc và giới hạn liên tục',
-          content: math`$$\begin{cases}
-\text{Discrete Ratio:} & \widetilde\kappa^2 = \displaystyle\frac{\lambda\sigma_{\rm price}^2}{\widetilde\eta} \\[8pt]
-\text{Discrete Rate:} & \kappa_{\rm discrete} = \displaystyle\frac{1}{\tau}\operatorname{arcosh}\left(1 + \frac{\tau^2\widetilde\kappa^2}{2}\right) \\[8pt]
-\text{Continuous Limit:} & \displaystyle \lim_{\tau\to 0} \kappa_{\rm discrete} = \sqrt{\frac{\lambda\sigma_{\rm price}^2}{\eta}}
-\end{cases}$$`,
+          content: math`$$
+\begin{aligned}
+&\textbf{1. Discrete Impact Ratio:} \qquad \widetilde\kappa^2 = \frac{\lambda\sigma_{\rm price}^2}{\widetilde\eta} \\[6pt]
+&\textbf{2. Discrete Characteristic Rate:} \qquad \kappa_{\rm discrete} = \frac{1}{\tau}\operatorname{arcosh}\left(1 + \frac{\tau^2\widetilde\kappa^2}{2}\right) \\[6pt]
+&\textbf{3. Continuous Limit ($\tau \to 0$):} \qquad \lim_{\tau\to 0} \kappa_{\rm discrete} = \sqrt{\frac{\lambda\sigma_{\rm price}^2}{\eta}}
+\end{aligned}
+$$`,
           note:
             'κ không phải covariance hay crowding weight. κ lớn nghĩa thời gian đặc trưng 1/κ ngắn: nhà giao dịch thoát vị thế sớm hơn.',
         },
@@ -788,11 +805,14 @@ $$`,
           type: 'formula',
           label: 'AC liên tục nhiều tài sản',
           content: math`$$
-\begin{gather}
-\min_X \int_0^T \left(\dot X_t^\top H\dot X_t + \lambda X_t^\top\Sigma_{\rm price}X_t\right)\mathrm dt \quad \text{s.t. } X(0)=X_0,\ X(T)=0 \\[8pt]
-M = \lambda H^{-1/2}\Sigma_{\rm price}H^{-1/2}, \qquad K = M^{1/2} \\[8pt]
-X_t^\star = H^{-1/2}\sinh\!\big(K(T-t)\big)\sinh(KT)^{-1}H^{1/2}X_0
-\end{gather}
+\begin{aligned}
+&\textbf{1. Continuous Formulation:} \\
+&\quad \min_X \int_0^T \left(\dot X_t^\top H\dot X_t + \lambda X_t^\top\Sigma_{\rm price}X_t\right)\mathrm dt \quad \text{s.t. } X(0)=X_0,\ X(T)=0 \\[8pt]
+&\textbf{2. Matrix Operators:} \\
+&\quad M = \lambda H^{-1/2}\Sigma_{\rm price}H^{-1/2}, \qquad K = M^{1/2} \\[8pt]
+&\textbf{3. Optimal Liquidation Trajectory:} \\
+&\quad X_t^\star = H^{-1/2}\sinh\!\big(K(T-t)\big)\sinh(KT)^{-1}H^{1/2}X_0
+\end{aligned}
 $$`,
           note:
             'Đây là symmetric continuous form. H≻0 mã hóa liquidity/cross-impact tạm thời; Σprice⪰0 mã hóa rủi ro đồng biến động. Matrix square root làm các eigen-portfolios có tốc độ thanh lý khác nhau.',
@@ -801,11 +821,14 @@ $$`,
           type: 'formula',
           label: 'Eigenmodes trong AC đa tài sản rời rạc',
           content: math`$$
-\begin{gather}
-A = \widetilde H^{-1/2}\Sigma_{\rm price}\widetilde H^{-1/2}, \qquad \lambda A = U\,\operatorname{diag}(\widetilde\kappa_1^2,\ldots,\widetilde\kappa_d^2)U^\top \\[8pt]
-\frac{2}{\tau^2}\big(\cosh(\kappa_j\tau)-1\big) = \widetilde\kappa_j^2, \qquad z_{j,k} = \frac{\sinh(\kappa_j(T-t_k))}{\sinh(\kappa_jT)}z_{j,0} \\[8pt]
-y_k = \widetilde H^{1/2}x_k, \qquad z_k = U^\top y_k \implies x_k = \widetilde H^{-1/2} U z_k
-\end{gather}
+\begin{aligned}
+&\textbf{1. Eigendecomposition:} \\
+&\quad A = \widetilde H^{-1/2}\Sigma_{\rm price}\widetilde H^{-1/2}, \qquad \lambda A = U\,\operatorname{diag}(\widetilde\kappa_1^2,\ldots,\widetilde\kappa_d^2)U^\top \\[8pt]
+&\textbf{2. Decoupled Mode Dynamics:} \\
+&\quad \frac{2}{\tau^2}\big(\cosh(\kappa_j\tau)-1\big) = \widetilde\kappa_j^2, \qquad z_{j,k} = \frac{\sinh(\kappa_j(T-t_k))}{\sinh(\kappa_jT)}z_{j,0} \\[8pt]
+&\textbf{3. Coordinate Transformations:} \\
+&\quad y_k = \widetilde H^{1/2}x_k, \qquad z_k = U^\top y_k \implies x_k = \widetilde H^{-1/2} U z_k
+\end{aligned}
 $$`,
           note:
             'Ta xoay danh mục sang các eigen-portfolios của hình học risk–liquidity. Mỗi mode j có κⱼ riêng; vì thế covariance và cross-impact có thể coupling lịch bán giữa các tài sản.',
@@ -880,10 +903,11 @@ $$`,
           type: 'formula',
           label: 'Disutility rời rạc của evaluator',
           content: math`$$
-\begin{gather}
-J_{\rm AC}^{\rm impl} = \underbrace{\frac{1}{2}\sum_{i=1}^{d}\gamma_iX_i^2 + \sum_{k=1}^{N}\sum_{i=1}^{d}\epsilon_i|n_{k,i}| + \frac{1}{\tau}\sum_{k=1}^{N}\sum_{i=1}^{d}\widetilde\eta_i n_{k,i}^2}_{\text{expected shortfall}} \\[8pt]
-+ \lambda\underbrace{\tau\sum_{k=1}^{N}x_k^\top\Sigma_{\rm price}x_k}_{\text{variance shortfall}}, \qquad \widetilde\eta_i = \eta_i - \frac{\gamma_i\tau}{2} > 0
-\end{gather}
+\begin{aligned}
+&\textbf{Mean--Variance Disutility Objective:} \\
+&\quad J_{\rm AC}^{\rm impl} = \underbrace{\frac{1}{2}\sum_{i=1}^{d}\gamma_iX_i^2 + \sum_{k=1}^{N}\sum_{i=1}^{d}\epsilon_i|n_{k,i}| + \frac{1}{\tau}\sum_{k=1}^{N}\sum_{i=1}^{d}\widetilde\eta_i n_{k,i}^2}_{\text{expected shortfall}} \\
+&\qquad\qquad + \lambda\underbrace{\tau\sum_{k=1}^{N}x_k^\top\Sigma_{\rm price}x_k}_{\text{variance shortfall}}, \qquad \widetilde\eta_i = \eta_i - \frac{\gamma_i\tau}{2} > 0
+\end{aligned}
 $$`,
           note:
             'Tên utility trong code là mean–variance disutility cần tối thiểu hóa. Permanent, spread và temporary impact tách theo từng tài sản; covariance ngoài đường chéo chỉ xuất hiện trong variance shortfall.',
@@ -891,7 +915,7 @@ $$`,
         {
           type: 'formula',
           label: 'Dựng từng path rồi chấm jointly',
-          content: math`$$\begin{gather}
+          content: math`$$\begin{aligned}
 \kappa_i=
 \frac1{\tau}\operatorname{arcosh}
 \left(
@@ -908,7 +932,7 @@ n_{k,i}=x_{k-1,i}-x_{k,i},
 \qquad
 V_{\rm port}
 =\tau\sum_{k=1}^{N}x_k^\top\Sigma_{\rm price}x_k .
-\end{gather}$$`,
+\end{aligned}$$`,
           note:
             'Nếu λ=0, implementation dùng đường thẳng $x_{k,i}=X_i(1-t_k/T)$ và đặt κᵢ=0. Nếu λ>0, mỗi tài sản dùng nghiệm hyperbolic riêng; evaluator mới ghép các cột qua full covariance.',
         },
@@ -1414,7 +1438,7 @@ relative_gap = (mfg_cost - mfc_cost) / mfc_cost`,
         {
           type: 'formula',
           label: 'Bài toán shooting phụ trợ',
-          content: math`$$\begin{gather}
+          content: math`$$\begin{aligned}
 \inf_{y_0,z}
 J_{\rm FBSDE}(y_0,z)
 =
@@ -1431,7 +1455,7 @@ Y_T^{y_0,z}
 +z(t,X_t,\mu_t)\,\mathrm dW_t,\\
 Y_0=y_0(X_0,\mu_0).
 \end{cases}
-\end{gather}$$`,
+\end{aligned}$$`,
           note:
             'Sau khi chọn y₀ và z, cả X lẫn Y đều được rollout theo chiều tiến. Neural network tham số hóa y₀ và z; terminal mismatch kiểm xem đường tiến có chạm biên lùi hay không.',
         },
@@ -1693,7 +1717,7 @@ seed_summary["ci95_high"] = (
         {
           type: 'formula',
           label: 'Gradient, Hessian, divergence và trace',
-          content: math`$$\begin{gather}
+          content: math`$$\begin{aligned}
 \nabla_x f=
 \begin{bmatrix}
 \partial f/\partial x_1\\[-0.1em]\vdots\\[-0.1em]\partial f/\partial x_d
@@ -1703,7 +1727,7 @@ seed_summary["ci95_high"] = (
 \left[\frac{\partial^2f}{\partial x_i\partial x_j}\right]_{i,j},
 \qquad
 \operatorname{Tr}(A)=\sum_{i=1}^d A_{ii}.
-\end{gather}$$`,
+\end{aligned}$$`,
           note:
             'Tam giác ngược ∇ là nabla/gradient; ∇² là Hessian. Tr là trace: tổng đường chéo, đồng thời bằng tổng eigenvalue kể cả khi không cần tính từng eigenvalue.',
         },
@@ -1865,7 +1889,7 @@ seed_summary["ci95_high"] = (
         {
           type: 'formula',
           label: 'Conditional expectation là phép chiếu L²',
-          content: math`$$\begin{gather}
+          content: math`$$\begin{aligned}
 \widehat X=\mathbb E[X\mid\mathcal G],
 \qquad
 \mathbb E\!\left[(X-\widehat X)Z\right]=0
@@ -1875,7 +1899,7 @@ seed_summary["ci95_high"] = (
 =
 \mathbb E|X-\widehat X|^2
 +\mathbb E|\widehat X-Z|^2.
-\end{gather}$$`,
+\end{aligned}$$`,
           note:
             'Pythagorean identity chứng minh E[X|G] là estimator dùng thông tin G có MSE nhỏ nhất. Đây là hình học nền sau least squares, regression và việc xấp xỉ các conditional objects bằng neural network.',
         },
@@ -1898,7 +1922,7 @@ seed_summary["ci95_high"] = (
         {
           type: 'formula',
           label: 'Relative L², RMSE và cosine đo ba điều khác nhau',
-          content: math`$$\begin{gather}
+          content: math`$$\begin{aligned}
 \operatorname{RelL2}(a,b)
 =
 \frac{\|a-b\|_2}{\max(\|b\|_2,\varepsilon)},
@@ -1911,7 +1935,7 @@ seed_summary["ci95_high"] = (
 =
 \frac{\langle a,b\rangle}
 {\max(\|a\|_2\|b\|_2,\varepsilon)}.
-\end{gather}$$`,
+\end{aligned}$$`,
           note:
             'Relative L2 đo sai số theo scale reference; RMSE giữ đơn vị gốc; cosine chủ yếu đo hướng/shape. Một policy có cosine cao vẫn có thể sai amplitude.',
         },
@@ -2016,7 +2040,7 @@ q_t^{0,\theta}=q^{0,\theta}(t,X_t,e_t),
         {
           type: 'formula',
           label: 'Lions derivative: đạo hàm theo một probability law',
-          content: math`$$\begin{gather}
+          content: math`$$\begin{aligned}
 F(\mu)=\widetilde F(\xi),\qquad \mu=\mathcal L(\xi),
 \qquad
 D\widetilde F(\xi)
@@ -2033,7 +2057,7 @@ D\widetilde F(\xi)
 \right]
 \right]\mathrm dt
 +q_t\,\mathrm dW_t+q_t^0\,\mathrm dW_t^0.
-\end{gather}$$`,
+\end{aligned}$$`,
           note:
             'Ta “lift” hàm trên measures thành hàm của random variable trong L² rồi lấy Fréchet derivative. Biến trong ngoặc cuối $X_t$ là điểm tại đó measure derivative được đánh giá.',
         },
@@ -2118,7 +2142,7 @@ assert torch.allclose(e1, e2, atol=1e-6)`,
         {
           type: 'formula',
           label: 'Moment closure dùng cho nhánh kinh tế',
-          content: math`$$\begin{gather}
+          content: math`$$\begin{aligned}
 m_t^N=\frac1N\sum_{i=1}^{N}X_t^i,
 \qquad
 \bar\alpha_t^N=\frac1N\sum_{i=1}^{N}\alpha_t^i,
@@ -2127,14 +2151,14 @@ F_{\rm crowd}(x,\alpha,\bar\alpha)
 =
 \omega_p\,x^\top C\bar\alpha
 +\omega_\tau\,\alpha^\top C\bar\alpha .
-\end{gather}$$`,
+\end{aligned}$$`,
           note:
             'MFG nhận mean-control flow như môi trường trong best response rồi cập nhật flow bằng outer fixed point. MFC sinh flow nội sinh từ population rollout và dùng planner driver. Nhánh này không gọi Deep Sets trong vòng lặp kinh tế.',
         },
         {
           type: 'formula',
           label: 'Dispersion term dùng cho empirical-law diagnostic',
-          content: math`$$\begin{gather}
+          content: math`$$\begin{aligned}
 m_t^N=\frac1N\sum_{i=1}^{N}X_t^i,
 \qquad
 F_{\rm disp}^N
@@ -2146,7 +2170,7 @@ F_{\rm disp}^N
 \qquad
 \nabla_xH_{\rm MFC}^{\rm diag}
 =2Qx+4G(x-m).
-\end{gather}$$`,
+\end{aligned}$$`,
           note:
             'Hệ số 2/4 là convention của diagnostic adapter để tạo hai chế độ direct/social effect. Objective này khác adverse-crowding objective ở trên, nên không dùng hai cost của nhánh này để lập PoA kinh tế.',
         },
@@ -2213,7 +2237,7 @@ J(\alpha)
         {
           type: 'formula',
           label: 'Population term và common economic evaluator',
-          content: math`$$\begin{gather}
+          content: math`$$\begin{aligned}
 F_{\rm pop}^{\rm econ}
 =
 \omega_pX_t^\top C\bar\alpha_t
@@ -2229,14 +2253,14 @@ F_{\rm pop}^{\rm econ}
 +\omega_\tau\alpha_k^\top C\bar\alpha_k
 \right)
 +X_N^\top AX_N .
-\end{gather}$$`,
+\end{aligned}$$`,
           note:
             'Đây là objective dùng để chấm chung các policy kinh tế. Hạng permanent crowding đo cost khi còn giữ inventory trong một dòng bán đồng hướng; hạng temporary crowding đo cost khi chính tốc độ giao dịch trùng với dòng bán của quần thể.',
         },
         {
           type: 'formula',
           label: 'Hamiltonian, FOC và control map',
-          content: math`$$\begin{gather}
+          content: math`$$\begin{aligned}
 H(t,x,\mu,p,a)
 =f(t,x,\mu,a)+\langle b(t,x,\mu,a),p\rangle,
 \qquad
@@ -2245,7 +2269,7 @@ H(t,x,\mu,p,a)
 a_{\rm raw}^\star=\frac12R^{-1}p,
 \qquad
 \alpha^\star=\mathcal C(a_{\rm raw}^\star,x,\Delta t).
-\end{gather}$$`,
+\end{aligned}$$`,
           note:
             'Raw FOC đúng cho phần Hamiltonian có drift b=−a và control cost aᵀRa. Trong pipeline, temporary-crowding cost vẫn nằm trong training objective/evaluator nhưng raw map vẫn là $\\tfrac12R^{-1}p$ rồi mới qua constraint map. Vì vậy không nên gọi raw map này là closed-form argmin của Hamiltonian đã cộng đầy đủ temporary crowding.',
         },
@@ -2364,7 +2388,7 @@ loss = ((p - terminal_target) ** 2).sum(-1).mean()`,
         {
           type: 'formula',
           label: 'Bộ metric tối thiểu cho state–control–boundary',
-          content: math`$$\begin{gather}
+          content: math`$$\begin{aligned}
 e_\alpha^{\rm rel}
 =\frac{\|\alpha-\alpha^{\rm ref}\|_2}
 {\max(\|\alpha^{\rm ref}\|_2,\varepsilon)},
@@ -2379,7 +2403,7 @@ e_T
 \qquad
 r_{\rm fp}
 =\|\mu-\Phi(\mu)\|.
-\end{gather}$$`,
+\end{aligned}$$`,
           note:
             'Không metric đơn nào đủ: control đúng shape có thể sai completion; terminal residual thấp có thể đi cùng objective xấu; fixed-point tốt không nói equilibrium hiệu quả xã hội.',
         },
@@ -2505,7 +2529,7 @@ assert "terminal_inventory_before_forced" in results.columns`,
         {
           type: 'formula',
           label: 'HJB, Feynman–Kac và decoupling field',
-          content: math`$$\begin{gather}
+          content: math`$$\begin{aligned}
 0=\partial_tV+\inf_a
 \left\{
 f+\nabla V^\top b
@@ -2517,7 +2541,7 @@ V(T,x)=g(x),
 p_t\approx\nabla_xV(t,X_t),\qquad
 q_t\approx\nabla_x^2V(t,X_t)\sigma
 \quad\text{under a smooth Markov setting}.
-\end{gather}$$`,
+\end{aligned}$$`,
           note:
             'HJB nhìn toàn state space; FBSDE nhìn sampled trajectories. Feynman–Kac nối PDE bán tuyến tính với BSDE khi các giả định regularity và integrability thỏa.',
         },
