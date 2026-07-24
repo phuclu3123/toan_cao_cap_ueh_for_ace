@@ -89,7 +89,7 @@ export default function DocDetail() {
     return <NotFoundPage />;
   }
 
-  const pdfUrl = `/docs/${doc.pdf}`;
+  const pdfUrl = encodeURI(`/docs/${doc.pdf}`);
   const fileExtension = (doc.pdf || '').split('.').pop()?.toUpperCase() || 'PDF';
   const isPdf = fileExtension === 'PDF';
   const coverImage = doc.image ? `/images/${doc.image}` : '/images/tccvang.jpg';

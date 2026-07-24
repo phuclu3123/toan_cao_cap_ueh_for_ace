@@ -16,7 +16,7 @@ export const documentsData = [
     category: 'latest',
     categoryLabel: 'Slide PNTA',
     image: 'pnta.jpg',
-    pdf: 'SLIDE_PNTA/Chương 1 - Ma trận và định thức (cập nhật).pdf',
+    pdf: 'SLIDE_PNTA/Chuong_1_-_Ma_tran_va_dinh_thuc_cap_nhat.pdf',
     desc: 'Bài giảng Slide chính thức Chương 1 của Thầy Phan Ngô Tuấn Anh (PNTA) cập nhật mới nhất cho sinh viên UEH.'
   },
   {
@@ -26,7 +26,7 @@ export const documentsData = [
     category: 'latest',
     categoryLabel: 'Slide PNTA',
     image: 'pnta.jpg',
-    pdf: 'SLIDE_PNTA/Chương 2 - Hệ phương trình tuyến tính (cập nhật).pdf',
+    pdf: 'SLIDE_PNTA/Chuong_2_-_He_phuong_trinh_tuyen_tinh_cap_nhat.pdf',
     desc: 'Bài giảng Slide chính thức Chương 2 của Thầy Phan Ngô Tuấn Anh (PNTA), hướng dẫn giải và định lý Kronecker-Capelli.'
   },
   {
@@ -36,7 +36,7 @@ export const documentsData = [
     category: 'latest',
     categoryLabel: 'Slide PNTA',
     image: 'pnta.jpg',
-    pdf: 'SLIDE_PNTA/Chương 3 - Mô hình input-output Leontief (cập nhật).pdf',
+    pdf: 'SLIDE_PNTA/Chuong_3_-_Mo_hinh_input-output_Leontief_cap_nhat.pdf',
     desc: 'Bài giảng Slide chính thức Chương 3 của Thầy Phan Ngô Tuấn Anh (PNTA) về ma trận hệ số kỹ thuật và cầu cuối.'
   },
   {
@@ -46,7 +46,7 @@ export const documentsData = [
     category: 'latest',
     categoryLabel: 'Slide PNTA',
     image: 'pnta.jpg',
-    pdf: 'SLIDE_PNTA/Chương 4 - Giới hạn và sự liên tục.pdf',
+    pdf: 'SLIDE_PNTA/Chuong_4_-_Gioi_han_va_su_lien_tuc.pdf',
     desc: 'Bài giảng Slide chính thức Chương 4 của Thầy Phan Ngô Tuấn Anh (PNTA) về giới hạn hàm số và tính liên tục.'
   },
   {
@@ -56,7 +56,7 @@ export const documentsData = [
     category: 'latest',
     categoryLabel: 'Slide PNTA',
     image: 'pnta.jpg',
-    pdf: 'SLIDE_PNTA/Chương 5 - Đạo hàm và vi phân (cập nhật).pdf',
+    pdf: 'SLIDE_PNTA/Chuong_5_-_Dao_ham_va_vi_phan_cap_nhat.pdf',
     desc: 'Bài giảng Slide chính thức Chương 5 của Thầy Phan Ngô Tuấn Anh (PNTA), tính đạo hàm, vi phân và hệ số co giãn.'
   },
   {
@@ -66,7 +66,7 @@ export const documentsData = [
     category: 'latest',
     categoryLabel: 'Slide PNTA',
     image: 'pnta.jpg',
-    pdf: 'SLIDE_PNTA/Chương 6 - Hàm nhiều biến (cập nhật).pdf',
+    pdf: 'SLIDE_PNTA/Chuong_6_-_Ham_nhieu_bien_cap_nhat.pdf',
     desc: 'Bài giảng Slide chính thức Chương 6 của Thầy Phan Ngô Tuấn Anh (PNTA) về cực trị tự do và cực trị có điều kiện Lagrange.'
   },
   {
@@ -76,7 +76,7 @@ export const documentsData = [
     category: 'latest',
     categoryLabel: 'Slide PNTA',
     image: 'pnta.jpg',
-    pdf: 'SLIDE_PNTA/Chương 7 - Phương trình vi phân (cập nhật).pdf',
+    pdf: 'SLIDE_PNTA/Chuong_7_-_Phuong_trinh_vi_phan_cap_nhat.pdf',
     desc: 'Bài giảng Slide chính thức Chương 7 của Thầy Phan Ngô Tuấn Anh (PNTA) về phương trình vi phân cấp 1 và ứng dụng kinh tế.'
   },
   {
@@ -86,7 +86,7 @@ export const documentsData = [
     category: 'latest',
     categoryLabel: 'Tài liệu mới nhất',
     image: 'final chắc là vậy_page-0001.jpg',
-    pdf: 'DE_THI_CHINH/FINAL 2807 (1).pdf',
+    pdf: 'DE_THI_CHINH/FINAL_2807_1.pdf',
     desc: 'Tổng hợp chi tiết đề thi trắc nghiệm và tự luận Toán Cao Cấp (TCC) của Đại học Kinh tế TP.HCM (UEH) qua các học kỳ, kèm lời giải giải thích cặn kẽ từng bước giúp sinh viên ôn luyện hiệu quả.'
   },
   {
@@ -126,7 +126,7 @@ export const documentsData = [
     category: "latest",
     categoryLabel: "Tài liệu mới nhất",
     image: "bg.jpg",
-    pdf: "3. TL3_KINH_TE_VPC1.pdf",
+    pdf: "TL3_KINH_TE_VPC1.pdf",
     desc: "Tài liệu chương mới Toán Cao Cấp, bổ sung nội dung ôn tập và hệ thống kiến thức mới cho sinh viên UEH."
   },
   {
@@ -156,7 +156,7 @@ export const documentsData = [
     category: "support",
     categoryLabel: "Slide Lê Xuân Trường",
     image: "tccvang.jpg",
-    pdf: "SLIDE_LXT/công thức biến đổi, tích phân từng phần.pdf",
+    pdf: "SLIDE_LXT/cong_thuc_bien_doi_tich_phan_tung_phan.pdf",
     desc: "Slide tổng hợp công thức biến đổi và tích phân từng phần của thầy Lê Xuân Trường, hỗ trợ ôn nhanh phần giải tích."
   },
   {
@@ -246,7 +246,7 @@ export const documentsData = [
     category: "support",
     categoryLabel: "Slide Lê Xuân Trường",
     image: "tccvang.jpg",
-    pdf: "SLIDE_LXT/slides-lec9[Vie].pdf",
+    pdf: "SLIDE_LXT/slides-lec9_Vie.pdf",
     desc: "Bài giảng Lecture 09 bản tiếng Việt trong bộ slide Toán Cao Cấp của thầy Lê Xuân Trường."
   },
   {
@@ -286,7 +286,7 @@ export const documentsData = [
     category: 'support',
     categoryLabel: 'Tài liệu chuyên đề',
     image: 'c123.jpg',
-    pdf: '1. TL1_HPT_LG.pdf',
+    pdf: 'TL1_HPT_LG.pdf',
     desc: 'Chuyên đề nền tảng về hệ phương trình tuyến tính và lượng giác, tổng hợp kiến thức trọng tâm, dạng bài thường gặp và phương pháp xử lý nhanh khi luyện thi Toán Cao Cấp.'
   },
   {
@@ -296,7 +296,7 @@ export const documentsData = [
     category: 'support',
     categoryLabel: 'Tài liệu chuyên đề',
     image: 'c4678.jpg',
-    pdf: '2. TL2_BIEN_HSCD.pdf',
+    pdf: 'TL2_BIEN_HSCD.pdf',
     desc: 'Tài liệu chuyên sâu về biến số, hàm số và hệ số co giãn trong các bài toán kinh tế, giúp sinh viên luyện cách đọc đề, đặt biến và tính toán chính xác.'
   },
   {
@@ -306,7 +306,7 @@ export const documentsData = [
     category: 'support',
     categoryLabel: 'Tài liệu chuyên đề',
     image: 'bg.jpg',
-    pdf: '3. TL3_KINH_TE_VPC1.pdf',
+    pdf: 'TL3_KINH_TE_VPC1.pdf',
     desc: 'Bộ tài liệu mô hình kinh tế trong Toán Cao Cấp, tập trung vào cách chuyển bài toán thực tế sang mô hình đại số, giải hệ và diễn giải kết quả.'
   },
   {
