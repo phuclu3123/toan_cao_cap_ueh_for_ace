@@ -4,6 +4,7 @@ import { ArrowRight, ChevronLeft, ChevronRight, Search } from 'lucide-react';
 import { blogPosts } from '../data/blogPosts';
 import { LanguageContext } from '../App';
 import { translations } from '../utils/translations';
+import { sortResourcesByNewest } from '../utils/resourceDate';
 import '../assets/styles/Home.css';
 
 const pageSize = 5;
@@ -14,11 +15,12 @@ export default function BlogPage() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const sortedPosts = useMemo(() => sortResourcesByNewest(blogPosts), []);
 
   const filteredPosts = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
-    if (!query) return blogPosts;
-    return blogPosts.filter((post) => {
+    if (!query) return sortedPosts;
+    return sortedPosts.filter((post) => {
       const haystack = [
         post.title,
         post.category,
@@ -28,7 +30,7 @@ export default function BlogPage() {
       ].join(' ').toLowerCase();
       return haystack.includes(query);
     });
-  }, [searchQuery]);
+  }, [searchQuery, sortedPosts]);
 
   const featuredPost = filteredPosts[0];
 

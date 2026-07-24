@@ -1,13 +1,14 @@
-import { useEffect, useMemo, useState, useContext } from 'react';
+import { useCallback, useEffect, useMemo, useState, useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Download, Grid, HelpCircle, List, Search } from 'lucide-react';
 import DocCard from '../components/DocCard';
 import { documentsData as localDocs, midtermExams as localMidterms, finalExams as localFinals } from '../data/documentsData';
 import { API_BASE_URL } from '../config';
-import { formatResourceDate } from '../utils/resourceDate';
+import { formatResourceDate, sortResourcesByNewest } from '../utils/resourceDate';
 import { mergeResourceItems } from '../utils/resourceMerge';
 import { LanguageContext } from '../App';
 import { translations } from '../utils/translations';
+import BrandLoader from '../components/ui/BrandLoader';
 import '../assets/styles/Resources.css';
 
 const itemsPerPage = 6;
@@ -30,13 +31,17 @@ export default function ResourcesPage() {
 
   // Initialize active tab from URL query params
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const category = params.get('category');
-    const query = params.get('q');
-    setActiveTab(category === 'midterm' || category === 'final' || category === 'publication' ? category : 'all');
-    setSearchQuery(query || '');
-    setCurrentPage(1);
-  }, [location]);
+    const syncTimer = window.setTimeout(() => {
+      const params = new URLSearchParams(location.search);
+      const category = params.get('category');
+      const query = params.get('q');
+      setActiveTab(category === 'midterm' || category === 'final' || category === 'publication' ? category : 'all');
+      setSearchQuery(query || '');
+      setCurrentPage(1);
+    }, 0);
+
+    return () => window.clearTimeout(syncTimer);
+  }, [location.search]);
 
   // Load resources from API or fallbacks
   useEffect(() => {
@@ -65,16 +70,24 @@ export default function ResourcesPage() {
     fetchResources();
   }, []);
 
-  const finalExamOrder = useMemo(() => new Map(localFinals.map((exam, index) => [exam.id, index])), []);
   const isPracticeExam = (exam) => exam.hasDetailRoute;
   
   const practiceFinalExams = useMemo(() => {
-    return finals
-      .filter(isPracticeExam)
-      .sort((a, b) => (finalExamOrder.get(a.id) ?? 999) - (finalExamOrder.get(b.id) ?? 999));
-  }, [finals, finalExamOrder]);
+    return sortResourcesByNewest(
+      finals
+        .filter(isPracticeExam)
+        .map((exam, index) => ({
+          ...exam,
+          publishedAt: exam.publishedAt || (
+            exam.id.startsWith('k51-')
+              ? `2026-07-23T${String(12 - Math.min(index, 5)).padStart(2, '0')}:00:00+07:00`
+              : `2026-07-11T${String(18 - Math.min(index, 10)).padStart(2, '0')}:00:00+07:00`
+          )
+        }))
+    );
+  }, [finals]);
 
-  const toPublicMidterm = (item, index) => {
+  const toPublicMidterm = useCallback((item, index) => {
     let title = item.title;
     let desc = item.desc;
     let professorName = item.professorName;
@@ -111,14 +124,15 @@ export default function ResourcesPage() {
       ...item,
       title,
       desc,
+      publishedAt: item.publishedAt || `2026-05-29T${String(16 - Math.min(index, 9)).padStart(2, '0')}:00:00+07:00`,
       categoryLabel: t.resources.tabMidterm,
       displayCategory: t.resources.tabMidterm,
       image: item.image || midtermCovers[index % midtermCovers.length],
       professorName: professorName || ''
     };
-  };
+  }, [language, t]);
 
-  const toPublicFinal = (f) => {
+  const toPublicFinal = useCallback((f) => {
     let title = f.title;
     let desc = f.desc;
     
@@ -159,7 +173,7 @@ export default function ResourcesPage() {
       type: 'final',
       displayCategory: t.resources.badgeFinal
     };
-  };
+  }, [language, t]);
 
   const allItems = useMemo(() => {
     const publications = docs.map((doc) => ({
@@ -184,14 +198,15 @@ export default function ResourcesPage() {
           ? publicFinals
           : [...publications, ...publicMidterms, ...publicFinals];
 
+    const newestFirst = sortResourcesByNewest(source);
     const query = searchQuery.trim().toLowerCase();
-    if (!query) return source;
+    if (!query) return newestFirst;
 
-    return source.filter((item) => {
+    return newestFirst.filter((item) => {
       const haystack = [item.title, item.desc, item.displayCategory, item.categoryLabel].join(' ').toLowerCase();
       return haystack.includes(query);
     });
-  }, [activeTab, docs, midterms, practiceFinalExams, searchQuery, language, t]);
+  }, [activeTab, docs, midterms, practiceFinalExams, searchQuery, t.resources.tabPub, toPublicFinal, toPublicMidterm]);
 
   const totalPages = Math.max(1, Math.ceil(allItems.length / itemsPerPage));
   const paginatedItems = allItems.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
@@ -247,6 +262,9 @@ export default function ResourcesPage() {
             <button className={`tab-btn ${activeTab === 'midterm' ? 'active' : ''}`} onClick={() => handleTabClick('midterm')}>{t.resources.tabMidterm} ({midterms.length})</button>
             <button className={`tab-btn ${activeTab === 'final' ? 'active' : ''}`} onClick={() => handleTabClick('final')}>{t.resources.tabFinal} ({practiceFinalExams.length})</button>
             <button className={`tab-btn ${activeTab === 'publication' ? 'active' : ''}`} onClick={() => handleTabClick('publication')}>{t.resources.tabPub} ({docs.length})</button>
+            <span className="resource-sort-status" aria-label="Thứ tự hiển thị">
+              {language === 'vi' ? 'Mới nhất trước' : 'Newest first'}
+            </span>
           </div>
         </div>
       </div>
@@ -267,7 +285,7 @@ export default function ResourcesPage() {
       <section className="resources-content-section">
         <div className="container">
           {loading ? (
-            <div className="loading-doc text-center">{t.docDetail.loading}</div>
+            <BrandLoader compact label={t.docDetail.loading} />
           ) : paginatedItems.length === 0 ? (
             <div className="empty-results">
               <div className="empty-icon-box">

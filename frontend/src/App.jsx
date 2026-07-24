@@ -7,6 +7,7 @@ import ScrollManager from './components/layout/ScrollManager';
 import AppBootLifecycle from './components/layout/AppBootLifecycle';
 import MotionOrchestrator from './components/layout/MotionOrchestrator';
 import PageTransition from './components/layout/PageTransition';
+import BrandLoader from './components/ui/BrandLoader';
 import Home from './pages/Home';
 import GiftPage from './pages/GiftPage';
 import ResourcesPage from './pages/ResourcesPage';
@@ -100,7 +101,7 @@ const router = createHashRouter([
       {
         path: 'blog/:slug',
         element: (
-          <Suspense fallback={<div className="loading-doc text-center">Đang tải bài viết chuyên sâu...</div>}>
+          <Suspense fallback={<BrandLoader label="Đang mở chuyên khảo học thuật" />}>
             <BlogDetailPage />
           </Suspense>
         )
@@ -120,7 +121,7 @@ const router = createHashRouter([
       {
         path: 'document/:id',
         element: (
-          <Suspense fallback={<div className="loading-doc text-center">Đang tải tài liệu...</div>}>
+          <Suspense fallback={<BrandLoader label="Đang chuẩn bị tài liệu" />}>
             <DocDetail />
           </Suspense>
         )
@@ -128,7 +129,7 @@ const router = createHashRouter([
       {
         path: 'exam/:id',
         element: (
-          <Suspense fallback={<div className="loading-doc text-center">Đang tải phòng thi...</div>}>
+          <Suspense fallback={<BrandLoader label="Đang thiết lập phòng thi" />}>
             <ExamDetail />
           </Suspense>
         )

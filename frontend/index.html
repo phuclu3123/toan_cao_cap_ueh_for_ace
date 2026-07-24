@@ -102,9 +102,9 @@
       .app-boot-line span {
         position: absolute;
         inset: 0;
+        width: 42%;
         background: #0f766e;
-        transform-origin: left;
-        animation: boot-line 1s cubic-bezier(.65,0,.35,1) both;
+        animation: boot-line 1.15s cubic-bezier(.65,0,.35,1) infinite;
       }
       #app-boot.is-leaving {
         pointer-events: none;
@@ -125,9 +125,8 @@
         to { opacity: .58; transform: translateY(0); }
       }
       @keyframes boot-line {
-        0% { transform: scaleX(0); }
-        64% { transform: scaleX(.72); }
-        100% { transform: scaleX(1); }
+        from { transform: translateX(-120%); }
+        to { transform: translateX(340%); }
       }
       @media (prefers-reduced-motion: reduce) {
         #app-boot,

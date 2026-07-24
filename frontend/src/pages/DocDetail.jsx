@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Calendar, Download, Eye, FileText, ArrowLeft, ArrowUpRight, AlertTriangle, BookOpen } from 'lucide-react';
 import { documentsData, midtermExams } from '../data/documentsData';
@@ -7,6 +7,7 @@ import { formatResourceDate } from '../utils/resourceDate';
 import { mergeResourceItems } from '../utils/resourceMerge';
 import { LanguageContext } from '../App';
 import { translations } from '../utils/translations';
+import BrandLoader from '../components/ui/BrandLoader';
 import '../assets/styles/Document.css';
 
 export default function DocDetail() {
@@ -33,7 +34,7 @@ export default function DocDetail() {
   useEffect(() => {
     const loadResource = async () => {
       setLoading(true);
-      let resourcesList = [];
+      let resourcesList;
       try {
         const response = await fetch(`${API_BASE_URL}/api/resources`);
         const data = await response.json();
@@ -54,7 +55,7 @@ export default function DocDetail() {
             .slice(0, 5);
           setOtherDocs(randomSidebarDocs);
         }
-      } catch (error) {
+      } catch {
         resourcesList = [...documentsData, ...midtermExams];
         const randomSidebarDocs = documentsData
           .filter(item => item.id !== id && !item.externalUrl)
@@ -81,7 +82,7 @@ export default function DocDetail() {
   }, [id, navigate]);
 
   if (loading || !doc) {
-    return <div className="loading-doc">{t.docDetail.loading}</div>;
+    return <BrandLoader label={t.docDetail.loading} />;
   }
 
   const pdfUrl = `/docs/${doc.pdf}`;

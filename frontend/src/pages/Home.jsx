@@ -13,13 +13,15 @@ import { blogPosts } from '../data/blogPosts';
 import ConsultationForm from '../components/ConsultationForm';
 import { LanguageContext } from '../App';
 import { translations } from '../utils/translations';
+import { sortResourcesByNewest } from '../utils/resourceDate';
 import '../assets/styles/Home.css';
 
 export default function Home() {
   const { language } = useContext(LanguageContext);
   const t = translations[language];
-  const featuredPost = blogPosts[0];
-  const latestPosts = blogPosts.slice(1, 4);
+  const sortedBlogPosts = sortResourcesByNewest(blogPosts);
+  const featuredPost = sortedBlogPosts[0];
+  const latestPosts = sortedBlogPosts.slice(1, 4);
 
   const productEntries = [
     {
@@ -81,61 +83,47 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="hero-learning-visual" aria-label="Không gian học tập định lượng UEH TCC">
-            <div className="learning-visual-toolbar">
-              <div className="visual-window-dots" aria-hidden="true">
-                <span />
-                <span />
-                <span />
-              </div>
-              <span>UEH TCC · Learning intelligence</span>
-              <span className="visual-live"><i /> Online</span>
+          <div className="hero-publication-showcase" aria-label="Ấn phẩm và đề thi nổi bật">
+            <div className="publication-showcase-head">
+              <span className="publication-live"><i /> New releases</span>
+              <span>Edition 07.26</span>
             </div>
 
-            <div className="learning-visual-body">
-              <div className="visual-primary-card">
-                <div className="visual-card-label">
-                  <span>QUANTITATIVE PATH</span>
-                  <strong>01 / 04</strong>
-                </div>
-                <div className="visual-formula" aria-label="Công thức rủi ro danh mục">
-                  x<sup>⊤</sup>Σx
-                </div>
-                <p>Statistics → Finance → Stochastic control</p>
-                <svg className="visual-curve" viewBox="0 0 420 118" role="img" aria-label="Đường học tập tăng dần">
-                  <defs>
-                    <linearGradient id="learningArea" x1="0" x2="0" y1="0" y2="1">
-                      <stop offset="0%" stopColor="currentColor" stopOpacity=".28" />
-                      <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
-                    </linearGradient>
-                  </defs>
-                  <path className="curve-grid" d="M0 96H420M0 64H420M0 32H420" />
-                  <path className="curve-area" d="M0 96C58 91 72 81 112 84C154 87 171 52 214 58C260 65 270 31 316 38C356 43 377 17 420 12V118H0Z" />
-                  <path className="curve-line" d="M0 96C58 91 72 81 112 84C154 87 171 52 214 58C260 65 270 31 316 38C356 43 377 17 420 12" />
-                  <circle cx="420" cy="12" r="5" />
-                </svg>
-              </div>
+            <div className="publication-covers">
+              <Link
+                className="publication-cover publication-cover--k51"
+                to="/document/k51-2-dot"
+                aria-label="Mở bộ đề Toán ứng dụng khóa K51"
+              >
+                <img src="/images/cover-k51.jpg" alt="Bìa Toán ứng dụng khóa K51" />
+                <span className="publication-cover-label">
+                  <small>Ấn phẩm mới</small>
+                  <strong>K51 · Hai đợt</strong>
+                </span>
+              </Link>
 
-              <div className="visual-side-stack">
-                <div className="visual-metric-card">
-                  <span>Học thuật</span>
-                  <strong>Deep BSDE</strong>
-                  <small>FBSDE · MFG · MFC</small>
-                </div>
-                <div className="visual-metric-card visual-metric-accent">
-                  <span>Thực hành</span>
-                  <strong>75 phút</strong>
-                  <small>Phòng thi tương tác</small>
-                </div>
-              </div>
+              <Link
+                className="publication-cover publication-cover--final"
+                to="/document/ap1"
+                aria-label="Mở tuyển tập đề thi và lời giải FINAL 2807"
+              >
+                <img src="/images/cover-final-2807.jpg" alt="Bìa đề thi và lời giải Toán Cao Cấp 2025" />
+                <span className="publication-cover-label">
+                  <small>Tuyển tập</small>
+                  <strong>FINAL 2807</strong>
+                </span>
+              </Link>
             </div>
 
-            <div className="learning-visual-footer">
-              <span><Sparkles size={14} /> Curated knowledge</span>
-              <span>VI · EN · JA · ZH</span>
-              <div className="visual-progress" aria-hidden="true">
-                <i />
+            <div className="publication-showcase-footer">
+              <div>
+                <span>UEH TCC Publishing</span>
+                <strong>Đề thật · Lời giải · Phòng luyện thi</strong>
               </div>
+              <Link to="/resources?category=all">
+                Khám phá thư viện
+                <ArrowRight size={16} />
+              </Link>
             </div>
           </div>
         </div>
