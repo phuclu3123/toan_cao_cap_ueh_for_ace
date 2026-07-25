@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useContext } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams, Link } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -117,21 +118,21 @@ export default function CourseDetail() {
   const videoRef = useRef(null);
   const playerFrameRef = useRef(null);
 
-  // Lock body scroll & hide floating chat icon when modal is open (UX Bug Fix)
+  // Lock body scroll & hide floating chat launcher icon when modal is open (UX Fix)
   useEffect(() => {
     const isModalOpen = showVideoModal || showLockPrompt || showReportModal;
     if (isModalOpen) {
       document.body.style.overflow = 'hidden';
-      const launcher = document.querySelector('.contact-launcher');
+      const launcher = document.querySelector('.contact-launcher-container') || document.querySelector('.contact-launcher');
       if (launcher) launcher.style.display = 'none';
     } else {
       document.body.style.overflow = '';
-      const launcher = document.querySelector('.contact-launcher');
+      const launcher = document.querySelector('.contact-launcher-container') || document.querySelector('.contact-launcher');
       if (launcher) launcher.style.display = '';
     }
     return () => {
       document.body.style.overflow = '';
-      const launcher = document.querySelector('.contact-launcher');
+      const launcher = document.querySelector('.contact-launcher-container') || document.querySelector('.contact-launcher');
       if (launcher) launcher.style.display = '';
     };
   }, [showVideoModal, showLockPrompt, showReportModal]);
@@ -501,8 +502,8 @@ export default function CourseDetail() {
         </div>
       </section>
 
-      {/* ADVANCED CUSTOM VIDEO PLAYER MODAL (Viewport Centered & Body Scroll Locked) */}
-      {showVideoModal && activeLesson && (
+      {/* ADVANCED CUSTOM VIDEO PLAYER PORTAL MODAL (React Portal directly to document.body for 100% viewport centering) */}
+      {showVideoModal && activeLesson && createPortal(
         <div className="video-modal-backdrop" onClick={() => setShowVideoModal(false)}>
           <div className="video-modal-container" onClick={(e) => e.stopPropagation()}>
             <div className="video-modal-header">
@@ -655,11 +656,12 @@ export default function CourseDetail() {
               </div>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
-      {/* Report Error Flag Modal (Admin Notification) */}
-      {showReportModal && (
+      {/* Report Error Flag Modal (Portal directly to document.body) */}
+      {showReportModal && createPortal(
         <div className="video-modal-backdrop" onClick={() => setShowReportModal(false)}>
           <div
             className="video-modal-container"
@@ -719,11 +721,12 @@ export default function CourseDetail() {
               </form>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
-      {/* Locked Lesson Prompt Modal */}
-      {showLockPrompt && (
+      {/* Locked Lesson Prompt Modal (Portal directly to document.body) */}
+      {showLockPrompt && createPortal(
         <div className="video-modal-backdrop" onClick={() => setShowLockPrompt(false)}>
           <div
             className="video-modal-container"
@@ -745,7 +748,8 @@ export default function CourseDetail() {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Floating Study Timer & Progress Widget */}
