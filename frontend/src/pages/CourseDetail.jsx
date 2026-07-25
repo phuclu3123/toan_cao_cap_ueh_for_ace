@@ -94,7 +94,7 @@ export default function CourseDetail() {
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
 
-  // Video Player Modal Box Theme Toggle (Lightbulb icon 💡) - Default Light White-Gray Translucent Theme
+  // Video Player Modal Box Theme Toggle (Lightbulb icon 💡) - Default Light Translucent Theme
   const [isPlayerDarkMode, setIsPlayerDarkMode] = useState(false);
 
   // Popovers & Report Modals
@@ -111,13 +111,10 @@ export default function CourseDetail() {
   // Tab Switch Auto Pause Toast State
   const [showTabPauseToast, setShowTabPauseToast] = useState(false);
 
-  // Floating Study Timer, Draggable & Collapsible States
+  // Floating Study Timer, Draggable & Smart Positioning States (Images 2 & 3)
   const [totalStudySeconds, setTotalStudySeconds] = useState(0);
   const [completedLessons, setCompletedLessons] = useState({});
-  const [timerPos, setTimerPos] = useState({
-    x: Math.max(20, window.innerWidth - 340),
-    y: Math.max(20, window.innerHeight - 90)
-  });
+  const [customPos, setCustomPos] = useState(null); // null means default anchor
   const [isDraggingTimer, setIsDraggingTimer] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [isTimerCollapsed, setIsTimerCollapsed] = useState(false);
@@ -128,9 +125,10 @@ export default function CourseDetail() {
   // Handle Dragging Floating Widget
   const handleTimerMouseDown = (e) => {
     setIsDraggingTimer(true);
+    const rect = e.currentTarget.getBoundingClientRect();
     setDragOffset({
-      x: e.clientX - timerPos.x,
-      y: e.clientY - timerPos.y
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
     });
   };
 
@@ -139,7 +137,7 @@ export default function CourseDetail() {
       if (isDraggingTimer) {
         const newX = Math.max(10, Math.min(window.innerWidth - 200, e.clientX - dragOffset.x));
         const newY = Math.max(10, Math.min(window.innerHeight - 60, e.clientY - dragOffset.y));
-        setTimerPos({ x: newX, y: newY });
+        setCustomPos({ x: newX, y: newY });
       }
     };
 
@@ -368,6 +366,69 @@ export default function CourseDetail() {
   const completedCount = Object.keys(completedLessons).length;
   const progressPercent =
     totalLessonsInCourse > 0 ? Math.round((completedCount / totalLessonsInCourse) * 100) : 0;
+
+  // Study Timer Component Rendering Helper (Reusable for both Modal Bottom & Top-Right Anchor)
+  const renderStudyTimerWidget = (isModalContext = false) => {
+    const styleProp = customPos
+      ? { position: 'fixed', left: `${customPos.x}px`, top: `${customPos.y}px` }
+      : {};
+
+    const classNameProp = `floating-study-widget ${isModalContext ? 'under-video-anchor' : 'top-right-anchor'} ${
+      isTimerCollapsed ? 'collapsed' : ''
+    }`;
+
+    return (
+      <div className={classNameProp} style={styleProp} onMouseDown={handleTimerMouseDown}>
+        <div className="timer-drag-handle" title="Kéo thả để di chuyển vị trí">
+          <GripVertical size={16} />
+        </div>
+
+        {!isTimerCollapsed ? (
+          <>
+            <div className="timer-badge-active">
+              <Clock size={16} />
+              <span>Đã học: {Math.floor(totalStudySeconds / 60)} phút {totalStudySeconds % 60}s</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span>Tiến độ: {progressPercent}%</span>
+              <div className="progress-widget-bar">
+                <div className="progress-widget-fill" style={{ width: `${progressPercent}%` }} />
+              </div>
+            </div>
+            <button
+              type="button"
+              className="btn-timer-collapse"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsTimerCollapsed(true);
+              }}
+              title="Thu gọn thanh đếm giờ"
+            >
+              <Minimize2 size={12} />
+            </button>
+          </>
+        ) : (
+          <>
+            <div className="timer-badge-active">
+              <Clock size={15} />
+              <span>{Math.floor(totalStudySeconds / 60)}m {totalStudySeconds % 60}s ({progressPercent}%)</span>
+            </div>
+            <button
+              type="button"
+              className="btn-timer-collapse"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsTimerCollapsed(false);
+              }}
+              title="Mở rộng thanh đếm giờ"
+            >
+              <Maximize2 size={12} />
+            </button>
+          </>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="courses-page course-detail-shell">
@@ -691,6 +752,9 @@ export default function CourseDetail() {
               </div>
             )}
           </div>
+
+          {/* SMART FLOATING STUDY TIMER (When Video Modal is Open - Image 2: Positioned Directly Under Video Box!) */}
+          {renderStudyTimerWidget(true)}
         </div>,
         document.body
       )}
@@ -787,63 +851,8 @@ export default function CourseDetail() {
         document.body
       )}
 
-      {/* DRAGGABLE & COLLAPSIBLE FLOATING STUDY TIMER WIDGET (Image 1 Fix) */}
-      {createPortal(
-        <div
-          className={`floating-study-widget ${isTimerCollapsed ? 'collapsed' : ''}`}
-          style={{ left: `${timerPos.x}px`, top: `${timerPos.y}px`, bottom: 'auto', right: 'auto' }}
-          onMouseDown={handleTimerMouseDown}
-        >
-          <div className="timer-drag-handle" title="Kéo thả để di chuyển vị trí">
-            <GripVertical size={16} />
-          </div>
-
-          {!isTimerCollapsed ? (
-            <>
-              <div className="timer-badge-active">
-                <Clock size={16} />
-                <span>Đã học: {Math.floor(totalStudySeconds / 60)} phút {totalStudySeconds % 60}s</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span>Tiến độ: {progressPercent}%</span>
-                <div className="progress-widget-bar">
-                  <div className="progress-widget-fill" style={{ width: `${progressPercent}%` }} />
-                </div>
-              </div>
-              <button
-                type="button"
-                className="btn-timer-collapse"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsTimerCollapsed(true);
-                }}
-                title="Thu gọn thanh đếm giờ"
-              >
-                <Minimize2 size={12} />
-              </button>
-            </>
-          ) : (
-            <>
-              <div className="timer-badge-active">
-                <Clock size={15} />
-                <span>{Math.floor(totalStudySeconds / 60)}m {totalStudySeconds % 60}s ({progressPercent}%)</span>
-              </div>
-              <button
-                type="button"
-                className="btn-timer-collapse"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsTimerCollapsed(false);
-                }}
-                title="Mở rộng thanh đếm giờ"
-              >
-                <Maximize2 size={12} />
-              </button>
-            </>
-          )}
-        </div>,
-        document.body
-      )}
+      {/* SMART FLOATING STUDY TIMER (When Video Modal is CLOSED - Image 3: Positioned at Top-Right Corner!) */}
+      {!showVideoModal && createPortal(renderStudyTimerWidget(false), document.body)}
     </div>
   );
 }

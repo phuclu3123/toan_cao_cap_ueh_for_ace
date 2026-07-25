@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { BookOpen, CheckCircle, Crown, LogOut, Save, ShieldCheck, User } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { BookOpen, CheckCircle, Crown, LogOut, Save, ShieldCheck, User, ArrowRight } from 'lucide-react';
 import { coursesData } from '../data/coursesData';
 import '../assets/styles/Home.css';
 import '../assets/styles/Courses.css';
@@ -8,8 +8,9 @@ import '../assets/styles/Courses.css';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
 
 export default function ProfilePage() {
+  const location = useLocation();
   const [user, setUser] = useState(null);
-  const [activeTab, setActiveTab] = useState('profile'); // 'profile' | 'courses'
+  const [activeTab, setActiveTab] = useState('courses'); // Default to 'courses' matching user request!
 
   // Form fields
   const [name, setName] = useState('');
@@ -31,10 +32,19 @@ export default function ProfilePage() {
         setPhoneNumber(u.phoneNumber || '');
         setSchool(u.school || 'Đại học Kinh tế TP.HCM (UEH)');
         setBio(u.bio || '');
-        setAvatar(u.avatar || '');
+
+        // Avatar logic: Google photoURL or custom avatar or UI Avatar fallback
+        const fallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(u.name || 'User')}&background=059669&color=fff&bold=true`;
+        setAvatar(u.photoURL || u.avatar || fallbackAvatar);
       } catch (e) {}
     }
-  }, []);
+
+    if (location.hash === '#profile') {
+      setActiveTab('profile');
+    } else if (location.hash === '#courses') {
+      setActiveTab('courses');
+    }
+  }, [location]);
 
   const handleSaveProfile = async (e) => {
     e.preventDefault();
@@ -85,7 +95,7 @@ export default function ProfilePage() {
       <div className="courses-page" style={{ padding: '140px 0', textAlign: 'center', minHeight: '80vh' }}>
         <div className="container">
           <h2>Bạn chưa đăng nhập</h2>
-          <p style={{ color: '#64748b', marginBottom: '24px' }}>Vui lòng đăng nhập tài khoản để xem và chỉnh sửa thông tin cá nhân.</p>
+          <p style={{ color: '#64748b', marginBottom: '24px' }}>Vui lòng đăng nhập tài khoản để xem khóa học của tôi và chỉnh sửa thông tin.</p>
           <Link to="/courses" className="btn-course-detail">
             Quay lại trang chính
           </Link>
@@ -94,97 +104,110 @@ export default function ProfilePage() {
     );
   }
 
-  const initialLetter = user.name ? user.name.charAt(0).toUpperCase() : 'U';
+  const userAvatarSrc =
+    avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=059669&color=fff&bold=true`;
 
   return (
     <div className="courses-page" style={{ padding: '120px 0 90px', background: 'var(--course-bg)', minHeight: '100vh' }}>
-      <div className="container" style={{ maxWidth: '960px' }}>
-        {/* Profile Banner Card */}
-        <div
-          style={{
-            background: 'var(--course-paper)',
-            border: '1px solid var(--course-border)',
-            borderRadius: '24px',
-            padding: '32px',
-            boxShadow: 'var(--course-shadow)',
-            marginBottom: '32px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: '24px'
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-            <div
-              style={{
-                width: '72px',
-                height: '72px',
-                borderRadius: '50%',
-                background: user.role === 'Admin' ? 'linear-gradient(135deg, #f59e0b, #d97706)' : 'linear-gradient(135deg, #a87258, #82533c)',
-                color: '#ffffff',
-                fontSize: '1.8rem',
-                fontWeight: '900',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 8px 20px rgba(0, 0, 0, 0.15)'
-              }}
-            >
-              {avatar ? <img src={avatar} alt={user.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} /> : initialLetter}
-            </div>
-
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
-                <h2 style={{ fontSize: '1.4rem', fontWeight: '900', color: 'var(--course-ink)' }}>{user.name}</h2>
-                {user.role === 'Admin' ? (
-                  <span style={{ background: '#fef3c7', color: '#b45309', padding: '3px 10px', borderRadius: '999px', fontSize: '0.75rem', fontWeight: '800', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                    <Crown size={12} /> Admin System
-                  </span>
-                ) : (
-                  <span style={{ background: '#ecfdf5', color: '#047857', padding: '3px 10px', borderRadius: '999px', fontSize: '0.75rem', fontWeight: '800' }}>
-                    Học viên UEH
-                  </span>
-                )}
-              </div>
-              <p style={{ fontSize: '0.9rem', color: 'var(--course-muted)' }}>{user.username || user.email}</p>
-            </div>
+      <div className="container">
+        {/* Top Header Row matching Image 1 */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px', flexWrap: 'wrap', gap: '16px' }}>
+          <div>
+            <span style={{ fontSize: '0.78rem', fontWeight: '800', color: '#059669', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+              TÀI KHOẢN HỌC VIÊN
+            </span>
+            <h1 style={{ fontSize: '2.2rem', fontWeight: '900', color: '#0f172a', margin: '4px 0 0' }}>
+              Khóa học của tôi
+            </h1>
           </div>
 
-          <div style={{ display: 'flex', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <Link
+              to="/courses"
+              style={{
+                background: '#ffffff',
+                border: '1px solid #e2e8f0',
+                color: '#047857',
+                padding: '10px 20px',
+                borderRadius: '999px',
+                fontSize: '0.88rem',
+                fontWeight: '800',
+                textDecoration: 'none',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.04)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              Xem thêm khóa học
+            </Link>
+
             <button
               type="button"
-              className={`btn-course-detail ${activeTab === 'profile' ? '' : 'pill-glass-badge'}`}
-              style={{ background: activeTab === 'profile' ? '#10b981' : 'transparent', color: activeTab === 'profile' ? '#fff' : 'var(--course-ink)' }}
-              onClick={() => setActiveTab('profile')}
+              className={`pill-glass-badge ${activeTab === 'profile' ? 'active' : ''}`}
+              style={{ background: activeTab === 'profile' ? '#10b981' : '#ffffff', color: activeTab === 'profile' ? '#fff' : '#0f172a', border: '1px solid #e2e8f0', cursor: 'pointer', padding: '10px 18px', borderRadius: '999px', fontWeight: '800' }}
+              onClick={() => setActiveTab(activeTab === 'profile' ? 'courses' : 'profile')}
             >
-              <User size={16} /> Thông tin cá nhân
-            </button>
-            <button
-              type="button"
-              className={`btn-course-detail ${activeTab === 'courses' ? '' : 'pill-glass-badge'}`}
-              style={{ background: activeTab === 'courses' ? '#10b981' : 'transparent', color: activeTab === 'courses' ? '#fff' : 'var(--course-ink)' }}
-              onClick={() => setActiveTab('courses')}
-            >
-              <BookOpen size={16} /> Khóa học của tôi
+              <User size={16} /> {activeTab === 'profile' ? 'Xem khóa học' : 'Sửa Profile'}
             </button>
           </div>
         </div>
 
-        {/* Tab Content 1: Edit Profile */}
+        {/* Tab 1: My Courses Grid (Exact Card Layout from Image 1) */}
+        {activeTab === 'courses' && (
+          <div className="my-courses-grid">
+            {coursesData.map((c) => (
+              <div className="my-course-card" key={c.id}>
+                <div className="my-course-cover">
+                  <img src={c.image} alt={c.title} />
+                  <span className="paid-badge-pill">Đã thanh toán</span>
+                </div>
+                <div className="my-course-body">
+                  <h3 className="my-course-title">{c.title}</h3>
+
+                  <div className="my-course-meta-box">
+                    <div>
+                      <div className="meta-box-label">NGÀY ĐĂNG KÝ</div>
+                      <div className="meta-box-val">07/07/2026</div>
+                    </div>
+                    <span style={{ fontSize: '0.78rem', background: '#ffffff', color: '#64748b', padding: '4px 10px', borderRadius: '999px', fontWeight: '700', border: '1px solid #e2e8f0' }}>
+                      E-learning
+                    </span>
+                  </div>
+
+                  <Link to={`/course/${c.id}`} className="btn-vua-hoc">
+                    <span>Vào học</span>
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Tab 2: Profile Settings */}
         {activeTab === 'profile' && (
           <div
             style={{
-              background: 'var(--course-paper)',
-              border: '1px solid var(--course-border)',
+              background: '#ffffff',
+              border: '1px solid #e2e8f0',
               borderRadius: '24px',
               padding: '36px',
-              boxShadow: 'var(--course-shadow)'
+              boxShadow: '0 16px 40px rgba(15, 23, 42, 0.06)',
+              maxWidth: '800px',
+              margin: '0 auto'
             }}
           >
-            <h3 style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--course-ink)', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <User size={20} color="#10b981" /> Chỉnh sửa thông tin cá nhân
-            </h3>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '32px', paddingBottom: '24px', borderBottom: '1px solid #e2e8f0' }}>
+              <img
+                src={userAvatarSrc}
+                alt={user.name}
+                style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #10b981' }}
+              />
+              <div>
+                <h3 style={{ fontSize: '1.3rem', fontWeight: '900', color: '#0f172a', margin: '0 0 4px' }}>{user.name}</h3>
+                <p style={{ fontSize: '0.88rem', color: '#64748b', margin: 0 }}>{user.username || user.email}</p>
+              </div>
+            </div>
 
             {statusMsg.text && (
               <div
@@ -203,9 +226,9 @@ export default function ProfilePage() {
             )}
 
             <form onSubmit={handleSaveProfile}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', marginBottom: '20px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginBottom: '20px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '800', color: 'var(--course-ink)', marginBottom: '8px' }}>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '800', color: '#0f172a', marginBottom: '8px' }}>
                     Họ và Tên:
                   </label>
                   <input
@@ -219,20 +242,20 @@ export default function ProfilePage() {
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '800', color: 'var(--course-ink)', marginBottom: '8px' }}>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '800', color: '#0f172a', marginBottom: '8px' }}>
                     Email / Tên đăng nhập (Cố định):
                   </label>
                   <input
                     type="text"
                     className="form-input"
-                    style={{ width: '100%', padding: '12px', borderRadius: '10px', background: 'rgba(0,0,0,0.04)' }}
+                    style={{ width: '100%', padding: '12px', borderRadius: '10px', background: '#f8fafc' }}
                     value={user.username || user.email}
                     disabled
                   />
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '800', color: 'var(--course-ink)', marginBottom: '8px' }}>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '800', color: '#0f172a', marginBottom: '8px' }}>
                     Số điện thoại liên hệ:
                   </label>
                   <input
@@ -246,7 +269,7 @@ export default function ProfilePage() {
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '800', color: 'var(--course-ink)', marginBottom: '8px' }}>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '800', color: '#0f172a', marginBottom: '8px' }}>
                     Trường học / Chuyên ngành:
                   </label>
                   <input
@@ -260,7 +283,7 @@ export default function ProfilePage() {
               </div>
 
               <div style={{ marginBottom: '24px' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '800', color: 'var(--course-ink)', marginBottom: '8px' }}>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '800', color: '#0f172a', marginBottom: '8px' }}>
                   Giới thiệu bản thân (Bio):
                 </label>
                 <textarea
@@ -273,13 +296,13 @@ export default function ProfilePage() {
                 />
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '16px', borderTop: '1px solid var(--course-border)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
                 <button
                   type="button"
                   onClick={handleLogout}
                   style={{ background: '#fee2e2', color: '#ef4444', border: 'none', padding: '10px 18px', borderRadius: '999px', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
                 >
-                  <LogOut size={16} /> Đăng xuất tài khoản
+                  <LogOut size={16} /> Đăng xuất
                 </button>
 
                 <button
@@ -293,54 +316,6 @@ export default function ProfilePage() {
                 </button>
               </div>
             </form>
-          </div>
-        )}
-
-        {/* Tab Content 2: My Courses */}
-        {activeTab === 'courses' && (
-          <div
-            style={{
-              background: 'var(--course-paper)',
-              border: '1px solid var(--course-border)',
-              borderRadius: '24px',
-              padding: '36px',
-              boxShadow: 'var(--course-shadow)'
-            }}
-          >
-            <h3 style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--course-ink)', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <BookOpen size={20} color="#10b981" /> Khóa học của tôi ({coursesData.length})
-            </h3>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              {coursesData.map((c) => (
-                <div
-                  key={c.id}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '20px',
-                    borderRadius: '16px',
-                    border: '1px solid var(--course-border)',
-                    background: 'var(--course-bg)',
-                    flexWrap: 'wrap',
-                    gap: '16px'
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <img src={c.image} alt={c.title} style={{ width: '80px', height: '60px', borderRadius: '10px', objectFit: 'cover' }} />
-                    <div>
-                      <h4 style={{ fontSize: '1rem', fontWeight: '800', color: 'var(--course-ink)', marginBottom: '4px' }}>{c.title}</h4>
-                      <span style={{ fontSize: '0.82rem', color: '#10b981', fontWeight: '700' }}>📖 {c.lessonsCount} bài học • {c.duration}</span>
-                    </div>
-                  </div>
-
-                  <Link to={`/course/${c.id}`} className="btn-course-detail">
-                    Vào học ngay ➔
-                  </Link>
-                </div>
-              ))}
-            </div>
           </div>
         )}
       </div>
