@@ -437,7 +437,10 @@ export default function CourseDetail() {
   };
 
   return (
-    <div className="courses-page course-detail-shell">
+    <div
+      className="courses-page course-detail-shell"
+      style={{ background: course.bannerBg || 'linear-gradient(135deg, #0e4e35 0%, #176b4a 60%, #063121 100%)', paddingBottom: 0 }}
+    >
       {/* Banner / Hero Section */}
       <section className="course-detail-hero-banner" style={{ background: course.bannerBg }}>
         <div className="container">
@@ -578,7 +581,7 @@ export default function CourseDetail() {
                     type="button"
                     className="btn-enroll-primary"
                     onClick={() => {
-                      alert('Đã gửi yêu cầu đăng ký! Admin luphuc321@gmail.com sẽ liên hệ cấp quyền học ngay lập tức.');
+                      alert('Đã gửi yêu cầu đăng ký! Ban quản trị sẽ liên hệ cấp quyền học ngay lập tức.');
                     }}
                   >
                     <ShieldCheck size={18} />
@@ -835,20 +838,45 @@ export default function CourseDetail() {
         <div className="video-modal-backdrop" onClick={() => setShowLockPrompt(false)}>
           <div
             className="video-modal-container"
-            style={{ width: '480px', padding: '32px', textAlign: 'center', background: 'var(--course-paper)' }}
+            style={{
+              width: '440px',
+              padding: '36px 30px',
+              textAlign: 'center',
+              background: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '24px',
+              boxShadow: '0 25px 60px rgba(15, 23, 42, 0.22)'
+            }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ margin: '0 auto 16px', width: '56px', height: '56px', borderRadius: '50%', background: 'var(--course-gold-pale)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--course-gold)' }}>
-              <Lock size={28} />
+            <div
+              style={{
+                margin: '0 auto 20px',
+                width: '64px',
+                height: '64px',
+                borderRadius: '50%',
+                background: 'rgba(16, 185, 129, 0.12)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#10b981'
+              }}
+            >
+              <Lock size={30} />
             </div>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--course-ink)', marginBottom: '12px' }}>
+            <h3 style={{ fontSize: '1.3rem', fontWeight: '900', color: '#0f172a', marginBottom: '12px' }}>
               Bài học này đang bị khóa
             </h3>
-            <p style={{ fontSize: '0.9rem', color: 'var(--course-muted)', marginBottom: '24px' }}>
-              Bài học dành riêng cho học viên đã đăng ký khóa học. Nếu bạn là Admin <strong>luphuc321@gmail.com</strong>, hãy đăng nhập để được mở khóa FULL tất cả bài học!
+            <p style={{ fontSize: '0.92rem', color: '#64748b', lineHeight: '1.6', marginBottom: '28px' }}>
+              Bài học này dành riêng cho học viên đã đăng ký khóa học. Nếu bạn đã có tài khoản Admin, vui lòng đăng nhập để được mở khóa toàn bộ nội dung.
             </p>
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-              <button type="button" className="btn-resume-continue" onClick={() => setShowLockPrompt(false)}>
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <button
+                type="button"
+                className="btn-enroll-primary"
+                style={{ width: '100%', padding: '12px 24px', borderRadius: '12px', fontSize: '0.95rem' }}
+                onClick={() => setShowLockPrompt(false)}
+              >
                 Đã hiểu
               </button>
             </div>
