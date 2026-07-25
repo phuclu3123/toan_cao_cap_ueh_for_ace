@@ -12,6 +12,7 @@ import {
   Lock,
   Maximize2,
   Minimize2,
+  Moon,
   Pause,
   Play,
   RotateCcw,
@@ -19,6 +20,7 @@ import {
   Settings,
   ShieldCheck,
   SkipForward,
+  Sun,
   Video,
   Volume2,
   VolumeX,
@@ -38,6 +40,9 @@ export default function CourseDetail() {
   if (!course) {
     return <NotFoundPage />;
   }
+
+  // Theme state - Default is LIGHT THEME
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   // Admin Check helper
   const [isAdmin, setIsAdmin] = useState(false);
@@ -111,6 +116,25 @@ export default function CourseDetail() {
 
   const videoRef = useRef(null);
   const playerFrameRef = useRef(null);
+
+  // Lock body scroll & hide floating chat icon when modal is open (UX Bug Fix)
+  useEffect(() => {
+    const isModalOpen = showVideoModal || showLockPrompt || showReportModal;
+    if (isModalOpen) {
+      document.body.style.overflow = 'hidden';
+      const launcher = document.querySelector('.contact-launcher');
+      if (launcher) launcher.style.display = 'none';
+    } else {
+      document.body.style.overflow = '';
+      const launcher = document.querySelector('.contact-launcher');
+      if (launcher) launcher.style.display = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+      const launcher = document.querySelector('.contact-launcher');
+      if (launcher) launcher.style.display = '';
+    };
+  }, [showVideoModal, showLockPrompt, showReportModal]);
 
   // Flatten all lessons in order to handle Next Lesson
   const allLessons = course.chapters.reduce((acc, ch) => acc.concat(ch.lessons || []), []);
@@ -310,13 +334,26 @@ export default function CourseDetail() {
     totalLessonsInCourse > 0 ? Math.round((completedCount / totalLessonsInCourse) * 100) : 0;
 
   return (
-    <div className="courses-page course-detail-shell">
+    <div className={`courses-page course-detail-shell ${isDarkMode ? 'dark-mode' : ''}`}>
       {/* Banner / Hero Section with Embedded Syllabus Layout (Images 4 & 5 Fix) */}
-      <section className="course-detail-hero-banner" style={{ background: course.bannerBg }}>
+      <section className="course-detail-hero-banner">
         <div className="container">
-          <Link to="/courses" className="pill-glass-badge" style={{ marginBottom: '20px', display: 'inline-flex' }}>
-            <ArrowLeft size={14} /> Tất cả khóa học
-          </Link>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+            <Link to="/courses" className="pill-glass-badge" style={{ display: 'inline-flex' }}>
+              <ArrowLeft size={14} /> Tất cả khóa học
+            </Link>
+
+            {/* Light / Dark Theme Switcher Button */}
+            <button
+              type="button"
+              className="theme-toggle-btn"
+              onClick={() => setIsDarkMode(!isDarkMode)}
+              title="Chuyển đổi Giao diện Sáng / Tối"
+            >
+              {isDarkMode ? <Sun size={14} /> : <Moon size={14} />}
+              <span>{isDarkMode ? 'Giao diện Sáng' : 'Giao diện Tối'}</span>
+            </button>
+          </div>
 
           <div className="course-detail-hero-grid">
             {/* LEFT COLUMN: Hero Info + Embedded Syllabus right below */}
@@ -464,7 +501,7 @@ export default function CourseDetail() {
         </div>
       </section>
 
-      {/* ADVANCED CUSTOM VIDEO PLAYER MODAL (Images 1, 2, 3) */}
+      {/* ADVANCED CUSTOM VIDEO PLAYER MODAL (Viewport Centered & Body Scroll Locked) */}
       {showVideoModal && activeLesson && (
         <div className="video-modal-backdrop" onClick={() => setShowVideoModal(false)}>
           <div className="video-modal-container" onClick={(e) => e.stopPropagation()}>
@@ -517,7 +554,7 @@ export default function CourseDetail() {
                   </div>
                 )}
 
-                {/* Overlay Controls (Images 2 & 3 Style) */}
+                {/* Overlay Controls */}
                 <div className="video-overlay-controls">
                   <div className="video-progress-scrubber" onClick={handleSeek}>
                     <div
@@ -576,7 +613,7 @@ export default function CourseDetail() {
                         <Flag size={14} />
                       </button>
 
-                      {/* Sleek Settings Popover Button (Image 3 Style) */}
+                      {/* Sleek Settings Popover Button */}
                       <button
                         type="button"
                         className="btn-video-control"

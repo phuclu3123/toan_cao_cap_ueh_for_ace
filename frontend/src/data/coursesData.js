@@ -1,13 +1,13 @@
 // E-Learning Courses Data Structure for UEH TCC
 export const coursesData = [
   {
-    id: 'power-bi-uiux',
-    title: 'Dashboard Analytics UI/UX – Nghệ thuật kể chuyện bằng dữ liệu',
+    id: 'tu-hoc-toan-cao-cap',
+    title: '1. Tự học Toán Cao Cấp',
     badge: 'ĐANG DIỄN RA',
     tag: 'Khóa e-learning',
-    instructor: 'Dứa Data & Đội ngũ UEH TCC',
+    instructor: 'Đội ngũ Giảng viên UEH TCC',
     image: '/images/tccvang.jpg',
-    bannerBg: 'linear-gradient(135deg, #0e4e35 0%, #176b4a 50%, #063121 100%)',
+    bannerBg: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
     originalPrice: '799.000đ',
     discountPrice: '349.000đ',
     priceNote: 'GIÁ SAU KHUYẾN MÃI',
@@ -15,25 +15,25 @@ export const coursesData = [
     lessonsCount: 27,
     sectionsCount: 4,
     documentsCount: 5,
-    studentsCount: 158,
-    duration: '00:00 - 23:59',
-    desc: 'Khóa học thiết kế báo cáo Dashboard Analytics chuẩn UI/UX hiện đại, giúp bạn biến các con số thô thành bảng điều khiển tương tác trực quan đỉnh cao.',
+    studentsCount: 358,
+    duration: 'Tự do 24/7',
+    desc: 'Lộ trình bài giảng video chuẩn hóa 100% chương trình Toán Cao Cấp UEH: Ma trận, Hệ phương trình, Đạo hàm nhiều biến và Tích phân ứng dụng kinh tế.',
     highlights: [
       'Học online trực tiếp trên nền tảng web UEH TCC',
-      '4 phần bài giảng gồm 27 bài học từ tư duy tới thực hành',
-      'Tài liệu mẫu, file Background Canva/Figma đính kèm',
-      'Bài giảng video chuẩn HD sắc nét + Bài giảng text tóm tắt'
+      '4 phần bài giảng gồm 27 bài học từ lý thuyết đến phương pháp giải nhanh',
+      'Kho đề thi tự luyện & PDF tóm tắt công thức đính kèm',
+      'Video bài giảng chuẩn HD sắc nét + Bài giảng text tóm tắt'
     ],
     chapters: [
       {
         id: 'ch-1',
         sectionLabel: 'PHẦN 1',
-        title: 'Chương 0: Giới thiệu khóa học',
+        title: 'Chương 0: Giới thiệu & Định hướng môn học',
         lessonsCount: 3,
         lessons: [
           {
             id: 'les-1-1',
-            title: 'Lời mở đầu',
+            title: 'Lời mở đầu & Phương pháp học Toán Cao Cấp hiệu quả',
             subtitle: 'Video bài học',
             type: 'video',
             duration: '03:41',
@@ -42,7 +42,7 @@ export const coursesData = [
           },
           {
             id: 'les-1-2',
-            title: 'Tổng kết đầu ra khóa học',
+            title: 'Tổng kết cấu trúc đề thi & Chuẩn đầu ra',
             subtitle: 'Video bài học',
             type: 'video',
             duration: '04:20',
@@ -56,19 +56,19 @@ export const coursesData = [
             type: 'text',
             duration: '05:00',
             isLocked: true,
-            content: 'Bộ tài liệu đính kèm gồm: 15 Mẫu Theme Màu Dashboard HSL, 5 Template SVG Background cho Báo cáo, 1 File Mẫu thực hành.'
+            content: 'Bộ tài liệu đính kèm gồm: Sổ tay công thức Toán Cao Cấp, File PDF 100 Câu hỏi trắc nghiệm tự luyện, Slide tóm tắt bài giảng.'
           }
         ]
       },
       {
         id: 'ch-2',
         sectionLabel: 'PHẦN 2',
-        title: 'Chương 1: Tại sao UI/UX quan trọng trong Dashboard Báo cáo',
+        title: 'Chương 1: Đại số tuyến tính & Ứng dụng Kinh tế',
         lessonsCount: 2,
         lessons: [
           {
             id: 'les-2-1',
-            title: 'Tại sao UI đóng vai trò quan trọng trong Dashboard Báo cáo',
+            title: 'Phân tích Ma trận & Các phép biến đổi sơ cấp',
             subtitle: 'Video bài học',
             type: 'video',
             duration: '06:15',
@@ -77,7 +77,7 @@ export const coursesData = [
           },
           {
             id: 'les-2-2',
-            title: 'Tại sao UX đóng vai trò quan trọng trong Dashboard Báo cáo',
+            title: 'Giải Hệ phương trình tuyến tính bằng phương pháp Gauss',
             subtitle: 'Video bài học',
             type: 'video',
             duration: '08:30',
@@ -89,12 +89,12 @@ export const coursesData = [
       {
         id: 'ch-3',
         sectionLabel: 'PHẦN 3',
-        title: 'Chương 2: Nguyên tắc cốt lõi trong thiết kế và trực quan hóa dữ liệu',
+        title: 'Chương 2: Giải tích hàm một biến & Hàm nhiều biến',
         lessonsCount: 4,
         lessons: [
           {
             id: 'les-3-1',
-            title: 'Nguyên tắc 1: Tư duy thiết kế hướng người dùng',
+            title: 'Bài toán Đạo hàm riêng và Vi phân toàn phần',
             subtitle: 'Video bài học',
             type: 'video',
             duration: '10:12',
@@ -103,7 +103,7 @@ export const coursesData = [
           },
           {
             id: 'les-3-2',
-            title: 'Nguyên tắc 2: Phối màu sắc và Typography chuẩn UI/UX',
+            title: 'Cực trị tự do và Cực trị có điều kiện buộc (Lagrange)',
             subtitle: 'Video bài học',
             type: 'video',
             duration: '12:45',
@@ -112,7 +112,7 @@ export const coursesData = [
           },
           {
             id: 'les-3-3',
-            title: 'Nguyên tắc 3: Bố cục Grid System và Visual Hierarchy',
+            title: 'Bài toán tối ưu hóa chi phí & lợi nhuận trong Kinh tế',
             subtitle: 'Video bài học',
             type: 'video',
             duration: '09:30',
@@ -121,7 +121,7 @@ export const coursesData = [
           },
           {
             id: 'les-3-4',
-            title: 'Nguyên tắc 4: Tối ưu tương tác và trải nghiệm chọn lọc (Drill-through/Filter)',
+            title: 'Tích phân xác định & Tích phân suy rộng ứng dụng',
             subtitle: 'Video bài học',
             type: 'video',
             duration: '11:20',
@@ -133,12 +133,12 @@ export const coursesData = [
       {
         id: 'ch-4',
         sectionLabel: 'PHẦN 4',
-        title: 'Chương 3: Thực hành thiết kế báo cáo',
+        title: 'Chương 3: Thực hành Phương pháp Giải Đề thi Thi giữa kỳ & Cuối kỳ',
         lessonsCount: 18,
         lessons: [
           {
             id: 'les-4-1',
-            title: 'Giới thiệu chương',
+            title: 'Giới thiệu chương luyện đề',
             subtitle: 'Video bài học',
             type: 'video',
             duration: '05:10',
@@ -147,7 +147,7 @@ export const coursesData = [
           },
           {
             id: 'les-4-2',
-            title: 'Thiết kế background Home Page',
+            title: 'Giải chi tiết Đề thi giữa kỳ Mã đề 01',
             subtitle: 'Video bài học',
             type: 'video',
             duration: '14:20',
@@ -156,61 +156,25 @@ export const coursesData = [
           },
           {
             id: 'les-4-3',
-            title: 'Thiết kế background Report Page',
+            title: 'Giải chi tiết Đề thi giữa kỳ Mã đề 02',
             subtitle: 'Video bài học',
             type: 'video',
             duration: '16:05',
             isLocked: true,
             videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4'
-          },
-          {
-            id: 'les-4-4',
-            title: 'Thiết kế background Help Page',
-            subtitle: 'Video bài học',
-            type: 'video',
-            duration: '11:40',
-            isLocked: true,
-            videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4'
-          },
-          {
-            id: 'les-4-5',
-            title: 'Sử dụng power query để import dữ liệu vào báo cáo',
-            subtitle: 'Video bài học',
-            type: 'video',
-            duration: '18:30',
-            isLocked: true,
-            videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4'
-          },
-          {
-            id: 'les-4-6',
-            title: 'Thiết kế thanh Header Report Page',
-            subtitle: 'Video bài học',
-            type: 'video',
-            duration: '13:15',
-            isLocked: true,
-            videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoylikes.mp4'
-          },
-          {
-            id: 'les-4-7',
-            title: 'Thiết kế thanh điều hướng Navigation Report Page',
-            subtitle: 'Video bài học',
-            type: 'video',
-            duration: '15:50',
-            isLocked: true,
-            videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4'
           }
         ]
       }
     ]
   },
   {
-    id: 'python-genz',
-    title: 'Lớp tự học python Tháng 8 cho Dứa & cộng đồng GenZ làm Data',
+    id: 'lop-tu-hoc-sql',
+    title: '2. Lớp tự học SQL',
     badge: 'ĐANG DIỄN RA',
-    tag: 'Tự học Python',
+    tag: 'Tự học SQL Data',
     instructor: 'DUA Edu x GenZ làm Data',
     image: '/images/bg.jpg',
-    bannerBg: 'linear-gradient(135deg, #1b4332 0%, #2d6a4f 100%)',
+    bannerBg: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
     originalPrice: 'Miễn phí',
     discountPrice: 'Miễn phí',
     priceNote: 'DÀNH CHO CỘNG ĐỒNG',
@@ -220,23 +184,23 @@ export const coursesData = [
     documentsCount: 8,
     studentsCount: 692,
     duration: 'Tự do 24/7',
-    desc: 'Lộ trình nhập môn Python cho phân tích dữ liệu, tự học bài bản từ cú pháp cơ bản đến Pandas, Numpy và Matplotlib.',
+    desc: 'Lộ trình nhập môn SQL cho truy vấn dữ liệu kinh tế, xử lý bảng, JOIN, GROUP BY và Window Functions từ cơ bản đến nâng cao.',
     highlights: [
-      '45 bài giảng chi tiết xây dựng nền tảng Lập trình Data',
-      'Học hoàn toàn miễn phí cùng cộng đồng sinh viên GenZ',
+      '45 bài giảng chi tiết bài bản xây dựng nền tảng SQL',
+      'Học hoàn toàn miễn phí cùng cộng đồng sinh viên',
       'Hỗ trợ giải đáp bài tập trên nhóm Zalo & Forum',
       'Cấp chứng nhận hoàn thành lớp tự học'
     ],
     chapters: [
       {
-        id: 'py-ch-1',
+        id: 'sql-ch-1',
         sectionLabel: 'PHẦN 1',
-        title: 'Chương 1: Cấu trúc dữ liệu & Cú pháp Python cơ bản',
+        title: 'Chương 1: Cú pháp SQL Cơ bản & Truy vấn SELECT',
         lessonsCount: 3,
         lessons: [
           {
-            id: 'py-1-1',
-            title: 'Cài đặt Python, Jupyter Notebook và VS Code',
+            id: 'sql-1-1',
+            title: 'Cài đặt Cơ sở Dữ liệu & Công cụ Truy vấn',
             subtitle: 'Video bài học',
             type: 'video',
             duration: '05:40',
@@ -244,8 +208,8 @@ export const coursesData = [
             videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4'
           },
           {
-            id: 'py-1-2',
-            title: 'Biến, kiểu dữ liệu nguyên thủy và toán tử',
+            id: 'sql-1-2',
+            title: 'Truy vấn cơ bản với SELECT, WHERE, ORDER BY',
             subtitle: 'Video bài học',
             type: 'video',
             duration: '08:15',
@@ -253,8 +217,8 @@ export const coursesData = [
             videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4'
           },
           {
-            id: 'py-1-3',
-            title: 'List, Tuple, Set và Dictionary trong Python',
+            id: 'sql-1-3',
+            title: 'Kỹ thuật JOIN bảng (INNER JOIN, LEFT JOIN)',
             subtitle: 'Video bài học',
             type: 'video',
             duration: '12:00',
@@ -266,13 +230,13 @@ export const coursesData = [
     ]
   },
   {
-    id: 'data-analysis-beginner',
-    title: 'Thực chiến phân tích dữ liệu cho người mới bắt đầu',
+    id: 'thuc-chien-k46-k50',
+    title: '3. Thực chiến phân tích đề thi K46 - K50',
     badge: 'ĐANG DIỄN RA',
-    tag: 'Khóa học Thực chiến',
-    instructor: 'ThS. Mạnh Tuấn',
+    tag: 'Giải Đề Chi Tiết',
+    instructor: 'ThS. Mạnh Tuấn & Đội ngũ UEH TCC',
     image: '/images/c4678.jpg',
-    bannerBg: 'linear-gradient(135deg, #1d3557 0%, #457b9d 100%)',
+    bannerBg: 'linear-gradient(135deg, #0d9488 0%, #14b8a6 100%)',
     originalPrice: '5.000.000đ',
     discountPrice: '4.100.000đ',
     priceNote: 'ƯU ĐÃI KHÓA HỌC THÁNG 8',
@@ -280,24 +244,24 @@ export const coursesData = [
     lessonsCount: 12,
     sectionsCount: 3,
     documentsCount: 4,
-    studentsCount: 38,
-    duration: '12 Buổi thực chiến',
-    desc: 'Phương pháp tư duy phân tích dữ liệu doanh nghiệp từ SQL, Excel tới thiết kế Dashboard báo cáo thực tế.',
+    studentsCount: 138,
+    duration: '12 Buổi luyện đề',
+    desc: 'Tuyển tập phân tích chuyên sâu các dạng đề thi Toán Cao Cấp qua các khóa K46 đến K50, nhận diện bẫy đề và mẹo bấm máy tính Casio tối ưu thời gian.',
     highlights: [
-      'Giảng dạy bởi ThS. Mạnh Tuấn - Chuyên gia CNTT & Data Analyst',
-      'Thực hành làm dự án cá nhân đính kèm CV xin việc',
-      'Cam kết đầu ra tự tin xử lý bài toán Data thực tế'
+      'Phân tích chi tiết 50+ đề thi các khóa K46 - K50',
+      'Mẹo tư duy trắc nghiệm & tự luận chuẩn đáp án UEH',
+      'Cam kết tăng ít nhất 2 - 3 điểm bài thi thực tế'
     ],
     chapters: [
       {
-        id: 'da-ch-1',
+        id: 'k46-ch-1',
         sectionLabel: 'PHẦN 1',
-        title: 'Chương 1: Quy trình Phân tích Dữ liệu Chuẩn Doanh Nghiệp',
+        title: 'Chương 1: Phân tích Dạng đề Thi K46 - K48',
         lessonsCount: 2,
         lessons: [
           {
-            id: 'da-1-1',
-            title: 'Tổng quan quy trình Business Intelligence & Data Analytics',
+            id: 'k46-1-1',
+            title: 'Tổng quan cấu trúc đề thi K46 - K48',
             subtitle: 'Video bài học',
             type: 'video',
             duration: '07:30',
@@ -305,8 +269,8 @@ export const coursesData = [
             videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoylikes.mp4'
           },
           {
-            id: 'da-1-2',
-            title: 'Tư duy Đặt câu hỏi kinh doanh (Business Questions)',
+            id: 'k46-1-2',
+            title: 'Giải bẫy câu hỏi Ma trận & Hệ phương trình',
             subtitle: 'Video bài học',
             type: 'video',
             duration: '11:10',
@@ -318,13 +282,13 @@ export const coursesData = [
     ]
   },
   {
-    id: 'data-analysis-practical',
-    title: 'Thực chiến phân tích dữ liệu qua các bài toán thực tế',
+    id: 'thuc-chien-k51',
+    title: '4. Thực chiến phân tích đề thi K51 – Nghệ thuật giải đề trong phòng thi',
     badge: 'ĐANG DIỄN RA',
-    tag: 'Dự án Doanh nghiệp',
-    instructor: 'Đội ngũ giảng dạy DUA Edu',
+    tag: 'Bí Quyết Điểm Cao',
+    instructor: 'Đội ngũ Giảng viên DUA Edu',
     image: '/images/tccvang.jpg',
-    bannerBg: 'linear-gradient(135deg, #2b2d42 0%, #8d99ae 100%)',
+    bannerBg: 'linear-gradient(135deg, #047857 0%, #10b981 100%)',
     originalPrice: '4.500.000đ',
     discountPrice: '3.900.000đ',
     priceNote: 'GIÁ SAU KHUYẾN MÃI',
@@ -332,24 +296,24 @@ export const coursesData = [
     lessonsCount: 48,
     sectionsCount: 6,
     documentsCount: 12,
-    studentsCount: 44,
+    studentsCount: 244,
     duration: 'Tự do 24/7',
-    desc: 'Giải quyết 10 Case Study kinh điển trong Thương mại điện tử, Tài chính, Chuỗi bán lẻ và Marketing.',
+    desc: 'Khóa học thực chiến mới nhất cập nhật ma trận đề thi K51, chiến thuật quản lý thời gian 60 phút phòng thi và các bí quyết đạt điểm A/A+.',
     highlights: [
-      '48 bài học dự án thực tế xây dựng Portfolio',
-      'Đội ngũ Tutor theo sát và giải đáp bài làm 1:1',
-      'Kho dữ liệu thực tế hơn 1,000,000 dòng dữ liệu'
+      'Cập nhật 100% cấu trúc đề thi khóa mới nhất K51',
+      'Chiến thuật phân bổ thời gian trong phòng thi',
+      'Kho đề minh họa có đáp án chi tiết từng câu'
     ],
     chapters: [
       {
-        id: 'dap-ch-1',
+        id: 'k51-ch-1',
         sectionLabel: 'PHẦN 1',
-        title: 'Chương 1: Case Study Phân tích Tỷ lệ Rời bỏ Khách hàng (Churn Rate)',
+        title: 'Chương 1: Ma trận Đề thi K51 & Chiến thuật Phòng thi',
         lessonsCount: 2,
         lessons: [
           {
-            id: 'dap-1-1',
-            title: 'Phân tích định nghĩa Churn Rate & Giới thiệu Dataset',
+            id: 'k51-1-1',
+            title: 'Phân tích Ma trận Đề thi K51 Mới nhất',
             subtitle: 'Video bài học',
             type: 'video',
             duration: '09:15',
@@ -357,8 +321,8 @@ export const coursesData = [
             videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4'
           },
           {
-            id: 'dap-1-2',
-            title: 'Xây dựng Mô hình Cohort Analysis trong SQL & Tableau',
+            id: 'k51-1-2',
+            title: 'Chiến thuật 60 phút phòng thi & Mẹo kiểm tra lại đáp án',
             subtitle: 'Video bài học',
             type: 'video',
             duration: '14:40',
