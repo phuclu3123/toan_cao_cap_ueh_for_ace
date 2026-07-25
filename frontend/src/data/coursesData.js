@@ -2,7 +2,7 @@
 export const coursesData = [
   {
     id: 'power-bi-uiux',
-    title: 'Power BI UI/UX – Nghệ thuật kể chuyện bằng dữ liệu',
+    title: 'Dashboard Analytics UI/UX – Nghệ thuật kể chuyện bằng dữ liệu',
     badge: 'ĐANG DIỄN RA',
     tag: 'Khóa e-learning',
     instructor: 'Dứa Data & Đội ngũ UEH TCC',
@@ -17,7 +17,7 @@ export const coursesData = [
     documentsCount: 5,
     studentsCount: 158,
     duration: '00:00 - 23:59',
-    desc: 'Khóa học thiết kế báo cáo Power BI chuẩn UI/UX hiện đại, giúp bạn biến các con số thô thành bảng điều khiển tương tác trực quan đỉnh cao.',
+    desc: 'Khóa học thiết kế báo cáo Dashboard Analytics chuẩn UI/UX hiện đại, giúp bạn biến các con số thô thành bảng điều khiển tương tác trực quan đỉnh cao.',
     highlights: [
       'Học online trực tiếp trên nền tảng web UEH TCC',
       '4 phần bài giảng gồm 27 bài học từ tư duy tới thực hành',
@@ -56,19 +56,19 @@ export const coursesData = [
             type: 'text',
             duration: '05:00',
             isLocked: true,
-            content: 'Bộ tài liệu đính kèm gồm: 15 Mẫu Theme Màu Power BI HSL, 5 Template SVG Background cho Dashboard, 1 File Mẫu .pbix thực hành.'
+            content: 'Bộ tài liệu đính kèm gồm: 15 Mẫu Theme Màu Dashboard HSL, 5 Template SVG Background cho Báo cáo, 1 File Mẫu thực hành.'
           }
         ]
       },
       {
         id: 'ch-2',
         sectionLabel: 'PHẦN 2',
-        title: 'Chương 1: Tại sao UI/UX quan trọng trong Power BI Dashboard',
+        title: 'Chương 1: Tại sao UI/UX quan trọng trong Dashboard Báo cáo',
         lessonsCount: 2,
         lessons: [
           {
             id: 'les-2-1',
-            title: 'Tại sao UI đóng vai trò quan trọng trong Power BI Dashboard',
+            title: 'Tại sao UI đóng vai trò quan trọng trong Dashboard Báo cáo',
             subtitle: 'Video bài học',
             type: 'video',
             duration: '06:15',
@@ -77,7 +77,7 @@ export const coursesData = [
           },
           {
             id: 'les-2-2',
-            title: 'Tại sao UX đóng vai trò quan trọng trong Power BI Dashboard',
+            title: 'Tại sao UX đóng vai trò quan trọng trong Dashboard Báo cáo',
             subtitle: 'Video bài học',
             type: 'video',
             duration: '08:30',
