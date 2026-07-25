@@ -65,7 +65,7 @@
   line-height: 1.6;
 }
 
-/* --- COURSE CARDS GRID (Image 1 Design) --- */
+/* --- COURSE CARDS GRID --- */
 .courses-grid-section {
   padding: 40px 0 90px;
   background: var(--course-bg);
@@ -675,7 +675,7 @@
   color: #fbbf24;
 }
 
-/* --- PORTAL VIDEO MODAL BACKDROP (100% Viewport Centered) --- */
+/* --- PORTAL VIDEO MODAL BACKDROP (Clearer Soft Blur Backdrop) --- */
 .video-modal-backdrop {
   position: fixed !important;
   top: 0 !important;
@@ -685,8 +685,8 @@
   width: 100vw !important;
   height: 100vh !important;
   z-index: 99999999 !important;
-  background: rgba(15, 23, 42, 0.75) !important;
-  backdrop-filter: blur(16px) !important;
+  background: rgba(15, 23, 42, 0.48) !important;
+  backdrop-filter: blur(8px) !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -769,7 +769,7 @@
   color: #0f172a;
 }
 
-/* VIDEO PLAYER MODAL BOX - TOGGLED DARK THEME (When Lightbulb Icon 💡 Clicked) */
+/* VIDEO PLAYER MODAL BOX - TOGGLED DARK THEME */
 .video-modal-container.dark-player-box {
   background: #0b1329;
   border-color: rgba(255, 255, 255, 0.18);
@@ -1058,25 +1058,35 @@
   animation: fadeInModal 0.3s ease;
 }
 
-/* --- FLOATING STUDY TIMER WIDGET (Mounted via Portal at Bottom-Right) --- */
+/* --- DRAGGABLE & COLLAPSIBLE FLOATING STUDY TIMER WIDGET --- */
 .floating-study-widget {
   position: fixed !important;
-  bottom: 24px !important;
-  right: 24px !important;
   z-index: 999999999 !important;
-  background: rgba(15, 23, 42, 0.9) !important;
+  background: rgba(15, 23, 42, 0.92) !important;
   backdrop-filter: blur(16px) !important;
   border: 1px solid rgba(16, 185, 129, 0.4) !important;
   border-radius: 999px !important;
-  padding: 10px 24px !important;
+  padding: 10px 20px !important;
   box-shadow: 0 16px 45px rgba(0, 0, 0, 0.4), 0 0 20px rgba(16, 185, 129, 0.2) !important;
   display: flex !important;
   align-items: center !important;
-  gap: 16px !important;
+  gap: 14px !important;
   font-size: 0.88rem !important;
   font-weight: 800 !important;
   color: #ffffff !important;
-  transition: transform 0.28s ease, box-shadow 0.28s ease !important;
+  user-select: none !important;
+  cursor: grab !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.floating-study-widget:active {
+  cursor: grabbing !important;
+  transform: scale(1.03) !important;
+}
+
+.floating-study-widget.collapsed {
+  padding: 8px 16px !important;
+  gap: 10px !important;
 }
 
 :root.light-theme .floating-study-widget {
@@ -1086,9 +1096,11 @@
   box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12), 0 0 20px rgba(16, 185, 129, 0.15) !important;
 }
 
-.floating-study-widget:hover {
-  transform: translateY(-4px) scale(1.02) !important;
-  box-shadow: 0 24px 50px rgba(16, 185, 129, 0.35) !important;
+.timer-drag-handle {
+  display: flex;
+  align-items: center;
+  color: #64748b;
+  cursor: grab;
 }
 
 .timer-badge-active {
@@ -1115,4 +1127,24 @@
   background: #10b981;
   border-radius: 999px;
   box-shadow: 0 0 8px #10b981;
+}
+
+.btn-timer-collapse {
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  color: #94a3b8;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  margin-left: 2px;
+}
+
+.btn-timer-collapse:hover {
+  background: rgba(16, 185, 129, 0.3);
+  color: #ffffff;
 }

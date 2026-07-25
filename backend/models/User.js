@@ -8,6 +8,9 @@ const userSchema = new mongoose.Schema({
   name: { type: String },
   role: { type: String, default: 'Student' },
   phoneNumber: { type: String },
+  avatar: { type: String },
+  school: { type: String },
+  bio: { type: String },
   otpCode: { type: String },
   otpExpiresAt: { type: String }
 }, { timestamps: true });

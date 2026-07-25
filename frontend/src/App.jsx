@@ -55,6 +55,7 @@ const BlogDetailPage = safeLazy(() => import('./pages/BlogDetailPage'));
 const DocDetail = safeLazy(() => import('./pages/DocDetail'));
 const ExamDetail = safeLazy(() => import('./pages/ExamDetail'));
 const CourseDetail = safeLazy(() => import('./pages/CourseDetail'));
+const ProfilePage = safeLazy(() => import('./pages/ProfilePage'));
 
 function Layout() {
   const location = useLocation();
@@ -99,6 +100,15 @@ const router = createHashRouter([
           </Suspense>
         )
       },
+      {
+        path: 'profile',
+        element: (
+          <Suspense fallback={<BrandLoader label="Đang tải thông tin cá nhân" />}>
+            <ProfilePage />
+          </Suspense>
+        )
+      },
+
       {
         path: 'exams',
         element: <ExamsPage />

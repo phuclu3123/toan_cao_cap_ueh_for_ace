@@ -385,3 +385,61 @@ export const resetPassword = async (req, res) => {
     return res.status(500).json({ success: false, message: 'Lỗi hệ thống khi cập nhật mật khẩu mới.' });
   }
 };
+
+export const updateProfile = async (req, res) => {
+  const { username, name, phoneNumber, avatar, school, bio } = req.body;
+
+  if (!username) {
+    return res.status(400).json({ success: false, message: 'Username/Email không hợp lệ!' });
+  }
+
+  try {
+    if (checkMongoDBConnected()) {
+      const user = await User.findOne({ username: new RegExp(`^${username}$`, 'i') });
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng!' });
+      }
+      if (name !== undefined) user.name = name;
+      if (phoneNumber !== undefined) user.phoneNumber = phoneNumber;
+      if (avatar !== undefined) user.avatar = avatar;
+      if (school !== undefined) user.school = school;
+      if (bio !== undefined) user.bio = bio;
+      await user.save();
+
+      return res.json({
+        success: true,
+        message: 'Cập nhật thông tin cá nhân thành công!',
+        user
+      });
+    } else {
+      const filePath = path.join(dataDir, 'users.json');
+      const users = readJSONFile(filePath, []);
+
+      const userIndex = users.findIndex(u => u.username && u.username.toLowerCase() === username.toLowerCase());
+      if (userIndex === -1) {
+        return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng!' });
+      }
+
+      if (name !== undefined) users[userIndex].name = name;
+      if (phoneNumber !== undefined) users[userIndex].phoneNumber = phoneNumber;
+      if (avatar !== undefined) users[userIndex].avatar = avatar;
+      if (school !== undefined) users[userIndex].school = school;
+      if (bio !== undefined) users[userIndex].bio = bio;
+      users[userIndex].updatedAt = new Date().toISOString();
+
+      if (writeJSONFile(filePath, users)) {
+        return res.json({
+          success: true,
+          message: 'Cập nhật thông tin cá nhân thành công!',
+          user: users[userIndex]
+        });
+      } else {
+        return res.status(500).json({ success: false, message: 'Lỗi lưu thông tin cá nhân.' });
+      }
+    }
+  } catch (error) {
+    console.error("Lỗi cập nhật profile:", error);
+    return res.status(500).json({ success: false, message: 'Lỗi hệ thống khi cập nhật profile.' });
+  }
+};
+

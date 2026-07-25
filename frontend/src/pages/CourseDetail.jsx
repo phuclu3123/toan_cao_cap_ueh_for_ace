@@ -10,6 +10,7 @@ import {
   Crown,
   FileText,
   Flag,
+  GripVertical,
   Lightbulb,
   Lock,
   Maximize2,
@@ -110,12 +111,51 @@ export default function CourseDetail() {
   // Tab Switch Auto Pause Toast State
   const [showTabPauseToast, setShowTabPauseToast] = useState(false);
 
-  // Floating Study Timer & Progress States
+  // Floating Study Timer, Draggable & Collapsible States
   const [totalStudySeconds, setTotalStudySeconds] = useState(0);
   const [completedLessons, setCompletedLessons] = useState({});
+  const [timerPos, setTimerPos] = useState({
+    x: Math.max(20, window.innerWidth - 340),
+    y: Math.max(20, window.innerHeight - 90)
+  });
+  const [isDraggingTimer, setIsDraggingTimer] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [isTimerCollapsed, setIsTimerCollapsed] = useState(false);
 
   const videoRef = useRef(null);
   const playerFrameRef = useRef(null);
+
+  // Handle Dragging Floating Widget
+  const handleTimerMouseDown = (e) => {
+    setIsDraggingTimer(true);
+    setDragOffset({
+      x: e.clientX - timerPos.x,
+      y: e.clientY - timerPos.y
+    });
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (isDraggingTimer) {
+        const newX = Math.max(10, Math.min(window.innerWidth - 200, e.clientX - dragOffset.x));
+        const newY = Math.max(10, Math.min(window.innerHeight - 60, e.clientY - dragOffset.y));
+        setTimerPos({ x: newX, y: newY });
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsDraggingTimer(false);
+    };
+
+    if (isDraggingTimer) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    }
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDraggingTimer, dragOffset]);
 
   // Lock body scroll & hide floating chat launcher icon when modal is open
   useEffect(() => {
@@ -138,6 +178,7 @@ export default function CourseDetail() {
 
   // Flatten all lessons in order to handle Next Lesson
   const allLessons = course.chapters.reduce((acc, ch) => acc.concat(ch.lessons || []), []);
+  const dynamicLessonsCount = allLessons.length;
 
   // Floating Study Timer Counter
   useEffect(() => {
@@ -157,21 +198,18 @@ export default function CourseDetail() {
 
   // Handle opening a lesson
   const handleLessonClick = (lesson) => {
-    // If lesson is locked AND user is NOT admin
     if (lesson.isLocked && !isAdmin) {
       setActiveLesson(lesson);
       setShowLockPrompt(true);
       return;
     }
 
-    // Open video or text lesson
     setActiveLesson(lesson);
     setShowVideoModal(true);
     setIsPlaying(false);
     setShowSettingsPopover(false);
     setIsPlayerDarkMode(false);
 
-    // Check if saved timestamp exists in localStorage
     const savedTime = localStorage.getItem(`course_video_pos_${lesson.id}`);
     if (savedTime && parseFloat(savedTime) > 5) {
       setResumeTime(parseFloat(savedTime));
@@ -181,7 +219,6 @@ export default function CourseDetail() {
       setShowResumePrompt(false);
     }
 
-    // Mark as completed in study progress tracker
     setCompletedLessons((prev) => ({ ...prev, [lesson.id]: true }));
   };
 
@@ -318,7 +355,6 @@ export default function CourseDetail() {
     setShowResumePrompt(false);
   };
 
-  // Submit Error Report to Backend / Admin System
   const handleReportSubmit = (e) => {
     e.preventDefault();
     setReportSuccess(true);
@@ -328,15 +364,14 @@ export default function CourseDetail() {
     }, 2000);
   };
 
-  // Calculate total course completion percentage
-  const totalLessonsInCourse = allLessons.length;
+  const totalLessonsInCourse = dynamicLessonsCount;
   const completedCount = Object.keys(completedLessons).length;
   const progressPercent =
     totalLessonsInCourse > 0 ? Math.round((completedCount / totalLessonsInCourse) * 100) : 0;
 
   return (
     <div className="courses-page course-detail-shell">
-      {/* Banner / Hero Section with Embedded Syllabus Layout */}
+      {/* Banner / Hero Section */}
       <section className="course-detail-hero-banner" style={{ background: course.bannerBg }}>
         <div className="container">
           <Link to="/courses" className="pill-glass-badge" style={{ marginBottom: '20px', display: 'inline-flex' }}>
@@ -344,7 +379,7 @@ export default function CourseDetail() {
           </Link>
 
           <div className="course-detail-hero-grid">
-            {/* LEFT COLUMN: Hero Info + Embedded Syllabus right below */}
+            {/* LEFT COLUMN: Hero Info + Embedded Syllabus */}
             <div className="course-detail-left">
               <div className="course-detail-hero-info">
                 <div className="hero-pill-badge-row">
@@ -354,14 +389,14 @@ export default function CourseDetail() {
                 <h1>{course.title}</h1>
 
                 <div className="course-hero-stats-bar">
-                  <span className="stat-pill-item">📖 {course.lessonsCount} bài học</span>
+                  <span className="stat-pill-item">📖 {dynamicLessonsCount} bài học</span>
                   <span className="stat-pill-item">📂 {course.sectionsCount} phần</span>
                   <span className="stat-pill-item">📄 {course.documentsCount} tài liệu</span>
                   <span className="stat-pill-item">⏰ {course.duration}</span>
                 </div>
               </div>
 
-              {/* EMBEDDED SYLLABUS SECTION (Right Under Hero Info on Left) */}
+              {/* EMBEDDED SYLLABUS SECTION */}
               <div className="course-syllabus-section-embedded">
                 <h2 className="syllabus-heading-embedded">Nội dung khóa học</h2>
 
@@ -375,7 +410,7 @@ export default function CourseDetail() {
                           <span className="chapter-title-text">{chapter.title}</span>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                          <span className="chapter-badge-count">{chapter.lessonsCount || chapter.lessons.length} bài</span>
+                          <span className="chapter-badge-count">{chapter.lessons ? chapter.lessons.length : 0} bài</span>
                           {isOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                         </div>
                       </div>
@@ -454,7 +489,7 @@ export default function CourseDetail() {
                     </div>
                     <div className="sidebar-benefit-item">
                       <CheckCircle size={16} />
-                      <span>{course.sectionsCount} phần, {course.lessonsCount} bài học</span>
+                      <span>{course.sectionsCount} phần, {dynamicLessonsCount} bài học</span>
                     </div>
                     <div className="sidebar-benefit-item">
                       <CheckCircle size={16} />
@@ -489,7 +524,7 @@ export default function CourseDetail() {
         </div>
       </section>
 
-      {/* ADVANCED CUSTOM VIDEO PLAYER PORTAL MODAL (Light Translucent White-Gray Theme Default + Lightbulb Icon Theme Toggle) */}
+      {/* ADVANCED CUSTOM VIDEO PLAYER PORTAL MODAL */}
       {showVideoModal && activeLesson && createPortal(
         <div className="video-modal-backdrop" onClick={() => setShowVideoModal(false)}>
           <div
@@ -594,7 +629,7 @@ export default function CourseDetail() {
                         <SkipForward size={14} />
                       </button>
 
-                      {/* LIGHTBULB ICON ONLY BUTTON (Placed between Next Lesson and Report Flag to toggle Modal Box Theme) */}
+                      {/* LIGHTBULB ICON ONLY BUTTON */}
                       <button
                         type="button"
                         className={`btn-video-control ${isPlayerDarkMode ? 'active-lightbulb' : ''}`}
@@ -660,7 +695,7 @@ export default function CourseDetail() {
         document.body
       )}
 
-      {/* Report Error Flag Modal (Portal directly to document.body) */}
+      {/* Report Error Flag Modal */}
       {showReportModal && createPortal(
         <div className="video-modal-backdrop" onClick={() => setShowReportModal(false)}>
           <div
@@ -725,7 +760,7 @@ export default function CourseDetail() {
         document.body
       )}
 
-      {/* Locked Lesson Prompt Modal (Portal directly to document.body) */}
+      {/* Locked Lesson Prompt Modal */}
       {showLockPrompt && createPortal(
         <div className="video-modal-backdrop" onClick={() => setShowLockPrompt(false)}>
           <div
@@ -752,19 +787,60 @@ export default function CourseDetail() {
         document.body
       )}
 
-      {/* FLOATING STUDY TIMER WIDGET (Portal directly to document.body) */}
+      {/* DRAGGABLE & COLLAPSIBLE FLOATING STUDY TIMER WIDGET (Image 1 Fix) */}
       {createPortal(
-        <div className="floating-study-widget">
-          <div className="timer-badge-active">
-            <Clock size={16} />
-            <span>Đã học: {Math.floor(totalStudySeconds / 60)} phút {totalStudySeconds % 60}s</span>
+        <div
+          className={`floating-study-widget ${isTimerCollapsed ? 'collapsed' : ''}`}
+          style={{ left: `${timerPos.x}px`, top: `${timerPos.y}px`, bottom: 'auto', right: 'auto' }}
+          onMouseDown={handleTimerMouseDown}
+        >
+          <div className="timer-drag-handle" title="Kéo thả để di chuyển vị trí">
+            <GripVertical size={16} />
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span>Tiến độ: {progressPercent}%</span>
-            <div className="progress-widget-bar">
-              <div className="progress-widget-fill" style={{ width: `${progressPercent}%` }} />
-            </div>
-          </div>
+
+          {!isTimerCollapsed ? (
+            <>
+              <div className="timer-badge-active">
+                <Clock size={16} />
+                <span>Đã học: {Math.floor(totalStudySeconds / 60)} phút {totalStudySeconds % 60}s</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span>Tiến độ: {progressPercent}%</span>
+                <div className="progress-widget-bar">
+                  <div className="progress-widget-fill" style={{ width: `${progressPercent}%` }} />
+                </div>
+              </div>
+              <button
+                type="button"
+                className="btn-timer-collapse"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsTimerCollapsed(true);
+                }}
+                title="Thu gọn thanh đếm giờ"
+              >
+                <Minimize2 size={12} />
+              </button>
+            </>
+          ) : (
+            <>
+              <div className="timer-badge-active">
+                <Clock size={15} />
+                <span>{Math.floor(totalStudySeconds / 60)}m {totalStudySeconds % 60}s ({progressPercent}%)</span>
+              </div>
+              <button
+                type="button"
+                className="btn-timer-collapse"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsTimerCollapsed(false);
+                }}
+                title="Mở rộng thanh đếm giờ"
+              >
+                <Maximize2 size={12} />
+              </button>
+            </>
+          )}
         </div>,
         document.body
       )}

@@ -192,6 +192,211 @@
   align-items: center;
 }
 
+/* User Profile Pill & Dropdown Card (Matching Image 2) */
+.user-profile-menu-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.user-profile-pill-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  padding: 5px 14px 5px 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+  color: #0f172a;
+}
+
+:root:not(.light-theme) .user-profile-pill-btn {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+}
+
+.user-profile-pill-btn:hover {
+  border-color: #10b981;
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.18);
+}
+
+.user-avatar-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #a87258, #82533c);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.user-avatar-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.user-profile-name-text {
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.user-dropdown-card {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: 280px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.15);
+  padding: 16px;
+  z-index: 1000;
+  animation: fadeInModal 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+:root:not(.light-theme) .user-dropdown-card {
+  background: #111827;
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+.user-dropdown-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 6px 6px 14px;
+}
+
+.dropdown-avatar-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #a87258, #82533c);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 1.15rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dropdown-user-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.dropdown-user-name {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+:root:not(.light-theme) .dropdown-user-name {
+  color: #ffffff;
+}
+
+.dropdown-user-email {
+  font-size: 0.8rem;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+:root:not(.light-theme) .dropdown-user-email {
+  color: #9ca3af;
+}
+
+.user-dropdown-divider {
+  height: 1px;
+  background: #e2e8f0;
+  margin: 8px 0;
+}
+
+:root:not(.light-theme) .user-dropdown-divider {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.user-dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 12px;
+  text-decoration: none;
+  color: #0f172a;
+  font-size: 0.88rem;
+  font-weight: 700;
+  transition: background 0.18s ease;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+}
+
+:root:not(.light-theme) .user-dropdown-item {
+  color: #f3f4f6;
+}
+
+.user-dropdown-item:hover {
+  background: #f8fafc;
+}
+
+:root:not(.light-theme) .user-dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.user-dropdown-item-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dropdown-item-icon-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dropdown-item-icon-circle.green {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.dropdown-item-icon-circle.blue {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.dropdown-item-icon-circle.gold {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.dropdown-item-icon-circle.gray {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+
 .btn-login-nav {
   padding: 8px 20px !important;
   font-size: 0.85rem !important;

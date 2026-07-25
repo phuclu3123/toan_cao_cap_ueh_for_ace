@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Menu, X, Mail, Phone, User, LogIn, PlusCircle, 
-  Sun, Moon, Globe, Search 
+  Sun, Moon, Globe, Search, ChevronDown, ChevronRight, BookOpen, LogOut 
 } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 import '../assets/styles/Navbar.css';
@@ -31,6 +31,7 @@ export default function Navbar() {
   const [showLangMenu, setShowLangMenu] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
 
   const { language, changeLanguage } = useContext(LanguageContext);
   const { theme, toggleTheme } = useContext(ThemeContext);
@@ -779,22 +780,100 @@ export default function Navbar() {
               </div>
             </div>
 
-            {/* Login Action / Admin Action */}
+            {/* Login Action / Admin Action (Matching Image 2) */}
             <div className="auth-action">
               {loggedInUser ? (
-                <div className="user-profile">
-                  {loggedInUser.role === 'Admin' && (
-                    <button 
-                      className="btn btn-secondary btn-upload-nav mr-3 text-teal" 
-                      onClick={() => setShowUploadModal(true)}
-                    >
-                      <PlusCircle size={15} />
-                      <span>{t.nav.upload}</span>
-                    </button>
+                <div className="user-profile-menu-container">
+                  <button 
+                    type="button" 
+                    className="user-profile-pill-btn"
+                    onClick={() => setShowUserDropdown(!showUserDropdown)}
+                  >
+                    <div className="user-avatar-circle">
+                      {loggedInUser.avatar ? (
+                        <img src={loggedInUser.avatar} alt={loggedInUser.name} />
+                      ) : (
+                        <span>{loggedInUser.name ? loggedInUser.name.charAt(0).toUpperCase() : 'U'}</span>
+                      )}
+                    </div>
+                    <span className="user-profile-name-text">{loggedInUser.name}</span>
+                    <ChevronDown size={14} />
+                  </button>
+
+                  {showUserDropdown && (
+                    <div className="user-dropdown-card">
+                      <div className="user-dropdown-header">
+                        <div className="dropdown-avatar-circle">
+                          {loggedInUser.name ? loggedInUser.name.charAt(0).toUpperCase() : 'U'}
+                        </div>
+                        <div className="dropdown-user-info">
+                          <span className="dropdown-user-name">{loggedInUser.name}</span>
+                          <span className="dropdown-user-email">{loggedInUser.username || loggedInUser.email}</span>
+                        </div>
+                      </div>
+
+                      <div className="user-dropdown-divider" />
+
+                      <Link 
+                        to="/profile" 
+                        className="user-dropdown-item" 
+                        onClick={() => setShowUserDropdown(false)}
+                      >
+                        <div className="user-dropdown-item-left">
+                          <div className="dropdown-item-icon-circle green">
+                            <BookOpen size={16} />
+                          </div>
+                          <span>Khóa học của tôi</span>
+                        </div>
+                        <ChevronRight size={14} color="#94a3b8" />
+                      </Link>
+
+                      <Link 
+                        to="/profile" 
+                        className="user-dropdown-item" 
+                        onClick={() => setShowUserDropdown(false)}
+                      >
+                        <div className="user-dropdown-item-left">
+                          <div className="dropdown-item-icon-circle blue">
+                            <User size={16} />
+                          </div>
+                          <span>Sửa thông tin cá nhân</span>
+                        </div>
+                        <ChevronRight size={14} color="#94a3b8" />
+                      </Link>
+
+                      {loggedInUser.role === 'Admin' && (
+                        <button 
+                          type="button" 
+                          className="user-dropdown-item" 
+                          onClick={() => { setShowUserDropdown(false); setShowUploadModal(true); }}
+                        >
+                          <div className="user-dropdown-item-left">
+                            <div className="dropdown-item-icon-circle gold">
+                              <PlusCircle size={16} />
+                            </div>
+                            <span>Tải lên đề thi / bài tập</span>
+                          </div>
+                          <ChevronRight size={14} color="#94a3b8" />
+                        </button>
+                      )}
+
+                      <div className="user-dropdown-divider" />
+
+                      <button 
+                        type="button" 
+                        className="user-dropdown-item" 
+                        onClick={() => { setShowUserDropdown(false); handleLogout(); }}
+                      >
+                        <div className="user-dropdown-item-left">
+                          <div className="dropdown-item-icon-circle gray">
+                            <LogOut size={16} />
+                          </div>
+                          <span>Đăng xuất</span>
+                        </div>
+                      </button>
+                    </div>
                   )}
-                  <User size={16} />
-                  <span className="user-profile-name">{t.nav.welcome}{loggedInUser.name}</span>
-                  <button className="btn-logout ml-2" onClick={handleLogout}>{t.nav.logout}</button>
                 </div>
               ) : (
                 <button className="btn btn-primary btn-login-nav" onClick={() => { setAuthMode('login'); setAuthError(''); setAuthSuccessMsg(''); setShowLoginModal(true); }}>
