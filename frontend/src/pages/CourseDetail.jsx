@@ -93,8 +93,8 @@ export default function CourseDetail() {
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
 
-  // "Cái Đèn" 💡 Theater Light Off Mode inside Video Player
-  const [isTheaterLightOff, setIsTheaterLightOff] = useState(false);
+  // Video Player Modal Box Theme Toggle (Lightbulb icon 💡) - Default Light White-Gray Translucent Theme
+  const [isPlayerDarkMode, setIsPlayerDarkMode] = useState(false);
 
   // Popovers & Report Modals
   const [showSettingsPopover, setShowSettingsPopover] = useState(false);
@@ -169,7 +169,7 @@ export default function CourseDetail() {
     setShowVideoModal(true);
     setIsPlaying(false);
     setShowSettingsPopover(false);
-    setIsTheaterLightOff(false);
+    setIsPlayerDarkMode(false);
 
     // Check if saved timestamp exists in localStorage
     const savedTime = localStorage.getItem(`course_video_pos_${lesson.id}`);
@@ -489,13 +489,13 @@ export default function CourseDetail() {
         </div>
       </section>
 
-      {/* ADVANCED CUSTOM VIDEO PLAYER PORTAL MODAL (100% Viewport Centered via createPortal) */}
+      {/* ADVANCED CUSTOM VIDEO PLAYER PORTAL MODAL (Light Translucent White-Gray Theme Default + Lightbulb Icon Theme Toggle) */}
       {showVideoModal && activeLesson && createPortal(
-        <div
-          className={`video-modal-backdrop ${isTheaterLightOff ? 'theater-light-off' : ''}`}
-          onClick={() => setShowVideoModal(false)}
-        >
-          <div className="video-modal-container" onClick={(e) => e.stopPropagation()}>
+        <div className="video-modal-backdrop" onClick={() => setShowVideoModal(false)}>
+          <div
+            className={`video-modal-container ${isPlayerDarkMode ? 'dark-player-box' : ''}`}
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="video-modal-header">
               <div className="modal-header-title">
                 <span className="modal-header-badge">
@@ -594,15 +594,14 @@ export default function CourseDetail() {
                         <SkipForward size={14} />
                       </button>
 
-                      {/* "CÁI ĐÈN" LIGHT BULB BUTTON (Placed between Next Lesson and Report Flag) */}
+                      {/* LIGHTBULB ICON ONLY BUTTON (Placed between Next Lesson and Report Flag to toggle Modal Box Theme) */}
                       <button
                         type="button"
-                        className={`btn-light-bulb ${isTheaterLightOff ? 'active-off' : ''}`}
-                        onClick={() => setIsTheaterLightOff(!isTheaterLightOff)}
-                        title={isTheaterLightOff ? 'Bật lại đèn màn hình' : 'Tắt đèn màn hình (Chế độ Rạp phim)'}
+                        className={`btn-video-control ${isPlayerDarkMode ? 'active-lightbulb' : ''}`}
+                        onClick={() => setIsPlayerDarkMode(!isPlayerDarkMode)}
+                        title="Đổi giao diện Sáng / Tối cho khung xem video"
                       >
-                        <Lightbulb size={16} />
-                        <span>Cái đèn</span>
+                        <Lightbulb size={18} />
                       </button>
 
                       {/* Report Error Flag */}
@@ -652,7 +651,7 @@ export default function CourseDetail() {
                 </div>
               </div>
             ) : (
-              <div style={{ padding: '32px', color: '#ffffff', background: '#0f172a', lineHeight: '1.8' }}>
+              <div style={{ padding: '32px', color: '#0f172a', lineHeight: '1.8' }}>
                 <p>{activeLesson.content || 'Nội dung bài giảng đang được hoàn thiện...'}</p>
               </div>
             )}
@@ -753,7 +752,7 @@ export default function CourseDetail() {
         document.body
       )}
 
-      {/* FLOATING STUDY TIMER WIDGET (Portal directly to document.body to guarantee floating at bottom-right!) */}
+      {/* FLOATING STUDY TIMER WIDGET (Portal directly to document.body) */}
       {createPortal(
         <div className="floating-study-widget">
           <div className="timer-badge-active">

@@ -685,8 +685,8 @@
   width: 100vw !important;
   height: 100vh !important;
   z-index: 99999999 !important;
-  background: rgba(15, 23, 42, 0.85);
-  backdrop-filter: blur(16px);
+  background: rgba(15, 23, 42, 0.75) !important;
+  backdrop-filter: blur(16px) !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -697,38 +697,35 @@
   transition: background 0.3s ease;
 }
 
-/* Theater Mode Light Off (Pitch Dark Cinema Mode when Light Bulb 💡 toggled off) */
-.video-modal-backdrop.theater-light-off {
-  background: rgba(0, 0, 0, 0.97) !important;
-  backdrop-filter: blur(24px) !important;
-}
-
 @keyframes fadeInModal {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
+/* VIDEO PLAYER MODAL BOX - DEFAULT TRANSLUCENT LIGHT (WHITE-GRAY) THEME */
 .video-modal-container {
   width: min(1040px, 95vw);
   max-height: 90vh;
-  background: #0b1329;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(20px);
   border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.25);
+  border: 1px solid rgba(226, 232, 240, 0.8);
   display: flex;
   flex-direction: column;
   position: relative;
   margin: auto;
+  transition: all 0.3s ease;
 }
 
 .video-modal-header {
   padding: 16px 24px;
-  background: #162038;
+  background: #ffffff;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .modal-header-title {
@@ -750,13 +747,13 @@
 .modal-header-title h3 {
   font-size: 1.05rem;
   font-weight: 800;
-  color: #ffffff;
+  color: #0f172a;
 }
 
 .modal-close-btn {
-  background: rgba(255, 255, 255, 0.1);
+  background: #f1f5f9;
   border: none;
-  color: #94a3b8;
+  color: #475569;
   width: 32px;
   height: 32px;
   border-radius: 50%;
@@ -768,6 +765,32 @@
 }
 
 .modal-close-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+/* VIDEO PLAYER MODAL BOX - TOGGLED DARK THEME (When Lightbulb Icon 💡 Clicked) */
+.video-modal-container.dark-player-box {
+  background: #0b1329;
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
+}
+
+.video-modal-container.dark-player-box .video-modal-header {
+  background: #162038;
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+.video-modal-container.dark-player-box .modal-header-title h3 {
+  color: #ffffff;
+}
+
+.video-modal-container.dark-player-box .modal-close-btn {
+  background: rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+}
+
+.video-modal-container.dark-player-box .modal-close-btn:hover {
   background: rgba(255, 255, 255, 0.2);
   color: #ffffff;
 }
@@ -848,6 +871,12 @@
   background: rgba(255, 255, 255, 0.18);
 }
 
+.btn-video-control.active-lightbulb {
+  background: #f59e0b;
+  color: #1e293b;
+  box-shadow: 0 0 12px #f59e0b;
+}
+
 .video-timer-text {
   font-size: 0.86rem;
   font-weight: 700;
@@ -881,29 +910,6 @@
 .btn-next-lesson:hover {
   background: #10b981;
   color: #ffffff;
-}
-
-/* THEATER LIGHT BULB BUTTON ("Cái Đèn" 💡) */
-.btn-light-bulb {
-  background: rgba(245, 158, 11, 0.18);
-  color: #fbbf24;
-  border: 1px solid rgba(245, 158, 11, 0.4);
-  padding: 6px 10px;
-  border-radius: 8px;
-  font-size: 0.8rem;
-  font-weight: 800;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  transition: all 0.2s ease;
-  box-shadow: 0 0 10px rgba(245, 158, 11, 0.25);
-}
-
-.btn-light-bulb.active-off {
-  background: #f59e0b;
-  color: #1e293b;
-  box-shadow: 0 0 16px #f59e0b;
 }
 
 .btn-report-flag {
@@ -1052,7 +1058,7 @@
   animation: fadeInModal 0.3s ease;
 }
 
-/* --- FLOATING STUDY TIMER WIDGET (Image 1 Redesign & React Portal Mounting) --- */
+/* --- FLOATING STUDY TIMER WIDGET (Mounted via Portal at Bottom-Right) --- */
 .floating-study-widget {
   position: fixed !important;
   bottom: 24px !important;
