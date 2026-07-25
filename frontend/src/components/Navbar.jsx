@@ -86,10 +86,15 @@ export default function Navbar() {
   const navigate = useNavigate();
 
   const [readingProgress, setReadingProgress] = useState(0);
-  const isDetailArticle = location.pathname.startsWith('/blog/') || location.pathname.startsWith('/doc/');
+  const isBlogDetailPage = location.pathname.startsWith('/blog/');
 
-  // Reading progress tracker for detail pages
+  // Reading progress tracker ONLY for blog detail pages (/blog/:slug)
   useEffect(() => {
+    if (!isBlogDetailPage) {
+      setReadingProgress(0);
+      return undefined;
+    }
+
     const handleScrollProgress = () => {
       const currentScroll = window.scrollY || document.documentElement.scrollTop || 0;
       const scrollableHeight = Math.max(
@@ -117,7 +122,7 @@ export default function Navbar() {
       window.removeEventListener('resize', handleScrollProgress);
       if (resizeObserver) resizeObserver.disconnect();
     };
-  }, [location.pathname]);
+  }, [isBlogDetailPage, location.pathname]);
 
   // Scroll effect
   useEffect(() => {
@@ -693,8 +698,8 @@ export default function Navbar() {
 
         {/* Branding Navigation */}
         <nav className="navbar">
-          {/* Top Reading Progress Bar attached to Navbar Header */}
-          {(isDetailArticle || readingProgress > 0) && (
+          {/* Reading Progress Bar attached to Navbar Header (Blog Detail Page Only) */}
+          {isBlogDetailPage && (
             <div
               className="navbar-reading-progress"
               role="progressbar"

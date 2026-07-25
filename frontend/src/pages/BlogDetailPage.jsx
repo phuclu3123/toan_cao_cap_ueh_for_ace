@@ -1,5 +1,4 @@
 import { useEffect, useState, useContext } from 'react';
-import { createPortal } from 'react-dom';
 import { Link, useParams } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -189,19 +188,6 @@ export default function BlogDetailPage() {
 
   return (
     <div className="home-page forum-blog-page">
-      {createPortal(
-        <div
-          className="article-reading-progress"
-          role="progressbar"
-          aria-label="Tiến độ đọc bài"
-          aria-valuemin="0"
-          aria-valuemax="100"
-          aria-valuenow={Math.round(readingProgress)}
-        >
-          <span style={{ width: `${readingProgress}%` }} />
-        </div>,
-        document.body
-      )}
       <section className="forum-blog-hero">
         <div className="container forum-blog-grid">
           <aside className="article-toc">
