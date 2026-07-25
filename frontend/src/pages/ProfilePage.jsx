@@ -39,9 +39,11 @@ export default function ProfilePage() {
       } catch (e) {}
     }
 
-    if (location.hash === '#profile') {
+    const searchParams = new URLSearchParams(location.search);
+    const tabParam = searchParams.get('tab');
+    if (tabParam === 'profile' || location.hash === '#profile') {
       setActiveTab('profile');
-    } else if (location.hash === '#courses') {
+    } else if (tabParam === 'courses' || location.hash === '#courses') {
       setActiveTab('courses');
     }
   }, [location]);

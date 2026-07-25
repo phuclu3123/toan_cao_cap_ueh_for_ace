@@ -194,6 +194,11 @@ export default function CourseDetail() {
     return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
   };
 
+  const closeVideoModal = () => {
+    setShowVideoModal(false);
+    setCustomPos(null);
+  };
+
   // Handle opening a lesson
   const handleLessonClick = (lesson) => {
     if (lesson.isLocked && !isAdmin) {
@@ -204,6 +209,7 @@ export default function CourseDetail() {
 
     setActiveLesson(lesson);
     setShowVideoModal(true);
+    setCustomPos(null);
     setIsPlaying(false);
     setShowSettingsPopover(false);
     setIsPlayerDarkMode(false);
@@ -587,7 +593,7 @@ export default function CourseDetail() {
 
       {/* ADVANCED CUSTOM VIDEO PLAYER PORTAL MODAL */}
       {showVideoModal && activeLesson && createPortal(
-        <div className="video-modal-backdrop" onClick={() => setShowVideoModal(false)}>
+        <div className="video-modal-backdrop" onClick={closeVideoModal}>
           <div
             className={`video-modal-container ${isPlayerDarkMode ? 'dark-player-box' : ''}`}
             onClick={(e) => e.stopPropagation()}
@@ -599,7 +605,7 @@ export default function CourseDetail() {
                 </span>
                 <h3>{activeLesson.title}</h3>
               </div>
-              <button type="button" className="modal-close-btn" onClick={() => setShowVideoModal(false)}>
+              <button type="button" className="modal-close-btn" onClick={closeVideoModal}>
                 <X size={18} />
               </button>
             </div>

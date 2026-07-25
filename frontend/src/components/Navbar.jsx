@@ -815,7 +815,7 @@ export default function Navbar() {
                       <div className="user-dropdown-divider" />
 
                       <Link 
-                        to="/profile" 
+                        to="/profile?tab=courses" 
                         className="user-dropdown-item" 
                         onClick={() => setShowUserDropdown(false)}
                       >
@@ -829,7 +829,7 @@ export default function Navbar() {
                       </Link>
 
                       <Link 
-                        to="/profile" 
+                        to="/profile?tab=profile" 
                         className="user-dropdown-item" 
                         onClick={() => setShowUserDropdown(false)}
                       >

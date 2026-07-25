@@ -223,7 +223,7 @@
   box-shadow: 0 6px 18px rgba(16, 185, 129, 0.4);
 }
 
-/* --- MY COURSES PAGE CARD (IMAGE 1 DESIGN) --- */
+/* --- MY COURSES PAGE CARD --- */
 .my-courses-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -820,7 +820,7 @@
 /* VIDEO PLAYER MODAL BOX - DEFAULT TRANSLUCENT LIGHT THEME */
 .video-modal-container {
   width: min(1040px, 95vw);
-  max-height: 85vh;
+  max-height: 80vh;
   background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(20px);
   border-radius: 20px;
@@ -1047,7 +1047,7 @@
   color: #ffffff;
 }
 
-/* --- FLOATING STUDY TIMER WIDGET (SMART POSITIONING: Under Modal when open - Image 2; Top-Right when closed - Image 3) --- */
+/* --- FLOATING STUDY TIMER WIDGET (SMART POSITIONING: Below Navbar on main page - Image 1; Under Video when open - Image 3) --- */
 .floating-study-widget {
   z-index: 999999999 !important;
   background: rgba(255, 255, 255, 0.98) !important;
@@ -1067,15 +1067,18 @@
   transition: all 0.2s ease !important;
 }
 
+/* Below Navbar Anchor with clean 20px gap (Fix Image 1) */
 .floating-study-widget.top-right-anchor {
   position: fixed !important;
-  top: 24px !important;
-  right: 24px !important;
+  top: 96px !important;
+  right: 28px !important;
 }
 
+/* Under Video Modal Box Anchor with clean gap (Fix Image 3) */
 .floating-study-widget.under-video-anchor {
   position: relative !important;
-  margin-top: 16px !important;
+  margin-top: 24px !important;
+  margin-bottom: 12px !important;
   margin-left: auto !important;
   margin-right: auto !important;
   display: inline-flex !important;
