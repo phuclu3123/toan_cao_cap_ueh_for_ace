@@ -54,6 +54,7 @@ function safeLazy(importFunc) {
 const BlogDetailPage = safeLazy(() => import('./pages/BlogDetailPage'));
 const DocDetail = safeLazy(() => import('./pages/DocDetail'));
 const ExamDetail = safeLazy(() => import('./pages/ExamDetail'));
+const CourseDetail = safeLazy(() => import('./pages/CourseDetail'));
 
 function Layout() {
   const location = useLocation();
@@ -89,6 +90,14 @@ const router = createHashRouter([
       {
         path: 'courses',
         element: <CoursesPage />
+      },
+      {
+        path: 'course/:id',
+        element: (
+          <Suspense fallback={<BrandLoader label="Đang tải khóa học E-Learning" />}>
+            <CourseDetail />
+          </Suspense>
+        )
       },
       {
         path: 'exams',

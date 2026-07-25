@@ -197,7 +197,7 @@ export default function Navbar() {
       uid: firebaseUser.uid,
       name: firebaseUser.displayName || (firebaseUser.email ? firebaseUser.email.split('@')[0] : 'Người dùng OTP'),
       username: firebaseUser.email || firebaseUser.phoneNumber || firebaseUser.uid,
-      role: (firebaseUser.email && firebaseUser.email.toLowerCase() === 'admin@ueh.edu.vn') ? 'Admin' : 'Student'
+      role: (firebaseUser.email && (firebaseUser.email.toLowerCase() === 'admin@ueh.edu.vn' || firebaseUser.email.toLowerCase() === 'luphuc321@gmail.com')) ? 'Admin' : 'Student'
     };
   };
 
