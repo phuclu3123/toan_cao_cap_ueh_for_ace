@@ -85,6 +85,40 @@ export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const [readingProgress, setReadingProgress] = useState(0);
+  const isDetailArticle = location.pathname.startsWith('/blog/') || location.pathname.startsWith('/doc/');
+
+  // Reading progress tracker for detail pages
+  useEffect(() => {
+    const handleScrollProgress = () => {
+      const currentScroll = window.scrollY || document.documentElement.scrollTop || 0;
+      const scrollableHeight = Math.max(
+        0,
+        (document.documentElement.scrollHeight || document.body.scrollHeight) - window.innerHeight
+      );
+      const progress = scrollableHeight > 0 ? (currentScroll / scrollableHeight) * 100 : 0;
+      setReadingProgress(Math.min(100, Math.max(0, progress)));
+    };
+
+    handleScrollProgress();
+    window.addEventListener('scroll', handleScrollProgress, { passive: true });
+    window.addEventListener('resize', handleScrollProgress);
+
+    let resizeObserver;
+    if (typeof ResizeObserver !== 'undefined' && document.body) {
+      resizeObserver = new ResizeObserver(() => {
+        handleScrollProgress();
+      });
+      resizeObserver.observe(document.body);
+    }
+
+    return () => {
+      window.removeEventListener('scroll', handleScrollProgress);
+      window.removeEventListener('resize', handleScrollProgress);
+      if (resizeObserver) resizeObserver.disconnect();
+    };
+  }, [location.pathname]);
+
   // Scroll effect
   useEffect(() => {
     const handleScroll = () => {
@@ -659,6 +693,22 @@ export default function Navbar() {
 
         {/* Branding Navigation */}
         <nav className="navbar">
+          {/* Top Reading Progress Bar attached to Navbar Header */}
+          {(isDetailArticle || readingProgress > 0) && (
+            <div
+              className="navbar-reading-progress"
+              role="progressbar"
+              aria-label="Tiến độ đọc bài"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              aria-valuenow={Math.round(readingProgress)}
+            >
+              <div
+                className="navbar-reading-progress-fill"
+                style={{ width: `${readingProgress}%` }}
+              />
+            </div>
+          )}
           <div className="container navbar-container">
             <Link to="/" className="navbar-logo" onClick={() => window.scrollTo(0, 0)}>
               <span className="logo-helper">UEH</span>

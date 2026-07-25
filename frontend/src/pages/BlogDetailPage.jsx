@@ -1,4 +1,5 @@
 import { useEffect, useState, useContext } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, useParams } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -94,8 +95,12 @@ export default function BlogDetailPage() {
 
   useEffect(() => {
     const updateReadingProgress = () => {
-      const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
-      const nextProgress = scrollableHeight > 0 ? (window.scrollY / scrollableHeight) * 100 : 0;
+      const currentScroll = window.scrollY || document.documentElement.scrollTop || 0;
+      const scrollableHeight = Math.max(
+        0,
+        (document.documentElement.scrollHeight || document.body.scrollHeight) - window.innerHeight
+      );
+      const nextProgress = scrollableHeight > 0 ? (currentScroll / scrollableHeight) * 100 : 0;
       setReadingProgress(Math.min(100, Math.max(0, nextProgress)));
     };
 
@@ -103,9 +108,20 @@ export default function BlogDetailPage() {
     window.addEventListener('scroll', updateReadingProgress, { passive: true });
     window.addEventListener('resize', updateReadingProgress);
 
+    let resizeObserver;
+    if (typeof ResizeObserver !== 'undefined' && document.body) {
+      resizeObserver = new ResizeObserver(() => {
+        updateReadingProgress();
+      });
+      resizeObserver.observe(document.body);
+    }
+
     return () => {
       window.removeEventListener('scroll', updateReadingProgress);
       window.removeEventListener('resize', updateReadingProgress);
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+      }
     };
   }, [post]);
 
@@ -173,16 +189,19 @@ export default function BlogDetailPage() {
 
   return (
     <div className="home-page forum-blog-page">
-      <div
-        className="article-reading-progress"
-        role="progressbar"
-        aria-label="Tiến độ đọc bài"
-        aria-valuemin="0"
-        aria-valuemax="100"
-        aria-valuenow={Math.round(readingProgress)}
-      >
-        <span style={{ width: `${readingProgress}%` }} />
-      </div>
+      {createPortal(
+        <div
+          className="article-reading-progress"
+          role="progressbar"
+          aria-label="Tiến độ đọc bài"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow={Math.round(readingProgress)}
+        >
+          <span style={{ width: `${readingProgress}%` }} />
+        </div>,
+        document.body
+      )}
       <section className="forum-blog-hero">
         <div className="container forum-blog-grid">
           <aside className="article-toc">
