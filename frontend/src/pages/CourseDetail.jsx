@@ -10,10 +10,10 @@ import {
   Crown,
   FileText,
   Flag,
+  Lightbulb,
   Lock,
   Maximize2,
   Minimize2,
-  Moon,
   Pause,
   Play,
   RotateCcw,
@@ -21,7 +21,6 @@ import {
   Settings,
   ShieldCheck,
   SkipForward,
-  Sun,
   Video,
   Volume2,
   VolumeX,
@@ -41,9 +40,6 @@ export default function CourseDetail() {
   if (!course) {
     return <NotFoundPage />;
   }
-
-  // Theme state - Default is LIGHT THEME
-  const [isDarkMode, setIsDarkMode] = useState(false);
 
   // Admin Check helper
   const [isAdmin, setIsAdmin] = useState(false);
@@ -97,6 +93,9 @@ export default function CourseDetail() {
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
 
+  // "Cái Đèn" 💡 Theater Light Off Mode inside Video Player
+  const [isTheaterLightOff, setIsTheaterLightOff] = useState(false);
+
   // Popovers & Report Modals
   const [showSettingsPopover, setShowSettingsPopover] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
@@ -118,7 +117,7 @@ export default function CourseDetail() {
   const videoRef = useRef(null);
   const playerFrameRef = useRef(null);
 
-  // Lock body scroll & hide floating chat launcher icon when modal is open (UX Fix)
+  // Lock body scroll & hide floating chat launcher icon when modal is open
   useEffect(() => {
     const isModalOpen = showVideoModal || showLockPrompt || showReportModal;
     if (isModalOpen) {
@@ -170,6 +169,7 @@ export default function CourseDetail() {
     setShowVideoModal(true);
     setIsPlaying(false);
     setShowSettingsPopover(false);
+    setIsTheaterLightOff(false);
 
     // Check if saved timestamp exists in localStorage
     const savedTime = localStorage.getItem(`course_video_pos_${lesson.id}`);
@@ -335,26 +335,13 @@ export default function CourseDetail() {
     totalLessonsInCourse > 0 ? Math.round((completedCount / totalLessonsInCourse) * 100) : 0;
 
   return (
-    <div className={`courses-page course-detail-shell ${isDarkMode ? 'dark-mode' : ''}`}>
-      {/* Banner / Hero Section with Embedded Syllabus Layout (Images 4 & 5 Fix) */}
-      <section className="course-detail-hero-banner">
+    <div className="courses-page course-detail-shell">
+      {/* Banner / Hero Section with Embedded Syllabus Layout */}
+      <section className="course-detail-hero-banner" style={{ background: course.bannerBg }}>
         <div className="container">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-            <Link to="/courses" className="pill-glass-badge" style={{ display: 'inline-flex' }}>
-              <ArrowLeft size={14} /> Tất cả khóa học
-            </Link>
-
-            {/* Light / Dark Theme Switcher Button */}
-            <button
-              type="button"
-              className="theme-toggle-btn"
-              onClick={() => setIsDarkMode(!isDarkMode)}
-              title="Chuyển đổi Giao diện Sáng / Tối"
-            >
-              {isDarkMode ? <Sun size={14} /> : <Moon size={14} />}
-              <span>{isDarkMode ? 'Giao diện Sáng' : 'Giao diện Tối'}</span>
-            </button>
-          </div>
+          <Link to="/courses" className="pill-glass-badge" style={{ marginBottom: '20px', display: 'inline-flex' }}>
+            <ArrowLeft size={14} /> Tất cả khóa học
+          </Link>
 
           <div className="course-detail-hero-grid">
             {/* LEFT COLUMN: Hero Info + Embedded Syllabus right below */}
@@ -502,9 +489,12 @@ export default function CourseDetail() {
         </div>
       </section>
 
-      {/* ADVANCED CUSTOM VIDEO PLAYER PORTAL MODAL (React Portal directly to document.body for 100% viewport centering) */}
+      {/* ADVANCED CUSTOM VIDEO PLAYER PORTAL MODAL (100% Viewport Centered via createPortal) */}
       {showVideoModal && activeLesson && createPortal(
-        <div className="video-modal-backdrop" onClick={() => setShowVideoModal(false)}>
+        <div
+          className={`video-modal-backdrop ${isTheaterLightOff ? 'theater-light-off' : ''}`}
+          onClick={() => setShowVideoModal(false)}
+        >
           <div className="video-modal-container" onClick={(e) => e.stopPropagation()}>
             <div className="video-modal-header">
               <div className="modal-header-title">
@@ -602,6 +592,17 @@ export default function CourseDetail() {
                       <button type="button" className="btn-next-lesson" onClick={handleNextLesson} title="Bài tiếp theo">
                         <span>Bài tiếp</span>
                         <SkipForward size={14} />
+                      </button>
+
+                      {/* "CÁI ĐÈN" LIGHT BULB BUTTON (Placed between Next Lesson and Report Flag) */}
+                      <button
+                        type="button"
+                        className={`btn-light-bulb ${isTheaterLightOff ? 'active-off' : ''}`}
+                        onClick={() => setIsTheaterLightOff(!isTheaterLightOff)}
+                        title={isTheaterLightOff ? 'Bật lại đèn màn hình' : 'Tắt đèn màn hình (Chế độ Rạp phim)'}
+                      >
+                        <Lightbulb size={16} />
+                        <span>Cái đèn</span>
                       </button>
 
                       {/* Report Error Flag */}
@@ -752,19 +753,22 @@ export default function CourseDetail() {
         document.body
       )}
 
-      {/* Floating Study Timer & Progress Widget */}
-      <div className="floating-study-widget">
-        <div className="timer-badge-active">
-          <Clock size={16} />
-          <span>Đã học: {Math.floor(totalStudySeconds / 60)} phút {totalStudySeconds % 60}s</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span>Tiến độ: {progressPercent}%</span>
-          <div className="progress-widget-bar">
-            <div className="progress-widget-fill" style={{ width: `${progressPercent}%` }} />
+      {/* FLOATING STUDY TIMER WIDGET (Portal directly to document.body to guarantee floating at bottom-right!) */}
+      {createPortal(
+        <div className="floating-study-widget">
+          <div className="timer-badge-active">
+            <Clock size={16} />
+            <span>Đã học: {Math.floor(totalStudySeconds / 60)} phút {totalStudySeconds % 60}s</span>
           </div>
-        </div>
-      </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span>Tiến độ: {progressPercent}%</span>
+            <div className="progress-widget-bar">
+              <div className="progress-widget-fill" style={{ width: `${progressPercent}%` }} />
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 }
