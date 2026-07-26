@@ -20,6 +20,7 @@ import {
   RotateCcw,
   RotateCw,
   Settings,
+  ShieldAlert,
   ShieldCheck,
   SkipForward,
   Video,
@@ -30,6 +31,12 @@ import {
 import { getCourseById } from '../data/coursesData';
 import { LanguageContext } from '../App';
 import NotFoundPage from './NotFoundPage';
+import {
+  isAdminAccount,
+  getStudentIdentifier,
+  isAccountLocked,
+  lockAccountDueToViolation
+} from '../utils/securityGuard';
 import '../assets/styles/Home.css';
 import '../assets/styles/Courses.css';
 
@@ -135,6 +142,141 @@ export default function CourseDetail() {
   // Auto-hide Control Bar after 2.5s mouse inactivity (YouTube / Netflix style)
   const [areControlsVisible, setAreControlsVisible] = useState(true);
   const controlsTimeoutRef = useRef(null);
+
+  // Anti-Piracy Security States (DevTools, Dynamic Watermark, Multi-Device Concurrency)
+  const [showDevToolsWarning, setShowDevToolsWarning] = useState(false);
+  const [showWatermark, setShowWatermark] = useState(false);
+  const [watermarkText, setWatermarkText] = useState('');
+  const [showConcurrentWarning, setShowConcurrentWarning] = useState(false);
+  const [isAccLocked, setIsAccLocked] = useState(false);
+
+  // Check Account Lock status on mount
+  useEffect(() => {
+    if (isAccountLocked()) {
+      setIsAccLocked(true);
+    }
+  }, []);
+
+  // DevTools & F12 Key / Context Menu Shield (Exempt Admin luphuc321@gmail.com)
+  useEffect(() => {
+    if (isAdminAccount()) return; // Admin luphuc321@gmail.com is 100% EXEMPT!
+
+    const handleContextMenu = (e) => {
+      if (showVideoModal) {
+        e.preventDefault();
+        return false;
+      }
+    };
+
+    const handleKeyDownSecurity = (e) => {
+      if (
+        e.key === 'F12' ||
+        (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) ||
+        (e.ctrlKey && (e.key === 'U' || e.key === 'u' || e.key === 'S' || e.key === 's'))
+      ) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (showVideoModal) {
+          setShowDevToolsWarning(true);
+          if (ytPlayerRef.current && typeof ytPlayerRef.current.pauseVideo === 'function') {
+            try { ytPlayerRef.current.pauseVideo(); } catch (err) {}
+          } else if (videoRef.current) {
+            try { videoRef.current.pause(); } catch (err) {}
+          }
+          setIsPlaying(false);
+        }
+        return false;
+      }
+    };
+
+    const checkDevTools = () => {
+      if (!showVideoModal) return;
+      const threshold = 160;
+      const widthDiff = window.outerWidth - window.innerWidth > threshold;
+      const heightDiff = window.outerHeight - window.innerHeight > threshold;
+      if (widthDiff || heightDiff) {
+        setShowDevToolsWarning(true);
+        if (ytPlayerRef.current && typeof ytPlayerRef.current.pauseVideo === 'function') {
+          try { ytPlayerRef.current.pauseVideo(); } catch (err) {}
+        } else if (videoRef.current) {
+          try { videoRef.current.pause(); } catch (err) {}
+        }
+        setIsPlaying(false);
+      }
+    };
+
+    const interval = setInterval(checkDevTools, 2000);
+    window.addEventListener('contextmenu', handleContextMenu);
+    window.addEventListener('keydown', handleKeyDownSecurity, true);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('contextmenu', handleContextMenu);
+      window.removeEventListener('keydown', handleKeyDownSecurity, true);
+    };
+  }, [showVideoModal]);
+
+  // Dynamic Watermark Trigger (Exempt Admin)
+  useEffect(() => {
+    if (!showVideoModal || isAdminAccount()) {
+      setShowWatermark(false);
+      return;
+    }
+
+    const identifier = getStudentIdentifier();
+    setWatermarkText(identifier);
+    setShowWatermark(true);
+  }, [showVideoModal]);
+
+  // Multi-Device Concurrent Stream Monitoring & 30-Minute Violation Lock (Exempt Admin)
+  useEffect(() => {
+    if (!showVideoModal || isAdminAccount()) return;
+
+    const scope = getUserScope();
+    const sessionKey = `active_video_session_${scope}`;
+    const currentSessionId = Math.random().toString(36).substring(2, 9);
+
+    const checkConcurrentStreams = () => {
+      try {
+        const existingSession = localStorage.getItem(sessionKey);
+        const now = Date.now();
+        if (existingSession) {
+          const parsed = JSON.parse(existingSession);
+          if (parsed && parsed.sessionId !== currentSessionId && now - parsed.timestamp < 6000) {
+            // Concurrent stream detected!
+            setShowConcurrentWarning(true);
+            const violationKey = `violation_start_${scope}`;
+            const startTime = localStorage.getItem(violationKey);
+            if (!startTime) {
+              localStorage.setItem(violationKey, now.toString());
+            } else {
+              const elapsedMinutes = (now - parseInt(startTime)) / (1000 * 60);
+              if (elapsedMinutes >= 30) {
+                // 30 minutes violation exceeded -> LOCK ACCOUNT PERMANENTLY!
+                lockAccountDueToViolation();
+                setIsAccLocked(true);
+                setShowVideoModal(false);
+              }
+            }
+            return;
+          }
+        }
+        // Update heartbeat timestamp for current session
+        localStorage.setItem(
+          sessionKey,
+          JSON.stringify({ sessionId: currentSessionId, timestamp: now })
+        );
+        setShowConcurrentWarning(false);
+      } catch (e) {}
+    };
+
+    const heartbeatInterval = setInterval(checkConcurrentStreams, 3000);
+    checkConcurrentStreams();
+
+    return () => {
+      clearInterval(heartbeatInterval);
+    };
+  }, [showVideoModal]);
 
   const handleMouseMoveOnPlayer = () => {
     setAreControlsVisible(true);
@@ -359,6 +501,10 @@ export default function CourseDetail() {
 
   // Handle opening a lesson
   const handleLessonClick = (lesson) => {
+    if (isAccLocked && !isAdminAccount()) {
+      alert('⚠️ TÀI KHOẢN ĐÃ BỊ KHÓA VĨNH VIỄN: Phát hiện tài khoản của bạn vi phạm điều khoản xem video cùng lúc trên nhiều thiết bị quá 30 phút. Vui lòng liên hệ Admin (luphuc321@gmail.com) để được mở lại.');
+      return;
+    }
     if (lesson.isLocked && !isAdmin) {
       setActiveLesson(lesson);
       setShowLockPrompt(true);
@@ -1093,6 +1239,13 @@ export default function CourseDetail() {
                   </div>
                 )}
 
+                {/* Dynamic Anti-Piracy Watermark Overlay */}
+                {showWatermark && (
+                  <div className="dynamic-watermark-overlay">
+                    🔒 {watermarkText}
+                  </div>
+                )}
+
                 {/* Smart Resume Prompt Overlay */}
                 {showResumePrompt && (
                   <div className="smart-resume-card">
@@ -1365,6 +1518,40 @@ export default function CourseDetail() {
       {toastNotification && createPortal(
         <div className="floating-save-toast">
           <span>{toastNotification}</span>
+        </div>,
+        document.body
+      )}
+
+      {/* DEVTOOLS SECURITY SHIELD WARNING PORTAL */}
+      {showDevToolsWarning && createPortal(
+        <div className="devtools-warning-backdrop">
+          <div className="devtools-warning-card">
+            <ShieldAlert size={48} color="#ef4444" style={{ margin: '0 auto 12px' }} />
+            <h3>CẢNH BÁO BẢO MẬT</h3>
+            <p>
+              Phát hiện công cụ lập trình (DevTools / F12)! Màn hình video đã bị khóa tự động để bảo vệ bản quyền bài giảng UEH TCC.
+            </p>
+            <button
+              type="button"
+              className="btn-close-warning"
+              onClick={() => setShowDevToolsWarning(false)}
+            >
+              Đóng và quay lại bài học
+            </button>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* MULTI-DEVICE CONCURRENT STREAM VIOLATION BANNER */}
+      {showConcurrentWarning && createPortal(
+        <div className="device-violation-modal">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <ShieldAlert size={22} color="#ffffff" />
+            <span>
+              ⚠️ <strong>CẢNH BÁO AN NINH:</strong> Phát hiện tài khoản đang phát video trên 2+ thiết bị cùng lúc! Vui lòng tắt bớt. Sau 30 phút nếu tiếp tục vi phạm, tài khoản sẽ bị <strong>KHÓA VĨNH VIỄN</strong>.
+            </span>
+          </div>
         </div>,
         document.body
       )}
