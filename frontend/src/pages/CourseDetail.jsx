@@ -106,6 +106,17 @@ export default function CourseDetail() {
   const [videoQuality, setVideoQuality] = useState('hd1080');
   const [showPlayPauseAnim, setShowPlayPauseAnim] = useState(false);
 
+  // Toast Notification & Sticky Resume States
+  const [toastNotification, setToastNotification] = useState(null);
+  const [lastActiveInfo, setLastActiveInfo] = useState(null);
+
+  const showToast = (msg) => {
+    setToastNotification(msg);
+    setTimeout(() => {
+      setToastNotification(null);
+    }, 4500);
+  };
+
   // Smart Resume State
   const [resumeTime, setResumeTime] = useState(null);
   const [showResumePrompt, setShowResumePrompt] = useState(false);
@@ -226,11 +237,6 @@ export default function CourseDetail() {
     return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
   };
 
-  const closeVideoModal = () => {
-    setShowVideoModal(false);
-    setCustomPos(null);
-  };
-
   // User Scoped Storage Helper for Guest vs Logged-In Users & Cache Clearing Safety
   const getUserScope = () => {
     try {
@@ -276,6 +282,65 @@ export default function CourseDetail() {
     } catch (e) {}
   };
 
+  // Detect & Load Last Active Lesson on Page Load / Mount
+  useEffect(() => {
+    const scope = getUserScope();
+    try {
+      const savedStr =
+        localStorage.getItem(`course_last_active_lesson_${scope}_${course.id}`) ||
+        localStorage.getItem(`course_last_active_lesson_${course.id}`);
+      if (savedStr) {
+        const parsed = JSON.parse(savedStr);
+        if (parsed && parsed.lessonId && parsed.time > 5) {
+          setLastActiveInfo(parsed);
+        }
+      }
+    } catch (e) {}
+  }, [course.id]);
+
+  // Handle closing video modal with Toast Notification & Progress Persistence
+  const closeVideoModal = () => {
+    if (activeLesson) {
+      let cur = currentTime;
+      if (isYouTube && ytPlayerRef.current && typeof ytPlayerRef.current.getCurrentTime === 'function') {
+        try {
+          const t = ytPlayerRef.current.getCurrentTime();
+          if (t && t > 0) cur = t;
+        } catch (e) {}
+      } else if (videoRef.current && videoRef.current.currentTime > 0) {
+        cur = videoRef.current.currentTime;
+      }
+
+      if (cur && cur > 3) {
+        saveVideoPos(activeLesson.id, cur);
+        const scope = getUserScope();
+        const info = {
+          lessonId: activeLesson.id,
+          time: cur,
+          title: activeLesson.title
+        };
+        try {
+          localStorage.setItem(`course_last_active_lesson_${scope}_${course.id}`, JSON.stringify(info));
+          localStorage.setItem(`course_last_active_lesson_${course.id}`, JSON.stringify(info));
+        } catch (e) {}
+        setLastActiveInfo(info);
+        showToast(`✨ Đã tự động lưu tiến trình bài "${activeLesson.title}" tại ${formatTime(cur)}!`);
+      }
+    }
+
+    if (ytPlayerRef.current && typeof ytPlayerRef.current.pauseVideo === 'function') {
+      try {
+        ytPlayerRef.current.pauseVideo();
+      } catch (e) {}
+    } else if (videoRef.current) {
+      try {
+        videoRef.current.pause();
+      } catch (e) {}
+    }
+    setIsPlaying(false);
+    setShowVideoModal(false);
+  };
+
   // Handle opening a lesson
   const handleLessonClick = (lesson) => {
     if (lesson.isLocked && !isAdmin) {
@@ -295,6 +360,7 @@ export default function CourseDetail() {
     if (savedTime && savedTime > 5) {
       setResumeTime(savedTime);
       setShowResumePrompt(true);
+      showToast(`📌 Đã nạp vị trí lưu gần nhất của bài "${lesson.title}" tại ${formatTime(savedTime)}!`);
     } else {
       setResumeTime(null);
       setShowResumePrompt(false);
@@ -775,6 +841,28 @@ export default function CourseDetail() {
             <ArrowLeft size={14} /> Tất cả khóa học
           </Link>
 
+          {/* STICKY RESUME LEARNING BANNER (When returning from Home or F5) */}
+          {lastActiveInfo && !showVideoModal && (
+            <div className="resume-course-banner">
+              <div className="resume-banner-info">
+                <span className="resume-banner-icon">📌</span>
+                <div>
+                  <strong>BẠN ĐANG HỌC DỞ:</strong> Bài <em>"{lastActiveInfo.title}"</em> (Vị trí đã lưu: <strong>{formatTime(lastActiveInfo.time)}</strong>)
+                </div>
+              </div>
+              <button
+                type="button"
+                className="btn-resume-banner"
+                onClick={() => {
+                  const lesson = allLessons.find((l) => l.id === lastActiveInfo.lessonId) || allLessons[0];
+                  if (lesson) handleLessonClick(lesson);
+                }}
+              >
+                ▶ TIẾP TỤC HỌC NGAY
+              </button>
+            </div>
+          )}
+
           <div className="course-detail-hero-grid">
             {/* LEFT COLUMN: Hero Info + Embedded Syllabus */}
             <div className="course-detail-left">
@@ -1242,6 +1330,14 @@ export default function CourseDetail() {
               </button>
             </div>
           </div>
+        </div>,
+        document.body
+      )}
+
+      {/* FLOATING TOAST NOTIFICATION */}
+      {toastNotification && createPortal(
+        <div className="floating-save-toast">
+          <span>{toastNotification}</span>
         </div>,
         document.body
       )}
