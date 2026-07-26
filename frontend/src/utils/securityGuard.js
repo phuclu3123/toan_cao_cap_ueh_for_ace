@@ -7,8 +7,7 @@ export const isAdminAccount = () => {
       const user = JSON.parse(savedUserStr);
       if (
         user &&
-        (user.role === 'Admin' ||
-          (user.username && user.username.toLowerCase() === 'luphuc321@gmail.com') ||
+        ((user.username && user.username.toLowerCase() === 'luphuc321@gmail.com') ||
           (user.email && user.email.toLowerCase() === 'luphuc321@gmail.com'))
       ) {
         return true;

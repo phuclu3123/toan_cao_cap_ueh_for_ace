@@ -60,8 +60,7 @@ export default function CourseDetail() {
           const user = JSON.parse(savedUserStr);
           if (
             user &&
-            (user.role === 'Admin' ||
-              (user.username && user.username.toLowerCase() === 'luphuc321@gmail.com') ||
+            ((user.username && user.username.toLowerCase() === 'luphuc321@gmail.com') ||
               (user.email && user.email.toLowerCase() === 'luphuc321@gmail.com'))
           ) {
             setIsAdmin(true);
@@ -216,17 +215,32 @@ export default function CourseDetail() {
     };
   }, [showVideoModal]);
 
-  // Dynamic Watermark Trigger (Exempt Admin)
+  // Dynamic Watermark Sweep Trigger (Triggers sweep from Left to Right at min 0, 10, 20, 30, 60, etc.)
+  const lastSweepMinuteRef = useRef(-1);
+
   useEffect(() => {
     if (!showVideoModal || isAdminAccount()) {
       setShowWatermark(false);
+      lastSweepMinuteRef.current = -1;
       return;
     }
 
-    const identifier = getStudentIdentifier();
-    setWatermarkText(identifier);
-    setShowWatermark(true);
-  }, [showVideoModal]);
+    const currentMinute = Math.floor(currentTime / 60);
+    const milestones = [0, 10, 20, 30, 40, 50, 60, 90, 120];
+
+    if (milestones.includes(currentMinute) && lastSweepMinuteRef.current !== currentMinute) {
+      lastSweepMinuteRef.current = currentMinute;
+      const identifier = getStudentIdentifier();
+      setWatermarkText(identifier);
+      setShowWatermark(true);
+
+      const sweepTimer = setTimeout(() => {
+        setShowWatermark(false);
+      }, 14000);
+
+      return () => clearTimeout(sweepTimer);
+    }
+  }, [showVideoModal, currentTime]);
 
   // Multi-Device Concurrent Stream Monitoring & 30-Minute Violation Lock (Exempt Admin)
   useEffect(() => {
