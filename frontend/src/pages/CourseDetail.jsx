@@ -215,7 +215,7 @@ export default function CourseDetail() {
     };
   }, [showVideoModal]);
 
-  // Dynamic Watermark Sweep Trigger (Triggers sweep from Left to Right at min 0, 10, 20, 30, 60, etc.)
+  // Dynamic Watermark Sweep Trigger (Triggers sweep from Left to Right every 10 minutes throughout entire video)
   const lastSweepMinuteRef = useRef(-1);
 
   useEffect(() => {
@@ -226,9 +226,9 @@ export default function CourseDetail() {
     }
 
     const currentMinute = Math.floor(currentTime / 60);
-    const milestones = [0, 10, 20, 30, 40, 50, 60, 90, 120];
 
-    if (milestones.includes(currentMinute) && lastSweepMinuteRef.current !== currentMinute) {
+    // Trigger every 10 minutes (minute 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120...)
+    if (currentMinute % 10 === 0 && lastSweepMinuteRef.current !== currentMinute) {
       lastSweepMinuteRef.current = currentMinute;
       const identifier = getStudentIdentifier();
       setWatermarkText(identifier);
@@ -236,7 +236,7 @@ export default function CourseDetail() {
 
       const sweepTimer = setTimeout(() => {
         setShowWatermark(false);
-      }, 14000);
+      }, 14000); // 14s sweep duration
 
       return () => clearTimeout(sweepTimer);
     }
@@ -1255,7 +1255,7 @@ export default function CourseDetail() {
 
                 {/* Dynamic Anti-Piracy Watermark Overlay */}
                 {showWatermark && (
-                  <div className="dynamic-watermark-overlay">
+                  <div key={`wm-${lastSweepMinuteRef.current}`} className="dynamic-watermark-overlay">
                     🔒 {watermarkText}
                   </div>
                 )}
