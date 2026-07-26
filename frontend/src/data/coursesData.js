@@ -275,6 +275,7 @@ export const coursesData = [
             type: 'video',
             duration: '11:10',
             isLocked: true,
+            videoUrl: 'https://youtu.be/78djtj2N9QI'
           }
         ]
       },
