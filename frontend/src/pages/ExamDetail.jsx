@@ -15,7 +15,10 @@ import {
   RotateCcw,
   Send,
   ShieldCheck,
-  XCircle
+  XCircle,
+  PlayCircle,
+  Video,
+  X
 } from 'lucide-react';
 import { getPracticeExamById, isPracticeExamId } from '../data/practiceExams';
 import { LanguageContext } from '../App';
@@ -80,6 +83,36 @@ export default function ExamDetail() {
   const [submitReason, setSubmitReason] = useState('');
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [showExitModal, setShowExitModal] = useState(false);
+
+  // Video Solution Modal & Auto Pause State
+  const [showVideoModal, setShowVideoModal] = useState(false);
+  const [showTabPauseToast, setShowTabPauseToast] = useState(false);
+  const videoIframeRef = React.useRef(null);
+
+  const getYouTubeEmbedUrl = (url) => {
+    if (!url) return '';
+    const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/))([a-zA-Z0-9_-]{11})/);
+    if (match && match[1]) {
+      return `https://www.youtube.com/embed/${match[1]}?enablejsapi=1&autoplay=1&rel=0`;
+    }
+    return url;
+  };
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden' && showVideoModal && videoIframeRef.current) {
+        try {
+          videoIframeRef.current.contentWindow?.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+        } catch (e) {
+          // ignore cross-origin error
+        }
+        setShowTabPauseToast(true);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [showVideoModal]);
 
   // Set up router navigation blocker with bypass ref to avoid routing deadlock
   const bypassBlockerRef = React.useRef(false);

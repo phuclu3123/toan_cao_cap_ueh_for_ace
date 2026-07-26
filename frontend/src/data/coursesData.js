@@ -275,7 +275,23 @@ export const coursesData = [
             type: 'video',
             duration: '11:10',
             isLocked: true,
-            videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4'
+          }
+        ]
+      },
+      {
+        id: 'k50-ch-2',
+        sectionLabel: 'PHẦN 2',
+        title: 'Chương 2: Thực chiến Sửa Đề Thi K50',
+        lessonsCount: 1,
+        lessons: [
+          {
+            id: 'k50-1-1',
+            title: 'Sửa chi tiết Đề thi Toán Cao Cấp K50 Đợt 1 (Video YouTube HD)',
+            subtitle: 'Video chữa đề chi tiết',
+            type: 'video',
+            duration: '45:00',
+            isLocked: false,
+            videoUrl: 'https://youtu.be/WDSHTnrv8JI'
           }
         ]
       }

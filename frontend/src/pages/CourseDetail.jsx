@@ -120,6 +120,7 @@ export default function CourseDetail() {
   const [isTimerCollapsed, setIsTimerCollapsed] = useState(false);
 
   const videoRef = useRef(null);
+  const iframeRef = useRef(null);
   const playerFrameRef = useRef(null);
 
   // Handle Dragging Floating Widget
@@ -244,6 +245,15 @@ export default function CourseDetail() {
       if (document.visibilityState === 'hidden') {
         if (videoRef.current && !videoRef.current.paused) {
           videoRef.current.pause();
+          setIsPlaying(false);
+          setShowTabPauseToast(true);
+        }
+        if (iframeRef.current) {
+          try {
+            iframeRef.current.contentWindow?.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+          } catch (e) {
+            // ignore
+          }
           setIsPlaying(false);
           setShowTabPauseToast(true);
         }
@@ -616,13 +626,24 @@ export default function CourseDetail() {
             {/* Video Player Frame */}
             {activeLesson.type === 'video' ? (
               <div className="video-player-frame" ref={playerFrameRef}>
-                <video
-                  ref={videoRef}
-                  src={activeLesson.videoUrl}
-                  onTimeUpdate={handleTimeUpdate}
-                  onLoadedMetadata={handleLoadedMetadata}
-                  onClick={togglePlayPause}
-                />
+                {activeLesson.videoUrl && /(?:youtu\.be\/|youtube\.com)/i.test(activeLesson.videoUrl) ? (
+                  <iframe
+                    ref={iframeRef}
+                    src={activeLesson.videoUrl.replace('youtu.be/', 'www.youtube.com/embed/').replace('watch?v=', 'embed/') + '?enablejsapi=1&autoplay=1&rel=0'}
+                    title={activeLesson.title}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    style={{ width: '100%', height: '100%', minHeight: '380px', border: 0, borderRadius: '8px' }}
+                  />
+                ) : (
+                  <video
+                    ref={videoRef}
+                    src={activeLesson.videoUrl}
+                    onTimeUpdate={handleTimeUpdate}
+                    onLoadedMetadata={handleLoadedMetadata}
+                    onClick={togglePlayPause}
+                  />
+                )}
 
                 {/* Tab Switch Auto Pause Toast */}
                 {showTabPauseToast && (
