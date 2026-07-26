@@ -103,6 +103,8 @@ export default function CourseDetail() {
   const [reportReason, setReportReason] = useState('Video bị đứng/lag');
   const [reportNote, setReportNote] = useState('');
   const [reportSuccess, setReportSuccess] = useState(false);
+  const [videoQuality, setVideoQuality] = useState('hd1080');
+  const [showPlayPauseAnim, setShowPlayPauseAnim] = useState(false);
 
   // Smart Resume State
   const [resumeTime, setResumeTime] = useState(null);
@@ -595,6 +597,69 @@ export default function CourseDetail() {
     }
   };
 
+  const triggerScreenPulseAnim = () => {
+    setShowPlayPauseAnim(true);
+    setTimeout(() => setShowPlayPauseAnim(false), 500);
+  };
+
+  const handleQualitySelect = (quality) => {
+    setVideoQuality(quality);
+    if (isYouTube && ytPlayerRef.current && typeof ytPlayerRef.current.setPlaybackQuality === 'function') {
+      try {
+        ytPlayerRef.current.setPlaybackQuality(quality);
+      } catch (e) {}
+    }
+  };
+
+  // Global Keyboard Shortcuts for Video Player Modal (Space, Arrows, F, M, Esc)
+  useEffect(() => {
+    if (!showVideoModal) return;
+
+    const handleKeyDown = (e) => {
+      const activeEl = document.activeElement;
+      if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.tagName === 'SELECT')) {
+        return;
+      }
+
+      if (e.code === 'Space' || e.key === 'k' || e.key === 'K') {
+        e.preventDefault();
+        togglePlayPause();
+        triggerScreenPulseAnim();
+      } else if (e.key === 'ArrowLeft' || e.key === 'j' || e.key === 'J') {
+        e.preventDefault();
+        handleRewind5();
+      } else if (e.key === 'ArrowRight' || e.key === 'l' || e.key === 'L') {
+        e.preventDefault();
+        handleForward5();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        setVolume((prev) => {
+          const next = Math.min(1, parseFloat((prev + 0.1).toFixed(2)));
+          handleVolumeChange({ target: { value: next } });
+          return next;
+        });
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        setVolume((prev) => {
+          const next = Math.max(0, parseFloat((prev - 0.1).toFixed(2)));
+          handleVolumeChange({ target: { value: next } });
+          return next;
+        });
+      } else if (e.key === 'f' || e.key === 'F') {
+        e.preventDefault();
+        toggleFullscreen();
+      } else if (e.key === 'm' || e.key === 'M') {
+        e.preventDefault();
+        toggleMute();
+      } else if (e.key === 'Escape') {
+        closeVideoModal();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showVideoModal, isPlaying, duration, volume, isMuted, activeLesson]);
+
   const handleReportSubmit = (e) => {
     e.preventDefault();
     setReportSuccess(true);
@@ -860,8 +925,19 @@ export default function CourseDetail() {
                     src={activeLesson.videoUrl}
                     onTimeUpdate={handleTimeUpdate}
                     onLoadedMetadata={handleLoadedMetadata}
-                    onClick={togglePlayPause}
+                    onClick={() => { togglePlayPause(); triggerScreenPulseAnim(); }}
                   />
+                )}
+
+                {/* Canvas Screen Click Overlay for Direct Click-to-Play/Pause */}
+                {isYouTube && (
+                  <div className="video-canvas-click-overlay" onClick={() => { togglePlayPause(); triggerScreenPulseAnim(); }}>
+                    {showPlayPauseAnim && (
+                      <div className="play-pause-pulse-icon">
+                        {isPlaying ? <Pause size={36} fill="currentColor" /> : <Play size={36} fill="currentColor" />}
+                      </div>
+                    )}
+                  </div>
                 )}
 
                 {/* Tab Switch Auto Pause Toast */}
@@ -901,20 +977,20 @@ export default function CourseDetail() {
 
                   <div className="video-controls-bottom-bar">
                     <div className="controls-left-group">
-                      <button type="button" className="btn-video-control" onClick={togglePlayPause} title="Phát / Tạm dừng">
+                      <button type="button" className="btn-video-control" onClick={() => { togglePlayPause(); triggerScreenPulseAnim(); }} title="Phát / Tạm dừng (Space / K)">
                         {isPlaying ? <Pause size={20} /> : <Play size={20} fill="currentColor" />}
                       </button>
 
                       {/* Rewind 5s / Forward 5s buttons */}
-                      <button type="button" className="btn-video-control" onClick={handleRewind5} title="Tua lùi 5s">
+                      <button type="button" className="btn-video-control" onClick={handleRewind5} title="Tua lùi 5s (Phím mũi tên Trái / J)">
                         <RotateCcw size={16} /> -5s
                       </button>
-                      <button type="button" className="btn-video-control" onClick={handleForward5} title="Tua tới 5s">
+                      <button type="button" className="btn-video-control" onClick={handleForward5} title="Tua tới 5s (Phím mũi tên Phải / L)">
                         <RotateCw size={16} /> +5s
                       </button>
 
                       {/* Volume Slider */}
-                      <button type="button" className="btn-video-control" onClick={toggleMute} title="Âm lượng">
+                      <button type="button" className="btn-video-control" onClick={toggleMute} title="Âm lượng (Phím M)">
                         {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
                       </button>
                       <input
@@ -971,24 +1047,45 @@ export default function CourseDetail() {
 
                       {/* Settings Glass Popover Menu */}
                       {showSettingsPopover && (
-                        <div className="settings-popover-menu">
+                        <div className="settings-popover-menu" onClick={(e) => e.stopPropagation()}>
                           <h4>Cài đặt phát</h4>
-                          <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginBottom: '8px' }}>Chất lượng: Auto (1080p)</div>
-                          <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginBottom: '6px' }}>Tốc độ phát:</div>
-                          {[0.5, 0.75, 1, 1.25, 1.5, 2].map((spd) => (
-                            <div
-                              key={spd}
-                              className={`speed-option-item ${playbackSpeed === spd ? 'active' : ''}`}
-                              onClick={() => handleSpeedSelect(spd)}
-                            >
-                              <span>{spd === 1 ? '1.0x (Chuẩn)' : `${spd}x`}</span>
-                              {playbackSpeed === spd && <CheckCircle size={14} />}
-                            </div>
-                          ))}
+                          <div className="settings-section-title">Chất lượng:</div>
+                          <div className="settings-option-list">
+                            {[
+                              { id: 'hd1080', label: '1080p (Full HD)' },
+                              { id: 'hd720', label: '720p (HD)' },
+                              { id: 'large', label: '480p' },
+                              { id: 'medium', label: '360p' },
+                              { id: 'auto', label: 'Tự động (Auto)' }
+                            ].map((q) => (
+                              <div
+                                key={q.id}
+                                className={`settings-option-item ${videoQuality === q.id ? 'active' : ''}`}
+                                onClick={() => handleQualitySelect(q.id)}
+                              >
+                                <span>{q.label}</span>
+                                {videoQuality === q.id && <CheckCircle size={14} />}
+                              </div>
+                            ))}
+                          </div>
+
+                          <div className="settings-section-title">Tốc độ phát:</div>
+                          <div className="settings-option-list">
+                            {[0.5, 0.75, 1, 1.25, 1.5, 2].map((spd) => (
+                              <div
+                                key={spd}
+                                className={`settings-option-item ${playbackSpeed === spd ? 'active' : ''}`}
+                                onClick={() => handleSpeedSelect(spd)}
+                              >
+                                <span>{spd === 1 ? '1.0x (Chuẩn)' : `${spd}x`}</span>
+                                {playbackSpeed === spd && <CheckCircle size={14} />}
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       )}
 
-                      <button type="button" className="btn-video-control" onClick={toggleFullscreen} title="Toàn màn hình">
+                      <button type="button" className="btn-video-control" onClick={toggleFullscreen} title="Toàn màn hình (Phím F)">
                         {isFullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
                       </button>
                     </div>
@@ -1002,60 +1099,53 @@ export default function CourseDetail() {
             )}
           </div>
 
-          {/* SMART FLOATING STUDY TIMER (When Video Modal is Open - Image 2: Positioned Directly Under Video Box!) */}
+          {/* SMART FLOATING STUDY TIMER */}
           {renderStudyTimerWidget(true)}
         </div>,
         document.body
       )}
 
-      {/* Report Error Flag Modal */}
+      {/* Redesigned Report Error Flag Modal (Fix Image 3) */}
       {showReportModal && createPortal(
-        <div className="video-modal-backdrop" onClick={() => setShowReportModal(false)}>
-          <div
-            className="video-modal-container"
-            style={{ width: '480px', padding: '28px', background: 'var(--course-paper)' }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: '800', color: 'var(--course-ink)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Flag size={18} color="#ef4444" /> Báo lỗi bài giảng cho Admin
-              </h3>
+        <div className="report-modal-backdrop" onClick={() => setShowReportModal(false)}>
+          <div className="report-modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className="report-modal-header">
+              <div>
+                <h3>
+                  <Flag size={20} color="#ef4444" /> Báo lỗi bài giảng cho Admin
+                </h3>
+                <p>Giúp đội ngũ UEH TCC sửa chữa sự cố nhanh nhất có thể.</p>
+              </div>
               <button type="button" className="modal-close-btn" onClick={() => setShowReportModal(false)}>
-                <X size={16} />
+                <X size={18} />
               </button>
             </div>
 
             {reportSuccess ? (
-              <div style={{ textAlign: 'center', padding: '20px 0', color: '#10b981', fontWeight: '700' }}>
-                <CheckCircle size={36} style={{ margin: '0 auto 12px' }} />
-                Đã gửi báo cáo sự cố thành công cho Admin (luphuc321@gmail.com)!
+              <div style={{ textAlign: 'center', padding: '24px 0', color: '#10b981', fontWeight: '700' }}>
+                <CheckCircle size={40} style={{ margin: '0 auto 12px' }} />
+                <p style={{ margin: 0, fontSize: '1rem' }}>Đã gửi báo cáo sự cố thành công cho Admin!</p>
               </div>
             ) : (
-              <form onSubmit={handleReportSubmit}>
-                <div style={{ marginBottom: '14px' }}>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '700', color: 'var(--course-ink)', marginBottom: '6px' }}>
-                    Loại sự cố:
-                  </label>
+              <form onSubmit={handleReportSubmit} className="report-modal-form">
+                <div className="report-field-group">
+                  <label>Loại sự cố gặp phải:</label>
                   <select
-                    className="form-input"
-                    style={{ width: '100%', padding: '10px' }}
+                    className="report-select"
                     value={reportReason}
                     onChange={(e) => setReportReason(e.target.value)}
                   >
-                    <option value="Video bị đứng/lag">Video bị đứng / lag</option>
-                    <option value="Lỗi âm thanh">Lỗi âm thanh / không có tiếng</option>
-                    <option value="Nội dung không khớp">Nội dung bài giảng chưa đúng</option>
+                    <option value="Video bị đứng/lag">Video bị đứng / giật lag</option>
+                    <option value="Lỗi âm thanh">Mất tiếng / Âm thanh bị méo</option>
+                    <option value="Sai công thức">Sai đáp án / Sai công thức bài học</option>
                     <option value="Khác">Sự cố khác</option>
                   </select>
                 </div>
 
-                <div style={{ marginBottom: '20px' }}>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '700', color: 'var(--course-ink)', marginBottom: '6px' }}>
-                    Mô tả thêm (Tùy chọn):
-                  </label>
+                <div className="report-field-group">
+                  <label>Mô tả thêm (Tùy chọn):</label>
                   <textarea
-                    className="form-input"
-                    style={{ width: '100%', padding: '10px' }}
+                    className="report-textarea"
                     rows="3"
                     placeholder="Mô tả cụ thể vị trí phút giây bị lỗi..."
                     value={reportNote}
@@ -1063,8 +1153,8 @@ export default function CourseDetail() {
                   />
                 </div>
 
-                <button type="submit" className="btn-enroll-primary" style={{ width: '100%' }}>
-                  Gửi báo cáo sự cố
+                <button type="submit" className="report-btn-submit">
+                  Gửi báo cáo sự cố ngay
                 </button>
               </form>
             )}
