@@ -256,7 +256,8 @@ export default function CourseDetail() {
     const scope = getUserScope();
     try {
       const scopedVal = localStorage.getItem(`course_video_pos_${scope}_${lessonId}`);
-      const legacyVal = localStorage.getItem(`course_video_pos_${lessonId}`);
+      // Only fallback to legacy for guest if guest
+      const legacyVal = scope === 'guest' ? localStorage.getItem(`course_video_pos_${lessonId}`) : null;
       const val = scopedVal || legacyVal;
       return val ? parseFloat(val) : null;
     } catch (e) {
@@ -269,7 +270,9 @@ export default function CourseDetail() {
     const scope = getUserScope();
     try {
       localStorage.setItem(`course_video_pos_${scope}_${lessonId}`, time.toString());
-      localStorage.setItem(`course_video_pos_${lessonId}`, time.toString());
+      if (scope === 'guest') {
+        localStorage.setItem(`course_video_pos_${lessonId}`, time.toString());
+      }
     } catch (e) {}
   };
 
@@ -282,21 +285,33 @@ export default function CourseDetail() {
     } catch (e) {}
   };
 
-  // Detect & Load Last Active Lesson on Page Load / Mount
+  // Detect & Load Last Active Lesson on Page Load / Auth change / Mount
   useEffect(() => {
-    const scope = getUserScope();
-    try {
-      const savedStr =
-        localStorage.getItem(`course_last_active_lesson_${scope}_${course.id}`) ||
-        localStorage.getItem(`course_last_active_lesson_${course.id}`);
-      if (savedStr) {
-        const parsed = JSON.parse(savedStr);
-        if (parsed && parsed.lessonId && parsed.time > 5) {
-          setLastActiveInfo(parsed);
+    const checkLastActive = () => {
+      const scope = getUserScope();
+      try {
+        const savedStr = localStorage.getItem(`course_last_active_lesson_${scope}_${course.id}`);
+        if (savedStr) {
+          const parsed = JSON.parse(savedStr);
+          if (parsed && parsed.lessonId && parsed.time > 5) {
+            const targetLesson = allLessons.find((l) => l.id === parsed.lessonId);
+            // Security Check: If lesson is locked and current user is guest & not admin, DO NOT SHOW BANNER!
+            if (targetLesson && targetLesson.isLocked && scope === 'guest' && !isAdmin) {
+              setLastActiveInfo(null);
+              return;
+            }
+            setLastActiveInfo(parsed);
+            return;
+          }
         }
-      }
-    } catch (e) {}
-  }, [course.id]);
+      } catch (e) {}
+      setLastActiveInfo(null);
+    };
+
+    checkLastActive();
+    window.addEventListener('storage', checkLastActive);
+    return () => window.removeEventListener('storage', checkLastActive);
+  }, [course.id, isAdmin, allLessons]);
 
   // Handle closing video modal with Toast Notification & Progress Persistence
   const closeVideoModal = () => {
@@ -321,9 +336,10 @@ export default function CourseDetail() {
         };
         try {
           localStorage.setItem(`course_last_active_lesson_${scope}_${course.id}`, JSON.stringify(info));
-          localStorage.setItem(`course_last_active_lesson_${course.id}`, JSON.stringify(info));
         } catch (e) {}
-        setLastActiveInfo(info);
+        if (!(activeLesson.isLocked && scope === 'guest' && !isAdmin)) {
+          setLastActiveInfo(info);
+        }
         showToast(`✨ Đã tự động lưu tiến trình bài "${activeLesson.title}" tại ${formatTime(cur)}!`);
       }
     }
