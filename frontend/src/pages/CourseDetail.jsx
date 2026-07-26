@@ -235,19 +235,23 @@ export default function CourseDetail() {
     }
   }, [showVideoModal, currentTime]);
 
-  // Random Micro-Watermark Position State (Anti-Cropping & Anti-Prediction)
-  const [microPos, setMicroPos] = useState({ top: '15%', left: '70%' });
+  // Random Micro-Watermark Corner Position State (Top/Bottom corners only to avoid obscuring lecture text)
+  const [microPosStyle, setMicroPosStyle] = useState({ top: '16px', right: '20px' });
 
-  // Periodically shift random micro-watermark position every 3 minutes
+  // Periodically shift micro-watermark between top & bottom corners every 3 minutes
   useEffect(() => {
     if (!showVideoModal || isAdminAccount()) return;
 
+    const cornerStyles = [
+      { top: '16px', right: '20px', bottom: 'auto', left: 'auto' },  // Top-Right
+      { top: '16px', left: '20px', bottom: 'auto', right: 'auto' },   // Top-Left
+      { bottom: '76px', right: '20px', top: 'auto', left: 'auto' }, // Bottom-Right (above controls)
+      { bottom: '76px', left: '20px', top: 'auto', right: 'auto' }   // Bottom-Left (above controls)
+    ];
+
     const shiftPosition = () => {
-      const topPositions = ['12%', '22%', '35%', '65%', '78%'];
-      const leftPositions = ['10%', '25%', '60%', '75%', '82%'];
-      const randomTop = topPositions[Math.floor(Math.random() * topPositions.length)];
-      const randomLeft = leftPositions[Math.floor(Math.random() * leftPositions.length)];
-      setMicroPos({ top: randomTop, left: randomLeft });
+      const nextCorner = cornerStyles[Math.floor(Math.random() * cornerStyles.length)];
+      setMicroPosStyle(nextCorner);
     };
 
     shiftPosition();
@@ -1305,11 +1309,11 @@ export default function CourseDetail() {
                   </div>
                 )}
 
-                {/* Random Micro-Watermark (Anti-Cropping & Anti-Prediction) */}
+                {/* Random Micro-Watermark (Positioned at corners so lecture content is 100% clear) */}
                 {!isAdminAccount() && (
                   <div
                     className="random-micro-watermark"
-                    style={{ top: microPos.top, left: microPos.left }}
+                    style={microPosStyle}
                   >
                     🔒 {watermarkText || getStudentIdentifier()}
                   </div>
