@@ -121,7 +121,14 @@ export default function CourseDetail() {
 
   const videoRef = useRef(null);
   const iframeRef = useRef(null);
+  const ytPlayerRef = useRef(null);
   const playerFrameRef = useRef(null);
+
+  const extractYouTubeId = (url) => {
+    if (!url) return null;
+    const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/))([a-zA-Z0-9_-]{11})/);
+    return match ? match[1] : null;
+  };
 
   // Handle Dragging Floating Widget
   const handleTimerMouseDown = (e) => {
@@ -227,33 +234,148 @@ export default function CourseDetail() {
     setCompletedLessons((prev) => ({ ...prev, [lesson.id]: true }));
   };
 
-  // Handle Next Lesson
-  const handleNextLesson = () => {
-    if (!activeLesson) return;
-    const currentIndex = allLessons.findIndex((l) => l.id === activeLesson.id);
-    if (currentIndex >= 0 && currentIndex < allLessons.length - 1) {
-      const nextLesson = allLessons[currentIndex + 1];
-      handleLessonClick(nextLesson);
+  const isYouTube = activeLesson?.videoUrl && /(?:youtu\.be\/|youtube\.com)/i.test(activeLesson.videoUrl);
+
+  // Initialize YouTube IFrame Player API when modal opens for YouTube lessons
+  useEffect(() => {
+    if (!showVideoModal || !activeLesson) return;
+
+    const videoId = extractYouTubeId(activeLesson.videoUrl);
+    if (!videoId) return;
+
+    const initYTPlayer = () => {
+      if (!window.YT || !window.YT.Player) return;
+
+      if (ytPlayerRef.current) {
+        try {
+          ytPlayerRef.current.destroy();
+        } catch (e) {}
+      }
+
+      ytPlayerRef.current = new window.YT.Player('yt-player-element', {
+        videoId: videoId,
+        playerVars: {
+          autoplay: 1,
+          controls: 0,
+          disablekb: 1,
+          modestbranding: 1,
+          rel: 0,
+          showinfo: 0,
+          iv_load_policy: 3
+        },
+        events: {
+          onReady: (event) => {
+            const dur = event.target.getDuration();
+            if (dur) setDuration(dur);
+
+            // Check if saved position exists
+            const savedPos = localStorage.getItem(`course_video_pos_${activeLesson.id}`);
+            if (savedPos && parseFloat(savedPos) > 5) {
+              const time = parseFloat(savedPos);
+              setResumeTime(time);
+              setShowResumePrompt(true);
+            } else {
+              event.target.playVideo();
+              setIsPlaying(true);
+            }
+          },
+          onStateChange: (event) => {
+            if (event.data === window.YT.PlayerState.PLAYING) {
+              setIsPlaying(true);
+              setShowTabPauseToast(false);
+            } else if (event.data === window.YT.PlayerState.PAUSED || event.data === window.YT.PlayerState.ENDED) {
+              setIsPlaying(false);
+            }
+          }
+        }
+      });
+    };
+
+    if (!window.YT) {
+      const tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      window.onYouTubeIframeAPIReady = () => {
+        initYTPlayer();
+      };
+      const firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    } else if (window.YT.Player) {
+      initYTPlayer();
     } else {
-      alert('Bạn đã xem đến bài học cuối cùng của khóa học!');
+      window.onYouTubeIframeAPIReady = () => {
+        initYTPlayer();
+      };
     }
-  };
+
+    return () => {
+      if (ytPlayerRef.current) {
+        try {
+          ytPlayerRef.current.destroy();
+        } catch (e) {}
+        ytPlayerRef.current = null;
+      }
+    };
+  }, [showVideoModal, activeLesson]);
+
+  // Sync YouTube progress in real-time
+  useEffect(() => {
+    let interval = null;
+    if (showVideoModal && isPlaying && isYouTube) {
+      interval = setInterval(() => {
+        if (ytPlayerRef.current && typeof ytPlayerRef.current.getCurrentTime === 'function') {
+          const cur = ytPlayerRef.current.getCurrentTime();
+          const dur = ytPlayerRef.current.getDuration();
+          if (cur !== undefined && cur !== null) {
+            setCurrentTime(cur);
+            if (activeLesson && cur > 3) {
+              localStorage.setItem(`course_video_pos_${activeLesson.id}`, cur.toString());
+            }
+          }
+          if (dur && dur > 0) {
+            setDuration(dur);
+          }
+        }
+      }, 1000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [showVideoModal, isPlaying, isYouTube, activeLesson]);
+
+  // Persistent Progress Save on F5 refresh, page exit, back/forward navigation or logout
+  useEffect(() => {
+    const saveCurrentProgress = () => {
+      if (!activeLesson) return;
+      let timeToSave = null;
+      if (isYouTube && ytPlayerRef.current && typeof ytPlayerRef.current.getCurrentTime === 'function') {
+        timeToSave = ytPlayerRef.current.getCurrentTime();
+      } else if (videoRef.current) {
+        timeToSave = videoRef.current.currentTime;
+      }
+      if (timeToSave && timeToSave > 3) {
+        localStorage.setItem(`course_video_pos_${activeLesson.id}`, timeToSave.toString());
+      }
+    };
+
+    window.addEventListener('beforeunload', saveCurrentProgress);
+    window.addEventListener('pagehide', saveCurrentProgress);
+    return () => {
+      saveCurrentProgress();
+      window.removeEventListener('beforeunload', saveCurrentProgress);
+      window.removeEventListener('pagehide', saveCurrentProgress);
+    };
+  }, [activeLesson, isYouTube]);
 
   // Listen to visibilitychange (Tab Switch Auto Pause)
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden') {
-        if (videoRef.current && !videoRef.current.paused) {
-          videoRef.current.pause();
+        if (isYouTube && ytPlayerRef.current && typeof ytPlayerRef.current.pauseVideo === 'function') {
+          ytPlayerRef.current.pauseVideo();
           setIsPlaying(false);
           setShowTabPauseToast(true);
-        }
-        if (iframeRef.current) {
-          try {
-            iframeRef.current.contentWindow?.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
-          } catch (e) {
-            // ignore
-          }
+        } else if (videoRef.current && !videoRef.current.paused) {
+          videoRef.current.pause();
           setIsPlaying(false);
           setShowTabPauseToast(true);
         }
@@ -262,9 +384,9 @@ export default function CourseDetail() {
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, []);
+  }, [isYouTube]);
 
-  // Sync video time & save to localStorage
+  // Sync native HTML5 video time & save to localStorage
   const handleTimeUpdate = () => {
     if (videoRef.current) {
       const cur = videoRef.current.currentTime;
@@ -282,7 +404,17 @@ export default function CourseDetail() {
   };
 
   const togglePlayPause = () => {
-    if (videoRef.current) {
+    if (isYouTube && ytPlayerRef.current) {
+      if (isPlaying) {
+        ytPlayerRef.current.pauseVideo();
+        setIsPlaying(false);
+      } else {
+        ytPlayerRef.current.playVideo();
+        setIsPlaying(true);
+        setShowTabPauseToast(false);
+        setShowResumePrompt(false);
+      }
+    } else if (videoRef.current) {
       if (isPlaying) {
         videoRef.current.pause();
         setIsPlaying(false);
@@ -296,13 +428,24 @@ export default function CourseDetail() {
   };
 
   const handleRewind5 = () => {
-    if (videoRef.current) {
+    if (isYouTube && ytPlayerRef.current) {
+      const cur = ytPlayerRef.current.getCurrentTime() || 0;
+      const target = Math.max(0, cur - 5);
+      ytPlayerRef.current.seekTo(target, true);
+      setCurrentTime(target);
+    } else if (videoRef.current) {
       videoRef.current.currentTime = Math.max(0, videoRef.current.currentTime - 5);
     }
   };
 
   const handleForward5 = () => {
-    if (videoRef.current) {
+    if (isYouTube && ytPlayerRef.current) {
+      const cur = ytPlayerRef.current.getCurrentTime() || 0;
+      const dur = ytPlayerRef.current.getDuration() || duration;
+      const target = Math.min(dur, cur + 5);
+      ytPlayerRef.current.seekTo(target, true);
+      setCurrentTime(target);
+    } else if (videoRef.current) {
       videoRef.current.currentTime = Math.min(duration, videoRef.current.currentTime + 5);
     }
   };
@@ -311,7 +454,10 @@ export default function CourseDetail() {
     const rect = e.currentTarget.getBoundingClientRect();
     const pos = (e.clientX - rect.left) / rect.width;
     const newTime = pos * duration;
-    if (videoRef.current) {
+    if (isYouTube && ytPlayerRef.current) {
+      ytPlayerRef.current.seekTo(newTime, true);
+      setCurrentTime(newTime);
+    } else if (videoRef.current) {
       videoRef.current.currentTime = newTime;
       setCurrentTime(newTime);
     }
@@ -319,14 +465,24 @@ export default function CourseDetail() {
 
   const handleSpeedSelect = (speed) => {
     setPlaybackSpeed(speed);
-    if (videoRef.current) {
+    if (isYouTube && ytPlayerRef.current) {
+      ytPlayerRef.current.setPlaybackRate(speed);
+    } else if (videoRef.current) {
       videoRef.current.playbackRate = speed;
     }
     setShowSettingsPopover(false);
   };
 
   const toggleMute = () => {
-    if (videoRef.current) {
+    if (isYouTube && ytPlayerRef.current) {
+      if (isMuted) {
+        ytPlayerRef.current.unMute();
+        setIsMuted(false);
+      } else {
+        ytPlayerRef.current.mute();
+        setIsMuted(true);
+      }
+    } else if (videoRef.current) {
       videoRef.current.muted = !isMuted;
       setIsMuted(!isMuted);
     }
@@ -335,11 +491,15 @@ export default function CourseDetail() {
   const handleVolumeChange = (e) => {
     const val = parseFloat(e.target.value);
     setVolume(val);
-    if (videoRef.current) {
+    if (isYouTube && ytPlayerRef.current) {
+      ytPlayerRef.current.setVolume(val * 100);
+      if (val === 0) ytPlayerRef.current.mute();
+      else ytPlayerRef.current.unMute();
+    } else if (videoRef.current) {
       videoRef.current.volume = val;
       videoRef.current.muted = val === 0;
-      setIsMuted(val === 0);
     }
+    setIsMuted(val === 0);
   };
 
   const toggleFullscreen = () => {
@@ -352,21 +512,32 @@ export default function CourseDetail() {
   };
 
   const handleResumeContinue = () => {
-    if (videoRef.current && resumeTime) {
-      videoRef.current.currentTime = resumeTime;
-      videoRef.current.play();
+    if (resumeTime) {
+      if (isYouTube && ytPlayerRef.current) {
+        ytPlayerRef.current.seekTo(resumeTime, true);
+        ytPlayerRef.current.playVideo();
+      } else if (videoRef.current) {
+        videoRef.current.currentTime = resumeTime;
+        videoRef.current.play();
+      }
       setIsPlaying(true);
     }
     setShowResumePrompt(false);
   };
 
   const handleResumeRestart = () => {
-    if (videoRef.current) {
+    if (isYouTube && ytPlayerRef.current) {
+      ytPlayerRef.current.seekTo(0, true);
+      ytPlayerRef.current.playVideo();
+    } else if (videoRef.current) {
       videoRef.current.currentTime = 0;
       videoRef.current.play();
-      setIsPlaying(true);
     }
+    setIsPlaying(true);
     setShowResumePrompt(false);
+    if (activeLesson) {
+      localStorage.removeItem(`course_video_pos_${activeLesson.id}`);
+    }
   };
 
   const handleReportSubmit = (e) => {
@@ -626,15 +797,8 @@ export default function CourseDetail() {
             {/* Video Player Frame */}
             {activeLesson.type === 'video' ? (
               <div className="video-player-frame" ref={playerFrameRef}>
-                {activeLesson.videoUrl && /(?:youtu\.be\/|youtube\.com)/i.test(activeLesson.videoUrl) ? (
-                  <iframe
-                    ref={iframeRef}
-                    src={activeLesson.videoUrl.replace('youtu.be/', 'www.youtube.com/embed/').replace('watch?v=', 'embed/') + '?enablejsapi=1&autoplay=1&rel=0'}
-                    title={activeLesson.title}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowFullScreen
-                    style={{ width: '100%', height: '100%', minHeight: '380px', border: 0, borderRadius: '8px' }}
-                  />
+                {isYouTube ? (
+                  <div id="yt-player-element" style={{ width: '100%', height: '100%', minHeight: '380px' }} />
                 ) : (
                   <video
                     ref={videoRef}

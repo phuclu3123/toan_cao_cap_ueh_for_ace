@@ -917,10 +917,13 @@
   aspect-ratio: 16 / 9;
 }
 
-.video-player-frame video {
+.video-player-frame video,
+.video-player-frame iframe,
+.video-player-frame #yt-player-element {
   width: 100%;
   height: 100%;
   object-fit: contain;
+  border: 0;
 }
 
 /* CUSTOM OVERLAY VIDEO CONTROLS */
