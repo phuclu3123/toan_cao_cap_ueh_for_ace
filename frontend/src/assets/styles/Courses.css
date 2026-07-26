@@ -1364,18 +1364,34 @@ body.dark-mode .report-modal-card {
   transition: opacity 0.3s ease;
 }
 
-/* Auto-hide Controls & Cursor when inactive (YouTube / Netflix style) */
-.video-player-frame.hide-controls {
+/* Auto-hide Controls & Cursor when inactive in normal & Fullscreen modes (YouTube / Netflix style) */
+.video-player-frame:fullscreen,
+.video-player-frame:-webkit-full-screen,
+.video-player-frame:-moz-full-screen {
+  width: 100vw !important;
+  height: 100vh !important;
+  background: #000000 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.video-player-frame.hide-controls,
+.video-player-frame:fullscreen.hide-controls,
+.video-player-frame:-webkit-full-screen.hide-controls {
   cursor: none !important;
 }
 
-.video-player-frame.hide-controls .video-overlay-controls {
+.video-player-frame.hide-controls .video-overlay-controls,
+.video-player-frame:fullscreen.hide-controls .video-overlay-controls,
+.video-player-frame:-webkit-full-screen.hide-controls .video-overlay-controls {
   opacity: 0 !important;
   pointer-events: none !important;
   transition: opacity 0.4s ease;
 }
 
-.video-player-frame.hide-controls .video-canvas-click-overlay {
+.video-player-frame.hide-controls .video-canvas-click-overlay,
+.video-player-frame:fullscreen.hide-controls .video-canvas-click-overlay {
   cursor: none !important;
 }
 

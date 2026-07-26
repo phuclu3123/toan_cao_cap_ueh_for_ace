@@ -138,9 +138,33 @@ export default function CourseDetail() {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [isTimerCollapsed, setIsTimerCollapsed] = useState(false);
 
-  // Auto-hide Control Bar after 2.5s mouse inactivity (YouTube / Netflix style)
+  // Auto-hide Control Bar after 2.5s mouse inactivity (Works in both normal & Fullscreen modes - YouTube / Netflix style)
   const [areControlsVisible, setAreControlsVisible] = useState(true);
   const controlsTimeoutRef = useRef(null);
+
+  useEffect(() => {
+    if (!showVideoModal) return;
+
+    const handleGlobalMouseMove = () => {
+      setAreControlsVisible(true);
+      if (controlsTimeoutRef.current) {
+        clearTimeout(controlsTimeoutRef.current);
+      }
+      if (isPlaying) {
+        controlsTimeoutRef.current = setTimeout(() => {
+          setAreControlsVisible(false);
+        }, 2500);
+      }
+    };
+
+    window.addEventListener('mousemove', handleGlobalMouseMove);
+    return () => {
+      window.removeEventListener('mousemove', handleGlobalMouseMove);
+      if (controlsTimeoutRef.current) {
+        clearTimeout(controlsTimeoutRef.current);
+      }
+    };
+  }, [showVideoModal, isPlaying]);
 
   // Anti-Piracy Security States (DevTools, Dynamic Watermark, Multi-Device Concurrency)
   const [showDevToolsWarning, setShowDevToolsWarning] = useState(false);
