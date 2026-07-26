@@ -1364,6 +1364,21 @@ body.dark-mode .report-modal-card {
   transition: opacity 0.3s ease;
 }
 
+/* CANVAS SCREEN CLICK OVERLAY */
+.video-canvas-click-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 76px;
+  z-index: 10 !important;
+  cursor: pointer;
+  pointer-events: auto !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* Auto-hide Controls & Cursor when inactive in normal & Fullscreen modes (YouTube / Netflix style) */
 .video-player-frame:fullscreen,
 .video-player-frame:-webkit-full-screen,

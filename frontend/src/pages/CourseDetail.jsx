@@ -142,10 +142,11 @@ export default function CourseDetail() {
   const [areControlsVisible, setAreControlsVisible] = useState(true);
   const controlsTimeoutRef = useRef(null);
 
+  // Reset controls on fullscreenchange
   useEffect(() => {
     if (!showVideoModal) return;
 
-    const handleGlobalMouseMove = () => {
+    const handleFSChange = () => {
       setAreControlsVisible(true);
       if (controlsTimeoutRef.current) {
         clearTimeout(controlsTimeoutRef.current);
@@ -157,9 +158,11 @@ export default function CourseDetail() {
       }
     };
 
-    window.addEventListener('mousemove', handleGlobalMouseMove);
+    document.addEventListener('fullscreenchange', handleFSChange);
+    document.addEventListener('webkitfullscreenchange', handleFSChange);
     return () => {
-      window.removeEventListener('mousemove', handleGlobalMouseMove);
+      document.removeEventListener('fullscreenchange', handleFSChange);
+      document.removeEventListener('webkitfullscreenchange', handleFSChange);
       if (controlsTimeoutRef.current) {
         clearTimeout(controlsTimeoutRef.current);
       }
@@ -370,7 +373,13 @@ export default function CourseDetail() {
     if (controlsTimeoutRef.current) {
       clearTimeout(controlsTimeoutRef.current);
     }
-    if (isPlaying) {
+    const playing =
+      isPlaying ||
+      (ytPlayerRef.current &&
+        typeof ytPlayerRef.current.getPlayerState === 'function' &&
+        ytPlayerRef.current.getPlayerState() === 1);
+
+    if (playing) {
       controlsTimeoutRef.current = setTimeout(() => {
         setAreControlsVisible(false);
       }, 2500);
@@ -378,7 +387,13 @@ export default function CourseDetail() {
   };
 
   const handleMouseLeavePlayer = () => {
-    if (isPlaying) {
+    const playing =
+      isPlaying ||
+      (ytPlayerRef.current &&
+        typeof ytPlayerRef.current.getPlayerState === 'function' &&
+        ytPlayerRef.current.getPlayerState() === 1);
+
+    if (playing) {
       setAreControlsVisible(false);
     }
   };
