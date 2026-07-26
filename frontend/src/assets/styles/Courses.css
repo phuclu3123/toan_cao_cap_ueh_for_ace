@@ -1335,15 +1335,48 @@ body.dark-mode .report-modal-card {
   box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
 }
 
-/* Screen Canvas Click Overlay */
+/* Screen Canvas Click Overlay - Leaves bottom 72px unblocked for controls */
 .video-canvas-click-overlay {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 72px;
   z-index: 2;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.video-overlay-controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10 !important;
+  pointer-events: auto !important;
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.5) 60%, transparent 100%);
+  padding: 16px 22px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: opacity 0.3s ease;
+}
+
+/* Auto-hide Controls & Cursor when inactive (YouTube / Netflix style) */
+.video-player-frame.hide-controls {
+  cursor: none !important;
+}
+
+.video-player-frame.hide-controls .video-overlay-controls {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: opacity 0.4s ease;
+}
+
+.video-player-frame.hide-controls .video-canvas-click-overlay {
+  cursor: none !important;
 }
 
 .play-pause-pulse-icon {

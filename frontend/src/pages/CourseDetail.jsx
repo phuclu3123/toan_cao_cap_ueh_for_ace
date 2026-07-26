@@ -121,6 +121,28 @@ export default function CourseDetail() {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [isTimerCollapsed, setIsTimerCollapsed] = useState(false);
 
+  // Auto-hide Control Bar after 2.5s mouse inactivity (YouTube / Netflix style)
+  const [areControlsVisible, setAreControlsVisible] = useState(true);
+  const controlsTimeoutRef = useRef(null);
+
+  const handleMouseMoveOnPlayer = () => {
+    setAreControlsVisible(true);
+    if (controlsTimeoutRef.current) {
+      clearTimeout(controlsTimeoutRef.current);
+    }
+    if (isPlaying) {
+      controlsTimeoutRef.current = setTimeout(() => {
+        setAreControlsVisible(false);
+      }, 2500);
+    }
+  };
+
+  const handleMouseLeavePlayer = () => {
+    if (isPlaying) {
+      setAreControlsVisible(false);
+    }
+  };
+
   const videoRef = useRef(null);
   const iframeRef = useRef(null);
   const ytPlayerRef = useRef(null);
@@ -241,6 +263,7 @@ export default function CourseDetail() {
     const scope = getUserScope();
     try {
       localStorage.setItem(`course_video_pos_${scope}_${lessonId}`, time.toString());
+      localStorage.setItem(`course_video_pos_${lessonId}`, time.toString());
     } catch (e) {}
   };
 
@@ -403,10 +426,13 @@ export default function CourseDetail() {
   useEffect(() => {
     const saveCurrentProgress = () => {
       if (!activeLesson) return;
-      let timeToSave = null;
+      let timeToSave = currentTime;
       if (isYouTube && ytPlayerRef.current && typeof ytPlayerRef.current.getCurrentTime === 'function') {
-        timeToSave = ytPlayerRef.current.getCurrentTime();
-      } else if (videoRef.current) {
+        try {
+          const t = ytPlayerRef.current.getCurrentTime();
+          if (t && t > 0) timeToSave = t;
+        } catch (e) {}
+      } else if (videoRef.current && videoRef.current.currentTime > 0) {
         timeToSave = videoRef.current.currentTime;
       }
       if (timeToSave && timeToSave > 3) {
@@ -421,7 +447,7 @@ export default function CourseDetail() {
       window.removeEventListener('beforeunload', saveCurrentProgress);
       window.removeEventListener('pagehide', saveCurrentProgress);
     };
-  }, [activeLesson, isYouTube]);
+  }, [activeLesson, isYouTube, currentTime]);
 
   // Listen to visibilitychange (Tab Switch Auto Pause)
   useEffect(() => {
@@ -914,9 +940,14 @@ export default function CourseDetail() {
               </button>
             </div>
 
-            {/* Video Player Frame */}
+            {/* Video Player Frame with Auto-hide Controls on mouse inactivity */}
             {activeLesson.type === 'video' ? (
-              <div className="video-player-frame" ref={playerFrameRef}>
+              <div
+                className={`video-player-frame ${!areControlsVisible && isPlaying ? 'hide-controls' : ''}`}
+                ref={playerFrameRef}
+                onMouseMove={handleMouseMoveOnPlayer}
+                onMouseLeave={handleMouseLeavePlayer}
+              >
                 {isYouTube ? (
                   <div id="yt-player-element" style={{ width: '100%', height: '100%', minHeight: '380px' }} />
                 ) : (
