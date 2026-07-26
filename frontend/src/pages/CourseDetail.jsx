@@ -402,7 +402,7 @@ export default function CourseDetail() {
       ytPlayerRef.current = new window.YT.Player('yt-player-element', {
         videoId: videoId,
         playerVars: {
-          autoplay: 1,
+          autoplay: 0,
           controls: 0,
           disablekb: 1,
           modestbranding: 1,
@@ -420,9 +420,14 @@ export default function CourseDetail() {
             if (savedTime && savedTime > 5) {
               setResumeTime(savedTime);
               setShowResumePrompt(true);
+              setIsPlaying(false);
+              try {
+                event.target.pauseVideo();
+              } catch (e) {}
             } else {
               event.target.playVideo();
               setIsPlaying(true);
+              setShowResumePrompt(false);
             }
           },
           onStateChange: (event) => {
@@ -466,14 +471,14 @@ export default function CourseDetail() {
   // Sync YouTube progress in real-time
   useEffect(() => {
     let interval = null;
-    if (showVideoModal && isPlaying && isYouTube) {
+    if (showVideoModal && isPlaying && isYouTube && !showResumePrompt) {
       interval = setInterval(() => {
         if (ytPlayerRef.current && typeof ytPlayerRef.current.getCurrentTime === 'function') {
           const cur = ytPlayerRef.current.getCurrentTime();
           const dur = ytPlayerRef.current.getDuration();
           if (cur !== undefined && cur !== null) {
             setCurrentTime(cur);
-            if (activeLesson && cur > 3) {
+            if (activeLesson && cur > 3 && !showResumePrompt) {
               saveVideoPos(activeLesson.id, cur);
             }
           }
@@ -486,12 +491,12 @@ export default function CourseDetail() {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [showVideoModal, isPlaying, isYouTube, activeLesson]);
+  }, [showVideoModal, isPlaying, isYouTube, activeLesson, showResumePrompt]);
 
   // Persistent Progress Save on F5 refresh, page exit, back/forward navigation or logout
   useEffect(() => {
     const saveCurrentProgress = () => {
-      if (!activeLesson) return;
+      if (!activeLesson || showResumePrompt) return;
       let timeToSave = currentTime;
       if (isYouTube && ytPlayerRef.current && typeof ytPlayerRef.current.getCurrentTime === 'function') {
         try {
@@ -503,6 +508,12 @@ export default function CourseDetail() {
       }
       if (timeToSave && timeToSave > 3) {
         saveVideoPos(activeLesson.id, timeToSave);
+        const scope = getUserScope();
+        const info = { lessonId: activeLesson.id, time: timeToSave, title: activeLesson.title };
+        try {
+          localStorage.setItem(`course_last_active_lesson_${scope}_${course.id}`, JSON.stringify(info));
+          localStorage.setItem(`course_last_active_lesson_${course.id}`, JSON.stringify(info));
+        } catch (e) {}
       }
     };
 
@@ -513,7 +524,7 @@ export default function CourseDetail() {
       window.removeEventListener('beforeunload', saveCurrentProgress);
       window.removeEventListener('pagehide', saveCurrentProgress);
     };
-  }, [activeLesson, isYouTube, currentTime]);
+  }, [activeLesson, isYouTube, currentTime, showResumePrompt]);
 
   // Listen to visibilitychange (Tab Switch Auto Pause)
   useEffect(() => {
