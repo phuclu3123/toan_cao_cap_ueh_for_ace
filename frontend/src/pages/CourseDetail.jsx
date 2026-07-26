@@ -235,7 +235,59 @@ export default function CourseDetail() {
     }
   }, [showVideoModal, currentTime]);
 
-  // Multi-Device Concurrent Stream Monitoring & 30-Minute Violation Lock (Exempt Admin)
+  // Random Micro-Watermark Position State (Anti-Cropping & Anti-Prediction)
+  const [microPos, setMicroPos] = useState({ top: '15%', left: '70%' });
+
+  // Periodically shift random micro-watermark position every 3 minutes
+  useEffect(() => {
+    if (!showVideoModal || isAdminAccount()) return;
+
+    const shiftPosition = () => {
+      const topPositions = ['12%', '22%', '35%', '65%', '78%'];
+      const leftPositions = ['10%', '25%', '60%', '75%', '82%'];
+      const randomTop = topPositions[Math.floor(Math.random() * topPositions.length)];
+      const randomLeft = leftPositions[Math.floor(Math.random() * leftPositions.length)];
+      setMicroPos({ top: randomTop, left: randomLeft });
+    };
+
+    shiftPosition();
+    const interval = setInterval(shiftPosition, 180000);
+    return () => clearInterval(interval);
+  }, [showVideoModal]);
+
+  // DOM Anti-Tampering Observer (Detects if anyone tries to delete or hide watermark nodes)
+  useEffect(() => {
+    if (!showVideoModal || isAdminAccount()) return;
+
+    const frameEl = playerFrameRef.current;
+    if (!frameEl) return;
+
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'childList') {
+          mutation.removedNodes.forEach((node) => {
+            if (
+              node.nodeType === 1 &&
+              (node.classList?.contains('dynamic-watermark-overlay') ||
+                node.classList?.contains('random-micro-watermark'))
+            ) {
+              // Watermark node was tampered/deleted! Instantly pause video!
+              if (ytPlayerRef.current && typeof ytPlayerRef.current.pauseVideo === 'function') {
+                try { ytPlayerRef.current.pauseVideo(); } catch (err) {}
+              } else if (videoRef.current) {
+                try { videoRef.current.pause(); } catch (err) {}
+              }
+              setIsPlaying(false);
+              setShowDevToolsWarning(true);
+            }
+          });
+        }
+      });
+    });
+
+    observer.observe(frameEl, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, [showVideoModal]);
   useEffect(() => {
     if (!showVideoModal || isAdminAccount()) return;
 
@@ -1250,6 +1302,16 @@ export default function CourseDetail() {
                 {showWatermark && (
                   <div key={`wm-${Math.floor(currentTime / 600)}`} className="dynamic-watermark-overlay">
                     🔒 {watermarkText}
+                  </div>
+                )}
+
+                {/* Random Micro-Watermark (Anti-Cropping & Anti-Prediction) */}
+                {!isAdminAccount() && (
+                  <div
+                    className="random-micro-watermark"
+                    style={{ top: microPos.top, left: microPos.left }}
+                  >
+                    🔒 {watermarkText || getStudentIdentifier()}
                   </div>
                 )}
 

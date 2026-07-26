@@ -1619,6 +1619,30 @@ body:not(.dark-mode) .video-modal-container:not(.dark-player-box) .btn-resume-re
   }
 }
 
+/* RANDOM SUBTLE MICRO WATERMARK (Anti-Cropping & Anti-Prediction) */
+.random-micro-watermark {
+  position: absolute;
+  z-index: 98 !important;
+  pointer-events: none !important;
+  user-select: none !important;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.7);
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: all 1s ease-in-out;
+  animation: pulseSubtle 4s ease-in-out infinite alternate;
+}
+
+@keyframes pulseSubtle {
+  0% { opacity: 0.3; transform: scale(0.96); }
+  100% { opacity: 0.75; transform: scale(1.02); }
+}
+
 /* DEVTOOLS SECURITY WARNING OVERLAY */
 .devtools-warning-backdrop {
   position: fixed;
