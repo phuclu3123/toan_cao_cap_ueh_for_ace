@@ -215,30 +215,23 @@ export default function CourseDetail() {
     };
   }, [showVideoModal]);
 
-  // Dynamic Watermark Sweep Trigger (Triggers sweep from Left to Right every 10 minutes throughout entire video)
-  const lastSweepMinuteRef = useRef(-1);
-
+  // Dynamic Watermark Sweep Trigger (Exact second-based 10-minute block check: 00:00-00:14, 10:00-10:14, 20:00-20:14, etc.)
   useEffect(() => {
     if (!showVideoModal || isAdminAccount()) {
       setShowWatermark(false);
-      lastSweepMinuteRef.current = -1;
       return;
     }
 
-    const currentMinute = Math.floor(currentTime / 60);
+    const sec = Math.floor(currentTime);
+    const secInBlock = sec % 600; // 600 seconds = 10 minutes
 
-    // Trigger every 10 minutes (minute 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120...)
-    if (currentMinute % 10 === 0 && lastSweepMinuteRef.current !== currentMinute) {
-      lastSweepMinuteRef.current = currentMinute;
+    // Trigger sweep during the first 14 seconds of every 10-minute block (works on rewind/seek too!)
+    if (secInBlock >= 0 && secInBlock <= 14) {
       const identifier = getStudentIdentifier();
       setWatermarkText(identifier);
       setShowWatermark(true);
-
-      const sweepTimer = setTimeout(() => {
-        setShowWatermark(false);
-      }, 14000); // 14s sweep duration
-
-      return () => clearTimeout(sweepTimer);
+    } else {
+      setShowWatermark(false);
     }
   }, [showVideoModal, currentTime]);
 
@@ -1255,7 +1248,7 @@ export default function CourseDetail() {
 
                 {/* Dynamic Anti-Piracy Watermark Overlay */}
                 {showWatermark && (
-                  <div key={`wm-${lastSweepMinuteRef.current}`} className="dynamic-watermark-overlay">
+                  <div key={`wm-${Math.floor(currentTime / 600)}`} className="dynamic-watermark-overlay">
                     🔒 {watermarkText}
                   </div>
                 )}
