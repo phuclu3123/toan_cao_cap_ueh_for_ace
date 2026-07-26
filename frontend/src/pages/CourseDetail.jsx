@@ -207,6 +207,50 @@ export default function CourseDetail() {
     setCustomPos(null);
   };
 
+  // User Scoped Storage Helper for Guest vs Logged-In Users & Cache Clearing Safety
+  const getUserScope = () => {
+    try {
+      const savedUserStr = localStorage.getItem('ueh_tcc_user');
+      if (savedUserStr) {
+        const user = JSON.parse(savedUserStr);
+        if (user && (user.id || user.email || user.username)) {
+          return user.id || user.email || user.username;
+        }
+      }
+    } catch (e) {}
+    return 'guest';
+  };
+
+  const getSavedVideoPos = (lessonId) => {
+    if (!lessonId) return null;
+    const scope = getUserScope();
+    try {
+      const scopedVal = localStorage.getItem(`course_video_pos_${scope}_${lessonId}`);
+      const legacyVal = localStorage.getItem(`course_video_pos_${lessonId}`);
+      const val = scopedVal || legacyVal;
+      return val ? parseFloat(val) : null;
+    } catch (e) {
+      return null;
+    }
+  };
+
+  const saveVideoPos = (lessonId, time) => {
+    if (!lessonId || !time || time < 3) return;
+    const scope = getUserScope();
+    try {
+      localStorage.setItem(`course_video_pos_${scope}_${lessonId}`, time.toString());
+    } catch (e) {}
+  };
+
+  const removeSavedVideoPos = (lessonId) => {
+    if (!lessonId) return;
+    const scope = getUserScope();
+    try {
+      localStorage.removeItem(`course_video_pos_${scope}_${lessonId}`);
+      localStorage.removeItem(`course_video_pos_${lessonId}`);
+    } catch (e) {}
+  };
+
   // Handle opening a lesson
   const handleLessonClick = (lesson) => {
     if (lesson.isLocked && !isAdmin) {
@@ -222,9 +266,9 @@ export default function CourseDetail() {
     setShowSettingsPopover(false);
     setIsPlayerDarkMode(false);
 
-    const savedTime = localStorage.getItem(`course_video_pos_${lesson.id}`);
-    if (savedTime && parseFloat(savedTime) > 5) {
-      setResumeTime(parseFloat(savedTime));
+    const savedTime = getSavedVideoPos(lesson.id);
+    if (savedTime && savedTime > 5) {
+      setResumeTime(savedTime);
       setShowResumePrompt(true);
     } else {
       setResumeTime(null);
@@ -232,6 +276,18 @@ export default function CourseDetail() {
     }
 
     setCompletedLessons((prev) => ({ ...prev, [lesson.id]: true }));
+  };
+
+  // Handle Next Lesson Button
+  const handleNextLesson = () => {
+    if (!activeLesson) return;
+    const currentIndex = allLessons.findIndex((l) => l.id === activeLesson.id);
+    if (currentIndex >= 0 && currentIndex < allLessons.length - 1) {
+      const nextLesson = allLessons[currentIndex + 1];
+      handleLessonClick(nextLesson);
+    } else {
+      alert('Bạn đã xem đến bài học cuối cùng của khóa học!');
+    }
   };
 
   const isYouTube = activeLesson?.videoUrl && /(?:youtu\.be\/|youtube\.com)/i.test(activeLesson.videoUrl);
@@ -269,10 +325,9 @@ export default function CourseDetail() {
             if (dur) setDuration(dur);
 
             // Check if saved position exists
-            const savedPos = localStorage.getItem(`course_video_pos_${activeLesson.id}`);
-            if (savedPos && parseFloat(savedPos) > 5) {
-              const time = parseFloat(savedPos);
-              setResumeTime(time);
+            const savedTime = getSavedVideoPos(activeLesson.id);
+            if (savedTime && savedTime > 5) {
+              setResumeTime(savedTime);
               setShowResumePrompt(true);
             } else {
               event.target.playVideo();
@@ -328,7 +383,7 @@ export default function CourseDetail() {
           if (cur !== undefined && cur !== null) {
             setCurrentTime(cur);
             if (activeLesson && cur > 3) {
-              localStorage.setItem(`course_video_pos_${activeLesson.id}`, cur.toString());
+              saveVideoPos(activeLesson.id, cur);
             }
           }
           if (dur && dur > 0) {
@@ -353,7 +408,7 @@ export default function CourseDetail() {
         timeToSave = videoRef.current.currentTime;
       }
       if (timeToSave && timeToSave > 3) {
-        localStorage.setItem(`course_video_pos_${activeLesson.id}`, timeToSave.toString());
+        saveVideoPos(activeLesson.id, timeToSave);
       }
     };
 
@@ -392,7 +447,7 @@ export default function CourseDetail() {
       const cur = videoRef.current.currentTime;
       setCurrentTime(cur);
       if (activeLesson && cur > 3) {
-        localStorage.setItem(`course_video_pos_${activeLesson.id}`, cur.toString());
+        saveVideoPos(activeLesson.id, cur);
       }
     }
   };
@@ -536,7 +591,7 @@ export default function CourseDetail() {
     setIsPlaying(true);
     setShowResumePrompt(false);
     if (activeLesson) {
-      localStorage.removeItem(`course_video_pos_${activeLesson.id}`);
+      removeSavedVideoPos(activeLesson.id);
     }
   };
 
