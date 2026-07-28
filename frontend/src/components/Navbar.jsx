@@ -1053,6 +1053,7 @@ export default function Navbar() {
         setConfirmationResult={setConfirmationResult}
         handleLoginSubmit={handleLoginSubmit}
         handleGoogleLogin={handleGoogleLogin}
+        handleGoogleAuthSuccess={handleGoogleAuthSuccess}
         handleFacebookLogin={handleFacebookLogin}
         handleGithubLogin={handleGithubLogin}
         handleSignupSubmit={handleSignupSubmit}
