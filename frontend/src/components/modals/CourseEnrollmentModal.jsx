@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { 
   X, CheckCircle, ShieldCheck, QrCode, Copy, 
   PhoneCall, Sparkles, CreditCard, Check, User, Mail, 
-  Phone, Lock, Wallet, Smartphone, ExternalLink, RefreshCw, Clock, ArrowRight, Zap, ChevronRight, BookOpen, Building2
+  Phone, Lock, Wallet, Smartphone, ExternalLink, RefreshCw, Clock, ArrowRight, ChevronRight, BookOpen, Building2
 } from 'lucide-react';
 import { API_BASE_URL } from '../../config';
 
@@ -39,10 +39,11 @@ export default function CourseEnrollmentModal({
   const [payosLoading, setPayosLoading] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState('PENDING'); // PENDING | PAID | CANCELLED
   const [payosError, setPayosError] = useState('');
-  const [manualCheckLoading, setManualCheckLoading] = useState(false);
 
-  // 15-minute countdown timer
-  const [timeLeft, setTimeLeft] = useState(900); // 15 mins in seconds
+  // 15-minute transaction timer
+  const [timeLeft, setTimeLeft] = useState(900);
+  // 5-second auto redirect countdown upon payment success
+  const [autoCloseCountdown, setAutoCloseCountdown] = useState(5);
 
   // Pre-fill user info if logged in
   useEffect(() => {
@@ -57,7 +58,7 @@ export default function CourseEnrollmentModal({
     } catch (e) {}
   }, [isOpen]);
 
-  // Timer Countdown Effect
+  // Timer Countdown Effect for Transaction Expiry
   useEffect(() => {
     if (!isOpen || modalStep !== 2 || isCompleted) return;
     const timer = setInterval(() => {
@@ -65,6 +66,26 @@ export default function CourseEnrollmentModal({
     }, 1000);
     return () => clearInterval(timer);
   }, [isOpen, modalStep, isCompleted]);
+
+  // Auto Close Countdown Effect upon Payment Completion
+  useEffect(() => {
+    let autoCloseTimer = null;
+    if (isCompleted && autoCloseCountdown > 0) {
+      autoCloseTimer = setInterval(() => {
+        setAutoCloseCountdown(prev => {
+          if (prev <= 1) {
+            clearInterval(autoCloseTimer);
+            onClose();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => {
+      if (autoCloseTimer) clearInterval(autoCloseTimer);
+    };
+  }, [isCompleted, autoCloseCountdown]);
 
   const formatTimer = (seconds) => {
     const m = Math.floor(seconds / 60);
@@ -102,7 +123,6 @@ export default function CourseEnrollmentModal({
     if (payosQrCode.startsWith('http://') || payosQrCode.startsWith('https://') || payosQrCode.startsWith('data:image')) {
       return payosQrCode;
     }
-    // If raw VietQR EMVCo payload string (starts with 000201...), render via QR Server API
     return `https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodeURIComponent(payosQrCode)}`;
   };
 
@@ -168,26 +188,6 @@ export default function CourseEnrollmentModal({
       if (pollingInterval) clearInterval(pollingInterval);
     };
   }, [payosOrderCode, paymentStatus, isCompleted, modalStep]);
-
-  // Manual Payment Status Check
-  const handleCheckPaymentStatusManual = async () => {
-    if (!payosOrderCode) return;
-    setManualCheckLoading(true);
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/payments/${payosOrderCode}`);
-      const resData = await res.json().catch(() => ({}));
-      if (res.ok && resData.data && resData.data.status === 'PAID') {
-        setPaymentStatus('PAID');
-        handleMarkCompleted();
-      } else {
-        alert('Hệ thống đang chờ ngân hàng đối soát. Nếu bạn đã chuyển khoản, bài học sẽ tự động mở khóa trong vài giây nữa!');
-      }
-    } catch (err) {
-      alert('Không thể kết nối đối soát. Hệ thống sẽ tự động quét lại khi có biến động.');
-    } finally {
-      setManualCheckLoading(false);
-    }
-  };
 
   // Auto-mark completion and unlock course
   const handleMarkCompleted = () => {
@@ -257,132 +257,131 @@ export default function CourseEnrollmentModal({
       onClick={onClose}
       style={{
         position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-        backgroundColor: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(16px)',
+        backgroundColor: 'rgba(15, 23, 42, 0.75)', backdropFilter: 'blur(8px)',
         zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '20px', overflowY: 'auto'
+        padding: '16px', overflowY: 'auto'
       }}
     >
       <div 
-        className="modal-content enrollment-modal-container"
+        className="modal-content glass-panel enrollment-modal-container"
         onClick={(e) => e.stopPropagation()}
         style={{
-          maxWidth: '720px', width: '100%', maxHeight: '92vh',
+          maxWidth: '660px', width: '100%', maxHeight: '92vh',
           borderRadius: '24px', padding: '0', overflow: 'hidden',
           display: 'flex', flexDirection: 'column', background: '#ffffff',
-          boxShadow: '0 25px 80px rgba(0, 0, 0, 0.45)', border: '1px solid rgba(255, 255, 255, 0.2)'
+          boxShadow: '0 25px 60px rgba(0, 0, 0, 0.3)'
         }}
       >
-        {/* Modern Corporate Header Banner */}
-        <div style={{
-          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-          padding: '24px 32px', color: '#ffffff', position: 'relative', flexShrink: 0
+        {/* Restored Rich Emerald Banner Header */}
+        <div className="enroll-modal-header" style={{
+          background: 'linear-gradient(135deg, #0e4e35 0%, #176b4a 60%, #063121 100%)',
+          padding: '24px 28px', color: '#ffffff', position: 'relative', flexShrink: 0
         }}>
+          {/* Close Button positioned with ample clearance */}
           <button 
             type="button" 
             className="modal-close" 
             onClick={onClose}
             style={{
-              color: '#94a3b8', background: 'rgba(255,255,255,0.08)',
-              top: '20px', right: '20px', border: 'none', borderRadius: '50%',
-              width: '36px', height: '36px', display: 'flex', alignItems: 'center',
-              justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s ease'
+              color: '#ffffff', background: 'rgba(255,255,255,0.18)',
+              top: '18px', right: '18px', border: 'none', borderRadius: '50%',
+              width: '34px', height: '34px', display: 'flex', alignItems: 'center',
+              justifyContent: 'center', cursor: 'pointer', zIndex: 10
             }}
           >
             <X size={18} />
           </button>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '20px' }}>
-            <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-              {!imgError && course.image && !course.image.startsWith('<svg') ? (
-                <img 
-                  src={course.image} 
-                  alt={course.title} 
-                  onError={() => setImgError(true)}
-                  style={{ width: '56px', height: '56px', borderRadius: '14px', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.15)' }}
-                />
-              ) : (
-                <div style={{
-                  width: '56px', height: '56px', borderRadius: '14px',
-                  background: 'linear-gradient(135deg, #0d9488 0%, #0f766e 100%)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff',
-                  boxShadow: '0 4px 14px rgba(13,148,136,0.3)', flexShrink: 0
-                }}>
-                  <BookOpen size={26} />
-                </div>
-              )}
-
-              <div>
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#38bdf8', fontSize: '0.72rem', fontWeight: '700', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
-                  <Building2 size={12} />
-                  <span>UEH TCC Official Gateway</span>
-                </div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: '800', margin: '2px 0', color: '#ffffff', lineHeight: '1.3' }}>
-                  {course.title}
-                </h3>
+          <div style={{ display: 'flex', gap: '16px', alignItems: 'center', paddingRight: '48px' }}>
+            {!imgError && course.image && !course.image.startsWith('<svg') ? (
+              <img 
+                src={course.image} 
+                alt={course.title} 
+                onError={() => setImgError(true)}
+                style={{ width: '70px', height: '54px', borderRadius: '12px', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.2)', flexShrink: 0 }}
+              />
+            ) : (
+              <div style={{
+                width: '70px', height: '54px', borderRadius: '12px',
+                background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center',
+                justifyContent: 'center', color: '#34d399', border: '2px solid rgba(255,255,255,0.2)',
+                flexShrink: 0
+              }}>
+                <BookOpen size={24} />
               </div>
-            </div>
+            )}
 
-            {/* Price Badge in Header */}
-            <div style={{ textAlign: 'right', flexShrink: 0 }}>
-              <div style={{ fontSize: '0.75rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: '600' }}>Học phí thanh toán</div>
-              <div style={{ fontSize: '1.4rem', fontWeight: '900', color: '#34d399', fontFamily: 'monospace' }}>{formattedFinalPrice}</div>
+            <div>
+              <span className="hero-badge" style={{ background: 'rgba(52, 211, 153, 0.25)', color: '#34d399', fontSize: '0.75rem', padding: '3px 10px', borderRadius: '20px', fontWeight: '700' }}>
+                CỔNG THANH TOÁN DOANH NGHIỆP PAYOS
+              </span>
+              <h3 style={{ fontSize: '1.18rem', fontWeight: '800', margin: '4px 0 2px', color: '#ffffff', lineHeight: '1.3' }}>
+                {course.title}
+              </h3>
+              <p style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.85)', margin: 0 }}>
+                Kích hoạt tài khoản & mở khóa toàn bộ bài học video HD 24/7
+              </p>
             </div>
           </div>
 
-          {/* Stepper Progress Indicator */}
+          {/* Stepper Header Bar */}
           {!isCompleted && !course.isFree && (
             <div style={{
-              display: 'flex', alignItems: 'center', gap: '16px',
-              marginTop: '18px', paddingTop: '14px', borderTop: '1px solid rgba(255,255,255,0.1)',
-              fontSize: '0.8rem', color: '#94a3b8'
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+              marginTop: '16px', paddingTop: '14px', borderTop: '1px solid rgba(255,255,255,0.15)',
+              fontSize: '0.8rem', color: 'rgba(255,255,255,0.9)'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: modalStep === 1 ? '#38bdf8' : '#64748b', fontWeight: modalStep === 1 ? '700' : '500' }}>
-                <span style={{ width: '22px', height: '22px', borderRadius: '50%', background: modalStep === 1 ? '#0284c7' : '#334155', color: '#ffffff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: '700' }}>1</span>
-                <span>Thông tin người đăng ký</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: modalStep === 1 ? '800' : '500', color: modalStep === 1 ? '#34d399' : 'inherit' }}>
+                <span style={{ width: '20px', height: '20px', borderRadius: '50%', background: modalStep === 1 ? '#34d399' : 'rgba(255,255,255,0.2)', color: modalStep === 1 ? '#064e3b' : '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: '800' }}>1</span>
+                <span>Thông tin học viên</span>
               </div>
-              <ChevronRight size={14} style={{ color: '#475569' }} />
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: modalStep === 2 ? '#34d399' : '#64748b', fontWeight: modalStep === 2 ? '700' : '500' }}>
-                <span style={{ width: '22px', height: '22px', borderRadius: '50%', background: modalStep === 2 ? '#059669' : '#334155', color: '#ffffff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: '700' }}>2</span>
-                <span>Thanh toán PayOS & Mở khóa</span>
+              <ChevronRight size={14} style={{ opacity: 0.6 }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: modalStep === 2 ? '800' : '500', color: modalStep === 2 ? '#34d399' : 'inherit' }}>
+                <span style={{ width: '20px', height: '20px', borderRadius: '50%', background: modalStep === 2 ? '#34d399' : 'rgba(255,255,255,0.2)', color: modalStep === 2 ? '#064e3b' : '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: '800' }}>2</span>
+                <span>Thanh toán PayOS</span>
+              </div>
+              <ChevronRight size={14} style={{ opacity: 0.6 }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: isCompleted ? '800' : '500' }}>
+                <span style={{ width: '20px', height: '20px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem' }}>3</span>
+                <span>Vào học ngay</span>
               </div>
             </div>
           )}
         </div>
 
         {/* Modal Body */}
-        <div style={{ padding: '28px 32px 36px', overflowY: 'auto', flex: 1, WebkitOverflowScrolling: 'touch', background: '#fafafa' }}>
+        <div style={{ padding: '24px 28px 32px', overflowY: 'auto', flex: 1, WebkitOverflowScrolling: 'touch' }}>
           
-          {/* STATE 3: COMPLETED SUCCESS */}
+          {/* STATE 3: COMPLETED SUCCESS WITH AUTOMATIC 5S REDIRECT */}
           {isCompleted ? (
-            <div style={{ textAlign: 'center', padding: '24px 12px' }}>
+            <div style={{ textAlign: 'center', padding: '20px 10px' }}>
               <div style={{
                 width: '76px', height: '76px', borderRadius: '50%',
-                background: '#dcfce7', border: '3px solid #16a34a',
+                background: '#f0fdf4', border: '3px solid #16a34a',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                margin: '0 auto 20px', color: '#16a34a', boxShadow: '0 10px 25px rgba(22, 163, 74, 0.2)'
+                margin: '0 auto 20px', color: '#16a34a', boxShadow: '0 10px 25px rgba(22, 163, 74, 0.18)'
               }}>
                 <CheckCircle size={44} />
               </div>
-              <h2 style={{ fontSize: '1.6rem', fontWeight: '800', color: '#0f172a', marginBottom: '8px' }}>
-                Thanh Toán & Đăng Ký Thành Công!
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '800', color: '#0f172a', marginBottom: '8px' }}>
+                Thanh Toán Thành Công! Chào Mừng Học Viên!
               </h2>
-              <p style={{ color: '#475569', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '24px' }}>
-                Hệ thống đã tự động đối soát và kích hoạt quyền học cho <strong>{learnerName || 'Học viên'}</strong>.<br />
-                Mã giao dịch PayOS: <strong style={{ color: '#0d9488', fontFamily: 'monospace' }}>#{payosOrderCode || Date.now()}</strong>
+              <p style={{ color: '#475569', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '20px' }}>
+                Hệ thống đã nhận tiền thanh toán từ <strong>{learnerName || 'Học viên'}</strong>.<br />
+                Đang tự động chuyển sang giao diện học tập trong <strong style={{ color: '#0d9488', fontSize: '1.1rem' }}>{autoCloseCountdown}s</strong>...
               </p>
 
               <div style={{
-                background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '16px',
-                padding: '20px 24px', textAlign: 'left', marginBottom: '24px', fontSize: '0.92rem', color: '#1e293b',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
+                background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '16px',
+                padding: '18px 22px', textAlign: 'left', marginBottom: '24px', fontSize: '0.92rem', color: '#166534'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '700', marginBottom: '8px', fontSize: '0.95rem', color: '#15803d' }}>
-                  <ShieldCheck size={20} />
-                  <span>Quyền lợi đã tự động được mở khóa 24/7:</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '700', marginBottom: '6px' }}>
+                  <ShieldCheck size={18} color="#16a34a" />
+                  <span>Quyền lợi đã được kích hoạt thành công:</span>
                 </div>
-                <ul style={{ paddingLeft: '24px', margin: 0, lineHeight: '1.7', color: '#475569' }}>
-                  <li>Toàn bộ bài học video HD & bộ đề thi trắc nghiệm đã được mở khóa.</li>
-                  <li>Đội ngũ trợ giảng UEH TCC đã sẵn sàng hỗ trợ giải đáp 1-1.</li>
+                <ul style={{ paddingLeft: '22px', margin: 0, lineHeight: '1.6' }}>
+                  <li>Mở khóa full video giảng dạy & bộ đề thi trắc nghiệm K46 - K50.</li>
+                  <li>Tài khoản học tập 24/7 không giới hạn thiết bị.</li>
                 </ul>
               </div>
 
@@ -390,7 +389,7 @@ export default function CourseEnrollmentModal({
                 type="button"
                 className="btn btn-primary w-full"
                 onClick={onClose}
-                style={{ padding: '16px 24px', fontSize: '1.05rem', fontWeight: '800', borderRadius: '14px', background: '#0f172a', color: '#ffffff', boxShadow: '0 6px 20px rgba(15, 23, 42, 0.25)', cursor: 'pointer', border: 'none' }}
+                style={{ padding: '14px 24px', fontSize: '1rem', fontWeight: '800', borderRadius: '14px', background: 'linear-gradient(135deg, #0d9488 0%, #0f766e 100%)', cursor: 'pointer' }}
               >
                 ▶ VÀO HỌC NGAY BÂY GIỜ
               </button>
@@ -398,14 +397,14 @@ export default function CourseEnrollmentModal({
           ) : modalStep === 1 ? (
             /* STEP 1: LEARNER FORM */
             <form onSubmit={handleProceedToPayment}>
-              <div style={{ background: '#ffffff', padding: '24px', borderRadius: '20px', border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.02)', marginBottom: '20px' }}>
-                <h4 style={{ fontSize: '0.95rem', fontWeight: '700', color: '#0f172a', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <User size={18} className="text-teal" /> 1. Nhập Thông Tin Học Viên
+              <div style={{ marginBottom: '22px' }}>
+                <h4 style={{ fontSize: '0.95rem', fontWeight: '700', color: '#334155', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <User size={16} className="text-teal" /> 1. Thông Tin Học Viên
                 </h4>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                   <div className="form-group" style={{ marginBottom: 0 }}>
-                    <label style={{ fontSize: '0.82rem', fontWeight: '600', color: '#475569', marginBottom: '6px', display: 'block' }}>Họ và tên học viên *</label>
+                    <label style={{ fontSize: '0.8rem', fontWeight: '600' }}>Họ và tên học viên *</label>
                     <input
                       type="text"
                       className="form-input"
@@ -413,11 +412,10 @@ export default function CourseEnrollmentModal({
                       value={learnerName}
                       onChange={(e) => setLearnerName(e.target.value)}
                       required
-                      style={{ borderRadius: '12px', padding: '12px 14px' }}
                     />
                   </div>
                   <div className="form-group" style={{ marginBottom: 0 }}>
-                    <label style={{ fontSize: '0.82rem', fontWeight: '600', color: '#475569', marginBottom: '6px', display: 'block' }}>Số điện thoại (Zalo) *</label>
+                    <label style={{ fontSize: '0.8rem', fontWeight: '600' }}>Số điện thoại (Zalo) *</label>
                     <input
                       type="tel"
                       className="form-input"
@@ -425,13 +423,12 @@ export default function CourseEnrollmentModal({
                       value={learnerPhone}
                       onChange={(e) => setLearnerPhone(e.target.value)}
                       required
-                      style={{ borderRadius: '12px', padding: '12px 14px' }}
                     />
                   </div>
                 </div>
 
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label style={{ fontSize: '0.82rem', fontWeight: '600', color: '#475569', marginBottom: '6px', display: 'block' }}>Địa chỉ Email nhận bài học *</label>
+                <div className="form-group" style={{ marginTop: '10px', marginBottom: 0 }}>
+                  <label style={{ fontSize: '0.8rem', fontWeight: '600' }}>Địa chỉ Email nhận quyền học *</label>
                   <input
                     type="email"
                     className="form-input"
@@ -439,45 +436,47 @@ export default function CourseEnrollmentModal({
                     value={learnerEmail}
                     onChange={(e) => setLearnerEmail(e.target.value)}
                     required
-                    style={{ borderRadius: '12px', padding: '12px 14px' }}
                   />
                 </div>
               </div>
 
-              {/* Pricing & Voucher Summary */}
-              <div style={{ background: '#ffffff', padding: '20px 24px', borderRadius: '20px', border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.02)', marginBottom: '24px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+              {/* Pricing Summary */}
+              <div style={{
+                background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '16px',
+                padding: '16px 20px', marginBottom: '22px'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                   <span style={{ fontSize: '0.9rem', color: '#64748b' }}>Học phí niêm yết:</span>
-                  <span style={{ textDecoration: 'line-through', color: '#94a3b8', fontSize: '0.95rem' }}>{course.originalPrice || course.discountPrice}</span>
+                  <span style={{ textDecoration: 'line-through', color: '#94a3b8', fontSize: '0.9rem' }}>{course.originalPrice || course.discountPrice}</span>
                 </div>
 
                 {voucherApplied && (
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', color: '#16a34a' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', color: '#16a34a' }}>
                     <span style={{ fontSize: '0.9rem', fontWeight: '600' }}>Mã ưu đãi (UEHTCC):</span>
-                    <span style={{ fontSize: '0.95rem', fontWeight: '700' }}>-500.000đ</span>
+                    <span style={{ fontSize: '0.9rem', fontWeight: '700' }}>-500.000đ</span>
                   </div>
                 )}
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f1f5f9', paddingTop: '12px' }}>
-                  <span style={{ fontSize: '1rem', fontWeight: '800', color: '#0f172a' }}>Tổng tiền thanh toán:</span>
-                  <span style={{ fontSize: '1.5rem', fontWeight: '900', color: '#0d9488', fontFamily: 'monospace' }}>{formattedFinalPrice}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px dashed #cbd5e1', paddingTop: '12px' }}>
+                  <span style={{ fontSize: '1rem', fontWeight: '800', color: '#0f172a' }}>Tổng thanh toán:</span>
+                  <span style={{ fontSize: '1.4rem', fontWeight: '900', color: '#0d9488' }}>{formattedFinalPrice}</span>
                 </div>
 
                 {!course.isFree && !voucherApplied && (
-                  <div style={{ display: 'flex', gap: '8px', marginTop: '14px' }}>
+                  <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
                     <input
                       type="text"
                       className="form-input"
                       placeholder="Nhập mã ưu đãi (Ví dụ: UEHTCC)"
                       value={voucherCode}
                       onChange={(e) => setVoucherCode(e.target.value)}
-                      style={{ fontSize: '0.85rem', padding: '10px 14px', borderRadius: '12px' }}
+                      style={{ fontSize: '0.85rem', padding: '8px 12px' }}
                     />
                     <button
                       type="button"
                       className="btn btn-secondary"
                       onClick={handleApplyVoucher}
-                      style={{ whiteSpace: 'nowrap', padding: '10px 18px', fontSize: '0.85rem', fontWeight: '700', borderRadius: '12px' }}
+                      style={{ whiteSpace: 'nowrap', padding: '8px 16px', fontSize: '0.85rem' }}
                     >
                       Áp dụng
                     </button>
@@ -488,191 +487,183 @@ export default function CourseEnrollmentModal({
               {/* Submit Button to Step 2 */}
               <button
                 type="submit"
-                className="btn w-full"
+                className="btn btn-primary w-full"
                 style={{
-                  padding: '16px 24px', fontSize: '1.05rem', fontWeight: '800', borderRadius: '14px',
-                  background: '#0f172a', color: '#ffffff', border: 'none',
-                  boxShadow: '0 6px 20px rgba(15, 23, 42, 0.25)', cursor: 'pointer',
+                  padding: '14px 24px', fontSize: '1rem', fontWeight: '800', borderRadius: '14px',
+                  background: 'linear-gradient(135deg, #0d9488 0%, #0f766e 100%)',
+                  boxShadow: '0 4px 14px rgba(13, 148, 136, 0.35)', cursor: 'pointer',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px'
                 }}
               >
                 {course.isFree ? (
-                  <span>🚀 KÍCH HOẠT HỌC MIỄN PHÍ NGAY</span>
+                  <span>KÍCH HOẠT HỌC MIỄN PHÍ NGAY</span>
                 ) : (
                   <>
-                    <span>TIẾP TỤC ĐẾN CỔNG THANH TOÁN PAYOS</span>
+                    <span>TIẾP TỤC ĐẾN BƯỚC THANH TOÁN PAYOS</span>
                     <ArrowRight size={18} />
                   </>
                 )}
               </button>
             </form>
           ) : (
-            /* STEP 2: CORPORATE STREAMLINED PAYOS CHECKOUT */
+            /* STEP 2: CLEAN ENTERPRISE PAYOS PAYMENT GATEWAY */
             <div>
-              {/* Payment Tab Selectors (Clean Minimal Segmented Control) */}
-              <div style={{
-                background: '#e2e8f0', padding: '3px', borderRadius: '14px',
-                display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px', marginBottom: '20px'
-              }}>
+              {/* Payment Tab Selector */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '16px' }}>
                 <button
                   type="button"
                   onClick={() => setPaymentTab('vietqr')}
                   style={{
-                    padding: '10px 8px', borderRadius: '12px', border: 'none',
-                    background: paymentTab === 'vietqr' ? '#ffffff' : 'transparent',
-                    color: paymentTab === 'vietqr' ? '#0f172a' : '#64748b',
-                    fontWeight: paymentTab === 'vietqr' ? '800' : '600', fontSize: '0.85rem', cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
-                    boxShadow: paymentTab === 'vietqr' ? '0 2px 8px rgba(0,0,0,0.06)' : 'none'
+                    padding: '12px 10px', borderRadius: '12px',
+                    border: paymentTab === 'vietqr' ? '2px solid #0d9488' : '1px solid #cbd5e1',
+                    background: paymentTab === 'vietqr' ? '#f0fdf4' : '#ffffff',
+                    color: paymentTab === 'vietqr' ? '#0f766e' : '#475569',
+                    fontWeight: '700', fontSize: '0.85rem', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'
                   }}
                 >
-                  <QrCode size={16} color={paymentTab === 'vietqr' ? '#0d9488' : '#64748b'} />
-                  <span>Cổng PayOS VietQR</span>
+                  <QrCode size={16} color="#0d9488" /> Cổng PayOS / VietQR (MBBank)
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setPaymentTab('momo')}
                   style={{
-                    padding: '10px 8px', borderRadius: '12px', border: 'none',
-                    background: paymentTab === 'momo' ? '#ffffff' : 'transparent',
-                    color: paymentTab === 'momo' ? '#0f172a' : '#64748b',
-                    fontWeight: paymentTab === 'momo' ? '800' : '600', fontSize: '0.85rem', cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
-                    boxShadow: paymentTab === 'momo' ? '0 2px 8px rgba(0,0,0,0.06)' : 'none'
+                    padding: '12px 10px', borderRadius: '12px',
+                    border: paymentTab === 'momo' ? '2px solid #a21caf' : '1px solid #cbd5e1',
+                    background: paymentTab === 'momo' ? '#fdf4ff' : '#ffffff',
+                    color: paymentTab === 'momo' ? '#86198f' : '#475569',
+                    fontWeight: '700', fontSize: '0.85rem', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'
                   }}
                 >
-                  <Wallet size={16} color={paymentTab === 'momo' ? '#a21caf' : '#64748b'} />
-                  <span>Ví MoMo</span>
+                  <Wallet size={16} color="#a21caf" /> Ví MoMo
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setPaymentTab('vnpay')}
                   style={{
-                    padding: '10px 8px', borderRadius: '12px', border: 'none',
-                    background: paymentTab === 'vnpay' ? '#ffffff' : 'transparent',
-                    color: paymentTab === 'vnpay' ? '#0f172a' : '#64748b',
-                    fontWeight: paymentTab === 'vnpay' ? '800' : '600', fontSize: '0.85rem', cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
-                    boxShadow: paymentTab === 'vnpay' ? '0 2px 8px rgba(0,0,0,0.06)' : 'none'
+                    padding: '12px 10px', borderRadius: '12px',
+                    border: paymentTab === 'vnpay' ? '2px solid #0284c7' : '1px solid #cbd5e1',
+                    background: paymentTab === 'vnpay' ? '#f0f9ff' : '#ffffff',
+                    color: paymentTab === 'vnpay' ? '#0369a1' : '#475569',
+                    fontWeight: '700', fontSize: '0.85rem', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'
                   }}
                 >
-                  <Smartphone size={16} color={paymentTab === 'vnpay' ? '#0284c7' : '#64748b'} />
-                  <span>VNPay QR</span>
+                  <Smartphone size={16} color="#0284c7" /> VNPay QR
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setPaymentTab('consult')}
                   style={{
-                    padding: '10px 8px', borderRadius: '12px', border: 'none',
-                    background: paymentTab === 'consult' ? '#ffffff' : 'transparent',
-                    color: paymentTab === 'consult' ? '#0f172a' : '#64748b',
-                    fontWeight: paymentTab === 'consult' ? '800' : '600', fontSize: '0.85rem', cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
-                    boxShadow: paymentTab === 'consult' ? '0 2px 8px rgba(0,0,0,0.06)' : 'none'
+                    padding: '12px 10px', borderRadius: '12px',
+                    border: paymentTab === 'consult' ? '2px solid #2563eb' : '1px solid #cbd5e1',
+                    background: paymentTab === 'consult' ? '#eff6ff' : '#ffffff',
+                    color: paymentTab === 'consult' ? '#1d4ed8' : '#475569',
+                    fontWeight: '700', fontSize: '0.85rem', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'
                   }}
                 >
-                  <PhoneCall size={16} color={paymentTab === 'consult' ? '#2563eb' : '#64748b'} />
-                  <span>Hỗ trợ Admin Zalo</span>
+                  <PhoneCall size={16} color="#2563eb" /> Zalo / Hotline
                 </button>
               </div>
 
-              {/* TAB 1: STREAMLINED PAYOS VIETQR */}
+              {/* TAB 1: PAYOS VIETQR */}
               {paymentTab === 'vietqr' && (
-                <div style={{ background: '#ffffff', borderRadius: '20px', border: '1px solid #e2e8f0', padding: '24px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+                <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '16px', padding: '20px' }}>
                   
-                  {/* Status Bar */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', paddingBottom: '14px', borderBottom: '1px solid #f1f5f9' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', color: '#15803d', fontWeight: '700' }}>
-                      <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e', display: 'inline-block', boxShadow: '0 0 8px #22c55e' }}></span>
-                      <span>Hệ thống đang tự động đối soát giao dịch 24/7</span>
+                  {/* Clean Realtime Status Indicator */}
+                  <div style={{
+                    background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '12px',
+                    padding: '10px 14px', marginBottom: '16px', display: 'flex', alignItems: 'center',
+                    justifyContent: 'space-between', fontSize: '0.82rem', color: '#166534'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '700' }}>
+                      <RefreshCw size={14} style={{ animation: 'spin 2s linear infinite', color: '#16a34a' }} />
+                      <span>Trạng thái: Đang tự động đối soát giao dịch 24/7</span>
                     </div>
-                    <div style={{ fontSize: '0.8rem', color: '#64748b', fontFamily: 'monospace' }}>
-                      Mã đơn: #{payosOrderCode || 'MBBank'}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '700', color: '#dc2626', background: '#ffffff', padding: '2px 10px', borderRadius: '12px', border: '1px solid #fecaca' }}>
+                      <Clock size={13} />
+                      <span>{formatTimer(timeLeft)}</span>
                     </div>
                   </div>
 
-                  {/* 2-Column Clean Layout */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: '24px', alignItems: 'center' }}>
-                    {/* Left: Crisp Scannable QR Code */}
+                  {/* Clean 2-Column Responsive Layout */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr', gap: '20px', alignItems: 'center' }}>
                     <div style={{ textAlign: 'center' }}>
-                      <div style={{ padding: '12px', background: '#ffffff', borderRadius: '16px', border: '1px solid #cbd5e1', boxShadow: '0 8px 24px rgba(0,0,0,0.06)' }}>
+                      <div style={{ padding: '10px', background: '#ffffff', borderRadius: '14px', border: '1px solid #cbd5e1', boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}>
                         {payosLoading ? (
-                          <div style={{ padding: '60px 0', color: '#64748b', fontSize: '0.85rem' }}>
-                            <span>⏳ Khởi tạo QR...</span>
+                          <div style={{ padding: '50px 0', color: '#0d9488', fontSize: '0.85rem' }}>
+                            <span>Khởi tạo mã...</span>
                           </div>
                         ) : (
                           <img 
                             src={getDisplayQrUrl()} 
-                            alt="Mã QR VietQR MBBank" 
+                            alt="Mã QR PayOS MBBank" 
                             style={{ width: '100%', height: 'auto', display: 'block', borderRadius: '8px' }} 
                           />
                         )}
                       </div>
-                      <span style={{ fontSize: '0.72rem', color: '#64748b', display: 'block', marginTop: '8px' }}>
+                      <span style={{ fontSize: '0.72rem', color: '#64748b', display: 'block', marginTop: '6px' }}>
                         Quét bằng App MBBank / VCB / Agribank / Banking Apps
                       </span>
                     </div>
 
-                    {/* Right: Transfer Information List */}
-                    <div style={{ fontSize: '0.88rem', color: '#1e293b' }}>
-                      <div style={{ marginBottom: '12px' }}>
-                        <span style={{ color: '#64748b', fontSize: '0.78rem', textTransform: 'uppercase', fontWeight: '700' }}>Ngân hàng thụ hưởng</span>
-                        <div style={{ fontWeight: '800', color: '#0f172a', fontSize: '0.95rem' }}>{bankName}</div>
+                    <div style={{ fontSize: '0.85rem', color: '#334155' }}>
+                      <div style={{ marginBottom: '8px' }}>
+                        <span style={{ color: '#64748b' }}>Ngân hàng: </span>
+                        <strong>{bankName}</strong>
                       </div>
 
-                      <div style={{ marginBottom: '12px' }}>
-                        <span style={{ color: '#64748b', fontSize: '0.78rem', textTransform: 'uppercase', fontWeight: '700' }}>Số tài khoản</span>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '2px' }}>
-                          <strong style={{ color: '#0d9488', fontSize: '1.2rem', fontFamily: 'monospace' }}>{bankAccountNo}</strong>
-                          <button
-                            type="button"
-                            onClick={() => handleCopy(bankAccountNo, 'stk')}
-                            style={{ background: '#f1f5f9', border: 'none', color: '#475569', padding: '4px 10px', borderRadius: '6px', fontSize: '0.78rem', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
-                          >
-                            {copiedField === 'stk' ? <Check size={14} color="#16a34a" /> : <Copy size={14} />}
-                            <span>{copiedField === 'stk' ? 'Đã chép' : 'Sao chép'}</span>
-                          </button>
-                        </div>
+                      <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ color: '#64748b' }}>Số tài khoản: </span>
+                        <strong style={{ color: '#0d9488', fontSize: '1.05rem', fontFamily: 'monospace' }}>{bankAccountNo}</strong>
+                        <button
+                          type="button"
+                          onClick={() => handleCopy(bankAccountNo, 'stk')}
+                          style={{ background: 'none', border: 'none', color: '#0d9488', cursor: 'pointer', padding: 0 }}
+                          title="Sao chép STK"
+                        >
+                          {copiedField === 'stk' ? <Check size={14} color="#16a34a" /> : <Copy size={14} />}
+                        </button>
                       </div>
 
-                      <div style={{ marginBottom: '12px' }}>
-                        <span style={{ color: '#64748b', fontSize: '0.78rem', textTransform: 'uppercase', fontWeight: '700' }}>Chủ tài khoản</span>
-                        <div style={{ fontWeight: '800', color: '#0f172a' }}>{bankAccountHolder}</div>
+                      <div style={{ marginBottom: '8px' }}>
+                        <span style={{ color: '#64748b' }}>Chủ tài khoản: </span>
+                        <strong>{bankAccountHolder}</strong>
                       </div>
 
-                      <div style={{ marginBottom: '16px' }}>
-                        <span style={{ color: '#64748b', fontSize: '0.78rem', textTransform: 'uppercase', fontWeight: '700' }}>Nội dung chuyển khoản (Bắt buộc)</span>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '2px' }}>
-                          <strong style={{ color: '#dc2626', fontSize: '1.05rem', fontFamily: 'monospace' }}>{transferMemo}</strong>
-                          <button
-                            type="button"
-                            onClick={() => handleCopy(transferMemo, 'memo')}
-                            style={{ background: '#fef2f2', border: 'none', color: '#dc2626', padding: '4px 10px', borderRadius: '6px', fontSize: '0.78rem', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
-                          >
-                            {copiedField === 'memo' ? <Check size={14} color="#16a34a" /> : <Copy size={14} />}
-                            <span>{copiedField === 'memo' ? 'Đã chép' : 'Sao chép'}</span>
-                          </button>
-                        </div>
+                      <div style={{ marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ color: '#64748b' }}>Nội dung chuyển khoản: </span>
+                        <strong style={{ color: '#dc2626', fontFamily: 'monospace' }}>{transferMemo}</strong>
+                        <button
+                          type="button"
+                          onClick={() => handleCopy(transferMemo, 'memo')}
+                          style={{ background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', padding: 0 }}
+                          title="Sao chép Nội dung"
+                        >
+                          {copiedField === 'memo' ? <Check size={14} color="#16a34a" /> : <Copy size={14} />}
+                        </button>
                       </div>
 
-                      {/* PayOS Official Direct Checkout Button */}
+                      {/* PayOS Hosted Page Link */}
                       {payosCheckoutUrl && (
                         <a
                           href={payosCheckoutUrl}
                           target="_blank"
                           rel="noopener noreferrer"
                           style={{
-                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                            background: '#0d9488', color: '#ffffff', padding: '12px 16px', borderRadius: '12px',
-                            fontWeight: '800', fontSize: '0.88rem', textDecoration: 'none',
-                            boxShadow: '0 4px 12px rgba(13,148,136,0.25)', width: '100%', boxSizing: 'border-box'
+                            display: 'inline-flex', alignItems: 'center', gap: '6px',
+                            background: '#0d9488', color: '#ffffff', padding: '10px 16px', borderRadius: '10px',
+                            fontWeight: '700', fontSize: '0.85rem', textDecoration: 'none',
+                            boxShadow: '0 4px 12px rgba(13,148,136,0.25)'
                           }}
                         >
-                          <span>🚀 Thanh toán qua Cổng Web PayOS</span>
-                          <ExternalLink size={15} />
+                          <span>Thanh toán qua trang Web PayOS</span>
+                          <ExternalLink size={14} />
                         </a>
                       )}
                     </div>
@@ -682,33 +673,53 @@ export default function CourseEnrollmentModal({
 
               {/* TAB 2: MOMO */}
               {paymentTab === 'momo' && (
-                <div style={{ background: '#ffffff', borderRadius: '20px', border: '1px solid #e2e8f0', padding: '24px', display: 'grid', gridTemplateColumns: '200px 1fr', gap: '24px', alignItems: 'center' }}>
+                <div style={{
+                  background: '#fdf4ff', border: '1px solid #f5d0fe', borderRadius: '16px', padding: '18px',
+                  display: 'grid', gridTemplateColumns: '170px 1fr', gap: '18px', alignItems: 'center'
+                }}>
                   <div style={{ textAlign: 'center' }}>
-                    <img src={momoQrUrl} alt="Mã QR Ví MoMo" style={{ width: '100%', borderRadius: '12px', border: '1px solid #e2e8f0' }} />
-                    <span style={{ fontSize: '0.74rem', color: '#64748b', display: 'block', marginTop: '8px' }}>App MoMo quét mã QR</span>
+                    <img 
+                      src={momoQrUrl} 
+                      alt="Mã QR Ví MoMo" 
+                      style={{ width: '100%', borderRadius: '12px', border: '1px solid #f5d0fe' }} 
+                    />
+                    <span style={{ fontSize: '0.72rem', color: '#86198f', display: 'block', marginTop: '6px', fontWeight: '600' }}>
+                      App MoMo quét mã QR
+                    </span>
                   </div>
 
-                  <div style={{ fontSize: '0.88rem', color: '#1e293b' }}>
-                    <div style={{ marginBottom: '12px' }}>
-                      <span style={{ color: '#64748b', fontSize: '0.78rem', textTransform: 'uppercase', fontWeight: '700' }}>Số Ví MoMo</span>
-                      <div style={{ fontWeight: '800', color: '#a21caf', fontSize: '1.1rem', fontFamily: 'monospace' }}>0833830322</div>
+                  <div style={{ fontSize: '0.85rem', color: '#334155' }}>
+                    <div style={{ marginBottom: '8px' }}>
+                      <span style={{ color: '#701a75' }}>Tài khoản Ví MoMo: </span>
+                      <strong style={{ color: '#a21caf', fontSize: '1rem', fontFamily: 'monospace' }}>0833830322</strong>
+                      <button
+                        type="button"
+                        onClick={() => handleCopy('0833830322', 'momo_stk')}
+                        style={{ background: 'none', border: 'none', color: '#a21caf', cursor: 'pointer', padding: '0 0 0 6px' }}
+                      >
+                        {copiedField === 'momo_stk' ? <Check size={14} color="#16a34a" /> : <Copy size={14} />}
+                      </button>
                     </div>
 
-                    <div style={{ marginBottom: '12px' }}>
-                      <span style={{ color: '#64748b', fontSize: '0.78rem', textTransform: 'uppercase', fontWeight: '700' }}>Tên người nhận</span>
-                      <div style={{ fontWeight: '800' }}>LƯ PHÚC</div>
+                    <div style={{ marginBottom: '8px' }}>
+                      <span style={{ color: '#701a75' }}>Chủ tài khoản: </span>
+                      <strong>LƯ PHÚC</strong>
                     </div>
 
-                    <div style={{ marginBottom: '16px' }}>
-                      <span style={{ color: '#64748b', fontSize: '0.78rem', textTransform: 'uppercase', fontWeight: '700' }}>Lời nhắn MoMo</span>
-                      <div style={{ fontWeight: '800', color: '#dc2626', fontFamily: 'monospace' }}>{transferMemo}</div>
+                    <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ color: '#701a75' }}>Lời nhắn MoMo: </span>
+                      <strong style={{ color: '#dc2626', fontFamily: 'monospace' }}>{transferMemo}</strong>
                     </div>
 
                     <a 
                       href="https://nhantien.momo.vn/0833830322" 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      style={{ display: 'inline-block', background: '#a21caf', color: '#ffffff', padding: '10px 18px', borderRadius: '10px', fontWeight: '800', fontSize: '0.85rem', textDecoration: 'none' }}
+                      style={{
+                        display: 'inline-block', background: '#a21caf', color: '#ffffff',
+                        padding: '8px 16px', borderRadius: '10px', fontWeight: '700', fontSize: '0.8rem',
+                        textDecoration: 'none'
+                      }}
                     >
                       🔗 Mở Ví MoMo trực tiếp
                     </a>
@@ -718,19 +729,27 @@ export default function CourseEnrollmentModal({
 
               {/* TAB 3: VNPAY */}
               {paymentTab === 'vnpay' && (
-                <div style={{ background: '#ffffff', borderRadius: '20px', border: '1px solid #e2e8f0', padding: '24px' }}>
-                  <h4 style={{ fontSize: '1rem', fontWeight: '800', color: '#0369a1', marginBottom: '10px' }}>Thanh toán qua Cổng VNPay QR</h4>
-                  <p style={{ fontSize: '0.88rem', color: '#475569', lineHeight: '1.6', marginBottom: '16px' }}>
-                    Bạn có thể sử dụng ứng dụng Ngân hàng của mình quét mã **VNPay QR** hoặc mở cổng thanh toán PayOS bên trên để thanh toán trực tiếp bằng Thẻ ATM / Napas / VNPay.
+                <div style={{ background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: '16px', padding: '18px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#0369a1', marginBottom: '8px' }}>
+                    <Smartphone size={18} />
+                    <strong style={{ fontSize: '0.95rem' }}>Thanh toán qua Cổng VNPay QR</strong>
+                  </div>
+                  <p style={{ fontSize: '0.85rem', color: '#334155', lineHeight: '1.6', marginBottom: '12px' }}>
+                    Ứng dụng Ngân hàng hỗ trợ quét mã **VNPay QR** hoặc bạn có thể mở Cổng PayOS để thanh toán bằng Thẻ ATM / Napas.
                   </p>
                   {payosCheckoutUrl && (
                     <a
                       href={payosCheckoutUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#0284c7', color: '#ffffff', padding: '12px 20px', borderRadius: '12px', fontWeight: '800', fontSize: '0.88rem', textDecoration: 'none' }}
+                      style={{
+                        display: 'inline-flex', alignItems: 'center', gap: '6px',
+                        background: '#0284c7', color: '#ffffff', padding: '8px 16px', borderRadius: '10px',
+                        fontWeight: '700', fontSize: '0.82rem', textDecoration: 'none'
+                      }}
                     >
-                      🚀 Mở Cổng PayOS (Hỗ trợ VNPay & Thẻ ATM) <ExternalLink size={16} />
+                      <span>Mở Cổng PayOS (Hỗ trợ VNPay & Thẻ ATM)</span>
+                      <ExternalLink size={14} />
                     </a>
                   )}
                 </div>
@@ -738,22 +757,22 @@ export default function CourseEnrollmentModal({
 
               {/* TAB 4: CONSULTATION */}
               {paymentTab === 'consult' && (
-                <div style={{ background: '#ffffff', borderRadius: '20px', border: '1px solid #e2e8f0', padding: '24px' }}>
-                  <p style={{ fontSize: '0.9rem', color: '#1e293b', lineHeight: '1.6', marginBottom: '16px' }}>
-                    Liên hệ trực tiếp Ban Quản Trị UEH TCC qua Zalo hoặc Hotline để được hỗ trợ nhanh nhất:
+                <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '16px', padding: '18px' }}>
+                  <p style={{ fontSize: '0.88rem', color: '#1e3a8a', lineHeight: '1.6', marginBottom: '12px' }}>
+                    Bạn có thể liên hệ trực tiếp Ban Quản Trị UEH TCC qua Zalo hoặc Hotline để được tư vấn nhanh nhất:
                   </p>
-                  <div style={{ display: 'flex', gap: '14px' }}>
+                  <div style={{ display: 'flex', gap: '12px' }}>
                     <a
                       href="https://zalo.me/0833830322"
                       target="_blank"
                       rel="noopener noreferrer"
-                      style={{ flex: 1, textDecoration: 'none', textAlign: 'center', padding: '14px', background: '#2563eb', color: '#ffffff', fontWeight: '800', borderRadius: '12px' }}
+                      style={{ flex: 1, textDecoration: 'none', textAlign: 'center', padding: '10px', background: '#2563eb', color: '#ffffff', borderRadius: '10px', fontWeight: '700', fontSize: '0.85rem' }}
                     >
                       💬 Chat Zalo: 0833830322
                     </a>
                     <a
                       href="tel:0833830322"
-                      style={{ flex: 1, textDecoration: 'none', textAlign: 'center', padding: '14px', background: '#f1f5f9', color: '#1e293b', fontWeight: '800', borderRadius: '12px' }}
+                      style={{ flex: 1, textDecoration: 'none', textAlign: 'center', padding: '10px', background: '#ffffff', border: '1px solid #cbd5e1', color: '#334155', borderRadius: '10px', fontWeight: '700', fontSize: '0.85rem' }}
                     >
                       📞 Gọi Hotline: 0833830322
                     </a>
@@ -761,36 +780,18 @@ export default function CourseEnrollmentModal({
                 </div>
               )}
 
-              {/* Action Bar (Clean Minimal Footer) */}
-              <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              {/* Clean Footer Bar */}
+              <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f1f5f9', paddingTop: '14px' }}>
                 <button
                   type="button"
                   onClick={() => setModalStep(1)}
-                  style={{ background: 'none', border: 'none', color: '#64748b', fontSize: '0.88rem', fontWeight: '600', cursor: 'pointer', textDecoration: 'underline' }}
+                  style={{ background: 'none', border: 'none', color: '#64748b', fontSize: '0.85rem', fontWeight: '600', cursor: 'pointer' }}
                 >
-                  ← Thay đổi thông tin người mua
+                  ← Thay đổi thông tin học viên
                 </button>
-
-                <button
-                  type="button"
-                  onClick={handleCheckPaymentStatusManual}
-                  disabled={manualCheckLoading}
-                  style={{
-                    padding: '14px 24px', fontSize: '0.95rem', fontWeight: '800', borderRadius: '12px',
-                    background: '#0f172a', color: '#ffffff', border: 'none',
-                    boxShadow: '0 4px 14px rgba(15, 23, 42, 0.2)', cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', gap: '8px'
-                  }}
-                >
-                  {manualCheckLoading ? (
-                    <span>⏳ Đang kiểm tra đối soát...</span>
-                  ) : (
-                    <>
-                      <RefreshCw size={16} />
-                      <span>XÁC NHẬN ĐÃ CHUYỂN KHOẢN (ĐỐI SOÁT NGAY)</span>
-                    </>
-                  )}
-                </button>
+                <span style={{ fontSize: '0.8rem', color: '#16a34a', fontWeight: '600' }}>
+                  🟢 Tự động duyệt đơn ngay khi nhận tiền
+                </span>
               </div>
             </div>
           )}
