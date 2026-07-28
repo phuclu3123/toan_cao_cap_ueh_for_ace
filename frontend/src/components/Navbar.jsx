@@ -167,6 +167,11 @@ export default function Navbar() {
         }
       }).catch((error) => {
         console.error("Redirect auth error:", error);
+        if (error.code === 'auth/account-exists-with-different-credential') {
+          alert('Lỗi: Email này đã được đăng ký bằng Google trước đó!\\n\\nĐể dùng cả GitHub và Google chung 1 email, bạn phải vào Firebase Console -> Authentication -> Settings -> Chọn "Link accounts that use the same email".');
+        } else {
+          alert('Lỗi đăng nhập: ' + error.message);
+        }
       });
 
       const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
