@@ -31,6 +31,7 @@ import {
 import { getCourseById } from '../data/coursesData';
 import { LanguageContext } from '../App';
 import NotFoundPage from './NotFoundPage';
+import CourseEnrollmentModal from '../components/modals/CourseEnrollmentModal';
 import {
   isAdminAccount,
   getStudentIdentifier,
@@ -75,6 +76,30 @@ export default function CourseDetail() {
     window.addEventListener('storage', checkAdminStatus);
     return () => window.removeEventListener('storage', checkAdminStatus);
   }, []);
+
+  // Enrollment status state
+  const [isEnrolled, setIsEnrolled] = useState(false);
+  const [showEnrollModal, setShowEnrollModal] = useState(false);
+
+  useEffect(() => {
+    const checkEnrollment = () => {
+      try {
+        const saved = localStorage.getItem('ueh_tcc_enrolled_courses');
+        if (saved) {
+          const list = JSON.parse(saved);
+          if (Array.isArray(list) && list.includes(course.id)) {
+            setIsEnrolled(true);
+            return;
+          }
+        }
+      } catch (e) {}
+      setIsEnrolled(false);
+    };
+
+    checkEnrollment();
+    window.addEventListener('storage', checkEnrollment);
+    return () => window.removeEventListener('storage', checkEnrollment);
+  }, [course.id]);
 
   // Accordion open state for chapters
   const [expandedChapters, setExpandedChapters] = useState({
@@ -607,7 +632,7 @@ export default function CourseDetail() {
       alert('⚠️ TÀI KHOẢN ĐÃ BỊ KHÓA VĨNH VIỄN: Phát hiện tài khoản của bạn vi phạm điều khoản xem video cùng lúc trên nhiều thiết bị quá 30 phút. Vui lòng liên hệ Admin (luphuc321@gmail.com) để được mở lại.');
       return;
     }
-    if (lesson.isLocked && !isAdmin) {
+    if (lesson.isLocked && !isAdmin && !isEnrolled) {
       setActiveLesson(lesson);
       setShowLockPrompt(true);
       return;
@@ -1178,7 +1203,7 @@ export default function CourseDetail() {
                       {isOpen && (
                         <div className="lessons-list-group">
                           {chapter.lessons.map((lesson) => {
-                            const isLockedForUser = lesson.isLocked && !isAdmin;
+                            const isLockedForUser = lesson.isLocked && !isAdmin && !isEnrolled;
 
                             return (
                               <div
@@ -1202,7 +1227,7 @@ export default function CourseDetail() {
                                 </div>
 
                                 <div className="lesson-action-area">
-                                  {!lesson.isLocked ? (
+                                  {!lesson.isLocked || isEnrolled ? (
                                     <span className="badge-btn-xem">
                                       <Play size={12} fill="currentColor" /> XEM
                                     </span>
@@ -1271,11 +1296,23 @@ export default function CourseDetail() {
                     type="button"
                     className="btn-enroll-primary"
                     onClick={() => {
-                      alert('Đã gửi yêu cầu đăng ký! Ban quản trị sẽ liên hệ cấp quyền học ngay lập tức.');
+                      if (isEnrolled || isAdmin) {
+                        if (allLessons.length > 0) {
+                          handleLessonClick(allLessons[0]);
+                        }
+                      } else {
+                        setShowEnrollModal(true);
+                      }
                     }}
                   >
                     <ShieldCheck size={18} />
-                    <span>{course.isFree ? 'Học ngay miễn phí' : 'Đăng ký ngay'}</span>
+                    <span>
+                      {isEnrolled || isAdmin
+                        ? '▶ Vào học ngay'
+                        : course.isFree
+                        ? 'Học ngay miễn phí'
+                        : 'Đăng ký ngay'}
+                    </span>
                   </button>
                 </div>
               </div>
@@ -1616,9 +1653,12 @@ export default function CourseDetail() {
                 type="button"
                 className="btn-enroll-primary"
                 style={{ width: '100%', padding: '12px 24px', borderRadius: '12px', fontSize: '0.95rem' }}
-                onClick={() => setShowLockPrompt(false)}
+                onClick={() => {
+                  setShowLockPrompt(false);
+                  setShowEnrollModal(true);
+                }}
               >
-                Đã hiểu
+                Đăng ký khóa học ngay
               </button>
             </div>
           </div>
@@ -1670,6 +1710,20 @@ export default function CourseDetail() {
 
       {/* SMART FLOATING STUDY TIMER (When Video Modal is CLOSED - Image 3: Positioned at Top-Right Corner!) */}
       {!showVideoModal && createPortal(renderStudyTimerWidget(false), document.body)}
+
+      {/* COURSE ENROLLMENT / REGISTRATION MODAL */}
+      <CourseEnrollmentModal
+        isOpen={showEnrollModal}
+        onClose={() => setShowEnrollModal(false)}
+        course={course}
+        onEnrollSuccess={() => {
+          setIsEnrolled(true);
+          setShowLockPrompt(false);
+          if (allLessons.length > 0) {
+            handleLessonClick(allLessons[0]);
+          }
+        }}
+      />
     </div>
   );
 }

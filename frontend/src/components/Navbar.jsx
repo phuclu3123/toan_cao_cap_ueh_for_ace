@@ -14,6 +14,7 @@ import {
   isFirebaseConfigured,
   RecaptchaVerifier,
   signInWithPhoneNumber,
+  sendPasswordResetEmail,
   signOut as firebaseSignOut,
   onAuthStateChanged,
   signInWithPopup
@@ -429,7 +430,7 @@ export default function Navbar() {
   };
 
   const handleForgotPasswordSubmit = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
     setAuthError('');
     setAuthSuccessMsg('');
     if (!forgotEmail) {
@@ -449,15 +450,37 @@ export default function Navbar() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: forgotEmail })
       });
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
       if (response.ok && data.success) {
         setAuthSuccessMsg(data.message || 'Mã OTP đã được gửi về email của bạn!');
         setForgotStep(2);
-      } else {
-        setAuthError(data.message || 'Không thể yêu cầu khôi phục mật khẩu.');
+        return;
       }
+
+      // If backend user not found (404) or SMTP error, attempt Firebase Password Reset fallback
+      if (auth && isFirebaseConfigured) {
+        try {
+          await sendPasswordResetEmail(auth, forgotEmail);
+          setAuthSuccessMsg('Đã gửi liên kết khôi phục mật khẩu trực tiếp qua Email của bạn (Firebase Auth)! Vui lòng kiểm tra hòm thư (cả thư mục Spam).');
+          return;
+        } catch (fbErr) {
+          console.warn("Firebase password reset failed:", fbErr);
+        }
+      }
+
+      setAuthError(data.message || 'Email này chưa đăng ký tài khoản trên hệ thống MongoDB.');
     } catch (error) {
-      setAuthError('Không thể kết nối tới Backend để gửi OTP.');
+      // Network/Backend offline - fallback to Firebase Auth password reset
+      if (auth && isFirebaseConfigured) {
+        try {
+          await sendPasswordResetEmail(auth, forgotEmail);
+          setAuthSuccessMsg('Đã gửi liên kết khôi phục mật khẩu tới email của bạn qua Firebase Auth! Vui lòng kiểm tra hòm thư.');
+          return;
+        } catch (fbErr) {
+          console.warn("Firebase password reset failed:", fbErr);
+        }
+      }
+      setAuthError('Không thể kết nối tới hệ thống máy chủ để gửi mã khôi phục.');
     } finally {
       setForgotLoading(false);
     }
