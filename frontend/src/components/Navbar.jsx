@@ -19,6 +19,8 @@ import {
   onAuthStateChanged,
   signInWithPopup
 } from '../firebase';
+import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
+import { useGoogleLogin, useGoogleOneTapLogin } from '@react-oauth/google';
 import { LanguageContext, ThemeContext } from '../App';
 import { translations } from '../utils/translations';
 
@@ -300,31 +302,53 @@ export default function Navbar() {
     }
   };
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleAuthSuccess = async (response) => {
     setAuthError('');
-    setAuthSuccessMsg('');
-    if (isFirebaseConfigured && auth && googleProvider) {
-      try {
-        const userCredential = await signInWithPopup(auth, googleProvider);
-        const dbUser = await syncUserWithBackend(userCredential.user);
-        setLoggedInUser(dbUser);
-        localStorage.setItem('ueh_tcc_user', JSON.stringify(dbUser));
-        setAuthSuccessMsg('Đăng nhập Google thành công!');
-        setTimeout(() => {
-          setShowLoginModal(false);
-          setAuthSuccessMsg('');
-        }, 1500);
-      } catch (error) {
-        let msg = 'Đăng nhập Google thất bại.';
-        if (error.code === 'auth/popup-closed-by-user') {
-          msg = 'Cửa sổ đăng nhập Google đã bị đóng.';
-        } else {
-          msg = `Lỗi: ${error.message}`;
-        }
-        setAuthError(msg);
+    setAuthSuccessMsg('Đang xác thực Google...');
+    try {
+      let credential;
+      if (response.credential) {
+        // One Tap returns JWT credential directly
+        credential = GoogleAuthProvider.credential(response.credential);
+      } else if (response.access_token) {
+        // useGoogleLogin returns access token
+        credential = GoogleAuthProvider.credential(null, response.access_token);
+      } else {
+        throw new Error('Không nhận được token xác thực từ Google.');
       }
+      
+      const userCredential = await signInWithCredential(auth, credential);
+      const dbUser = await syncUserWithBackend(userCredential.user);
+      setLoggedInUser(dbUser);
+      localStorage.setItem('ueh_tcc_user', JSON.stringify(dbUser));
+      setAuthSuccessMsg('Đăng nhập Google thành công!');
+      setTimeout(() => {
+        setShowLoginModal(false);
+        setAuthSuccessMsg('');
+      }, 1500);
+    } catch (error) {
+      console.error("Lỗi xác thực Google:", error);
+      setAuthError(`Lỗi đăng nhập Google: ${error.message}`);
+    }
+  };
+
+  // Google One Tap UI (appears in top right)
+  useGoogleOneTapLogin({
+    onSuccess: handleGoogleAuthSuccess,
+    onError: () => console.log('Google One Tap Failed or Closed'),
+    disabled: !!loggedInUser || !isFirebaseConfigured
+  });
+
+  const googleLoginHook = useGoogleLogin({
+    onSuccess: handleGoogleAuthSuccess,
+    onError: (error) => setAuthError('Đăng nhập Google thất bại hoặc đã bị hủy.')
+  });
+
+  const handleGoogleLogin = async () => {
+    if (isFirebaseConfigured && auth) {
+      googleLoginHook(); // Triggers modern popup (NOT firebaseapp.com)
     } else {
-      setAuthSuccessMsg('🔄 Đang xác thực tài khoản Google...');
+      setAuthSuccessMsg('🔄 Đang xác thực tài khoản Google (Mock)...');
       try {
         await new Promise(resolve => setTimeout(resolve, 600));
         const mockFirebaseUser = {

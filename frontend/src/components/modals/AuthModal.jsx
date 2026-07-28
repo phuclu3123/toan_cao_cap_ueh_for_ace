@@ -1,5 +1,6 @@
 import React from 'react';
 import { X, User, KeyRound, Mail, Lock, Shield, Smartphone, PhoneCall, ArrowLeft } from 'lucide-react';
+import { useGoogleLogin, useGoogleOneTapLogin } from '@react-oauth/google';
 
 export default function AuthModal({
   showLoginModal,
