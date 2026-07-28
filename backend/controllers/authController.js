@@ -290,17 +290,24 @@ export const forgotPassword = async (req, res) => {
 
     const emailResult = await sendOtpEmail(email, user.name, otpCode, otpExpiresAt);
 
+    if (emailResult.error) {
+      return res.status(400).json({
+        success: false,
+        message: `Lỗi gửi mail: ${emailResult.error}`
+      });
+    }
+
     if (emailResult.isMock) {
       return res.json({
         success: true,
-        message: 'Mã OTP đã được gửi về email của bạn! (Chế độ mô phỏng offline: Vui lòng xem mã OTP trong Terminal của Backend server)',
+        message: 'Mã OTP đã được tạo! (Chế độ mô phỏng: Máy chủ Render chưa khai báo biến RESEND_API_KEY trong Environment).',
         isMock: true
       });
     }
 
     return res.json({
       success: true,
-      message: 'Mã xác thực OTP đã được gửi đến hòm thư email của bạn! Vui lòng kiểm tra (cả thư rác nếu chưa thấy).'
+      message: 'Mã xác thực OTP đã được gửi thành công đến hòm thư email của bạn! Vui lòng kiểm tra (cả thư mục Spam nếu chưa thấy).'
     });
   } catch (error) {
     console.error("Lỗi khi gửi email SMTP khôi phục mật khẩu:", error);

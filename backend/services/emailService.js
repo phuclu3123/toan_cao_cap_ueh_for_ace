@@ -11,7 +11,7 @@ export const sendOtpEmail = async (email, name, otpCode, otpExpiresAt) => {
       const response = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${resendApiKey}`,
+          'Authorization': `Bearer ${resendApiKey.trim()}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
@@ -53,9 +53,15 @@ export const sendOtpEmail = async (email, name, otpCode, otpExpiresAt) => {
         return { success: true, isMock: false, resendId: resData.id };
       } else {
         console.error('[RESEND API ERROR]', resData);
+        return { 
+          success: false, 
+          isMock: false, 
+          error: resData.message || 'Lỗi gửi mail qua Resend API. Kiểm tra lại RESEND_API_KEY hoặc domain nhận email.'
+        };
       }
     } catch (err) {
       console.error('[RESEND API FETCH ERROR]', err);
+      return { success: false, isMock: false, error: err.message };
     }
   }
 
@@ -105,10 +111,11 @@ export const sendOtpEmail = async (email, name, otpCode, otpExpiresAt) => {
       return { success: true, isMock: false };
     } catch (err) {
       console.error('[NODEMAILER SMTP ERROR]', err);
+      return { success: false, isMock: false, error: err.message };
     }
   }
 
-  // Option 3: Offline Mock Mode (For local development when no email API key is provided)
+  // Option 3: Offline Mock Mode (When RESEND_API_KEY and SMTP credentials are missing on server)
   console.log(`\n======================================================`);
   console.log(`[SMTP MOCK MODE] GỬI MÃ OTP QUÊN MẬT KHẨU`);
   console.log(`Email nhận: ${email}`);
@@ -116,5 +123,9 @@ export const sendOtpEmail = async (email, name, otpCode, otpExpiresAt) => {
   console.log(`Thời hạn: Hết hạn sau 10 phút (${new Date(otpExpiresAt).toLocaleTimeString()})`);
   console.log(`======================================================\n`);
 
-  return { success: true, isMock: true };
+  return { 
+    success: true, 
+    isMock: true, 
+    message: 'Mã OTP đã được gửi (Chế độ mô phỏng: Máy chủ Render chưa khai báo biến môi trường RESEND_API_KEY).' 
+  };
 };
