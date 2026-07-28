@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { 
   X, CheckCircle, ShieldCheck, QrCode, Copy, 
   PhoneCall, Sparkles, CreditCard, Check, User, Mail, 
-  Phone, Lock, Wallet, Smartphone, ExternalLink, RefreshCw, Clock, ArrowRight, Zap
+  Phone, Lock, Wallet, Smartphone, ExternalLink, RefreshCw, Clock, ArrowRight, Zap, ChevronRight
 } from 'lucide-react';
 import { API_BASE_URL } from '../../config';
 
