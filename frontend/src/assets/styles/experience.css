@@ -244,17 +244,26 @@ body {
   100% { opacity: 0; transform: scaleY(0); }
 }
 
+@keyframes auto-reveal-fallback {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .motion-enhanced .reveal-item {
   opacity: 0;
-  transform: translateY(28px);
+  transform: translateY(18px);
+  animation: auto-reveal-fallback 0.4s ease-out 0.2s forwards;
   transition:
-    opacity .72s var(--ease-expressive) var(--reveal-delay, 0ms),
-    transform .72s var(--ease-expressive) var(--reveal-delay, 0ms);
+    opacity .4s var(--ease-expressive) var(--reveal-delay, 0ms),
+    transform .4s var(--ease-expressive) var(--reveal-delay, 0ms);
 }
 
 .motion-enhanced .reveal-item.is-revealed {
   opacity: 1;
   transform: translateY(0);
+  animation: none;
 }
 
 /* ---------- Header ---------- */
