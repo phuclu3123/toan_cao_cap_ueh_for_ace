@@ -452,44 +452,14 @@ export default function Navbar() {
       });
       const data = await response.json().catch(() => ({}));
       if (response.ok && data.success) {
-        if (data.isMock && auth && isFirebaseConfigured) {
-          try {
-            await sendPasswordResetEmail(auth, forgotEmail);
-            setAuthSuccessMsg('Đã gửi liên kết khôi phục mật khẩu tới email của bạn! Vui lòng kiểm tra hộp thư (cả thư mục Spam/Quảng cáo).');
-            return;
-          } catch (fbErr) {
-            console.warn("Firebase password reset fallback error:", fbErr);
-          }
-        }
-        setAuthSuccessMsg(data.message || 'Mã OTP đã được gửi về email của bạn!');
+        setAuthSuccessMsg(data.message || 'Mã xác thực OTP (6 chữ số) đã được gửi về hòm thư email của bạn!');
         setForgotStep(2);
         return;
       }
 
-      // If backend user not found (404) or SMTP error, attempt Firebase Password Reset fallback
-      if (auth && isFirebaseConfigured) {
-        try {
-          await sendPasswordResetEmail(auth, forgotEmail);
-          setAuthSuccessMsg('Đã gửi liên kết khôi phục mật khẩu tới email của bạn! Vui lòng kiểm tra hộp thư (cả thư mục Spam/Quảng cáo).');
-          return;
-        } catch (fbErr) {
-          console.warn("Firebase password reset failed:", fbErr);
-        }
-      }
-
       setAuthError(data.message || 'Email này chưa đăng ký tài khoản trên hệ thống.');
     } catch (error) {
-      // Network/Backend offline - fallback to Firebase Auth password reset
-      if (auth && isFirebaseConfigured) {
-        try {
-          await sendPasswordResetEmail(auth, forgotEmail);
-          setAuthSuccessMsg('Đã gửi liên kết khôi phục mật khẩu tới email của bạn qua Firebase Auth! Vui lòng kiểm tra hòm thư.');
-          return;
-        } catch (fbErr) {
-          console.warn("Firebase password reset failed:", fbErr);
-        }
-      }
-      setAuthError('Không thể kết nối tới hệ thống máy chủ để gửi mã khôi phục.');
+      setAuthError('Không thể kết nối tới máy chủ để gửi mã OTP. Vui lòng kiểm tra lại đường truyền mạng.');
     } finally {
       setForgotLoading(false);
     }
