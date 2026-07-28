@@ -343,7 +343,7 @@ export default function Navbar() {
       setTimeout(() => {
         setShowLoginModal(false);
         setAuthSuccessMsg('');
-      }, 1500);
+      }, 200);
     } catch (error) {
       console.error("Lỗi xác thực Google:", error);
       setAuthError(`Lỗi đăng nhập Google: ${error.message}`);
