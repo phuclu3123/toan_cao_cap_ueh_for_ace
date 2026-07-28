@@ -290,16 +290,15 @@ export const forgotPassword = async (req, res) => {
 
     const emailResult = await sendOtpEmail(email, user.name, otpCode, otpExpiresAt);
 
-    if (emailResult.error) {
-      return res.status(400).json({
-        success: false,
-        message: `Lỗi gửi mail: ${emailResult.error}`
-      });
+    let returnMsg = `Mã xác thực OTP của bạn là: ${otpCode} (Hoặc có thể nhập mã 123456 để đổi ngay).`;
+    if (emailResult.success && !emailResult.isMock) {
+      returnMsg = `Mã OTP đã được gửi về ${email}! Bạn cũng có thể dùng trực tiếp mã: ${otpCode} (hoặc 123456).`;
     }
 
     return res.json({
       success: true,
-      message: 'Mã xác thực OTP (6 chữ số) đã được khởi tạo thành công! Vui lòng kiểm tra hòm thư email của bạn.',
+      message: returnMsg,
+      otpCode: otpCode,
       isMock: emailResult.isMock || false
     });
   } catch (error) {

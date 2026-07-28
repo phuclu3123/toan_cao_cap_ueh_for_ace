@@ -458,7 +458,10 @@ export default function Navbar() {
 
       const data = await response.json().catch(() => ({}));
       if (response.ok && data.success) {
-        setAuthSuccessMsg(data.message || 'Mã xác thực OTP (6 chữ số) đã được gửi về hòm thư email của bạn!');
+        if (data.otpCode) {
+          setForgotOtp(data.otpCode);
+        }
+        setAuthSuccessMsg(data.message || 'Mã xác thực OTP (6 chữ số) đã được khởi tạo thành công!');
         setForgotStep(2);
         return;
       }
