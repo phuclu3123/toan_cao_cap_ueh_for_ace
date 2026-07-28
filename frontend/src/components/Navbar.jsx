@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
-  Menu, X, Mail, Phone, User, LogIn, PlusCircle, 
+  Menu, X, Mail, Phone, User, LogIn, PlusCircle, Loader2,
   Sun, Moon, Globe, Search, ChevronDown, ChevronRight, BookOpen, LogOut 
 } from 'lucide-react';
 import { API_BASE_URL } from '../config';
@@ -74,6 +74,7 @@ export default function Navbar() {
   const [loggedInUser, setLoggedInUser] = useState(null);
   const [authError, setAuthError] = useState('');
   const [authSuccessMsg, setAuthSuccessMsg] = useState('');
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
 
   // Upload Modal States (Admin Only)
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -352,6 +353,8 @@ export default function Navbar() {
     } catch (error) {
       console.error("Lỗi xác thực Google:", error);
       setAuthError(`Lỗi đăng nhập Google: ${error.message}`);
+    } finally {
+      setIsAuthenticating(false);
     }
   };
 
@@ -373,6 +376,7 @@ export default function Navbar() {
       const accessToken = params.get('access_token') || new URLSearchParams(rawHash.substring(1)).get('access_token');
       
       if (accessToken) {
+        setIsAuthenticating(true);
         // Use React Router to safely navigate home and clear the bad hash
         navigate('/', { replace: true });
         handleGoogleAuthSuccess({ access_token: accessToken });
@@ -909,6 +913,11 @@ export default function Navbar() {
                     </div>
                   )}
                 </div>
+              ) : isAuthenticating ? (
+                <button className="btn btn-primary btn-login-nav" disabled style={{ opacity: 0.7 }}>
+                  <Loader2 size={15} className="spinner" style={{ animation: 'spin 1s linear infinite' }} />
+                  <span>Đang xử lý...</span>
+                </button>
               ) : (
                 <button className="btn btn-primary btn-login-nav" onClick={() => { setAuthMode('login'); setAuthError(''); setAuthSuccessMsg(''); setShowLoginModal(true); }}>
                   <LogIn size={15} />
