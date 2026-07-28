@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { 
   X, CheckCircle, ShieldCheck, QrCode, Copy, 
   PhoneCall, MessageSquare, Sparkles, ArrowRight, 
-  CreditCard, Check, User, Mail, Phone, Lock, ChevronRight
+  CreditCard, Check, User, Mail, Phone, Lock, ChevronRight, Wallet, Smartphone
 } from 'lucide-react';
 import { API_BASE_URL } from '../../config';
 
@@ -24,8 +24,8 @@ export default function CourseEnrollmentModal({
   const [voucherDiscount, setVoucherDiscount] = useState(0);
   const [note, setNote] = useState('');
 
-  // Payment Tab & Flow States
-  const [paymentTab, setPaymentTab] = useState('qr'); // 'qr' | 'consult'
+  // Payment Method Selection: 'vietqr' | 'momo' | 'vnpay' | 'consult'
+  const [paymentTab, setPaymentTab] = useState('vietqr');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
   const [orderCode, setOrderCode] = useState('');
@@ -44,7 +44,7 @@ export default function CourseEnrollmentModal({
     } catch (e) {}
   }, [isOpen]);
 
-  // Extract raw numeric price for QR generation
+  // Extract raw numeric price
   const parseNumericPrice = (priceStr) => {
     if (!priceStr) return 0;
     const num = parseInt(priceStr.replace(/[^0-9]/g, ''), 10);
@@ -55,14 +55,20 @@ export default function CourseEnrollmentModal({
   const finalPrice = voucherApplied ? Math.max(0, rawPrice - voucherDiscount) : rawPrice;
   const formattedFinalPrice = finalPrice > 0 ? `${finalPrice.toLocaleString('vi-VN')}đ` : 'Miễn phí';
 
-  // Bank transfer info
+  // Bank & Transfer Details (Strict Napas 247 Spec compliant for VietQR)
   const bankName = 'MBBank (Ngân hàng Quân Đội)';
   const bankAccountNo = '033830322';
   const bankAccountHolder = 'LU PHUC';
-  const transferMemo = `TCC ${course.id?.toUpperCase() || 'KH'} ${learnerPhone.trim() || '0833830322'}`;
+  
+  // Clean, short memo without special characters/hyphens for Napas 247 compat
+  const cleanPhone = learnerPhone.replace(/[^0-9]/g, '').slice(-10) || '0833830322';
+  const transferMemo = `TCC ${cleanPhone} K50`;
 
-  // VietQR URL
-  const vietQrUrl = `https://img.vietqr.io/image/MB-033830322-compact2.png?amount=${finalPrice}&addInfo=${encodeURIComponent(transferMemo)}&accountName=${encodeURIComponent(bankAccountHolder)}`;
+  // VietQR Image URL (Napas 247 compliant compact2 format)
+  const vietQrUrl = `https://img.vietqr.io/image/MB-033830322-compact2.png?amount=${finalPrice}&addInfo=${encodeURIComponent(transferMemo)}&accountName=LU%20PHUC`;
+
+  // MoMo QR Code URL
+  const momoQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(`2|99|0833830322|LU PHUC|luphuc321@gmail.com|0|0|${finalPrice}|${transferMemo}`)}`;
 
   const handleCopy = (text, fieldName) => {
     navigator.clipboard.writeText(text);
@@ -102,7 +108,6 @@ export default function CourseEnrollmentModal({
     setOrderCode(newOrderCode);
 
     try {
-      // Send registration to backend contact/payment route if available
       await fetch(`${API_BASE_URL}/api/contact`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -110,7 +115,7 @@ export default function CourseEnrollmentModal({
           name: learnerName.trim(),
           email: learnerEmail.trim(),
           subject: `[ĐĂNG KÝ KHÓA HỌC] ${course.title}`,
-          message: `Thông tin đăng ký:\n- Khóa học: ${course.title} (${course.id})\n- Mã đơn hàng: ${newOrderCode}\n- Số điện thoại: ${learnerPhone.trim()}\n- Giá thanh toán: ${formattedFinalPrice}\n- Phương thức: ${paymentTab === 'qr' ? 'Chuyển khoản QR' : 'Tư vấn trực tiếp'}\n- Ghi chú: ${note}`
+          message: `Thông tin đăng ký:\n- Khóa học: ${course.title} (${course.id})\n- Mã đơn hàng: ${newOrderCode}\n- Số điện thoại: ${learnerPhone.trim()}\n- Giá thanh toán: ${formattedFinalPrice}\n- Phương thức: ${paymentTab.toUpperCase()}\n- Ghi chú: ${note}`
         })
       }).catch(() => {});
 
@@ -138,24 +143,41 @@ export default function CourseEnrollmentModal({
   };
 
   return createPortal(
-    <div className="modal-overlay enrollment-modal-overlay" onClick={onClose}>
+    <div 
+      className="modal-overlay enrollment-modal-overlay" 
+      onClick={onClose}
+      style={{
+        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+        backgroundColor: 'rgba(15, 23, 42, 0.75)', backdropFilter: 'blur(8px)',
+        zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: '16px', overflowY: 'auto'
+      }}
+    >
       <div 
         className="modal-content glass-panel enrollment-modal-container"
         onClick={(e) => e.stopPropagation()}
-        style={{ maxWidth: '680px', width: '92%', borderRadius: '24px', padding: '0', overflow: 'hidden' }}
+        style={{
+          maxWidth: '680px', width: '100%', maxHeight: '92vh',
+          borderRadius: '24px', padding: '0', overflow: 'hidden',
+          display: 'flex', flexDirection: 'column', background: '#ffffff',
+          boxShadow: '0 25px 60px rgba(0, 0, 0, 0.3)'
+        }}
       >
-        {/* Header Banner */}
+        {/* Header Banner (Fixed Header) */}
         <div className="enroll-modal-header" style={{
           background: 'linear-gradient(135deg, #0e4e35 0%, #176b4a 60%, #063121 100%)',
-          padding: '28px 28px 24px',
-          color: '#ffffff',
-          position: 'relative'
+          padding: '24px 28px', color: '#ffffff', position: 'relative', flexShrink: 0
         }}>
           <button 
             type="button" 
             className="modal-close" 
             onClick={onClose}
-            style={{ color: '#ffffff', background: 'rgba(255,255,255,0.15)', top: '20px', right: '20px' }}
+            style={{
+              color: '#ffffff', background: 'rgba(255,255,255,0.18)',
+              top: '18px', right: '18px', border: 'none', borderRadius: '50%',
+              width: '32px', height: '32px', display: 'flex', alignItems: 'center',
+              justifyContent: 'center', cursor: 'pointer'
+            }}
           >
             <X size={18} />
           </button>
@@ -164,25 +186,25 @@ export default function CourseEnrollmentModal({
             <img 
               src={course.image} 
               alt={course.title} 
-              style={{ width: '80px', height: '60px', borderRadius: '12px', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.2)' }}
+              style={{ width: '76px', height: '58px', borderRadius: '12px', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.2)' }}
             />
             <div>
-              <span className="hero-badge" style={{ background: 'rgba(52, 211, 153, 0.2)', color: '#34d399', fontSize: '0.75rem', padding: '3px 10px', borderRadius: '20px', fontWeight: '700' }}>
+              <span className="hero-badge" style={{ background: 'rgba(52, 211, 153, 0.25)', color: '#34d399', fontSize: '0.75rem', padding: '3px 10px', borderRadius: '20px', fontWeight: '700' }}>
                 <Sparkles size={12} style={{ display: 'inline', marginRight: '4px' }} />
-                LUỒNG ĐĂNG KÝ HỌC VIÊN
+                ĐĂNG KÝ KHÓA HỌC UEH TCC
               </span>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: '800', margin: '6px 0 2px', color: '#ffffff' }}>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: '800', margin: '4px 0 2px', color: '#ffffff' }}>
                 {course.title}
               </h3>
-              <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.8)', margin: 0 }}>
+              <p style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.85)', margin: 0 }}>
                 Kích hoạt tài khoản & mở khóa toàn bộ bài học video HD 24/7
               </p>
             </div>
           </div>
         </div>
 
-        {/* Modal Body */}
-        <div style={{ padding: '24px 28px 28px', maxHeight: '78vh', overflowY: 'auto' }}>
+        {/* Modal Body (Scrollable Content Container) */}
+        <div style={{ padding: '24px 28px 36px', overflowY: 'auto', flex: 1, WebkitOverflowScrolling: 'touch' }}>
           {isCompleted ? (
             /* SUCCESS STATE */
             <div style={{ textAlign: 'center', padding: '20px 10px' }}>
@@ -294,7 +316,6 @@ export default function CourseEnrollmentModal({
                   <span style={{ fontSize: '1.4rem', fontWeight: '900', color: '#0d9488' }}>{formattedFinalPrice}</span>
                 </div>
 
-                {/* Voucher Code Box */}
                 {!course.isFree && !voucherApplied && (
                   <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
                     <input
@@ -317,40 +338,78 @@ export default function CourseEnrollmentModal({
                 )}
               </div>
 
-              {/* Step 3: Payment Method Selection */}
+              {/* Step 3: Payment Method Selection (VietQR, MoMo, VNPay, Zalo) */}
               {!course.isFree && (
                 <div style={{ marginBottom: '22px' }}>
                   <h4 style={{ fontSize: '0.95rem', fontWeight: '700', color: '#334155', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <CreditCard size={16} className="text-teal" /> 2. Phương Thức Đăng Ký & Thanh Toán
+                    <CreditCard size={16} className="text-teal" /> 2. Chọn Phương Thức Thanh Toán
                   </h4>
 
-                  {/* Payment Tabs */}
-                  <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
+                  {/* Payment Grid Buttons */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '16px' }}>
                     <button
                       type="button"
-                      onClick={() => setPaymentTab('qr')}
+                      onClick={() => setPaymentTab('vietqr')}
                       style={{
-                        flex: 1, padding: '12px', borderRadius: '12px', border: paymentTab === 'qr' ? '2px solid #0d9488' : '1px solid #cbd5e1',
-                        background: paymentTab === 'qr' ? '#f0fdf4' : '#ffffff', color: paymentTab === 'qr' ? '#0f766e' : '#64748b',
-                        fontWeight: '700', fontSize: '0.88rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'
+                        padding: '12px 10px', borderRadius: '12px',
+                        border: paymentTab === 'vietqr' ? '2px solid #0d9488' : '1px solid #cbd5e1',
+                        background: paymentTab === 'vietqr' ? '#f0fdf4' : '#ffffff',
+                        color: paymentTab === 'vietqr' ? '#0f766e' : '#475569',
+                        fontWeight: '700', fontSize: '0.85rem', cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'
                       }}
                     >
-                      <QrCode size={16} /> Chuyển Khoản QR / VietQR
+                      <QrCode size={16} color="#0d9488" /> Ngân Hàng / VietQR
                     </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setPaymentTab('momo')}
+                      style={{
+                        padding: '12px 10px', borderRadius: '12px',
+                        border: paymentTab === 'momo' ? '2px solid #a21caf' : '1px solid #cbd5e1',
+                        background: paymentTab === 'momo' ? '#fdf4ff' : '#ffffff',
+                        color: paymentTab === 'momo' ? '#86198f' : '#475569',
+                        fontWeight: '700', fontSize: '0.85rem', cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'
+                      }}
+                    >
+                      <Wallet size={16} color="#a21caf" /> Ví MoMo
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setPaymentTab('vnpay')}
+                      style={{
+                        padding: '12px 10px', borderRadius: '12px',
+                        border: paymentTab === 'vnpay' ? '2px solid #0284c7' : '1px solid #cbd5e1',
+                        background: paymentTab === 'vnpay' ? '#f0f9ff' : '#ffffff',
+                        color: paymentTab === 'vnpay' ? '#0369a1' : '#475569',
+                        fontWeight: '700', fontSize: '0.85rem', cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'
+                      }}
+                    >
+                      <Smartphone size={16} color="#0284c7" /> VNPay QR
+                    </button>
+
                     <button
                       type="button"
                       onClick={() => setPaymentTab('consult')}
                       style={{
-                        flex: 1, padding: '12px', borderRadius: '12px', border: paymentTab === 'consult' ? '2px solid #0d9488' : '1px solid #cbd5e1',
-                        background: paymentTab === 'consult' ? '#f0fdf4' : '#ffffff', color: paymentTab === 'consult' ? '#0f766e' : '#64748b',
-                        fontWeight: '700', fontSize: '0.88rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'
+                        padding: '12px 10px', borderRadius: '12px',
+                        border: paymentTab === 'consult' ? '2px solid #2563eb' : '1px solid #cbd5e1',
+                        background: paymentTab === 'consult' ? '#eff6ff' : '#ffffff',
+                        color: paymentTab === 'consult' ? '#1d4ed8' : '#475569',
+                        fontWeight: '700', fontSize: '0.85rem', cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'
                       }}
                     >
-                      <PhoneCall size={16} /> Tư Vấn Trực Tiếp (Zalo)
+                      <PhoneCall size={16} color="#2563eb" /> Zalo / Hotline
                     </button>
                   </div>
 
-                  {paymentTab === 'qr' ? (
+                  {/* TAB 1: VIETQR / BANK */}
+                  {paymentTab === 'vietqr' && (
                     <div style={{
                       background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '16px', padding: '18px',
                       display: 'grid', gridTemplateColumns: '170px 1fr', gap: '18px', alignItems: 'center'
@@ -358,11 +417,11 @@ export default function CourseEnrollmentModal({
                       <div style={{ textAlign: 'center' }}>
                         <img 
                           src={vietQrUrl} 
-                          alt="Mã QR Chuyển khoản" 
+                          alt="Mã VietQR Ngân Hàng" 
                           style={{ width: '100%', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }} 
                         />
                         <span style={{ fontSize: '0.72rem', color: '#64748b', display: 'block', marginTop: '6px' }}>
-                          Quét mã bằng App Ngân hàng / MoMo
+                          Quét mã bằng App MBBank / VCB / Agribank / Techcombank
                         </span>
                       </div>
 
@@ -404,10 +463,94 @@ export default function CourseEnrollmentModal({
                         </div>
                       </div>
                     </div>
-                  ) : (
-                    <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '18px' }}>
-                      <p style={{ fontSize: '0.88rem', color: '#475569', lineHeight: '1.6', marginBottom: '12px' }}>
-                        Bạn có thể liên hệ trực tiếp Ban Quản Trị UEH TCC qua Zalo hoặc Hotline để được giải đáp thắc mắc và cấp tài khoản học nhanh nhất:
+                  )}
+
+                  {/* TAB 2: MOMO */}
+                  {paymentTab === 'momo' && (
+                    <div style={{
+                      background: '#fdf4ff', border: '1px solid #f5d0fe', borderRadius: '16px', padding: '18px',
+                      display: 'grid', gridTemplateColumns: '170px 1fr', gap: '18px', alignItems: 'center'
+                    }}>
+                      <div style={{ textAlign: 'center' }}>
+                        <img 
+                          src={momoQrUrl} 
+                          alt="Mã QR Ví MoMo" 
+                          style={{ width: '100%', borderRadius: '12px', border: '1px solid #f5d0fe', boxShadow: '0 4px 12px rgba(162,28,175,0.1)' }} 
+                        />
+                        <span style={{ fontSize: '0.72rem', color: '#86198f', display: 'block', marginTop: '6px', fontWeight: '600' }}>
+                          Mở App MoMo quét mã QR
+                        </span>
+                      </div>
+
+                      <div style={{ fontSize: '0.85rem', color: '#334155' }}>
+                        <div style={{ marginBottom: '8px' }}>
+                          <span style={{ color: '#701a75' }}>Tài khoản MoMo: </span>
+                          <strong style={{ color: '#a21caf', fontSize: '1rem', fontFamily: 'monospace' }}>0833830322</strong>
+                          <button
+                            type="button"
+                            onClick={() => handleCopy('0833830322', 'momo_stk')}
+                            style={{ background: 'none', border: 'none', color: '#a21caf', cursor: 'pointer', padding: '0 0 0 6px' }}
+                          >
+                            {copiedField === 'momo_stk' ? <Check size={14} color="#16a34a" /> : <Copy size={14} />}
+                          </button>
+                        </div>
+
+                        <div style={{ marginBottom: '8px' }}>
+                          <span style={{ color: '#701a75' }}>Tên người nhận: </span>
+                          <strong>LƯ PHÚC</strong>
+                        </div>
+
+                        <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ color: '#701a75' }}>Lời nhắn MoMo: </span>
+                          <strong style={{ color: '#dc2626', fontFamily: 'monospace' }}>{transferMemo}</strong>
+                          <button
+                            type="button"
+                            onClick={() => handleCopy(transferMemo, 'momo_memo')}
+                            style={{ background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', padding: 0 }}
+                          >
+                            {copiedField === 'momo_memo' ? <Check size={14} color="#16a34a" /> : <Copy size={14} />}
+                          </button>
+                        </div>
+
+                        <a 
+                          href="https://nhantien.momo.vn/0833830322" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="btn"
+                          style={{
+                            display: 'inline-block', background: '#a21caf', color: '#ffffff',
+                            padding: '8px 16px', borderRadius: '10px', fontWeight: '700', fontSize: '0.8rem',
+                            textDecoration: 'none'
+                          }}
+                        >
+                          🔗 Mở Ví MoMo trực tiếp
+                        </a>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* TAB 3: VNPAY */}
+                  {paymentTab === 'vnpay' && (
+                    <div style={{ background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: '16px', padding: '18px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px', color: '#0369a1' }}>
+                        <Smartphone size={20} />
+                        <strong style={{ fontSize: '0.95rem' }}>Thanh toán VNPay QR & Thẻ ATM Nội Địa / Visa</strong>
+                      </div>
+                      <p style={{ fontSize: '0.85rem', color: '#334155', lineHeight: '1.6', marginBottom: '12px' }}>
+                        Hệ thống chấp nhận quét mã **VNPay QR** trên ứng dụng Ngân hàng (VietinBank, VCB, BIDV, Agribank, VPBank...) hoặc thanh toán qua thẻ Napas/ATM nội địa.
+                      </p>
+                      <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: '12px', border: '1px solid #e0f2fe', fontSize: '0.82rem' }}>
+                        <span>Nội dung chuyển khoản VNPay: </span>
+                        <strong style={{ color: '#0284c7', fontFamily: 'monospace' }}>{transferMemo}</strong>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* TAB 4: CONSULTATION */}
+                  {paymentTab === 'consult' && (
+                    <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '16px', padding: '18px' }}>
+                      <p style={{ fontSize: '0.88rem', color: '#1e3a8a', lineHeight: '1.6', marginBottom: '12px' }}>
+                        Bạn có thể liên hệ trực tiếp Ban Quản Trị UEH TCC qua Zalo hoặc Hotline để được tư vấn lộ trình học tập và hỗ trợ cấp quyền nhanh nhất:
                       </p>
                       <div style={{ display: 'flex', gap: '12px' }}>
                         <a
@@ -415,7 +558,7 @@ export default function CourseEnrollmentModal({
                           target="_blank"
                           rel="noopener noreferrer"
                           className="btn btn-secondary"
-                          style={{ flex: 1, textDecoration: 'none', textAlign: 'center', padding: '10px' }}
+                          style={{ flex: 1, textDecoration: 'none', textAlign: 'center', padding: '10px', background: '#2563eb', color: '#ffffff' }}
                         >
                           💬 Chat Zalo: 0833830322
                         </a>
@@ -445,7 +588,7 @@ export default function CourseEnrollmentModal({
                 />
               </div>
 
-              {/* Submit Button */}
+              {/* Submit Button (Always Visible at bottom of scrollable area) */}
               <button
                 type="submit"
                 className="btn btn-primary w-full"
@@ -453,7 +596,8 @@ export default function CourseEnrollmentModal({
                 style={{
                   padding: '14px 24px', fontSize: '1rem', fontWeight: '800', borderRadius: '14px',
                   background: 'linear-gradient(135deg, #0d9488 0%, #0f766e 100%)',
-                  boxShadow: '0 4px 14px rgba(13, 148, 136, 0.35)'
+                  boxShadow: '0 4px 14px rgba(13, 148, 136, 0.35)', cursor: 'pointer',
+                  marginTop: '10px'
                 }}
               >
                 {isSubmitting ? (
