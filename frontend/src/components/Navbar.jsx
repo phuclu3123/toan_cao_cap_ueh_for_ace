@@ -374,7 +374,6 @@ export default function Navbar() {
 
   const handleGoogleLogin = async () => {
     setAuthError('');
-    setAuthSuccessMsg('Đang chuyển hướng sang Google...');
     if (isFirebaseConfigured && auth && googleProvider) {
       const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '889879979247-ui1p4bgdv0vah7sfddhfmpejtqtr2npv.apps.googleusercontent.com';
       const redirectUri = window.location.origin;
@@ -411,12 +410,19 @@ export default function Navbar() {
 
   const handleGithubLogin = async () => {
     setAuthError('');
-    setAuthSuccessMsg('Đang chuyển hướng sang GitHub...');
     if (isFirebaseConfigured && auth && githubProvider) {
       try {
-        await signInWithRedirect(auth, githubProvider);
+        const userCredential = await signInWithPopup(auth, githubProvider);
+        const dbUser = await syncUserWithBackend(userCredential.user);
+        setLoggedInUser(dbUser);
+        localStorage.setItem('ueh_tcc_user', JSON.stringify(dbUser));
+        setAuthSuccessMsg('Đăng nhập GitHub thành công!');
+        setTimeout(() => {
+          setShowLoginModal(false);
+          setAuthSuccessMsg('');
+        }, 200);
       } catch (error) {
-        setAuthError(`Lỗi chuyển hướng GitHub: ${error.message}`);
+        setAuthError(`Lỗi đăng nhập GitHub: ${error.message}`);
       }
     } else {
       setAuthSuccessMsg('🔄 Đang xác thực tài khoản GitHub...');
