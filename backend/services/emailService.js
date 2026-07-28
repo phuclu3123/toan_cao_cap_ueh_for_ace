@@ -37,7 +37,7 @@ export const sendOtpEmail = async (email, name, otpCode, otpExpiresAt) => {
     try {
       const host = process.env.EMAIL_HOST || 'smtp.gmail.com';
       const port = parseInt(process.env.EMAIL_PORT) || 587;
-      const secure = process.env.EMAIL_SECURE === 'true';
+      const secure = process.env.EMAIL_SECURE === 'true' || port === 465;
 
       const transporter = nodemailer.createTransport({
         host,
@@ -57,7 +57,10 @@ export const sendOtpEmail = async (email, name, otpCode, otpExpiresAt) => {
       console.log(`[GMAIL SMTP SUCCESS] Gửi mã OTP thành công tới ${email}`);
       return { success: true, isMock: false };
     } catch (err) {
-      console.error('[GMAIL SMTP ERROR]', err.message);
+      console.error('[GMAIL SMTP ERROR] Lỗi gửi mail:', err.message);
+      if (err.message.includes('Invalid login') || err.message.includes('535-5.7.8')) {
+        console.error('=> GỢI Ý: Google không cho phép dùng mật khẩu Gmail thông thường. Bạn PHẢI tạo "Mật khẩu ứng dụng" (App Password) gồm 16 chữ cái trong Google Account và dùng nó làm EMAIL_PASS.');
+      }
     }
   }
 
