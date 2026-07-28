@@ -360,17 +360,20 @@ export default function Navbar() {
   // Handle manual Google OAuth redirect return
   useEffect(() => {
     if (window.location.hash.includes('access_token=')) {
-      const hash = window.location.hash.substring(1);
-      const params = new URLSearchParams(hash);
-      const accessToken = params.get('access_token');
+      // First, get the hash part that has access_token
+      // HashRouter might make it look like #/access_token=... or #access_token=...
+      const rawHash = window.location.hash;
+      const paramString = rawHash.includes('?') ? rawHash.split('?')[1] : rawHash.replace(/^#\/?/, '');
+      const params = new URLSearchParams(paramString);
+      const accessToken = params.get('access_token') || new URLSearchParams(rawHash.substring(1)).get('access_token');
       
       if (accessToken) {
-        // Clear the hash immediately so the URL looks clean
-        window.history.replaceState(null, '', window.location.pathname);
+        // Use React Router to safely navigate home and clear the bad hash
+        navigate('/', { replace: true });
         handleGoogleAuthSuccess({ access_token: accessToken });
       }
     }
-  }, []);
+  }, [navigate]);
 
   const handleGoogleLogin = async () => {
     setAuthError('');
@@ -412,15 +415,7 @@ export default function Navbar() {
     setAuthError('');
     if (isFirebaseConfigured && auth && githubProvider) {
       try {
-        const userCredential = await signInWithPopup(auth, githubProvider);
-        const dbUser = await syncUserWithBackend(userCredential.user);
-        setLoggedInUser(dbUser);
-        localStorage.setItem('ueh_tcc_user', JSON.stringify(dbUser));
-        setAuthSuccessMsg('Đăng nhập GitHub thành công!');
-        setTimeout(() => {
-          setShowLoginModal(false);
-          setAuthSuccessMsg('');
-        }, 200);
+        await signInWithRedirect(auth, githubProvider);
       } catch (error) {
         setAuthError(`Lỗi đăng nhập GitHub: ${error.message}`);
       }
