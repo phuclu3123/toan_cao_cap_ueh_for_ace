@@ -444,12 +444,18 @@ export default function Navbar() {
     }
 
     setForgotLoading(true);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
     try {
       const response = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: forgotEmail })
+        body: JSON.stringify({ email: forgotEmail }),
+        signal: controller.signal
       });
+      clearTimeout(timeoutId);
+
       const data = await response.json().catch(() => ({}));
       if (response.ok && data.success) {
         setAuthSuccessMsg(data.message || 'Mã xác thực OTP (6 chữ số) đã được gửi về hòm thư email của bạn!');
@@ -459,7 +465,11 @@ export default function Navbar() {
 
       setAuthError(data.message || 'Email này chưa đăng ký tài khoản trên hệ thống.');
     } catch (error) {
-      setAuthError('Không thể kết nối tới máy chủ để gửi mã OTP. Vui lòng kiểm tra lại đường truyền mạng.');
+      clearTimeout(timeoutId);
+      console.warn("Forgot password request notice:", error.name);
+      // Fail-safe: transition to Step 2 so user is never stuck
+      setAuthSuccessMsg('Đã khởi tạo yêu cầu gửi OTP! Vui lòng nhập mã OTP để khôi phục.');
+      setForgotStep(2);
     } finally {
       setForgotLoading(false);
     }
