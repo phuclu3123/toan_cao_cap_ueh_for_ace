@@ -175,9 +175,6 @@ export default function AuthModal({
               <button type="button" className="text-teal font-semibold hover:underline" onClick={() => { setAuthMode('signup'); setAuthError(''); setAuthSuccessMsg(''); }}>Đăng ký ngay</button>
             </div>
 
-            <div className="auth-footer-note">
-              🔒 Cam kết bảo mật an toàn thông tin tài khoản học viên.
-            </div>
           </form>
         )}
 
