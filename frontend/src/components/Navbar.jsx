@@ -336,7 +336,7 @@ export default function Navbar() {
   useGoogleOneTapLogin({
     onSuccess: handleGoogleAuthSuccess,
     onError: () => console.log('Google One Tap Failed or Closed'),
-    disabled: !!loggedInUser || !isFirebaseConfigured
+    disabled: !!loggedInUser || !isFirebaseConfigured || !showLoginModal
   });
 
   const googleLoginHook = useGoogleLogin({
