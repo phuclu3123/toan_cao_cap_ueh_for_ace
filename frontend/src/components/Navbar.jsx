@@ -205,14 +205,21 @@ export default function Navbar() {
 
   const isActivePath = (path) => location.pathname === path;
 
-  const handleNavClick = () => {
+  const handleNavClick = (targetPath) => (e) => {
+    if (e && e.preventDefault) e.preventDefault();
     document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
     const launcher = document.querySelector('.contact-launcher-container') || document.querySelector('.contact-launcher');
     if (launcher) launcher.style.display = '';
+
     setIsOpen(false);
     setShowUserDropdown(false);
     setShowLangMenu(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    if (targetPath) {
+      navigate(targetPath);
+    }
+    window.scrollTo(0, 0);
   };
 
   const handleGlobalSearch = (event) => {
@@ -741,20 +748,20 @@ export default function Navbar() {
             </div>
           )}
           <div className="container navbar-container">
-            <Link to="/" className="navbar-logo" onClick={handleNavClick}>
+            <Link to="/" className="navbar-logo" onClick={handleNavClick('/')}>
               <span className="logo-helper">UEH</span>
               <span className="logo-main">TCC</span>
             </Link>
 
             {/* Desktop Navigation Links */}
             <div className="nav-links">
-              <Link to="/" className={`nav-link-item ${isActivePath('/') ? 'active' : ''}`} onClick={handleNavClick}>{t.nav.home}</Link>
-              <Link to="/courses" className={`nav-link-item ${isActivePath('/courses') ? 'active' : ''}`} onClick={handleNavClick}>{t.nav.courses}</Link>
-              <Link to="/resources?category=all" className={`nav-link-item ${location.pathname === '/resources' ? 'active' : ''}`} onClick={handleNavClick}>{t.nav.library}</Link>
-              <Link to="/exams" className={`nav-link-item ${isActivePath('/exams') ? 'active' : ''}`} onClick={handleNavClick}>{t.nav.exams}</Link>
-              <Link to="/blog" className={`nav-link-item ${isActivePath('/blog') ? 'active' : ''}`} onClick={handleNavClick}>{t.nav.blog}</Link>
-              <Link to="/payos-api" className={`nav-link-item api-nav-link ${isActivePath('/payos-api') ? 'active' : ''}`} onClick={handleNavClick}>Dọc API</Link>
-              <Link to="/20-10" className={`nav-link-item rose-link ${location.pathname === '/20-10' ? 'active' : ''}`} onClick={handleNavClick}>{t.nav.gift}</Link>
+              <Link to="/" className={`nav-link-item ${isActivePath('/') ? 'active' : ''}`} onClick={handleNavClick('/')}>{t.nav.home}</Link>
+              <Link to="/courses" className={`nav-link-item ${isActivePath('/courses') ? 'active' : ''}`} onClick={handleNavClick('/courses')}>{t.nav.courses}</Link>
+              <Link to="/resources?category=all" className={`nav-link-item ${location.pathname === '/resources' ? 'active' : ''}`} onClick={handleNavClick('/resources?category=all')}>{t.nav.library}</Link>
+              <Link to="/exams" className={`nav-link-item ${isActivePath('/exams') ? 'active' : ''}`} onClick={handleNavClick('/exams')}>{t.nav.exams}</Link>
+              <Link to="/blog" className={`nav-link-item ${isActivePath('/blog') ? 'active' : ''}`} onClick={handleNavClick('/blog')}>{t.nav.blog}</Link>
+              <Link to="/payos-api" className={`nav-link-item api-nav-link ${isActivePath('/payos-api') ? 'active' : ''}`} onClick={handleNavClick('/payos-api')}>Dọc API</Link>
+              <Link to="/20-10" className={`nav-link-item rose-link ${location.pathname === '/20-10' ? 'active' : ''}`} onClick={handleNavClick('/20-10')}>{t.nav.gift}</Link>
             </div>
 
             {/* Theme & Language Controls */}
@@ -926,13 +933,13 @@ export default function Navbar() {
               </button>
             </div>
             <div className="mobile-links">
-              <Link to="/" className="mobile-link-item" onClick={() => { setIsOpen(false); window.scrollTo(0, 0); }}>{t.nav.home}</Link>
-              <Link to="/courses" className="mobile-link-item" onClick={() => setIsOpen(false)}>{t.nav.courses}</Link>
-              <Link to="/resources?category=all" className="mobile-link-item" onClick={() => setIsOpen(false)}>{t.nav.library}</Link>
-              <Link to="/exams" className="mobile-link-item" onClick={() => setIsOpen(false)}>{t.nav.exams}</Link>
-              <Link to="/blog" className="mobile-link-item" onClick={() => setIsOpen(false)}>{t.nav.blog}</Link>
-              <Link to="/payos-api" className="mobile-link-item api-mobile-link" onClick={() => setIsOpen(false)}>Dọc API</Link>
-              <Link to="/20-10" className="mobile-link-item rose-link" onClick={() => setIsOpen(false)}>{t.nav.gift}</Link>
+              <Link to="/" className="mobile-link-item" onClick={handleNavClick('/')}>{t.nav.home}</Link>
+              <Link to="/courses" className="mobile-link-item" onClick={handleNavClick('/courses')}>{t.nav.courses}</Link>
+              <Link to="/resources?category=all" className="mobile-link-item" onClick={handleNavClick('/resources?category=all')}>{t.nav.library}</Link>
+              <Link to="/exams" className="mobile-link-item" onClick={handleNavClick('/exams')}>{t.nav.exams}</Link>
+              <Link to="/blog" className="mobile-link-item" onClick={handleNavClick('/blog')}>{t.nav.blog}</Link>
+              <Link to="/payos-api" className="mobile-link-item api-mobile-link" onClick={handleNavClick('/payos-api')}>Dọc API</Link>
+              <Link to="/20-10" className="mobile-link-item rose-link" onClick={handleNavClick('/20-10')}>{t.nav.gift}</Link>
               
               {/* Mobile theme & language controls */}
               <div className="mobile-controls-row">

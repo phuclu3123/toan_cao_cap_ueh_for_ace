@@ -1708,8 +1708,8 @@ export default function CourseDetail() {
         document.body
       )}
 
-      {/* SMART FLOATING STUDY TIMER (When Video Modal is CLOSED - Image 3: Positioned at Top-Right Corner!) */}
-      {!showVideoModal && createPortal(renderStudyTimerWidget(false), document.body)}
+      {/* SMART FLOATING STUDY TIMER (When Video Modal is CLOSED) */}
+      {!showVideoModal && renderStudyTimerWidget(false)}
 
       {/* COURSE ENROLLMENT / REGISTRATION MODAL */}
       <CourseEnrollmentModal
