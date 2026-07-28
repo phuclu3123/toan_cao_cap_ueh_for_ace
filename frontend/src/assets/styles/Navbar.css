@@ -948,21 +948,25 @@
 
 /* Social Login Grid */
 .social-login-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
 }
 
 .btn-social {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 48px;
-  border-radius: 12px;
-  background: var(--bg-primary);
+  gap: 12px;
+  height: 44px;
+  border-radius: 8px;
+  background: transparent;
   border: 1px solid var(--border-color);
   color: var(--text-primary);
-  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   position: relative;
   overflow: hidden;
@@ -973,48 +977,44 @@
   position: absolute;
   inset: 0;
   opacity: 0;
-  transition: opacity 0.22s ease;
+  transition: opacity 0.2s ease;
   border-radius: inherit;
+  z-index: 0;
 }
 
 .btn-social:hover {
-  transform: translateY(-2px);
-}
-
-.btn-social:hover::before {
-  opacity: 1;
+  border-color: var(--text-secondary);
+  background: var(--bg-secondary);
 }
 
 .btn-social:active {
-  transform: translateY(0) scale(0.98);
+  transform: scale(0.98);
 }
 
-.btn-social.google:hover {
-  border-color: rgba(66, 133, 244, 0.5);
-  box-shadow: 0 6px 20px -6px rgba(234, 67, 53, 0.5);
-  background: rgba(66, 133, 244, 0.08);
-}
-
-.btn-social.facebook:hover {
-  border-color: rgba(24, 119, 242, 0.5);
-  box-shadow: 0 6px 20px -6px rgba(24, 119, 242, 0.5);
-  background: rgba(24, 119, 242, 0.08);
-}
-
-.btn-social.github:hover {
-  border-color: rgba(200, 200, 200, 0.4);
-  box-shadow: 0 6px 20px -6px rgba(200, 200, 200, 0.3);
-  background: rgba(255, 255, 255, 0.08);
+.btn-social svg, .btn-social span {
+  position: relative;
+  z-index: 1;
 }
 
 .btn-social svg {
-  width: 22px;
-  height: 22px;
-  transition: transform 0.2s ease;
+  width: 20px;
+  height: 20px;
 }
 
-.btn-social:hover svg {
-  transform: scale(1.1);
+/* Specific Brand Hovers */
+.btn-social.google:hover {
+  border-color: #4285F4;
+  background: rgba(66, 133, 244, 0.04);
+}
+
+.btn-social.facebook:hover {
+  border-color: #1877F2;
+  background: rgba(24, 119, 242, 0.04);
+}
+
+.btn-social.github:hover {
+  border-color: var(--text-primary);
+  background: var(--bg-tertiary);
 }
 
 /* Back Link */
