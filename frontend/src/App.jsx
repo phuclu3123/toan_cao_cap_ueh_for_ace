@@ -1,5 +1,5 @@
-import { createContext, useState, useEffect, lazy, Suspense } from 'react';
-import { createHashRouter, RouterProvider, useLocation } from 'react-router-dom';
+import { createContext, useState, useEffect, lazy, Suspense, Component } from 'react';
+import { createHashRouter, RouterProvider, useLocation, useRouteError } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ContactLauncher from './components/layout/ContactLauncher';
@@ -27,27 +27,51 @@ export const LanguageContext = createContext();
 // eslint-disable-next-line react-refresh/only-export-components
 export const ThemeContext = createContext();
 
-// Dynamic chunk fetch error recovery wrapper with loop protection
+// Dynamic chunk fetch error recovery wrapper
 function safeLazy(importFunc) {
   return lazy(() =>
     importFunc().catch((error) => {
-      const errorMsg = error.message || '';
-      const isChunkError =
-        error.name === 'TypeError' ||
-        errorMsg.indexOf('Failed to fetch') !== -1 ||
-        errorMsg.indexOf('dynamically imported module') !== -1;
-
-      if (isChunkError) {
-        const hasAttempted = safeSessionStorage.getItem('chunk_reload_attempted');
-        if (!hasAttempted) {
-          safeSessionStorage.setItem('chunk_reload_attempted', 'true');
-          console.warn('Chunk loading failed. Dynamic module mismatch, reloading page once...', error);
-          window.location.reload();
-          return new Promise(() => {});
-        }
-      }
-      throw error;
+      console.warn('Cập nhật phiên bản mới, đang tự động đồng bộ tài nguyên...', error);
+      // Auto-reload to load fresh Vite chunk hashes from Netlify
+      window.location.reload();
+      return new Promise(() => {});
     })
+  );
+}
+
+// Global Route Error Boundary to handle version updates gracefully
+function GlobalErrorBoundary() {
+  const error = useRouteError();
+  const errorMsg = error?.message || error?.toString() || '';
+
+  useEffect(() => {
+    const isChunkError =
+      errorMsg.indexOf('Failed to fetch') !== -1 ||
+      errorMsg.indexOf('dynamically imported module') !== -1 ||
+      errorMsg.indexOf('Importing binding') !== -1;
+
+    if (isChunkError) {
+      console.warn('Đang tự động làm mới trang để cập nhật phiên bản mới nhất...');
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    }
+  }, [errorMsg]);
+
+  return (
+    <div style={{ padding: '60px 20px', textAlign: 'center', minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+      <BrandLoader label="Đang làm mới dữ liệu hệ thống UEH TCC..." />
+      <p style={{ marginTop: '16px', color: '#64748b', fontSize: '0.9rem' }}>
+        Hệ thống đang tự động đồng bộ phiên bản mới nhất. Vui lòng đợi trong giây lát...
+      </p>
+      <button 
+        onClick={() => window.location.reload()}
+        className="btn btn-primary"
+        style={{ marginTop: '16px', padding: '10px 20px', borderRadius: '10px' }}
+      >
+        🔄 Tải lại trang ngay
+      </button>
+    </div>
   );
 }
 
@@ -83,6 +107,7 @@ const router = createHashRouter([
   {
     path: '/',
     element: <Layout />,
+    errorElement: <GlobalErrorBoundary />,
     children: [
       {
         path: '',
@@ -108,7 +133,6 @@ const router = createHashRouter([
           </Suspense>
         )
       },
-
       {
         path: 'exams',
         element: <ExamsPage />
@@ -118,29 +142,21 @@ const router = createHashRouter([
         element: <BlogPage />
       },
       {
-        path: 'blog/:slug',
+        path: 'blog/:id',
         element: (
-          <Suspense fallback={<BrandLoader label="Đang mở chuyên khảo học thuật" />}>
+          <Suspense fallback={<BrandLoader label="Đang tải bài viết kiến thức" />}>
             <BlogDetailPage />
           </Suspense>
         )
-      },
-      {
-        path: 'payos-api',
-        element: <PayOSApiPage />
-      },
-      {
-        path: 'about',
-        element: <AboutPage />
       },
       {
         path: 'resources',
         element: <ResourcesPage />
       },
       {
-        path: 'document/:id',
+        path: 'doc/:id',
         element: (
-          <Suspense fallback={<BrandLoader label="Đang chuẩn bị tài liệu" />}>
+          <Suspense fallback={<BrandLoader label="Đang tải tài liệu học tập" />}>
             <DocDetail />
           </Suspense>
         )
@@ -148,10 +164,18 @@ const router = createHashRouter([
       {
         path: 'exam/:id',
         element: (
-          <Suspense fallback={<BrandLoader label="Đang thiết lập phòng thi" />}>
+          <Suspense fallback={<BrandLoader label="Đang tải phòng thi trắc nghiệm" />}>
             <ExamDetail />
           </Suspense>
         )
+      },
+      {
+        path: 'payos-api-docs',
+        element: <PayOSApiPage />
+      },
+      {
+        path: 'about',
+        element: <AboutPage />
       },
       {
         path: '20-10',
@@ -165,47 +189,38 @@ const router = createHashRouter([
   }
 ]);
 
-function AppProviders({ children }) {
-  const [language, setLanguage] = useState(() => safeLocalStorage.getItem('ueh_tcc_lang') || 'vi');
-  const [theme, setTheme] = useState(() => safeLocalStorage.getItem('ueh_tcc_theme') || 'light');
+export default function App() {
+  const [language, setLanguage] = useState(() => {
+    return safeLocalStorage.getItem('ueh_tcc_lang') || 'vi';
+  });
+
+  const [theme, setTheme] = useState(() => {
+    return safeLocalStorage.getItem('ueh_tcc_theme') || 'light';
+  });
 
   useEffect(() => {
     safeLocalStorage.setItem('ueh_tcc_lang', language);
-    document.documentElement.lang = language === 'zh' ? 'zh-Hans' : language;
+    document.documentElement.setAttribute('lang', language);
   }, [language]);
 
   useEffect(() => {
     safeLocalStorage.setItem('ueh_tcc_theme', theme);
     document.documentElement.setAttribute('data-theme', theme);
-    document.documentElement.style.colorScheme = theme;
-    if (theme === 'light') {
-      document.documentElement.classList.add('light-theme');
-    } else {
-      document.documentElement.classList.remove('light-theme');
-    }
   }, [theme]);
 
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  const toggleLanguage = () => {
+    setLanguage(prev => (prev === 'vi' ? 'en' : 'vi'));
   };
 
-  const changeLanguage = (lang) => {
-    setLanguage(lang);
+  const toggleTheme = () => {
+    setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
   };
 
   return (
-    <LanguageContext.Provider value={{ language, changeLanguage }}>
-      <ThemeContext.Provider value={{ theme, toggleTheme }}>
-        {children}
+    <LanguageContext.Provider value={{ language, setLanguage, toggleLanguage }}>
+      <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
+        <RouterProvider router={router} />
       </ThemeContext.Provider>
     </LanguageContext.Provider>
-  );
-}
-
-export default function App() {
-  return (
-    <AppProviders>
-      <RouterProvider router={router} />
-    </AppProviders>
   );
 }
