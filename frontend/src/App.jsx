@@ -206,6 +206,11 @@ export default function App() {
   useEffect(() => {
     safeLocalStorage.setItem('ueh_tcc_theme', theme);
     document.documentElement.setAttribute('data-theme', theme);
+    if (theme === 'light') {
+      document.documentElement.classList.add('light-theme');
+    } else {
+      document.documentElement.classList.remove('light-theme');
+    }
   }, [theme]);
 
   const toggleLanguage = () => {

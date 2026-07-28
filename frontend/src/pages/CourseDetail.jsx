@@ -435,7 +435,7 @@ export default function CourseDetail() {
   };
 
   // Handle Dragging Floating Widget
-  const handleTimerMouseDown = (e) => {
+  const handleTimerPointerDown = (e) => {
     setIsDraggingTimer(true);
     const rect = e.currentTarget.getBoundingClientRect();
     setDragOffset({
@@ -445,7 +445,7 @@ export default function CourseDetail() {
   };
 
   useEffect(() => {
-    const handleMouseMove = (e) => {
+    const handlePointerMove = (e) => {
       if (isDraggingTimer) {
         const newX = Math.max(10, Math.min(window.innerWidth - 200, e.clientX - dragOffset.x));
         const newY = Math.max(10, Math.min(window.innerHeight - 60, e.clientY - dragOffset.y));
@@ -453,17 +453,17 @@ export default function CourseDetail() {
       }
     };
 
-    const handleMouseUp = () => {
+    const handlePointerUp = () => {
       setIsDraggingTimer(false);
     };
 
     if (isDraggingTimer) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
+      window.addEventListener('pointermove', handlePointerMove);
+      window.addEventListener('pointerup', handlePointerUp);
     }
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerUp);
     };
   }, [isDraggingTimer, dragOffset]);
 
@@ -1077,7 +1077,7 @@ export default function CourseDetail() {
     }`;
 
     return (
-      <div className={classNameProp} style={styleProp} onMouseDown={handleTimerMouseDown}>
+      <div className={classNameProp} style={{ touchAction: 'none', ...styleProp }} onPointerDown={handleTimerPointerDown}>
         <div className="timer-drag-handle" title="Kéo thả để di chuyển vị trí">
           <GripVertical size={16} />
         </div>

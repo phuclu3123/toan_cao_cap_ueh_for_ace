@@ -16,7 +16,7 @@
         window.__UEH_TCC_BOOT_STARTED__ = performance.now();
         try {
           var savedTheme = localStorage.getItem('ueh_tcc_theme');
-          var theme = savedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+          var theme = savedTheme || 'light';
           if (theme === 'light') {
             document.documentElement.classList.add('light-theme');
           } else {
