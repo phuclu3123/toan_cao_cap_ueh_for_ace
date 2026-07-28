@@ -163,7 +163,7 @@ export const syncFirebaseAuth = async (req, res) => {
         }
       } else {
         let updated = false;
-        if (name && user.name !== name) {
+        if (name && (!user.name || user.name === 'Người dùng OTP' || user.name === user.username)) {
           user.name = name;
           updated = true;
         }
