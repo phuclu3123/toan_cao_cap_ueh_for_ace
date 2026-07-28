@@ -21,7 +21,7 @@ import {
   signInWithRedirect,
   getRedirectResult
 } from '../firebase';
-import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
+import { GoogleAuthProvider, GithubAuthProvider, signInWithCredential } from 'firebase/auth';
 import { useGoogleLogin, useGoogleOneTapLogin } from '@react-oauth/google';
 import { LanguageContext, ThemeContext } from '../App';
 import { translations } from '../utils/translations';
@@ -365,23 +365,62 @@ export default function Navbar() {
     disabled: !!loggedInUser || !isFirebaseConfigured || !showLoginModal
   });
 
-  // Handle manual Google OAuth redirect return
+  // Handle manual OAuth redirect return
   useEffect(() => {
-    if (window.location.hash.includes('access_token=')) {
-      // First, get the hash part that has access_token
-      // HashRouter might make it look like #/access_token=... or #access_token=...
-      const rawHash = window.location.hash;
-      const paramString = rawHash.includes('?') ? rawHash.split('?')[1] : rawHash.replace(/^#\/?/, '');
-      const params = new URLSearchParams(paramString);
-      const accessToken = params.get('access_token') || new URLSearchParams(rawHash.substring(1)).get('access_token');
-      
-      if (accessToken) {
-        setIsAuthenticating(true);
-        // Use React Router to safely navigate home and clear the bad hash
-        navigate('/', { replace: true });
-        handleGoogleAuthSuccess({ access_token: accessToken });
+    const handleOAuthReturn = async () => {
+      // 1. Google (access_token in hash)
+      if (window.location.hash.includes('access_token=')) {
+        const rawHash = window.location.hash;
+        const paramString = rawHash.includes('?') ? rawHash.split('?')[1] : rawHash.replace(/^#\/?/, '');
+        const params = new URLSearchParams(paramString);
+        const accessToken = params.get('access_token') || new URLSearchParams(rawHash.substring(1)).get('access_token');
+        
+        if (accessToken) {
+          setIsAuthenticating(true);
+          navigate('/', { replace: true });
+          handleGoogleAuthSuccess({ access_token: accessToken });
+        }
       }
-    }
+
+      // 2. GitHub (code in query string)
+      const queryParams = new URLSearchParams(window.location.search);
+      const githubCode = queryParams.get('code');
+      if (githubCode) {
+        setIsAuthenticating(true);
+        // Clear code from URL
+        navigate('/', { replace: true });
+        
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/auth/github/token`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code: githubCode })
+          });
+          const data = await response.json();
+          if (data.success && data.access_token) {
+            const credential = GithubAuthProvider.credential(data.access_token);
+            const userCredential = await signInWithCredential(auth, credential);
+            const dbUser = await syncUserWithBackend(userCredential.user);
+            setLoggedInUser(dbUser);
+            localStorage.setItem('ueh_tcc_user', JSON.stringify(dbUser));
+            setAuthSuccessMsg('Đăng nhập GitHub thành công!');
+          } else {
+            setAuthError(data.message || 'Lỗi lấy token từ GitHub.');
+          }
+        } catch (error) {
+          console.error("Lỗi xác thực GitHub code:", error);
+          if (error.code === 'auth/account-exists-with-different-credential') {
+            alert('Lỗi: Email này đã được đăng ký bằng Google trước đó!\\n\\nĐể dùng chung 1 email, bạn phải vào Firebase Console bật "Link accounts that use the same email".');
+          } else {
+            setAuthError(`Lỗi đăng nhập GitHub: ${error.message}`);
+          }
+        } finally {
+          setIsAuthenticating(false);
+        }
+      }
+    };
+    
+    handleOAuthReturn();
   }, [navigate]);
 
   const handleGoogleLogin = async () => {
@@ -423,11 +462,10 @@ export default function Navbar() {
   const handleGithubLogin = async () => {
     setAuthError('');
     if (isFirebaseConfigured && auth && githubProvider) {
-      try {
-        await signInWithRedirect(auth, githubProvider);
-      } catch (error) {
-        setAuthError(`Lỗi đăng nhập GitHub: ${error.message}`);
-      }
+      const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID || 'Ov23livA8dLXS0qzY0kt';
+      const redirectUri = window.location.origin; // GitHub will use this or the one configured in OAuth app
+      const url = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=user:email`;
+      window.location.href = url;
     } else {
       setAuthSuccessMsg('🔄 Đang xác thực tài khoản GitHub...');
       try {

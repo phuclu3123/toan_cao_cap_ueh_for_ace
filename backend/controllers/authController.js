@@ -444,3 +444,35 @@ export const updateProfile = async (req, res) => {
   }
 };
 
+export const exchangeGithubToken = async (req, res) => {
+  const { code } = req.body;
+  if (!code) return res.status(400).json({ success: false, message: 'Thiếu Authorization Code từ GitHub.' });
+
+  try {
+    const clientId = process.env.GITHUB_CLIENT_ID || 'Ov23livA8dLXS0qzY0kt';
+    const clientSecret = process.env.GITHUB_CLIENT_SECRET || '11a209ae560df3bc01e719e950fd38c213feb290';
+
+    const response = await fetch('https://github.com/login/oauth/access_token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        client_id: clientId,
+        client_secret: clientSecret,
+        code
+      })
+    });
+
+    const data = await response.json();
+    if (data.error) {
+      return res.status(400).json({ success: false, message: data.error_description || data.error });
+    }
+
+    return res.json({ success: true, access_token: data.access_token });
+  } catch (error) {
+    console.error("Lỗi trao đổi GitHub code:", error);
+    return res.status(500).json({ success: false, message: 'Lỗi máy chủ khi xác thực GitHub.' });
+  }
+};
