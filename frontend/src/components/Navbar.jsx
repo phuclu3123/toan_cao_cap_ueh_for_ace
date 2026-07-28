@@ -452,6 +452,15 @@ export default function Navbar() {
       });
       const data = await response.json().catch(() => ({}));
       if (response.ok && data.success) {
+        if (data.isMock && auth && isFirebaseConfigured) {
+          try {
+            await sendPasswordResetEmail(auth, forgotEmail);
+            setAuthSuccessMsg('Đã gửi liên kết khôi phục mật khẩu trực tiếp tới email của bạn (Firebase Auth)! Vui lòng kiểm tra hộp thư (cả thư mục Spam).');
+            return;
+          } catch (fbErr) {
+            console.warn("Firebase password reset fallback error:", fbErr);
+          }
+        }
         setAuthSuccessMsg(data.message || 'Mã OTP đã được gửi về email của bạn!');
         setForgotStep(2);
         return;
