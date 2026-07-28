@@ -365,6 +365,8 @@ export default function Navbar() {
     disabled: !!loggedInUser || !isFirebaseConfigured || !showLoginModal
   });
 
+  const processedCodeRef = useRef(null);
+
   // Handle manual OAuth redirect return
   useEffect(() => {
     const handleOAuthReturn = async () => {
@@ -385,10 +387,11 @@ export default function Navbar() {
       // 2. GitHub (code in query string)
       const queryParams = new URLSearchParams(window.location.search);
       const githubCode = queryParams.get('code');
-      if (githubCode) {
+      if (githubCode && processedCodeRef.current !== githubCode) {
+        processedCodeRef.current = githubCode;
         setIsAuthenticating(true);
-        // Clear code from URL
-        navigate('/', { replace: true });
+        // Clear code from URL safely without triggering re-render
+        window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
         
         try {
           const response = await fetch(`${API_BASE_URL}/api/auth/github/token`, {
