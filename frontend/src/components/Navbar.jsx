@@ -455,7 +455,7 @@ export default function Navbar() {
         if (data.isMock && auth && isFirebaseConfigured) {
           try {
             await sendPasswordResetEmail(auth, forgotEmail);
-            setAuthSuccessMsg('Đã gửi liên kết khôi phục mật khẩu trực tiếp tới email của bạn (Firebase Auth)! Vui lòng kiểm tra hộp thư (cả thư mục Spam).');
+            setAuthSuccessMsg('Đã gửi liên kết khôi phục mật khẩu tới email của bạn! Vui lòng kiểm tra hộp thư (cả thư mục Spam/Quảng cáo).');
             return;
           } catch (fbErr) {
             console.warn("Firebase password reset fallback error:", fbErr);
@@ -470,14 +470,14 @@ export default function Navbar() {
       if (auth && isFirebaseConfigured) {
         try {
           await sendPasswordResetEmail(auth, forgotEmail);
-          setAuthSuccessMsg('Đã gửi liên kết khôi phục mật khẩu trực tiếp qua Email của bạn (Firebase Auth)! Vui lòng kiểm tra hòm thư (cả thư mục Spam).');
+          setAuthSuccessMsg('Đã gửi liên kết khôi phục mật khẩu tới email của bạn! Vui lòng kiểm tra hộp thư (cả thư mục Spam/Quảng cáo).');
           return;
         } catch (fbErr) {
           console.warn("Firebase password reset failed:", fbErr);
         }
       }
 
-      setAuthError(data.message || 'Email này chưa đăng ký tài khoản trên hệ thống MongoDB.');
+      setAuthError(data.message || 'Email này chưa đăng ký tài khoản trên hệ thống.');
     } catch (error) {
       // Network/Backend offline - fallback to Firebase Auth password reset
       if (auth && isFirebaseConfigured) {

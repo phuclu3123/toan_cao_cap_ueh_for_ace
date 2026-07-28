@@ -175,7 +175,7 @@ export default function AuthModal({
             </div>
 
             <div className="auth-footer-note">
-              🔒 Dữ liệu lưu trữ đám mây MongoDB Atlas bảo mật tuyệt đối.
+              🔒 Cam kết bảo mật an toàn thông tin tài khoản học viên.
             </div>
           </form>
         )}
@@ -281,8 +281,8 @@ export default function AuthModal({
                 )}
               </button>
 
-              <p style={{ textAlign: 'center', fontSize: '0.8rem', color: '#64748b', lineHeight: '1.5' }}>
-                Tài khoản email/password dùng mã OTP từ backend MongoDB.<br/>Nhớ kiểm tra cả thư mục Spam!
+              <p style={{ textAlign: 'center', fontSize: '0.8rem', color: '#64748b', lineHeight: '1.5', marginTop: '10px' }}>
+                Mã xác thực OTP có hiệu lực trong 10 phút.<br/>Vui lòng kiểm tra cả thư mục Spam/Quảng cáo nếu chưa thấy email!
               </p>
 
               <div className="text-center mt-3">
