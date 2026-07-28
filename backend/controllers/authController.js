@@ -470,7 +470,36 @@ export const exchangeGithubToken = async (req, res) => {
       return res.status(400).json({ success: false, message: data.error_description || data.error });
     }
 
-    return res.json({ success: true, access_token: data.access_token });
+    // Fetch user details from GitHub
+    let githubEmail = null;
+    let githubName = null;
+    try {
+      const userRes = await fetch('https://api.github.com/user', {
+        headers: { Authorization: `Bearer ${data.access_token}` }
+      });
+      const userData = await userRes.json();
+      githubName = userData.name || userData.login;
+      
+      const emailsRes = await fetch('https://api.github.com/user/emails', {
+        headers: { Authorization: `Bearer ${data.access_token}` }
+      });
+      const emailsData = await emailsRes.json();
+      if (Array.isArray(emailsData)) {
+        const primaryEmailObj = emailsData.find(e => e.primary) || emailsData[0];
+        if (primaryEmailObj) {
+          githubEmail = primaryEmailObj.email;
+        }
+      }
+    } catch (e) {
+      console.error("Lỗi lấy thông tin GitHub user:", e);
+    }
+
+    return res.json({ 
+      success: true, 
+      access_token: data.access_token,
+      email: githubEmail,
+      name: githubName
+    });
   } catch (error) {
     console.error("Lỗi trao đổi GitHub code:", error);
     return res.status(500).json({ success: false, message: 'Lỗi máy chủ khi xác thực GitHub.' });

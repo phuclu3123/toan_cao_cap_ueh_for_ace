@@ -412,7 +412,20 @@ export default function Navbar() {
           if (data.success && data.access_token) {
             const credential = GithubAuthProvider.credential(data.access_token);
             const userCredential = await signInWithCredential(auth, credential);
-            const dbUser = await syncUserWithBackend(userCredential.user);
+            
+            // Pass the email and name we fetched directly from GitHub API
+            // Because Firebase sometimes hides the email if it's private on GitHub.
+            const extraData = {
+              email: data.email || userCredential.user.email,
+              name: data.name || userCredential.user.displayName
+            };
+            
+            const dbUser = await syncUserWithBackend({
+              ...userCredential.user,
+              email: extraData.email,
+              displayName: extraData.name
+            });
+            
             setLoggedInUser(dbUser);
             localStorage.setItem('ueh_tcc_user', JSON.stringify(dbUser));
             setAuthSuccessMsg('Đăng nhập GitHub thành công!');
