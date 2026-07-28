@@ -150,7 +150,16 @@ export const syncFirebaseAuth = async (req, res) => {
             phoneNumber: phoneNumber || null,
             role: 'Student'
           });
-          await user.save();
+          try {
+            await user.save();
+          } catch (err) {
+            if (err.code === 11000) {
+              // Race condition: Another request created the user just now
+              user = await User.findOne({ uid });
+            } else {
+              throw err;
+            }
+          }
         }
       } else {
         let updated = false;
