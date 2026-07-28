@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { 
   X, CheckCircle, ShieldCheck, QrCode, Copy, 
   PhoneCall, MessageSquare, Sparkles, ArrowRight, 
-  CreditCard, Check, User, Mail, Phone, Lock, ChevronRight, Wallet, Smartphone
+  CreditCard, Check, User, Mail, Phone, Lock, ChevronRight, Wallet, Smartphone, ExternalLink, RefreshCw
 } from 'lucide-react';
 import { API_BASE_URL } from '../../config';
 
@@ -24,12 +24,19 @@ export default function CourseEnrollmentModal({
   const [voucherDiscount, setVoucherDiscount] = useState(0);
   const [note, setNote] = useState('');
 
-  // Payment Method Selection: 'vietqr' | 'momo' | 'vnpay' | 'consult'
+  // Payment Tab: 'vietqr' | 'momo' | 'vnpay' | 'consult'
   const [paymentTab, setPaymentTab] = useState('vietqr');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
-  const [orderCode, setOrderCode] = useState('');
   const [copiedField, setCopiedField] = useState('');
+
+  // Real PayOS Gateway States
+  const [payosOrderCode, setPayosOrderCode] = useState(null);
+  const [payosCheckoutUrl, setPayosCheckoutUrl] = useState('');
+  const [payosQrCode, setPayosQrCode] = useState('');
+  const [payosLoading, setPayosLoading] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState('PENDING'); // PENDING | PAID | CANCELLED
+  const [payosError, setPayosError] = useState('');
 
   // Pre-fill user info if logged in
   useEffect(() => {
@@ -55,20 +62,112 @@ export default function CourseEnrollmentModal({
   const finalPrice = voucherApplied ? Math.max(0, rawPrice - voucherDiscount) : rawPrice;
   const formattedFinalPrice = finalPrice > 0 ? `${finalPrice.toLocaleString('vi-VN')}đ` : 'Miễn phí';
 
-  // Bank & Transfer Details (Strict Napas 247 Spec compliant for VietQR)
-  const bankName = 'MBBank (Ngân hàng Quân Đội)';
-  const bankAccountNo = '033830322';
-  const bankAccountHolder = 'LU PHUC';
-  
-  // Clean, short memo without special characters/hyphens for Napas 247 compat
+  // Bank Details for PayOS MBBank Integration
+  const bankName = 'MBBank (Ngân hàng Quân Đội - VietQR Pro)';
+  const bankAccountNo = '08092006192939';
+  const bankAccountHolder = 'LU VO HOANG PHUC';
   const cleanPhone = learnerPhone.replace(/[^0-9]/g, '').slice(-10) || '0833830322';
   const transferMemo = `TCC ${cleanPhone} K50`;
 
-  // VietQR Image URL (Napas 247 compliant compact2 format)
-  const vietQrUrl = `https://img.vietqr.io/image/MB-033830322-compact2.png?amount=${finalPrice}&addInfo=${encodeURIComponent(transferMemo)}&accountName=LU%20PHUC`;
+  // Fallback VietQR Compact URL
+  const fallbackVietQrUrl = `https://img.vietqr.io/image/MB-08092006192939-compact2.png?amount=${finalPrice}&addInfo=${encodeURIComponent(transferMemo)}&accountName=LU%20VO%20HOANG%20PHUC`;
 
   // MoMo QR Code URL
   const momoQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(`2|99|0833830322|LU PHUC|luphuc321@gmail.com|0|0|${finalPrice}|${transferMemo}`)}`;
+
+  // Function to create Real PayOS Payment Link
+  const handleCreatePayOSPayment = async () => {
+    if (course.isFree || finalPrice <= 0) return;
+
+    setPayosLoading(true);
+    setPayosError('');
+
+    // Generate unique numeric orderCode (max 6-8 digits for PayOS)
+    const newOrderCode = Math.floor(100000 + Math.random() * 9000000);
+    setPayosOrderCode(newOrderCode);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/payos/create-payment`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderCode: newOrderCode,
+          amount: finalPrice,
+          description: `HP ${course.id || 'TCC'} ${cleanPhone}`.slice(0, 25),
+          buyerName: learnerName.trim() || 'Học viên UEH TCC',
+          buyerEmail: learnerEmail.trim(),
+          buyerPhone: learnerPhone.trim()
+        })
+      });
+
+      const data = await response.json().catch(() => ({}));
+      if (response.ok && data.code === '00' && data.data) {
+        setPayosCheckoutUrl(data.data.checkoutUrl || '');
+        setPayosQrCode(data.data.qrCode || '');
+        setPaymentStatus('PENDING');
+      } else {
+        console.warn('PayOS API response note:', data);
+        setPayosError(data.message || 'Chưa khởi tạo được link PayOS trực tiếp, đã tự động chuyển sang VietQR MBBank Pro.');
+      }
+    } catch (err) {
+      console.error('Lỗi khởi tạo PayOS payment:', err);
+      setPayosError('Không thể kết nối đến máy chủ PayOS. Đã chuyển sang mã VietQR MBBank mặc định.');
+    } finally {
+      setPayosLoading(false);
+    }
+  };
+
+  // Trigger PayOS creation when modal opens or when price changes
+  useEffect(() => {
+    if (isOpen && !course.isFree && finalPrice > 0 && !payosCheckoutUrl && !payosLoading) {
+      handleCreatePayOSPayment();
+    }
+  }, [isOpen, finalPrice]);
+
+  // Real-Time Status Polling (Every 3 Seconds)
+  useEffect(() => {
+    let pollingInterval = null;
+
+    if (payosOrderCode && paymentStatus === 'PENDING' && !isCompleted) {
+      pollingInterval = setInterval(async () => {
+        try {
+          const res = await fetch(`${API_BASE_URL}/api/payments/${payosOrderCode}`);
+          const resData = await res.json().catch(() => ({}));
+
+          if (res.ok && resData.data && resData.data.status === 'PAID') {
+            setPaymentStatus('PAID');
+            clearInterval(pollingInterval);
+            handleMarkCompleted();
+          }
+        } catch (err) {
+          console.warn('Polling status error:', err);
+        }
+      }, 3000);
+    }
+
+    return () => {
+      if (pollingInterval) clearInterval(pollingInterval);
+    };
+  }, [payosOrderCode, paymentStatus, isCompleted]);
+
+  // Auto-mark completion and unlock course
+  const handleMarkCompleted = () => {
+    try {
+      const existing = localStorage.getItem('ueh_tcc_enrolled_courses');
+      let enrolled = existing ? JSON.parse(existing) : [];
+      if (!Array.isArray(enrolled)) enrolled = [];
+      if (!enrolled.includes(course.id)) {
+        enrolled.push(course.id);
+        localStorage.setItem('ueh_tcc_enrolled_courses', JSON.stringify(enrolled));
+        window.dispatchEvent(new Event('storage'));
+      }
+    } catch (err) {}
+
+    setIsCompleted(true);
+    if (onEnrollSuccess) {
+      onEnrollSuccess(course.id);
+    }
+  };
 
   const handleCopy = (text, fieldName) => {
     navigator.clipboard.writeText(text);
@@ -104,8 +203,6 @@ export default function CourseEnrollmentModal({
     }
 
     setIsSubmitting(true);
-    const newOrderCode = `TCC-ORD-${Date.now().toString().slice(-6)}`;
-    setOrderCode(newOrderCode);
 
     try {
       await fetch(`${API_BASE_URL}/api/contact`, {
@@ -115,26 +212,11 @@ export default function CourseEnrollmentModal({
           name: learnerName.trim(),
           email: learnerEmail.trim(),
           subject: `[ĐĂNG KÝ KHÓA HỌC] ${course.title}`,
-          message: `Thông tin đăng ký:\n- Khóa học: ${course.title} (${course.id})\n- Mã đơn hàng: ${newOrderCode}\n- Số điện thoại: ${learnerPhone.trim()}\n- Giá thanh toán: ${formattedFinalPrice}\n- Phương thức: ${paymentTab.toUpperCase()}\n- Ghi chú: ${note}`
+          message: `Thông tin đăng ký:\n- Khóa học: ${course.title} (${course.id})\n- Mã đơn PayOS: ${payosOrderCode || 'TCC-' + Date.now()}\n- Số điện thoại: ${learnerPhone.trim()}\n- Giá thanh toán: ${formattedFinalPrice}\n- Phương thức: ${paymentTab.toUpperCase()}\n- Ghi chú: ${note}`
         })
       }).catch(() => {});
 
-      // Mark course as enrolled in localStorage
-      try {
-        const existing = localStorage.getItem('ueh_tcc_enrolled_courses');
-        let enrolled = existing ? JSON.parse(existing) : [];
-        if (!Array.isArray(enrolled)) enrolled = [];
-        if (!enrolled.includes(course.id)) {
-          enrolled.push(course.id);
-          localStorage.setItem('ueh_tcc_enrolled_courses', JSON.stringify(enrolled));
-          window.dispatchEvent(new Event('storage'));
-        }
-      } catch (err) {}
-
-      setIsCompleted(true);
-      if (onEnrollSuccess) {
-        onEnrollSuccess(course.id);
-      }
+      handleMarkCompleted();
     } catch (err) {
       console.error('Enrollment error:', err);
     } finally {
@@ -217,11 +299,11 @@ export default function CourseEnrollmentModal({
                 <CheckCircle size={40} />
               </div>
               <h2 style={{ fontSize: '1.5rem', fontWeight: '800', color: '#0f172a', marginBottom: '8px' }}>
-                Đăng Ký Khóa Học Thành Công!
+                Thanh Toán & Đăng Ký Thành Công!
               </h2>
               <p style={{ color: '#475569', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '20px' }}>
-                Hệ thống đã ghi nhận đơn đăng ký của học viên <strong>{learnerName}</strong>.<br />
-                Mã xác thực đơn hàng: <strong style={{ color: '#0d9488', fontFamily: 'monospace' }}>{orderCode}</strong>
+                Hệ thống đã xác nhận thanh toán đơn hàng <strong>{learnerName || 'Học viên'}</strong>.<br />
+                Mã giao dịch PayOS: <strong style={{ color: '#0d9488', fontFamily: 'monospace' }}>#{payosOrderCode || Date.now()}</strong>
               </p>
 
               <div style={{
@@ -230,11 +312,11 @@ export default function CourseEnrollmentModal({
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '700', marginBottom: '6px' }}>
                   <ShieldCheck size={18} />
-                  <span>Quyền lợi đã được kích hoạt:</span>
+                  <span>Quyền lợi đã được tự động mở khóa:</span>
                 </div>
                 <ul style={{ paddingLeft: '22px', margin: 0, lineHeight: '1.6' }}>
-                  <li>Đã tự động mở khóa full toàn bộ bài học và video giảng dạy.</li>
-                  <li>Ban Quản Trị UEH TCC sẽ gửi thông tin hỗ trợ qua Zalo/Phone ({learnerPhone}).</li>
+                  <li>Đã tự động kích hoạt full bài học video & đề thi cho tài khoản của bạn.</li>
+                  <li>Ban Quản Trị UEH TCC đã nhận thông tin qua Zalo/Phone ({learnerPhone || 'Học viên'}).</li>
                 </ul>
               </div>
 
@@ -244,7 +326,7 @@ export default function CourseEnrollmentModal({
                 onClick={onClose}
                 style={{ padding: '14px 24px', fontSize: '1rem', fontWeight: '700', borderRadius: '14px', background: 'linear-gradient(135deg, #0d9488 0%, #0f766e 100%)' }}
               >
-                ▶ BẮT ĐẦU HỌC NGAY BÂY GIỜ
+                ▶ VÀO HỌC NGAY BÂY GIỜ
               </button>
             </div>
           ) : (
@@ -338,7 +420,7 @@ export default function CourseEnrollmentModal({
                 )}
               </div>
 
-              {/* Step 3: Payment Method Selection (VietQR, MoMo, VNPay, Zalo) */}
+              {/* Step 3: Payment Method Selection */}
               {!course.isFree && (
                 <div style={{ marginBottom: '22px' }}>
                   <h4 style={{ fontSize: '0.95rem', fontWeight: '700', color: '#334155', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -359,7 +441,7 @@ export default function CourseEnrollmentModal({
                         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'
                       }}
                     >
-                      <QrCode size={16} color="#0d9488" /> Ngân Hàng / VietQR
+                      <QrCode size={16} color="#0d9488" /> Cổng PayOS / VietQR (MBBank)
                     </button>
 
                     <button
@@ -408,58 +490,100 @@ export default function CourseEnrollmentModal({
                     </button>
                   </div>
 
-                  {/* TAB 1: VIETQR / BANK */}
+                  {/* TAB 1: PAYOS / VIETQR (MBBANK) */}
                   {paymentTab === 'vietqr' && (
                     <div style={{
-                      background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '16px', padding: '18px',
-                      display: 'grid', gridTemplateColumns: '170px 1fr', gap: '18px', alignItems: 'center'
+                      background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '16px', padding: '18px'
                     }}>
-                      <div style={{ textAlign: 'center' }}>
-                        <img 
-                          src={vietQrUrl} 
-                          alt="Mã VietQR Ngân Hàng" 
-                          style={{ width: '100%', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }} 
-                        />
-                        <span style={{ fontSize: '0.72rem', color: '#64748b', display: 'block', marginTop: '6px' }}>
-                          Quét mã bằng App MBBank / VCB / Agribank / Techcombank
+                      {/* Live Polling Status Indicator */}
+                      <div style={{
+                        background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '12px',
+                        padding: '10px 14px', marginBottom: '14px', display: 'flex', alignItems: 'center',
+                        justifyContent: 'space-between', fontSize: '0.82rem', color: '#166534'
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '700' }}>
+                          <RefreshCw size={14} className="spin" style={{ animation: 'spin 2s linear infinite' }} />
+                          <span>Trạng thái: 🟡 Đang chờ thanh toán (Tự động mở khóa 24/7)</span>
+                        </div>
+                        <span style={{ fontSize: '0.75rem', color: '#0d9488', fontFamily: 'monospace' }}>
+                          #{payosOrderCode || 'MBBank'}
                         </span>
                       </div>
 
-                      <div style={{ fontSize: '0.85rem', color: '#334155' }}>
-                        <div style={{ marginBottom: '8px' }}>
-                          <span style={{ color: '#64748b' }}>Ngân hàng: </span>
-                          <strong>{bankName}</strong>
+                      <div style={{
+                        display: 'grid', gridTemplateColumns: '170px 1fr', gap: '18px', alignItems: 'center'
+                      }}>
+                        <div style={{ textAlign: 'center' }}>
+                          {payosLoading ? (
+                            <div style={{ padding: '40px 0', color: '#0d9488', fontSize: '0.85rem' }}>
+                              <span>⏳ Đang tạo QR PayOS...</span>
+                            </div>
+                          ) : (
+                            <img 
+                              src={payosQrCode || fallbackVietQrUrl} 
+                              alt="Mã QR PayOS MBBank" 
+                              style={{ width: '100%', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }} 
+                            />
+                          )}
+                          <span style={{ fontSize: '0.72rem', color: '#64748b', display: 'block', marginTop: '6px' }}>
+                            Quét mã bằng App MBBank / VCB / Agribank / Banking Apps
+                          </span>
                         </div>
 
-                        <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span style={{ color: '#64748b' }}>Số tài khoản: </span>
-                          <strong style={{ color: '#0d9488', fontSize: '1rem', fontFamily: 'monospace' }}>{bankAccountNo}</strong>
-                          <button
-                            type="button"
-                            onClick={() => handleCopy(bankAccountNo, 'stk')}
-                            style={{ background: 'none', border: 'none', color: '#0d9488', cursor: 'pointer', padding: 0 }}
-                            title="Sao chép STK"
-                          >
-                            {copiedField === 'stk' ? <Check size={14} color="#16a34a" /> : <Copy size={14} />}
-                          </button>
-                        </div>
+                        <div style={{ fontSize: '0.85rem', color: '#334155' }}>
+                          <div style={{ marginBottom: '8px' }}>
+                            <span style={{ color: '#64748b' }}>Ngân hàng: </span>
+                            <strong>{bankName}</strong>
+                          </div>
 
-                        <div style={{ marginBottom: '8px' }}>
-                          <span style={{ color: '#64748b' }}>Chủ tài khoản: </span>
-                          <strong>{bankAccountHolder}</strong>
-                        </div>
+                          <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ color: '#64748b' }}>Số tài khoản: </span>
+                            <strong style={{ color: '#0d9488', fontSize: '1.05rem', fontFamily: 'monospace' }}>{bankAccountNo}</strong>
+                            <button
+                              type="button"
+                              onClick={() => handleCopy(bankAccountNo, 'stk')}
+                              style={{ background: 'none', border: 'none', color: '#0d9488', cursor: 'pointer', padding: 0 }}
+                              title="Sao chép STK"
+                            >
+                              {copiedField === 'stk' ? <Check size={14} color="#16a34a" /> : <Copy size={14} />}
+                            </button>
+                          </div>
 
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span style={{ color: '#64748b' }}>Nội dung chuyển khoản: </span>
-                          <strong style={{ color: '#dc2626', fontFamily: 'monospace' }}>{transferMemo}</strong>
-                          <button
-                            type="button"
-                            onClick={() => handleCopy(transferMemo, 'memo')}
-                            style={{ background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', padding: 0 }}
-                            title="Sao chép Nội dung"
-                          >
-                            {copiedField === 'memo' ? <Check size={14} color="#16a34a" /> : <Copy size={14} />}
-                          </button>
+                          <div style={{ marginBottom: '8px' }}>
+                            <span style={{ color: '#64748b' }}>Chủ tài khoản: </span>
+                            <strong>{bankAccountHolder}</strong>
+                          </div>
+
+                          <div style={{ marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ color: '#64748b' }}>Nội dung chuyển khoản: </span>
+                            <strong style={{ color: '#dc2626', fontFamily: 'monospace' }}>{transferMemo}</strong>
+                            <button
+                              type="button"
+                              onClick={() => handleCopy(transferMemo, 'memo')}
+                              style={{ background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', padding: 0 }}
+                              title="Sao chép Nội dung"
+                            >
+                              {copiedField === 'memo' ? <Check size={14} color="#16a34a" /> : <Copy size={14} />}
+                            </button>
+                          </div>
+
+                          {payosCheckoutUrl && (
+                            <a
+                              href={payosCheckoutUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="btn"
+                              style={{
+                                display: 'inline-flex', alignItems: 'center', gap: '6px',
+                                background: 'linear-gradient(135deg, #0d9488 0%, #0f766e 100%)',
+                                color: '#ffffff', padding: '10px 16px', borderRadius: '12px',
+                                fontWeight: '700', fontSize: '0.85rem', textDecoration: 'none',
+                                boxShadow: '0 4px 12px rgba(13,148,136,0.3)'
+                              }}
+                            >
+                              🚀 MỞ CỔNG THANH TOÁN TỰ ĐỘNG PAYOS <ExternalLink size={14} />
+                            </a>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -483,7 +607,13 @@ export default function CourseEnrollmentModal({
                       </div>
 
                       <div style={{ fontSize: '0.85rem', color: '#334155' }}>
-                        <div style={{ marginBottom: '8px' }}>
+                        <div style={{ marginBottom: '6px' }}>
+                          <span className="hero-badge" style={{ background: '#fbcfe8', color: '#9d174d', fontSize: '0.7rem', padding: '2px 8px', borderRadius: '12px', fontWeight: '700' }}>
+                            Sắp ra mắt API trực tiếp (Dùng Cổng PayOS)
+                          </span>
+                        </div>
+
+                        <div style={{ marginBottom: '8px', marginTop: '6px' }}>
                           <span style={{ color: '#701a75' }}>Tài khoản MoMo: </span>
                           <strong style={{ color: '#a21caf', fontSize: '1rem', fontFamily: 'monospace' }}>0833830322</strong>
                           <button
@@ -532,17 +662,38 @@ export default function CourseEnrollmentModal({
                   {/* TAB 3: VNPAY */}
                   {paymentTab === 'vnpay' && (
                     <div style={{ background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: '16px', padding: '18px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px', color: '#0369a1' }}>
-                        <Smartphone size={20} />
-                        <strong style={{ fontSize: '0.95rem' }}>Thanh toán VNPay QR & Thẻ ATM Nội Địa / Visa</strong>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#0369a1' }}>
+                          <Smartphone size={20} />
+                          <strong style={{ fontSize: '0.95rem' }}>Thanh toán VNPay QR & Thẻ ATM / Napas</strong>
+                        </div>
+                        <span style={{ background: '#e0f2fe', color: '#0369a1', fontSize: '0.7rem', padding: '2px 8px', borderRadius: '12px', fontWeight: '700' }}>
+                          Sắp ra mắt API trực tiếp
+                        </span>
                       </div>
                       <p style={{ fontSize: '0.85rem', color: '#334155', lineHeight: '1.6', marginBottom: '12px' }}>
-                        Hệ thống chấp nhận quét mã **VNPay QR** trên ứng dụng Ngân hàng (VietinBank, VCB, BIDV, Agribank, VPBank...) hoặc thanh toán qua thẻ Napas/ATM nội địa.
+                        Hệ thống chấp nhận quét mã **VNPay QR** trên ứng dụng Ngân hàng (VietinBank, VCB, BIDV, Agribank, VPBank...) hoặc thanh toán qua thẻ Napas/ATM nội địa thông qua Cổng PayOS.
                       </p>
-                      <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: '12px', border: '1px solid #e0f2fe', fontSize: '0.82rem' }}>
-                        <span>Nội dung chuyển khoản VNPay: </span>
-                        <strong style={{ color: '#0284c7', fontFamily: 'monospace' }}>{transferMemo}</strong>
-                      </div>
+                      {payosCheckoutUrl ? (
+                        <a
+                          href={payosCheckoutUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn"
+                          style={{
+                            display: 'inline-flex', alignItems: 'center', gap: '6px',
+                            background: '#0284c7', color: '#ffffff', padding: '10px 16px', borderRadius: '12px',
+                            fontWeight: '700', fontSize: '0.85rem', textDecoration: 'none'
+                          }}
+                        >
+                          🚀 Thanh toán VNPay qua Cổng PayOS <ExternalLink size={14} />
+                        </a>
+                      ) : (
+                        <div style={{ background: '#ffffff', padding: '12px 14px', borderRadius: '12px', border: '1px solid #e0f2fe', fontSize: '0.82rem' }}>
+                          <span>Nội dung chuyển khoản VNPay: </span>
+                          <strong style={{ color: '#0284c7', fontFamily: 'monospace' }}>{transferMemo}</strong>
+                        </div>
+                      )}
                     </div>
                   )}
 
