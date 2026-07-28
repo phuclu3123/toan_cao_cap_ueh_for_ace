@@ -17,7 +17,9 @@ import {
   sendPasswordResetEmail,
   signOut as firebaseSignOut,
   onAuthStateChanged,
-  signInWithPopup
+  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult
 } from '../firebase';
 import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
 import { useGoogleLogin, useGoogleOneTapLogin } from '@react-oauth/google';
@@ -151,6 +153,22 @@ export default function Navbar() {
     }
 
     if (isFirebaseConfigured && auth) {
+      // Check for redirect result (e.g. from GitHub login)
+      getRedirectResult(auth).then(async (result) => {
+        if (result) {
+          try {
+            const dbUser = await syncUserWithBackend(result.user);
+            setLoggedInUser(dbUser);
+            localStorage.setItem('ueh_tcc_user', JSON.stringify(dbUser));
+            setAuthSuccessMsg('Đăng nhập thành công!');
+          } catch(err) {
+            console.error("Lỗi đồng bộ Firebase user với Backend:", err);
+          }
+        }
+      }).catch((error) => {
+        console.error("Redirect auth error:", error);
+      });
+
       const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
         if (firebaseUser) {
           try {
@@ -372,74 +390,18 @@ export default function Navbar() {
   };
 
   const handleFacebookLogin = async () => {
-    setAuthError('');
+    setAuthError('Tính năng đăng nhập Facebook đang được bảo trì (Coming soon)');
     setAuthSuccessMsg('');
-    if (isFirebaseConfigured && auth && facebookProvider) {
-      try {
-        const userCredential = await signInWithPopup(auth, facebookProvider);
-        const dbUser = await syncUserWithBackend(userCredential.user);
-        setLoggedInUser(dbUser);
-        localStorage.setItem('ueh_tcc_user', JSON.stringify(dbUser));
-        setAuthSuccessMsg('Đăng nhập Facebook thành công!');
-        setTimeout(() => {
-          setShowLoginModal(false);
-          setAuthSuccessMsg('');
-        }, 1500);
-      } catch (error) {
-        let msg = 'Đăng nhập Facebook thất bại.';
-        if (error.code === 'auth/popup-closed-by-user') {
-          msg = 'Cửa sổ đăng nhập Facebook đã bị đóng.';
-        } else {
-          msg = `Lỗi: ${error.message}`;
-        }
-        setAuthError(msg);
-      }
-    } else {
-      setAuthSuccessMsg('🔄 Đang xác thực tài khoản Facebook...');
-      try {
-        await new Promise(resolve => setTimeout(resolve, 600));
-        const mockFirebaseUser = {
-          uid: 'facebook-user-' + Math.random().toString(36).substr(2, 9),
-          email: 'sinhvien.facebook@ueh.edu.vn',
-          displayName: 'Facebook Student',
-          phoneNumber: null
-        };
-        const dbUser = await syncUserWithBackend(mockFirebaseUser);
-        setLoggedInUser(dbUser);
-        localStorage.setItem('ueh_tcc_user', JSON.stringify(dbUser));
-        setAuthSuccessMsg('Đăng nhập thành công!');
-        setTimeout(() => {
-          setShowLoginModal(false);
-          setAuthSuccessMsg('');
-        }, 1000);
-      } catch (error) {
-        setAuthError('Không thể đăng nhập bằng tài khoản Facebook.');
-      }
-    }
   };
 
   const handleGithubLogin = async () => {
     setAuthError('');
-    setAuthSuccessMsg('');
+    setAuthSuccessMsg('Đang chuyển hướng sang GitHub...');
     if (isFirebaseConfigured && auth && githubProvider) {
       try {
-        const userCredential = await signInWithPopup(auth, githubProvider);
-        const dbUser = await syncUserWithBackend(userCredential.user);
-        setLoggedInUser(dbUser);
-        localStorage.setItem('ueh_tcc_user', JSON.stringify(dbUser));
-        setAuthSuccessMsg('Đăng nhập GitHub thành công!');
-        setTimeout(() => {
-          setShowLoginModal(false);
-          setAuthSuccessMsg('');
-        }, 1500);
+        await signInWithRedirect(auth, githubProvider);
       } catch (error) {
-        let msg = 'Đăng nhập GitHub thất bại.';
-        if (error.code === 'auth/popup-closed-by-user') {
-          msg = 'Cửa sổ đăng nhập GitHub đã bị đóng.';
-        } else {
-          msg = `Lỗi: ${error.message}`;
-        }
-        setAuthError(msg);
+        setAuthError(`Lỗi chuyển hướng GitHub: ${error.message}`);
       }
     } else {
       setAuthSuccessMsg('🔄 Đang xác thực tài khoản GitHub...');

@@ -11,7 +11,9 @@ import {
   sendPasswordResetEmail,
   signOut,
   onAuthStateChanged,
-  signInWithPopup
+  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult
 } from 'firebase/auth';
 
 // Firebase configuration using Vite environment variables
@@ -78,6 +80,8 @@ export {
   sendPasswordResetEmail,
   signOut,
   onAuthStateChanged,
-  signInWithPopup
+  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult
 };
 
