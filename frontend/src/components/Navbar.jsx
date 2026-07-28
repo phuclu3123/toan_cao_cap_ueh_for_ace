@@ -205,6 +205,16 @@ export default function Navbar() {
 
   const isActivePath = (path) => location.pathname === path;
 
+  const handleNavClick = () => {
+    document.body.style.overflow = '';
+    const launcher = document.querySelector('.contact-launcher-container') || document.querySelector('.contact-launcher');
+    if (launcher) launcher.style.display = '';
+    setIsOpen(false);
+    setShowUserDropdown(false);
+    setShowLangMenu(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleGlobalSearch = (event) => {
     event.preventDefault();
     const query = searchQuery.trim();
@@ -731,20 +741,20 @@ export default function Navbar() {
             </div>
           )}
           <div className="container navbar-container">
-            <Link to="/" className="navbar-logo" onClick={() => window.scrollTo(0, 0)}>
+            <Link to="/" className="navbar-logo" onClick={handleNavClick}>
               <span className="logo-helper">UEH</span>
               <span className="logo-main">TCC</span>
             </Link>
 
             {/* Desktop Navigation Links */}
             <div className="nav-links">
-              <Link to="/" className={`nav-link-item ${isActivePath('/') ? 'active' : ''}`} onClick={() => window.scrollTo(0, 0)}>{t.nav.home}</Link>
-              <Link to="/courses" className={`nav-link-item ${isActivePath('/courses') ? 'active' : ''}`}>{t.nav.courses}</Link>
-              <Link to="/resources?category=all" className={`nav-link-item ${location.pathname === '/resources' ? 'active' : ''}`}>{t.nav.library}</Link>
-              <Link to="/exams" className={`nav-link-item ${isActivePath('/exams') ? 'active' : ''}`}>{t.nav.exams}</Link>
-              <Link to="/blog" className={`nav-link-item ${isActivePath('/blog') ? 'active' : ''}`}>{t.nav.blog}</Link>
-              <Link to="/payos-api" className={`nav-link-item api-nav-link ${isActivePath('/payos-api') ? 'active' : ''}`}>Dọc API</Link>
-              <Link to="/20-10" className={`nav-link-item rose-link ${location.pathname === '/20-10' ? 'active' : ''}`}>{t.nav.gift}</Link>
+              <Link to="/" className={`nav-link-item ${isActivePath('/') ? 'active' : ''}`} onClick={handleNavClick}>{t.nav.home}</Link>
+              <Link to="/courses" className={`nav-link-item ${isActivePath('/courses') ? 'active' : ''}`} onClick={handleNavClick}>{t.nav.courses}</Link>
+              <Link to="/resources?category=all" className={`nav-link-item ${location.pathname === '/resources' ? 'active' : ''}`} onClick={handleNavClick}>{t.nav.library}</Link>
+              <Link to="/exams" className={`nav-link-item ${isActivePath('/exams') ? 'active' : ''}`} onClick={handleNavClick}>{t.nav.exams}</Link>
+              <Link to="/blog" className={`nav-link-item ${isActivePath('/blog') ? 'active' : ''}`} onClick={handleNavClick}>{t.nav.blog}</Link>
+              <Link to="/payos-api" className={`nav-link-item api-nav-link ${isActivePath('/payos-api') ? 'active' : ''}`} onClick={handleNavClick}>Dọc API</Link>
+              <Link to="/20-10" className={`nav-link-item rose-link ${location.pathname === '/20-10' ? 'active' : ''}`} onClick={handleNavClick}>{t.nav.gift}</Link>
             </div>
 
             {/* Theme & Language Controls */}

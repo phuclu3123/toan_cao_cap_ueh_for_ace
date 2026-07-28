@@ -469,7 +469,7 @@ export default function CourseDetail() {
 
   // Lock body scroll & hide floating chat launcher icon when modal is open
   useEffect(() => {
-    const isModalOpen = showVideoModal || showLockPrompt || showReportModal;
+    const isModalOpen = showVideoModal || showLockPrompt || showReportModal || showEnrollModal;
     if (isModalOpen) {
       document.body.style.overflow = 'hidden';
       const launcher = document.querySelector('.contact-launcher-container') || document.querySelector('.contact-launcher');
@@ -484,7 +484,7 @@ export default function CourseDetail() {
       const launcher = document.querySelector('.contact-launcher-container') || document.querySelector('.contact-launcher');
       if (launcher) launcher.style.display = '';
     };
-  }, [showVideoModal, showLockPrompt, showReportModal]);
+  }, [showVideoModal, showLockPrompt, showReportModal, showEnrollModal]);
 
   // Flatten all lessons in order to handle Next Lesson
   const allLessons = course.chapters.reduce((acc, ch) => acc.concat(ch.lessons || []), []);

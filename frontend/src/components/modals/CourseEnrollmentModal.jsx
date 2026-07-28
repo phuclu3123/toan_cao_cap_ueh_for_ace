@@ -58,6 +58,18 @@ export default function CourseEnrollmentModal({
     } catch (e) {}
   }, [isOpen]);
 
+  // Clean body overflow & ensure navigation is never locked
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
   // Timer Countdown Effect for Transaction Expiry
   useEffect(() => {
     if (!isOpen || modalStep !== 2 || isCompleted) return;
