@@ -384,9 +384,18 @@ export default function Navbar() {
         }
       }
 
-      // 2. GitHub (code in query string)
+      // 2. GitHub (code in query string or hash)
       const queryParams = new URLSearchParams(window.location.search);
-      const githubCode = queryParams.get('code');
+      let githubCode = queryParams.get('code');
+      
+      // Fallback if GitHub appended it after the hash (e.g. /#/?code=...)
+      if (!githubCode && window.location.hash.includes('code=')) {
+        const hashQuery = window.location.hash.split('?')[1];
+        if (hashQuery) {
+          githubCode = new URLSearchParams(hashQuery).get('code');
+        }
+      }
+      
       if (githubCode && processedCodeRef.current !== githubCode) {
         processedCodeRef.current = githubCode;
         setIsAuthenticating(true);
@@ -408,7 +417,9 @@ export default function Navbar() {
             localStorage.setItem('ueh_tcc_user', JSON.stringify(dbUser));
             setAuthSuccessMsg('Đăng nhập GitHub thành công!');
           } else {
-            setAuthError(data.message || 'Lỗi lấy token từ GitHub.');
+            const errorMsg = data.message || 'Lỗi lấy token từ GitHub.';
+            setAuthError(errorMsg);
+            alert(`Lỗi đăng nhập GitHub: ${errorMsg}`);
           }
         } catch (error) {
           console.error("Lỗi xác thực GitHub code:", error);
@@ -416,6 +427,7 @@ export default function Navbar() {
             alert('Lỗi: Email này đã được đăng ký bằng Google trước đó!\\n\\nĐể dùng chung 1 email, bạn phải vào Firebase Console bật "Link accounts that use the same email".');
           } else {
             setAuthError(`Lỗi đăng nhập GitHub: ${error.message}`);
+            alert(`Lỗi đăng nhập GitHub: ${error.message}`);
           }
         } finally {
           setIsAuthenticating(false);
@@ -466,8 +478,7 @@ export default function Navbar() {
     setAuthError('');
     if (isFirebaseConfigured && auth && githubProvider) {
       const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID || 'Ov23livA8dLXS0qzY0kt';
-      const redirectUri = window.location.origin; // GitHub will use this or the one configured in OAuth app
-      const url = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=user:email`;
+      const url = `https://github.com/login/oauth/authorize?client_id=${clientId}&scope=user:email`;
       window.location.href = url;
     } else {
       setAuthSuccessMsg('🔄 Đang xác thực tài khoản GitHub...');
