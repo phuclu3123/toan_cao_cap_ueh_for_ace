@@ -357,14 +357,17 @@ export default function Navbar() {
     disabled: !!loggedInUser || !isFirebaseConfigured || !showLoginModal
   });
 
-  const googleLoginHook = useGoogleLogin({
-    onSuccess: handleGoogleAuthSuccess,
-    onError: (error) => setAuthError('Đăng nhập Google thất bại hoặc đã bị hủy.')
-  });
+
 
   const handleGoogleLogin = async () => {
-    if (isFirebaseConfigured && auth) {
-      googleLoginHook(); // Triggers modern popup (NOT firebaseapp.com)
+    setAuthError('');
+    setAuthSuccessMsg('Đang chuyển hướng sang Google...');
+    if (isFirebaseConfigured && auth && googleProvider) {
+      try {
+        await signInWithRedirect(auth, googleProvider);
+      } catch (error) {
+        setAuthError(`Lỗi chuyển hướng Google: ${error.message}`);
+      }
     } else {
       setAuthSuccessMsg('🔄 Đang xác thực tài khoản Google (Mock)...');
       try {
