@@ -299,15 +299,17 @@ export const forgotPassword = async (req, res) => {
 
     const emailResult = await sendOtpEmail(email, user.name, otpCode, otpExpiresAt);
 
-    let returnMsg = `Mã xác thực OTP của bạn là: ${otpCode} (Hoặc có thể nhập mã 123456 để đổi ngay).`;
-    if (emailResult.success && !emailResult.isMock) {
-      returnMsg = `Mã OTP đã được gửi về ${email}! Bạn cũng có thể dùng trực tiếp mã: ${otpCode} (hoặc 123456).`;
+    let returnMsg = `Mã xác thực OTP đã được gửi đến email ${email}. Vui lòng kiểm tra hộp thư (cả hộp thư rác).`;
+    
+    // In Mock Mode, log a hint but do not send the OTP to the frontend
+    if (emailResult.isMock) {
+      console.log(`[AUTH] OTP is generated for ${email} in Mock Mode.`);
+      returnMsg = `Mã xác thực OTP đã được tạo cho email ${email}. Vì hệ thống đang ở chế độ thử nghiệm (Mock Mode), mã OTP không được gửi đi nhưng bạn có thể xem trong terminal log.`;
     }
 
     return res.json({
       success: true,
       message: returnMsg,
-      otpCode: otpCode,
       isMock: emailResult.isMock || false
     });
   } catch (error) {

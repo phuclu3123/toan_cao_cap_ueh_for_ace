@@ -6,28 +6,44 @@ export const sendOtpEmail = async (email, name, otpCode, otpExpiresAt) => {
   const pass = process.env.EMAIL_PASS;
 
   const emailHtml = `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; background-color: #ffffff;">
-      <div style="text-align: center; border-bottom: 2px solid #0d9488; padding-bottom: 15px; margin-bottom: 20px;">
-        <h2 style="color: #0d9488; margin: 0;">UEH TCC STUDY HELPER</h2>
-        <p style="color: #64748b; font-size: 14px; margin: 5px 0 0 0;">Hệ thống Khôi phục Mật khẩu Tự động</p>
-      </div>
-      
-      <div style="line-height: 1.6; color: #334155;">
-        <p>Chào <strong>${name || 'Sinh viên UEH'}</strong>,</p>
-        <p>Chúng tôi nhận được yêu cầu khôi phục mật khẩu cho tài khoản của bạn tại UEH TCC Study Helper.</p>
+    <div style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f4f7f6; padding: 40px 20px; margin: 0;">
+      <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
         
-        <div style="background-color: #f0fdfa; border: 1px dashed #0d9488; border-radius: 6px; padding: 20px; text-align: center; margin: 25px 0;">
-          <p style="margin: 0 0 10px 0; font-size: 14px; color: #0f766e; text-transform: uppercase; font-weight: bold; letter-spacing: 1px;">Mã OTP xác thực của bạn là:</p>
-          <span style="font-size: 32px; font-weight: 800; color: #0d9488; letter-spacing: 5px; display: inline-block;">${otpCode}</span>
-          <p style="margin: 10px 0 0 0; font-size: 12px; color: #64748b;">(Mã này có hiệu lực trong vòng <strong>10 phút</strong> và chỉ sử dụng được 1 lần)</p>
+        <!-- Header -->
+        <div style="background-color: #0d9488; padding: 30px 20px; text-align: center;">
+          <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 700; letter-spacing: 1px;">UEH TCC</h1>
+          <p style="color: #ccfbf1; margin: 8px 0 0 0; font-size: 15px;">Hệ thống Hỗ trợ Học tập Toán Cao Cấp</p>
         </div>
         
-        <p>Nếu bạn không gửi yêu cầu này, vui lòng bỏ qua email này. Tài khoản của bạn vẫn an toàn và không bị thay đổi.</p>
-        <p style="margin-top: 30px;">Trân trọng,<br><strong>Đội ngũ Kỹ thuật UEH TCC</strong></p>
-      </div>
-      
-      <div style="margin-top: 30px; padding-top: 15px; border-top: 1px solid #e2e8f0; text-align: center; font-size: 11px; color: #94a3b8;">
-        <p>Đây là email tự động từ hệ thống UEH TCC. Vui lòng không phản hồi lại email này.</p>
+        <!-- Body -->
+        <div style="padding: 40px 30px; color: #334155; line-height: 1.6;">
+          <p style="font-size: 16px; margin-top: 0;">Chào <strong>${name || 'bạn'}</strong>,</p>
+          <p style="font-size: 16px; margin-bottom: 25px;">Chúng tôi nhận được yêu cầu khôi phục mật khẩu cho tài khoản của bạn. Vui lòng sử dụng mã xác thực (OTP) dưới đây để tiếp tục:</p>
+          
+          <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 25px; text-align: center; margin: 30px 0;">
+            <span style="display: block; font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: 700; letter-spacing: 1.5px; margin-bottom: 15px;">Mã xác thực của bạn</span>
+            <span style="font-size: 38px; font-weight: 800; color: #0d9488; letter-spacing: 8px; display: inline-block;">${otpCode}</span>
+          </div>
+          
+          <p style="font-size: 14px; color: #64748b; text-align: center; margin-bottom: 30px;">
+            Mã này có hiệu lực trong vòng <strong>10 phút</strong> và chỉ sử dụng được 1 lần.
+          </p>
+          
+          <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 30px 0;" />
+          
+          <p style="font-size: 14px; color: #64748b; margin-bottom: 0;">
+            Nếu bạn không yêu cầu đổi mật khẩu, vui lòng bỏ qua email này. Tài khoản của bạn vẫn được bảo mật an toàn.
+          </p>
+        </div>
+        
+        <!-- Footer -->
+        <div style="background-color: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #e2e8f0;">
+          <p style="margin: 0; font-size: 12px; color: #94a3b8;">
+            © ${new Date().getFullYear()} UEH TCC Study Helper.<br>
+            Đây là email tự động, vui lòng không phản hồi.
+          </p>
+        </div>
+        
       </div>
     </div>
   `;
