@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+﻿import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useParams } from 'react-router-dom';
 import {
@@ -258,7 +258,7 @@ function CourseDetailContent({ course }) {
         || content.type !== lesson.type
         || (lesson.type === 'video' && !content.media)
       ) {
-        throw new Error(payload.message || 'Nội dung bài học chưa sẵn sàng.');
+        throw new Error(payload.message || 'Nß╗Öi dung b├ái hß╗ìc ch╞░a sß║╡n s├áng.');
       }
 
       setActiveLesson({
@@ -269,7 +269,7 @@ function CourseDetailContent({ course }) {
       setShowPlayer(true);
     } catch (error) {
       if (error.name !== 'AbortError') {
-        setNotice(error.message || 'Không thể mở bài học lúc này. Vui lòng thử lại.');
+        setNotice(error.message || 'Kh├┤ng thß╗â mß╗ƒ b├ái hß╗ìc l├║c n├áy. Vui l├▓ng thß╗¡ lß║íi.');
       }
     } finally {
       if (contentRequestRef.current === request) {
@@ -321,7 +321,7 @@ function CourseDetailContent({ course }) {
         <div className="container cd-hero__inner">
           <Link to="/courses" className="cd-back-link">
             <ArrowLeft size={17} aria-hidden="true" />
-            Tất cả khóa học
+            Tß║Ñt cß║ú kh├│a hß╗ìc
           </Link>
 
           <div className="cd-hero__grid">
@@ -333,11 +333,11 @@ function CourseDetailContent({ course }) {
               <h1>{course.title}</h1>
               <p>{course.desc}</p>
 
-              <div className="cd-meta-grid" aria-label="Thông tin khóa học">
-                <span><BookOpen size={18} /> {allLessons.length} bài hiện có</span>
-                <span><FolderOpen size={18} /> {course.sectionsCount} phần</span>
+              <div className="cd-meta-grid" aria-label="Th├┤ng tin kh├│a hß╗ìc">
+                <span><BookOpen size={18} /> {allLessons.length} b├ái hiß╗çn c├│</span>
+                <span><FolderOpen size={18} /> {course.sectionsCount} phß║ºn</span>
                 <span><Clock3 size={18} /> {course.duration}</span>
-                <span><Users size={18} /> {course.studentsCount} học viên</span>
+                <span><Users size={18} /> {course.studentsCount} hß╗ìc vi├¬n</span>
               </div>
 
               <div className="cd-hero__actions">
@@ -351,11 +351,11 @@ function CourseDetailContent({ course }) {
                     {loadingLessonId === firstLesson.id
                       ? <Loader2 size={18} className="spinner" />
                       : <Play size={18} fill="currentColor" />}
-                    Xem bài học đầu tiên
+                    Xem b├ái hß╗ìc ─æß║ºu ti├¬n
                   </button>
                 )}
                 <a href="#curriculum" className="cd-button cd-button--secondary">
-                  Xem lộ trình
+                  Xem lß╗Ö tr├¼nh
                   <ArrowRight size={17} />
                 </a>
               </div>
@@ -365,20 +365,13 @@ function CourseDetailContent({ course }) {
               <div className="cd-art-orbit cd-art-orbit--one" aria-hidden="true" />
               <div className="cd-art-orbit cd-art-orbit--two" aria-hidden="true" />
               <div className="cd-art-card">
-                <img src={course.image} alt={`Ảnh bìa ${course.title}`} />
+                <img src={course.image} alt={`ß║ónh b├¼a ${course.title}`} />
                 <figcaption>
                   <span>{course.badge}</span>
                   <strong>{course.instructor}</strong>
                 </figcaption>
               </div>
-              {course.artSvg && (
-                <div 
-                  className="cd-art-svg-bg" 
-                  aria-hidden="true" 
-                  dangerouslySetInnerHTML={{ __html: course.artSvg }} 
-                />
-              )}
-              <span className="cd-art-formula" aria-hidden="true">{course.artFormula || '∫ · ∇ · det(A)'}</span>
+              <span className="cd-art-formula" aria-hidden="true">{course.artFormula || 'Γê½ ┬╖ Γêç ┬╖ det(A)'}</span>
             </figure>
           </div>
         </div>
@@ -389,10 +382,10 @@ function CourseDetailContent({ course }) {
           <section id="curriculum" className="cd-curriculum" aria-labelledby="curriculum-title">
             <div className="cd-section-heading">
               <div>
-                <span className="cd-eyebrow">Lộ trình học</span>
-                <h2 id="curriculum-title">Nội dung khóa học</h2>
+                <span className="cd-eyebrow">Lß╗Ö tr├¼nh hß╗ìc</span>
+                <h2 id="curriculum-title">Nß╗Öi dung kh├│a hß╗ìc</h2>
               </div>
-              <p>Chọn bài xem thử hoặc đăng nhập đúng tài khoản đã kích hoạt để mở nội dung có khóa.</p>
+              <p>Chß╗ìn b├ái xem thß╗¡ hoß║╖c ─æ─âng nhß║¡p ─æ├║ng t├ái khoß║ún ─æ├ú k├¡ch hoß║ít ─æß╗â mß╗ƒ nß╗Öi dung c├│ kh├│a.</p>
             </div>
 
             {notice && (
@@ -426,7 +419,7 @@ function CourseDetailContent({ course }) {
                         <strong>{chapter.title}</strong>
                       </span>
                       <span className="cd-chapter__count">
-                        {(chapter.lessons || []).length} bài
+                        {(chapter.lessons || []).length} b├ái
                         <ChevronDown size={18} aria-hidden="true" />
                       </span>
                     </button>
@@ -454,17 +447,17 @@ function CourseDetailContent({ course }) {
                               </span>
                               <span className="cd-lesson__copy">
                                 <strong>{lesson.title}</strong>
-                                <small>{lesson.subtitle} · {lesson.duration}</small>
+                                <small>{lesson.subtitle} ┬╖ {lesson.duration}</small>
                               </span>
                               <span className={`cd-lesson__state ${lockedForUser ? 'is-locked' : ''}`}>
                                 {isLoading ? (
-                                  <><Loader2 size={15} className="spinner" /> Đang mở</>
+                                  <><Loader2 size={15} className="spinner" /> ─Éang mß╗ƒ</>
                                 ) : lockedForUser ? (
-                                  <><LockKeyhole size={15} /> Cần quyền học</>
+                                  <><LockKeyhole size={15} /> Cß║ºn quyß╗ün hß╗ìc</>
                                 ) : lesson.isLocked ? (
-                                  <><Play size={15} /> Vào học</>
+                                  <><Play size={15} /> V├áo hß╗ìc</>
                                 ) : (
-                                  <><Eye size={15} /> Xem thử</>
+                                  <><Eye size={15} /> Xem thß╗¡</>
                                 )}
                               </span>
                             </button>
@@ -478,7 +471,7 @@ function CourseDetailContent({ course }) {
             </div>
           </section>
 
-          <aside className="cd-enrollment" aria-label="Đăng ký khóa học">
+          <aside className="cd-enrollment" aria-label="─É─âng k├╜ kh├│a hß╗ìc">
             <div className="cd-enrollment__cover">
               <img src={course.image} alt="" />
               <span>{course.tag}</span>
@@ -488,15 +481,15 @@ function CourseDetailContent({ course }) {
               {hasCourseAccess ? (
                 <div className="cd-access-badge">
                   <CheckCircle2 size={18} />
-                  {isAdmin ? 'Quyền chủ sở hữu' : 'Khóa học đã kích hoạt'}
+                  {isAdmin ? 'Quyß╗ün chß╗º sß╗ƒ hß╗»u' : 'Kh├│a hß╗ìc ─æ├ú k├¡ch hoß║ít'}
                 </div>
               ) : (
-                <span className="cd-enrollment__eyebrow">Quyền học trọn khóa</span>
+                <span className="cd-enrollment__eyebrow">Quyß╗ün hß╗ìc trß╗ìn kh├│a</span>
               )}
 
               <div className="cd-price">
                 {course.isFree ? (
-                  <strong>Miễn phí</strong>
+                  <strong>Miß╗àn ph├¡</strong>
                 ) : (
                   <>
                     <span>{course.originalPrice}</span>
@@ -527,23 +520,23 @@ function CourseDetailContent({ course }) {
                 }}
               >
                 {accessLoading ? (
-                  <><Loader2 size={18} className="spinner" /> Đang kiểm tra quyền</>
+                  <><Loader2 size={18} className="spinner" /> ─Éang kiß╗âm tra quyß╗ün</>
                 ) : hasCourseAccess ? (
-                  <><Play size={18} fill="currentColor" /> Vào học ngay</>
+                  <><Play size={18} fill="currentColor" /> V├áo hß╗ìc ngay</>
                 ) : course.isFree ? (
-                  <><BookOpen size={18} /> Kích hoạt miễn phí</>
+                  <><BookOpen size={18} /> K├¡ch hoß║ít miß╗àn ph├¡</>
                 ) : (
-                  <><ShieldCheck size={18} /> Đăng ký khóa học</>
+                  <><ShieldCheck size={18} /> ─É─âng k├╜ kh├│a hß╗ìc</>
                 )}
               </button>
 
               <p className="cd-enrollment__trust">
-                Quyền học được xác nhận từ máy chủ và gắn với tài khoản của bạn.
+                Quyß╗ün hß╗ìc ─æ╞░ß╗úc x├íc nhß║¡n tß╗½ m├íy chß╗º v├á gß║»n vß╗¢i t├ái khoß║ún cß╗ºa bß║ín.
               </p>
 
               <Link to="/resources" className="cd-resource-link">
                 <Library size={17} />
-                Khám phá thư viện học liệu
+                Kh├ím ph├í th╞░ viß╗çn hß╗ìc liß╗çu
                 <ArrowRight size={16} />
               </Link>
             </div>
@@ -568,7 +561,7 @@ function CourseDetailContent({ course }) {
           >
             <header className="cd-player-dialog__header">
               <div>
-                <span>{activeLesson.type === 'video' ? 'Video bài học' : 'Bài giảng text'}</span>
+                <span>{activeLesson.type === 'video' ? 'Video b├ái hß╗ìc' : 'B├ái giß║úng text'}</span>
                 <h2 id="player-title">{activeLesson.title}</h2>
               </div>
               <button
@@ -576,7 +569,7 @@ function CourseDetailContent({ course }) {
                 className="cd-icon-button"
                 onClick={closePlayer}
                 ref={playerCloseRef}
-                aria-label="Đóng bài học"
+                aria-label="─É├│ng b├ái hß╗ìc"
               >
                 <X size={20} />
               </button>
@@ -612,7 +605,7 @@ function CourseDetailContent({ course }) {
               ) : (
                 <article className="cd-text-lesson">
                   <FileText size={24} aria-hidden="true" />
-                  <p>{activeLesson.content || 'Nội dung bài học đang được cập nhật.'}</p>
+                  <p>{activeLesson.content || 'Nß╗Öi dung b├ái hß╗ìc ─æang ─æ╞░ß╗úc cß║¡p nhß║¡t.'}</p>
                 </article>
               )}
             </div>
@@ -620,11 +613,11 @@ function CourseDetailContent({ course }) {
             <footer className="cd-player-dialog__footer">
               <span>
                 <ShieldCheck size={16} />
-                Nội dung được cấp sau khi máy chủ kiểm tra quyền học.
+                Nß╗Öi dung ─æ╞░ß╗úc cß║Ñp sau khi m├íy chß╗º kiß╗âm tra quyß╗ün hß╗ìc.
               </span>
               {hasNextLesson && (
                 <button type="button" className="cd-button cd-button--primary" onClick={handleNextLesson}>
-                  Bài tiếp theo
+                  B├ái tiß║┐p theo
                   <SkipForward size={17} />
                 </button>
               )}
@@ -655,7 +648,7 @@ function CourseDetailContent({ course }) {
               className="cd-icon-button cd-lock-dialog__close"
               onClick={closeLockPrompt}
               ref={lockCloseRef}
-              aria-label="Đóng thông báo"
+              aria-label="─É├│ng th├┤ng b├ío"
             >
               <X size={20} />
             </button>
@@ -664,18 +657,18 @@ function CourseDetailContent({ course }) {
             </span>
             <h2 id="lock-dialog-title">
               {lockReason === 'AUTH_REQUIRED'
-                ? 'Đăng nhập để tiếp tục học'
-                : 'Kích hoạt khóa học để mở bài'}
+                ? '─É─âng nhß║¡p ─æß╗â tiß║┐p tß╗Ñc hß╗ìc'
+                : 'K├¡ch hoß║ít kh├│a hß╗ìc ─æß╗â mß╗ƒ b├ái'}
             </h2>
             <p id="lock-dialog-description">
               {lockReason === 'AUTH_REQUIRED'
-                ? 'Phiên đăng nhập chưa có hoặc đã hết hạn. Hãy đăng nhập đúng tài khoản học viên rồi thử lại.'
+                ? 'Phi├¬n ─æ─âng nhß║¡p ch╞░a c├│ hoß║╖c ─æ├ú hß║┐t hß║ín. H├úy ─æ─âng nhß║¡p ─æ├║ng t├ái khoß║ún hß╗ìc vi├¬n rß╗ôi thß╗¡ lß║íi.'
                 : course.isFree
-                ? 'Bài đầu tiên là nội dung xem thử. Hãy kích hoạt khóa học miễn phí để mở các bài tiếp theo.'
-                : 'Bài học này chỉ mở cho tài khoản đã đăng ký và được hệ thống xác nhận quyền học.'}
+                ? 'B├ái ─æß║ºu ti├¬n l├á nß╗Öi dung xem thß╗¡. H├úy k├¡ch hoß║ít kh├│a hß╗ìc miß╗àn ph├¡ ─æß╗â mß╗ƒ c├íc b├ái tiß║┐p theo.'
+                : 'B├ái hß╗ìc n├áy chß╗ë mß╗ƒ cho t├ái khoß║ún ─æ├ú ─æ─âng k├╜ v├á ─æ╞░ß╗úc hß╗ç thß╗æng x├íc nhß║¡n quyß╗ün hß╗ìc.'}
             </p>
             <button type="button" className="cd-button cd-button--primary cd-button--full" onClick={openEnrollment}>
-              {course.isFree ? 'Kích hoạt miễn phí' : 'Xem thông tin đăng ký'}
+              {course.isFree ? 'K├¡ch hoß║ít miß╗àn ph├¡' : 'Xem th├┤ng tin ─æ─âng k├╜'}
               <ArrowRight size={17} />
             </button>
           </section>

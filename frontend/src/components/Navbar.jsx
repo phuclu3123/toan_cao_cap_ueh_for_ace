@@ -18,7 +18,7 @@ import {
   getRedirectResult,
   signInWithPopup
 } from '../firebase';
-import { GoogleAuthProvider, GithubAuthProvider, signInWithCredential } from 'firebase/auth';
+import { GoogleAuthProvider, GithubAuthProvider, signInWithCredential, signInWithRedirect } from 'firebase/auth';
 import { useGoogleOneTapLogin } from '@react-oauth/google';
 import { LanguageContext, ThemeContext } from '../App';
 import { translations } from '../utils/translations';
