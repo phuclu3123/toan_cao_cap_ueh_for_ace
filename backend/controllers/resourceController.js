@@ -1,9 +1,34 @@
 import path from 'path';
 import Resource from '../models/Resource.js';
-import User from '../models/User.js';
 import { checkMongoDBConnected } from '../config/db.js';
 import { readJSONFile, writeJSONFile, dataDir } from '../utils/jsonHelper.js';
 import { hasOwnerRole } from '../utils/roles.js';
+import { assertPersistentStorage } from '../utils/storagePolicy.js';
+
+const allowedResourceTypes = new Set([
+  'documentsData',
+  'midtermExams',
+  'finalExams'
+]);
+
+const cleanText = (value, maxLength = 500) => (
+  typeof value === 'string' ? value.trim().slice(0, maxLength) : undefined
+);
+
+const cleanResourceUrl = (value) => {
+  const cleaned = cleanText(value, 2000);
+  if (!cleaned) return undefined;
+  if (cleaned.startsWith('/') && !cleaned.startsWith('//')) return cleaned;
+
+  try {
+    const parsed = new URL(cleaned);
+    const protocolAllowed = parsed.protocol === 'https:'
+      || (process.env.NODE_ENV !== 'production' && parsed.protocol === 'http:');
+    return protocolAllowed ? parsed.toString() : undefined;
+  } catch {
+    return undefined;
+  }
+};
 
 export const incrementResourceView = async (req, res) => {
   const { id } = req.params;
@@ -39,38 +64,27 @@ export const getResources = async (req, res) => {
 };
 
 export const createResource = async (req, res) => {
-  const { type, item, uid, email } = req.body;
+  const { type, item } = req.body;
 
   try {
-    let dbUser = null;
-    
-    if (checkMongoDBConnected()) {
-      if (uid) {
-        dbUser = await User.findOne({ uid });
-      } else if (email) {
-        dbUser = await User.findOne({ username: new RegExp(`^${email}$`, 'i') });
-      }
-    } else {
-      const usersFilePath = path.join(dataDir, 'users.json');
-      const users = readJSONFile(usersFilePath, []);
-      dbUser = users.find(u => 
-        (uid && u.uid === uid) || 
-        (email && u.username && u.username.toLowerCase() === email.toLowerCase())
-      );
-    }
-
-    // Role verification (Strictly require verified Admin user record)
-    const isAuthorized = hasOwnerRole(dbUser);
-
-    if (!isAuthorized) {
+    assertPersistentStorage();
+    if (!hasOwnerRole(req.authUser)) {
       return res.status(403).json({ success: false, message: 'Bạn không có quyền thực hiện hành động này (Từ chối bởi Server)!' });
     }
 
-    if (!type || !item || !item.title) {
+    if (
+      !allowedResourceTypes.has(type)
+      || !item
+      || typeof item !== 'object'
+      || !cleanText(item.title, 180)
+    ) {
       return res.status(400).json({ success: false, message: 'Dữ liệu tài liệu không hợp lệ!' });
     }
 
-    const finalId = item.id || (type.substring(0, 2) + '-' + Date.now());
+    const requestedId = cleanText(item.id, 80);
+    const finalId = requestedId && /^[a-zA-Z0-9_-]+$/.test(requestedId)
+      ? requestedId
+      : `${type.substring(0, 2)}-${Date.now()}`;
 
     let finalDate = item.date;
     if (!finalDate) {
@@ -82,27 +96,23 @@ export const createResource = async (req, res) => {
     }
 
     const savedItem = {
-      ...item,
       id: finalId,
-      date: finalDate
+      type,
+      title: cleanText(item.title, 180),
+      date: cleanText(finalDate, 20),
+      category: cleanText(item.category, 80),
+      categoryLabel: cleanText(item.categoryLabel, 100),
+      image: cleanResourceUrl(item.image),
+      pdf: cleanResourceUrl(item.pdf),
+      desc: cleanText(item.desc, 2000),
+      externalUrl: cleanResourceUrl(item.externalUrl),
+      professor: cleanText(item.professor, 100),
+      professorName: cleanText(item.professorName, 150),
+      hasDetailRoute: Boolean(item.hasDetailRoute)
     };
 
     if (checkMongoDBConnected()) {
-      const newResource = new Resource({
-        id: finalId,
-        type: type,
-        title: item.title,
-        date: finalDate,
-        category: item.category,
-        categoryLabel: item.categoryLabel,
-        image: item.image,
-        pdf: item.pdf,
-        desc: item.desc,
-        externalUrl: item.externalUrl,
-        professor: item.professor,
-        professorName: item.professorName,
-        hasDetailRoute: item.hasDetailRoute
-      });
+      const newResource = new Resource(savedItem);
       await newResource.save();
       return res.json({ success: true, message: 'Đăng tải tài liệu thành công!', item: savedItem });
     } else {
@@ -123,6 +133,14 @@ export const createResource = async (req, res) => {
     }
   } catch (error) {
     console.error("Lỗi đăng tải tài liệu:", error);
-    return res.status(500).json({ success: false, message: 'Lỗi hệ thống khi lưu tài liệu.' });
+    return res
+      .status(error.statusCode || 500)
+      .json({
+        success: false,
+        code: error.code || 'RESOURCE_CREATE_FAILED',
+        message: error.statusCode === 503
+          ? 'Hệ thống lưu trữ đang tạm bảo trì.'
+          : 'Lỗi hệ thống khi lưu tài liệu.'
+      });
   }
 };

@@ -1,4 +1,27 @@
-import { X, User, KeyRound, Mail, Lock, Shield, Smartphone, PhoneCall, ArrowLeft } from 'lucide-react';
+import { useCallback, useEffect, useId, useRef } from 'react';
+import { createPortal } from 'react-dom';
+import {
+  ArrowLeft,
+  CircleUserRound,
+  KeyRound,
+  Lock,
+  Mail,
+  PhoneCall,
+  ShieldCheck,
+  Smartphone,
+  User,
+  X
+} from 'lucide-react';
+import '../../assets/styles/AuthModal.css';
+
+const focusableSelector = [
+  'a[href]',
+  'button:not([disabled])',
+  'input:not([disabled])',
+  'select:not([disabled])',
+  'textarea:not([disabled])',
+  '[tabindex]:not([tabindex="-1"])'
+].join(',');
 
 export default function AuthModal({
   showLoginModal,
@@ -42,7 +65,6 @@ export default function AuthModal({
   setConfirmationResult,
   handleLoginSubmit,
   handleGoogleLogin,
-  handleFacebookLogin,
   handleGithubLogin,
   handleSignupSubmit,
   handleForgotPasswordSubmit,
@@ -50,403 +72,494 @@ export default function AuthModal({
   handleSendOtp,
   handleVerifyOtp
 }) {
+  const panelRef = useRef(null);
+  const previouslyFocusedRef = useRef(null);
+  const titleId = useId();
+  const descriptionId = useId();
+
+  const closeModal = useCallback(() => {
+    setShowLoginModal(false);
+  }, [setShowLoginModal]);
+
+  useEffect(() => {
+    if (!showLoginModal) return undefined;
+
+    previouslyFocusedRef.current = document.activeElement;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const focusInitialControl = () => {
+      const panel = panelRef.current;
+      const initialControl = panel?.querySelector('[data-auth-autofocus]');
+      (initialControl || panel)?.focus({ preventScroll: true });
+    };
+    const focusFrame = window.requestAnimationFrame(focusInitialControl);
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeModal();
+        return;
+      }
+
+      if (event.key !== 'Tab' || !panelRef.current) return;
+      const controls = Array.from(panelRef.current.querySelectorAll(focusableSelector))
+        .filter((element) => element.getClientRects().length > 0);
+      if (controls.length === 0) {
+        event.preventDefault();
+        panelRef.current.focus();
+        return;
+      }
+
+      const first = controls[0];
+      const last = controls[controls.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.cancelAnimationFrame(focusFrame);
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+      const previousControl = previouslyFocusedRef.current;
+      if (previousControl && document.contains(previousControl)) {
+        window.requestAnimationFrame(() => previousControl.focus({ preventScroll: true }));
+      }
+    };
+  }, [closeModal, showLoginModal]);
+
+  useEffect(() => {
+    if (!showLoginModal) return undefined;
+    const focusFrame = window.requestAnimationFrame(() => {
+      panelRef.current?.querySelector('[data-auth-autofocus]')?.focus({ preventScroll: true });
+    });
+    return () => window.cancelAnimationFrame(focusFrame);
+  }, [authMode, forgotStep, isOtpSent, showLoginModal]);
+
   if (!showLoginModal) return null;
 
-  return (
-    <div className="modal-overlay" onClick={() => setShowLoginModal(false)}>
-      <div className="modal-content glass-panel" onClick={(e) => e.stopPropagation()}>
-        <button className="modal-close" onClick={() => setShowLoginModal(false)}>
-          <X size={20} />
+  const setMode = (nextMode) => {
+    setAuthMode(nextMode);
+    setAuthError('');
+    setAuthSuccessMsg('');
+  };
+
+  const modalHeading = authMode === 'signup'
+    ? 'Tạo tài khoản học tập'
+    : authMode === 'forgot'
+      ? forgotStep === 1
+        ? 'Khôi phục mật khẩu'
+        : 'Xác nhận mã OTP'
+      : authMode === 'phone'
+        ? 'Đăng nhập bằng số điện thoại'
+        : 'Chào mừng bạn trở lại';
+
+  const modalDescription = authMode === 'signup'
+    ? 'Tạo một tài khoản để lưu khóa học và tiến độ của bạn.'
+    : authMode === 'forgot'
+      ? forgotStep === 1
+        ? 'Nhập email đã đăng ký để nhận mã OTP gồm 6 chữ số.'
+        : 'Nhập mã OTP trong email và đặt mật khẩu mới cho tài khoản.'
+      : authMode === 'phone'
+        ? isOtpSent
+          ? 'Nhập mã OTP gồm 6 chữ số vừa được gửi đến điện thoại.'
+          : 'Dùng số điện thoại đã liên kết với tài khoản của bạn.'
+        : 'Tiếp tục hành trình học Toán Cao Cấp trên UEH TCC.';
+
+  return createPortal(
+    <div
+      className="auth-modal-overlay"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) closeModal();
+      }}
+    >
+      <section
+        ref={panelRef}
+        className={`auth-modal-panel auth-modal-${authMode}`}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        aria-describedby={descriptionId}
+        tabIndex={-1}
+      >
+        <button
+          type="button"
+          className="auth-modal-close"
+          onClick={closeModal}
+          aria-label="Đóng cửa sổ xác thực"
+        >
+          <X size={19} aria-hidden="true" />
         </button>
-        
-        <div className="modal-header">
-          {authMode === 'login' && <User size={32} className="modal-icon text-teal animate-pulse" />}
-          {authMode === 'signup' && <User size={32} className="modal-icon text-teal animate-pulse" />}
-          {authMode === 'forgot' && <KeyRound size={32} className="modal-icon text-rose animate-pulse" />}
-          
-          <h3>
-            {authMode === 'login' && 'Đăng Nhập UEH TCC'}
-            {authMode === 'signup' && 'Đăng Ký Thành Viên'}
-            {authMode === 'forgot' && 'Khôi Phục Mật Khẩu'}
-          </h3>
-          <p>
-            {authMode === 'login' && 'Hệ thống hỗ trợ lưu lịch sử học tập'}
-            {authMode === 'signup' && 'Tạo tài khoản học tập cá nhân'}
-            {authMode === 'forgot' && 'Nhập email để nhận liên kết khôi phục mật khẩu'}
-          </p>
-        </div>
 
-        {authError && <div className="error-alert">{authError}</div>}
-        {authSuccessMsg && <div className="success-alert">{authSuccessMsg}</div>}
+        <header className="auth-modal-header">
+          <span className="auth-modal-mark" aria-hidden="true">
+            {authMode === 'forgot' ? <KeyRound size={21} /> : <CircleUserRound size={22} />}
+          </span>
+          <div>
+            <p className="auth-modal-eyebrow">Tài khoản học viên</p>
+            <h2 id={titleId}>{modalHeading}</h2>
+            <p id={descriptionId}>{modalDescription}</p>
+          </div>
+        </header>
 
-        {/* 1. LOGIN FORM */}
+        {(authError || authSuccessMsg) && (
+          <div
+            className={`auth-modal-alert ${authError ? 'is-error' : 'is-success'}`}
+            role={authError ? 'alert' : 'status'}
+            aria-live="polite"
+          >
+            {authError || authSuccessMsg}
+          </div>
+        )}
+
         {authMode === 'login' && (
-          <form className="modal-form" onSubmit={handleLoginSubmit}>
-            <div className="form-group">
-              <label htmlFor="username">Email đăng nhập / Tài khoản</label>
-              <div className="input-with-icon">
-                <Mail size={18} className="input-icon" />
+          <form className="auth-modal-form" onSubmit={handleLoginSubmit}>
+            <label className="auth-field" htmlFor="username">
+              <span>Email hoặc tài khoản</span>
+              <span className="auth-input-shell">
+                <Mail size={17} aria-hidden="true" />
                 <input
-                  type="text"
                   id="username"
-                  className="form-input"
-                  placeholder="Email hoặc tài khoản đăng nhập"
+                  type="text"
                   value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  onChange={(event) => setUsername(event.target.value)}
+                  placeholder="Nhập email hoặc tài khoản"
+                  autoComplete="username"
+                  data-auth-autofocus
                   required
                 />
-              </div>
-            </div>
-            
-            <div className="form-group">
-              <div className="form-group-header">
-                <label htmlFor="password">Mật khẩu</label>
-                <button 
-                  type="button" 
-                  className="forgot-password-link" 
-                  onClick={() => { setAuthMode('forgot'); setAuthError(''); setAuthSuccessMsg(''); }}
-                >
+              </span>
+            </label>
+
+            <label className="auth-field" htmlFor="password">
+              <span className="auth-field-heading">
+                <span>Mật khẩu</span>
+                <button type="button" onClick={() => setMode('forgot')}>
                   Quên mật khẩu?
                 </button>
-              </div>
-              <div className="input-with-icon">
-                <Lock size={18} className="input-icon" />
+              </span>
+              <span className="auth-input-shell">
+                <Lock size={17} aria-hidden="true" />
                 <input
-                  type="password"
                   id="password"
-                  className="form-input"
-                  placeholder="Nhập mật khẩu của bạn"
+                  type="password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(event) => setPassword(event.target.value)}
+                  placeholder="Nhập mật khẩu"
+                  autoComplete="current-password"
                   required
                 />
-              </div>
+              </span>
+            </label>
+
+            <button type="submit" className="auth-primary-button">
+              Đăng nhập
+            </button>
+
+            <div className="auth-modal-divider" aria-hidden="true">
+              <span>hoặc tiếp tục với</span>
             </div>
 
-            <button type="submit" className="btn btn-primary w-full" style={{ marginTop: '10px' }}>Đăng Nhập</button>
-            
-            <div className="auth-divider">hoặc đăng nhập bằng</div>
-
-            <div className="social-login-grid">
-              {/* Google Button */}
-              <button 
-                type="button" 
-                className="btn-social google" 
-                onClick={handleGoogleLogin}
-              >
-                <svg viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
-                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
+            <div className="auth-provider-grid" aria-label="Nhà cung cấp đăng nhập">
+              <button type="button" className="auth-provider-button" onClick={handleGoogleLogin}>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05" />
+                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335" />
                 </svg>
                 <span>Google</span>
               </button>
 
-              {/* Facebook Button */}
-              <button 
-                type="button" 
-                className="btn-social facebook" 
-                onClick={handleFacebookLogin}
-              >
-                <svg viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M24 12.07C24 5.41 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.04V9.41c0-3.02 1.8-4.7 4.54-4.7 1.31 0 2.68.24 2.68.24v2.97h-1.5c-1.5 0-1.96.93-1.96 1.89v2.26h3.32l-.53 3.5h-2.8V24C19.62 23.1 24 18.1 24 12.07" fill="#1877F2"/>
-                </svg>
-                <span>Facebook</span>
-              </button>
-
-              {/* GitHub Button */}
-              <button 
-                type="button" 
-                className="btn-social github" 
-                onClick={handleGithubLogin}
-              >
-                <svg viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 0c-6.63 0-12 5.28-12 11.79 0 5.21 3.44 9.63 8.21 11.19.6.11.82-.26.82-.57v-2.18c-3.34.71-4.04-1.54-4.04-1.54-.55-1.37-1.33-1.74-1.33-1.74-1.09-.73.08-.71.08-.71 1.2.08 1.83 1.21 1.83 1.21 1.07 1.8 2.8 1.28 3.49.98.11-.76.42-1.28.76-1.58-2.66-.3-5.47-1.31-5.47-5.83 0-1.29.47-2.34 1.24-3.17-.12-.3-.54-1.5.12-3.12 0 0 1.01-.32 3.31 1.21.96-.26 1.98-.39 3-.4 1.02 0 2.04.14 3 .4 2.3-1.53 3.3-1.21 3.3-1.21.66 1.62.24 2.82.12 3.12.77.83 1.24 1.88 1.24 3.17 0 4.53-2.81 5.53-5.49 5.82.43.37.81 1.09.81 2.2v3.27c0 .32.22.69.82.57 4.77-1.56 8.2-5.98 8.2-11.19C24 5.28 18.63 0 12 0z" fill="#24292e"/>
+              <button type="button" className="auth-provider-button" onClick={handleGithubLogin}>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 0c-6.63 0-12 5.28-12 11.79 0 5.21 3.44 9.63 8.21 11.19.6.11.82-.26.82-.57v-2.18c-3.34.71-4.04-1.54-4.04-1.54-.55-1.37-1.33-1.74-1.33-1.74-1.09-.73.08-.71.08-.71 1.2.08 1.83 1.21 1.83 1.21 1.07 1.8 2.8 1.28 3.49.98.11-.76.42-1.28.76-1.58-2.66-.3-5.47-1.31-5.47-5.83 0-1.29.47-2.34 1.24-3.17-.12-.3-.54-1.5.12-3.12 0 0 1.01-.32 3.31 1.21.96-.26 1.98-.39 3-.4 1.02 0 2.04.14 3 .4 2.3-1.53 3.3-1.21 3.3-1.21.66 1.62.24 2.82.12 3.12.77.83 1.24 1.88 1.24 3.17 0 4.53-2.81 5.53-5.49 5.82.43.37.81 1.09.81 2.2v3.27c0 .32.22.69.82.57 4.77-1.56 8.2-5.98 8.2-11.19C24 5.28 18.63 0 12 0z" fill="currentColor" />
                 </svg>
                 <span>GitHub</span>
               </button>
             </div>
 
-            <div className="auth-modal-switch mt-4 text-center text-sm text-gray-400">
-              <span>Chưa có tài khoản? </span>
-              <button type="button" className="text-teal font-semibold hover:underline" onClick={() => { setAuthMode('signup'); setAuthError(''); setAuthSuccessMsg(''); }}>Đăng ký ngay</button>
-            </div>
-
+            <p className="auth-switch">
+              Chưa có tài khoản?
+              <button type="button" onClick={() => setMode('signup')}>Đăng ký ngay</button>
+            </p>
           </form>
         )}
 
-        {/* 2. SIGN UP FORM */}
         {authMode === 'signup' && (
-          <form className="modal-form" onSubmit={handleSignupSubmit}>
-            <div className="form-group">
-              <label htmlFor="signupName">Họ và Tên của bạn</label>
-              <div className="input-with-icon">
-                <User size={17} className="input-icon" />
+          <form className="auth-modal-form" onSubmit={handleSignupSubmit}>
+            <label className="auth-field" htmlFor="signupName">
+              <span>Họ và tên</span>
+              <span className="auth-input-shell">
+                <User size={17} aria-hidden="true" />
                 <input
-                  type="text"
                   id="signupName"
-                  className="form-input"
-                  placeholder="Nguyễn Văn A"
+                  type="text"
                   value={signupName}
-                  onChange={(e) => setSignupName(e.target.value)}
+                  onChange={(event) => setSignupName(event.target.value)}
+                  placeholder="Nguyễn Văn A"
+                  autoComplete="name"
+                  data-auth-autofocus
                   required
                 />
-              </div>
-            </div>
-            <div className="form-group">
-              <label htmlFor="signupUsername">Địa chỉ Email</label>
-              <div className="input-with-icon">
-                <Mail size={17} className="input-icon" />
+              </span>
+            </label>
+
+            <label className="auth-field" htmlFor="signupUsername">
+              <span>Địa chỉ email</span>
+              <span className="auth-input-shell">
+                <Mail size={17} aria-hidden="true" />
                 <input
-                  type="email"
                   id="signupUsername"
-                  className="form-input"
-                  placeholder="sinhvien@ueh.edu.vn"
+                  type="email"
                   value={signupUsername}
-                  onChange={(e) => setSignupUsername(e.target.value)}
+                  onChange={(event) => setSignupUsername(event.target.value)}
+                  placeholder="sinhvien@ueh.edu.vn"
+                  autoComplete="email"
                   required
                 />
-              </div>
+              </span>
+            </label>
+
+            <div className="auth-password-grid">
+              <label className="auth-field" htmlFor="signupPassword">
+                <span>Mật khẩu</span>
+                <span className="auth-input-shell">
+                  <Lock size={17} aria-hidden="true" />
+                  <input
+                    id="signupPassword"
+                    type="password"
+                    value={signupPassword}
+                    onChange={(event) => setSignupPassword(event.target.value)}
+                    placeholder="Tối thiểu 6 ký tự"
+                    autoComplete="new-password"
+                    minLength={6}
+                    required
+                  />
+                </span>
+              </label>
+              <label className="auth-field" htmlFor="signupConfirmPassword">
+                <span>Nhập lại mật khẩu</span>
+                <span className="auth-input-shell">
+                  <Lock size={17} aria-hidden="true" />
+                  <input
+                    id="signupConfirmPassword"
+                    type="password"
+                    value={signupConfirmPassword}
+                    onChange={(event) => setSignupConfirmPassword(event.target.value)}
+                    placeholder="Xác nhận mật khẩu"
+                    autoComplete="new-password"
+                    minLength={6}
+                    required
+                  />
+                </span>
+              </label>
             </div>
-            <div className="form-group">
-              <label htmlFor="signupPassword">Mật khẩu</label>
-              <div className="input-with-icon">
-                <Lock size={17} className="input-icon" />
+
+            <button type="submit" className="auth-primary-button">Tạo tài khoản</button>
+            <p className="auth-switch">
+              Đã có tài khoản?
+              <button type="button" onClick={() => setMode('login')}>Đăng nhập</button>
+            </p>
+          </form>
+        )}
+
+        {authMode === 'forgot' && forgotStep === 1 && (
+          <form className="auth-modal-form" onSubmit={handleForgotPasswordSubmit}>
+            <label className="auth-field" htmlFor="forgotEmail">
+              <span>Email đã đăng ký</span>
+              <span className="auth-input-shell">
+                <Mail size={17} aria-hidden="true" />
                 <input
-                  type="password"
-                  id="signupPassword"
-                  className="form-input"
-                  placeholder="Tối thiểu 6 ký tự"
-                  value={signupPassword}
-                  onChange={(e) => setSignupPassword(e.target.value)}
+                  id="forgotEmail"
+                  type="email"
+                  value={forgotEmail}
+                  onChange={(event) => setForgotEmail(event.target.value)}
+                  placeholder="sinhvien@ueh.edu.vn"
+                  autoComplete="email"
+                  data-auth-autofocus
                   required
                 />
-              </div>
-            </div>
-            <div className="form-group">
-              <label htmlFor="signupConfirmPassword">Nhập lại mật khẩu</label>
-              <div className="input-with-icon">
-                <Lock size={17} className="input-icon" />
+              </span>
+            </label>
+
+            <button type="submit" className="auth-primary-button" disabled={forgotLoading}>
+              {forgotLoading ? 'Đang gửi mã OTP…' : 'Gửi mã OTP'}
+            </button>
+            <p className="auth-helper-copy">
+              Mã OTP có hiệu lực trong 10 phút. Nếu chưa thấy email, vui lòng kiểm tra thư mục Spam hoặc Quảng cáo.
+            </p>
+            <button
+              type="button"
+              className="auth-back-button"
+              onClick={() => {
+                setMode('login');
+                setForgotStep(1);
+              }}
+            >
+              <ArrowLeft size={16} aria-hidden="true" />
+              Quay lại đăng nhập
+            </button>
+          </form>
+        )}
+
+        {authMode === 'forgot' && forgotStep === 2 && (
+          <form className="auth-modal-form" onSubmit={handleResetPasswordSubmit}>
+            <label className="auth-field" htmlFor="forgotOtp">
+              <span>Mã OTP gồm 6 chữ số</span>
+              <span className="auth-input-shell">
+                <ShieldCheck size={17} aria-hidden="true" />
                 <input
-                  type="password"
-                  id="signupConfirmPassword"
-                  className="form-input"
-                  placeholder="Xác nhận mật khẩu"
-                  value={signupConfirmPassword}
-                  onChange={(e) => setSignupConfirmPassword(e.target.value)}
+                  id="forgotOtp"
+                  type="text"
+                  value={forgotOtp}
+                  onChange={(event) => setForgotOtp(event.target.value.replace(/\D/g, '').slice(0, 6))}
+                  placeholder="Nhập mã OTP"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  pattern="[0-9]{6}"
+                  maxLength={6}
+                  data-auth-autofocus
                   required
                 />
-              </div>
+              </span>
+            </label>
+
+            <div className="auth-password-grid">
+              <label className="auth-field" htmlFor="forgotNewPassword">
+                <span>Mật khẩu mới</span>
+                <span className="auth-input-shell">
+                  <Lock size={17} aria-hidden="true" />
+                  <input
+                    id="forgotNewPassword"
+                    type="password"
+                    value={forgotNewPassword}
+                    onChange={(event) => setForgotNewPassword(event.target.value)}
+                    placeholder="Tối thiểu 6 ký tự"
+                    autoComplete="new-password"
+                    minLength={6}
+                    required
+                  />
+                </span>
+              </label>
+              <label className="auth-field" htmlFor="forgotConfirmNewPassword">
+                <span>Xác nhận mật khẩu</span>
+                <span className="auth-input-shell">
+                  <Lock size={17} aria-hidden="true" />
+                  <input
+                    id="forgotConfirmNewPassword"
+                    type="password"
+                    value={forgotConfirmNewPassword}
+                    onChange={(event) => setForgotConfirmNewPassword(event.target.value)}
+                    placeholder="Nhập lại mật khẩu"
+                    autoComplete="new-password"
+                    minLength={6}
+                    required
+                  />
+                </span>
+              </label>
             </div>
-            <button type="submit" className="btn btn-primary w-full">Đăng Ký Tài Khoản</button>
-            
-            <div className="auth-modal-switch mt-4 text-center text-sm">
-              <span>Đã có tài khoản? </span>
-              <button type="button" className="text-teal font-semibold hover:underline" onClick={() => { setAuthMode('login'); setAuthError(''); setAuthSuccessMsg(''); }}>Đăng nhập ngay</button>
+
+            <button type="submit" className="auth-primary-button" disabled={forgotLoading}>
+              {forgotLoading ? 'Đang xác nhận…' : 'Đổi mật khẩu'}
+            </button>
+            <div className="auth-form-footer">
+              <button
+                type="button"
+                className="auth-back-button"
+                onClick={() => {
+                  setForgotStep(1);
+                  setAuthError('');
+                  setAuthSuccessMsg('');
+                }}
+              >
+                <ArrowLeft size={16} aria-hidden="true" />
+                Đổi email
+              </button>
+              <button type="button" className="auth-text-button" onClick={handleForgotPasswordSubmit} disabled={forgotLoading}>
+                Gửi lại mã OTP
+              </button>
             </div>
           </form>
         )}
 
-        {/* 3. FORGOT PASSWORD FORM */}
-        {authMode === 'forgot' && (
-          forgotStep === 1 ? (
-            <form className="modal-form" onSubmit={handleForgotPasswordSubmit}>
-              <div className="form-group">
-                <label htmlFor="forgotEmail">Email đã đăng ký tài khoản</label>
-                <div className="input-with-icon">
-                  <Mail size={17} className="input-icon" />
-                  <input
-                    type="email"
-                    id="forgotEmail"
-                    className="form-input"
-                    placeholder="sinhvien@ueh.edu.vn"
-                    value={forgotEmail}
-                    onChange={(e) => setForgotEmail(e.target.value)}
-                    required
-                    autoComplete="email"
-                  />
-                </div>
-              </div>
-              
-              <button type="submit" className="btn btn-primary w-full" disabled={forgotLoading}>
-                {forgotLoading ? (
-                  <span>⏳ Đang gửi email...</span>
-                ) : (
-                  'Gửi Mã OTP Xác Thực'
-                )}
-              </button>
-
-              <p style={{ textAlign: 'center', fontSize: '0.8rem', color: '#64748b', lineHeight: '1.5', marginTop: '10px' }}>
-                Mã xác thực OTP có hiệu lực trong 10 phút.<br/>Vui lòng kiểm tra cả thư mục Spam/Quảng cáo nếu chưa thấy email!
-              </p>
-
-              <div className="text-center mt-3">
-                <button 
-                  type="button" 
-                  className="btn-back-link" 
-                  onClick={() => { setAuthMode('login'); setAuthError(''); setAuthSuccessMsg(''); setForgotStep(1); }}
-                >
-                  <ArrowLeft size={16} />
-                  <span>Quay lại Đăng nhập</span>
-                </button>
-              </div>
-            </form>
-          ) : (
-            <form className="modal-form" onSubmit={handleResetPasswordSubmit}>
-              <div className="form-group">
-                <label htmlFor="forgotOtp">Nhập mã OTP (6 chữ số)</label>
-                <div className="input-with-icon">
-                  <Shield size={17} className="input-icon" />
-                  <input
-                    type="text"
-                    id="forgotOtp"
-                    className="form-input"
-                    placeholder="123456"
-                    maxLength="6"
-                    value={forgotOtp}
-                    onChange={(e) => setForgotOtp(e.target.value)}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="forgotNewPassword">Mật khẩu mới</label>
-                <div className="input-with-icon">
-                  <Lock size={17} className="input-icon" />
-                  <input
-                    type="password"
-                    id="forgotNewPassword"
-                    className="form-input"
-                    placeholder="Tối thiểu 3 ký tự"
-                    value={forgotNewPassword}
-                    onChange={(e) => setForgotNewPassword(e.target.value)}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="forgotConfirmNewPassword">Xác nhận mật khẩu mới</label>
-                <div className="input-with-icon">
-                  <Lock size={17} className="input-icon" />
-                  <input
-                    type="password"
-                    id="forgotConfirmNewPassword"
-                    className="form-input"
-                    placeholder="Nhập lại mật khẩu mới"
-                    value={forgotConfirmNewPassword}
-                    onChange={(e) => setForgotConfirmNewPassword(e.target.value)}
-                    required
-                  />
-                </div>
-              </div>
-              
-              <button type="submit" className="btn btn-primary w-full" disabled={forgotLoading}>
-                {forgotLoading ? 'Đang xử lý...' : 'Xác Nhận Đổi Mật Khẩu'}
-              </button>
-
-              <div className="text-center mt-3" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <button 
-                  type="button" 
-                  className="btn-back-link" 
-                  onClick={() => { setForgotStep(1); setAuthError(''); setAuthSuccessMsg(''); }}
-                >
-                  <ArrowLeft size={16} />
-                  <span>Quay lại</span>
-                </button>
-                <button 
-                  type="button" 
-                  className="text-teal text-sm font-semibold hover:underline" 
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-                  onClick={handleForgotPasswordSubmit}
-                  disabled={forgotLoading}
-                >
-                  Gửi lại mã OTP
-                </button>
-              </div>
-            </form>
-          )
-        )}
-
-        {/* 4. SMS OTP FORM */}
         {authMode === 'phone' && (
-          <form className="modal-form" onSubmit={isOtpSent ? handleVerifyOtp : handleSendOtp}>
+          <form className="auth-modal-form" onSubmit={isOtpSent ? handleVerifyOtp : handleSendOtp}>
             {!isOtpSent ? (
               <>
-                <div className="form-group">
-                  <label htmlFor="phoneInput">Số điện thoại của bạn</label>
-                  <div className="input-with-icon">
-                    <Smartphone size={17} className="input-icon" />
+                <label className="auth-field" htmlFor="phoneInput">
+                  <span>Số điện thoại</span>
+                  <span className="auth-input-shell">
+                    <Smartphone size={17} aria-hidden="true" />
                     <input
-                      type="tel"
                       id="phoneInput"
-                      className="form-input"
-                      placeholder="+84912345678"
+                      type="tel"
                       value={phoneInput}
-                      onChange={(e) => setPhoneInput(e.target.value)}
+                      onChange={(event) => setPhoneInput(event.target.value)}
+                      placeholder="+84912345678"
+                      autoComplete="tel"
+                      data-auth-autofocus
                       required
                     />
-                  </div>
-                </div>
-                <div id="recaptcha-container"></div>
-                
-                <button type="submit" className="btn btn-primary w-full" disabled={otpLoading}>
-                  <PhoneCall size={16} />
-                  <span>{otpLoading ? 'Đang gửi mã...' : 'Gửi mã xác thực OTP'}</span>
+                  </span>
+                </label>
+                <div id="recaptcha-container" />
+                <button type="submit" className="auth-primary-button" disabled={otpLoading}>
+                  <PhoneCall size={16} aria-hidden="true" />
+                  {otpLoading ? 'Đang gửi mã OTP…' : 'Gửi mã OTP'}
                 </button>
               </>
             ) : (
               <>
-                <div className="form-group">
-                  <label htmlFor="verificationCode">Nhập mã OTP gồm 6 chữ số</label>
-                  <div className="input-with-icon">
-                    <Shield size={17} className="input-icon" />
+                <label className="auth-field" htmlFor="verificationCode">
+                  <span>Mã OTP gồm 6 chữ số</span>
+                  <span className="auth-input-shell">
+                    <ShieldCheck size={17} aria-hidden="true" />
                     <input
-                      type="text"
                       id="verificationCode"
-                      className="form-input"
-                      placeholder="123456"
-                      maxLength="6"
+                      type="text"
                       value={verificationCode}
-                      onChange={(e) => setVerificationCode(e.target.value)}
+                      onChange={(event) => setVerificationCode(event.target.value.replace(/\D/g, '').slice(0, 6))}
+                      placeholder="Nhập mã OTP"
+                      inputMode="numeric"
+                      autoComplete="one-time-code"
+                      pattern="[0-9]{6}"
+                      maxLength={6}
+                      data-auth-autofocus
                       required
                     />
-                  </div>
-                </div>
-                
-                <button type="submit" className="btn btn-primary w-full" disabled={otpLoading}>
-                  <span>{otpLoading ? 'Đang xác thực...' : 'Xác nhận Đăng Nhập'}</span>
+                  </span>
+                </label>
+                <button type="submit" className="auth-primary-button" disabled={otpLoading}>
+                  {otpLoading ? 'Đang xác nhận…' : 'Xác nhận đăng nhập'}
                 </button>
-                
-                <div className="auth-modal-switch mt-2 text-sm">
-                  <span>Không nhận được mã? </span>
-                  <button 
-                    type="button" 
-                    className="text-teal font-semibold hover:underline" 
-                    onClick={handleSendOtp} 
-                    disabled={otpLoading}
-                  >
-                    Gửi lại mã
-                  </button>
-                </div>
+                <button type="button" className="auth-text-button auth-center-button" onClick={handleSendOtp} disabled={otpLoading}>
+                  Gửi lại mã OTP
+                </button>
               </>
             )}
-
-            <div className="text-center mt-3">
-              <button 
-                type="button" 
-                className="btn-back-link" 
-                onClick={() => { setAuthMode('login'); setAuthError(''); setAuthSuccessMsg(''); setIsOtpSent(false); setConfirmationResult(null); }}
-              >
-                <ArrowLeft size={16} />
-                <span>Quay lại Đăng nhập</span>
-              </button>
-            </div>
+            <button
+              type="button"
+              className="auth-back-button"
+              onClick={() => {
+                setMode('login');
+                setIsOtpSent(false);
+                setConfirmationResult(null);
+              }}
+            >
+              <ArrowLeft size={16} aria-hidden="true" />
+              Quay lại đăng nhập
+            </button>
           </form>
         )}
-      </div>
-    </div>
+      </section>
+    </div>,
+    document.body
   );
 }

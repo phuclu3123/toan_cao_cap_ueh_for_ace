@@ -50,6 +50,7 @@ export default function Footer() {
       <div className="container footer-top">
         <div className="footer-grid">
           <div className="footer-about">
+            <span className="footer-kicker">{language === 'vi' ? 'Nền tảng học tập độc lập' : 'Independent learning platform'}</span>
             <Link to="/" className="footer-logo">
               <span className="logo-helper">UEH</span> <span className="logo-main">TCC</span>
             </Link>
@@ -67,18 +68,20 @@ export default function Footer() {
               </a>
             </div>
             <div className="social-links">
-              <a href="https://www.facebook.com/Luphuc08092006/" target="_blank" rel="noopener noreferrer" className="social-icon" aria-label="Facebook">
+              <a href="https://www.facebook.com/Luphuc08092006/" target="_blank" rel="noopener noreferrer" className="social-icon">
                 <svg className="lucide-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
                 </svg>
+                <span>Facebook</span>
               </a>
-              <a href="https://zalo.me/0833830322" target="_blank" rel="noopener noreferrer" className="social-icon" aria-label="Zalo">
-                Z
+              <a href="https://zalo.me/0833830322" target="_blank" rel="noopener noreferrer" className="social-icon">
+                <span className="social-letter" aria-hidden="true">Z</span>
+                <span>Zalo</span>
               </a>
             </div>
           </div>
 
-          <div className="footer-links">
+          <nav className="footer-links" aria-label={language === 'vi' ? 'Điều hướng cuối trang' : 'Footer navigation'}>
             <h4>{language === 'vi' ? 'Điều hướng' : (language === 'en' ? 'Navigation' : (language === 'ja' ? 'ナビゲーション' : '导航'))}</h4>
             <ul>
               <li><Link to="/">{t.nav.home}</Link></li>
@@ -87,9 +90,9 @@ export default function Footer() {
               <li><Link to="/exams">{t.nav.exams}</Link></li>
               <li><Link to="/blog">{t.nav.blog}</Link></li>
             </ul>
-          </div>
+          </nav>
 
-          <div className="footer-links">
+          <div className="footer-links footer-support">
             <h4>{t.footer.donateTitle}</h4>
             <p className="donate-desc">{t.footer.donateDesc}</p>
             <ul className="donate-list">
@@ -110,16 +113,21 @@ export default function Footer() {
             <p className="newsletter-desc">{t.footer.subscribeDesc}</p>
             <form onSubmit={handleSubscribeSubmit} className="newsletter-form">
               <div className="input-group">
+                <label className="footer-sr-only" htmlFor="footer-newsletter-email">
+                  {t.footer.subscribePlaceholder}
+                </label>
                 <input
+                  id="footer-newsletter-email"
                   type="email"
                   placeholder={t.footer.subscribePlaceholder}
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   disabled={status === 'loading'}
+                  autoComplete="email"
                   required
                 />
-                <button type="submit" className="btn-send" disabled={status === 'loading'} aria-label="Subscribe">
-                  <Send size={16} />
+                <button type="submit" className="btn-send" disabled={status === 'loading'} aria-label={language === 'vi' ? 'Đăng ký nhận bài viết' : 'Subscribe'}>
+                  <Send size={17} aria-hidden="true" />
                 </button>
               </div>
             </form>

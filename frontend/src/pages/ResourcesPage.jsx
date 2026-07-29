@@ -1,6 +1,16 @@
 import { useEffect, useMemo, useState, useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Download, Grid, HelpCircle, List, Search } from 'lucide-react';
+import {
+  BookMarked,
+  ChevronLeft,
+  ChevronRight,
+  ClipboardCheck,
+  Download,
+  Grid,
+  HelpCircle,
+  List,
+  Search
+} from 'lucide-react';
 import DocCard from '../components/DocCard';
 import { documentsData as localDocs } from '../data/documentsData';
 import { API_BASE_URL } from '../config';
@@ -99,26 +109,67 @@ export default function ResourcesPage() {
     setCurrentPage(1);
   };
 
+  const pageCopy = {
+    vi: {
+      title: 'Thư Viện Ấn Phẩm & Tài Liệu Học Tập',
+      description: 'Tổng hợp giáo trình chuẩn, slide bài giảng giảng viên, tài liệu chuyên đề và bài tập chương Toán Cao Cấp UEH.',
+      index: 'Danh mục thư viện',
+      formats: 'PDF · Slide · Chuyên đề',
+      groupedTitle: 'Nội dung được gom theo nhu cầu học.',
+      groupedDescription: 'Thư viện ưu tiên tài liệu dùng ngay: giáo trình, bài tập chương, PDF ôn tập và tài liệu giữa kỳ. Các bài luyện thi tương tác được tách sang phòng luyện thi riêng.',
+      allDocs: 'Tất cả tài liệu',
+      slides: 'Slide bài giảng',
+      support: 'Chuyên đề & bài tập',
+      exams: 'Đến phòng thi TCC',
+      results: 'tài liệu phù hợp'
+    },
+    en: {
+      title: 'Publications & Study Library',
+      description: 'Official textbooks, lecture slides, topic notes, and practice exercises for UEH Advanced Calculus.',
+      index: 'Library index',
+      formats: 'PDF · Slides · Topic notes',
+      groupedTitle: 'Resources grouped by study needs.',
+      groupedDescription: 'The library prioritizes directly applicable documents: textbooks, exercises, midterm review files, and mock exams. Interactive exams are structured inside the dedicated practice rooms.',
+      allDocs: 'All documents',
+      slides: 'Lecture slides',
+      support: 'Topics & exercises',
+      exams: 'Go to TCC exams',
+      results: 'matching resources'
+    }
+  };
+  const copy = pageCopy[language] || pageCopy.en;
+
   return (
     <div className="resources-page">
-      <section className="resources-banner">
-        <div className="container">
+      <section className="resources-banner" aria-labelledby="resources-page-title">
+        <div className="resources-banner-geometry" aria-hidden="true">
+          <span />
+          <span />
+          <span />
+        </div>
+        <div className="container resources-banner-grid">
+          <div className="resources-banner-copy">
           <span className="resources-banner-subtitle">{t.resources.bannerSubtitle}</span>
-          <h1 className="resources-banner-title">{language === 'vi' ? 'Thư Viện Ấn Phẩm & Tài Liệu Học Tập' : 'Publications & Study Library'}</h1>
-          <p className="resources-banner-desc">
-            {language === 'vi' 
-              ? 'Tổng hợp giáo trình chuẩn, slide bài giảng giảng viên, tài liệu chuyên đề và bài tập chương Toán Cao Cấp UEH.'
-              : 'Official textbooks, lecture slides, topic notes, and practice exercises for UEH Advanced Calculus.'}
-          </p>
+            <h1 id="resources-page-title" className="resources-banner-title">{copy.title}</h1>
+            <p className="resources-banner-desc">{copy.description}</p>
+          </div>
+          <aside className="library-index-card" aria-label={copy.index}>
+            <BookMarked size={22} aria-hidden="true" />
+            <span>{copy.index}</span>
+            <strong>{loading ? '—' : docs.length}</strong>
+            <small>{copy.formats}</small>
+          </aside>
         </div>
       </section>
 
       <div className="container resources-control-panel">
-        <div className="controls-wrapper">
+        <div className="controls-wrapper" role="search">
           <div className="search-and-view-row">
             <div className="search-input-wrapper">
-              <Search className="search-icon" size={18} />
+              <Search className="search-icon" size={18} aria-hidden="true" />
+              <label className="sr-only" htmlFor="resource-search">{t.resources.searchPlaceholder}</label>
               <input
+                id="resource-search"
                 type="text"
                 className="search-field"
                 placeholder={t.resources.searchPlaceholder}
@@ -127,22 +178,23 @@ export default function ResourcesPage() {
               />
             </div>
 
-            <div className="layout-toggle-buttons">
-              <button className={`btn-layout-toggle ${viewMode === 'grid' ? 'active' : ''}`} onClick={() => setViewMode('grid')} title={t.resources.titleGrid}>
-                <Grid size={18} />
+            <div className="layout-toggle-buttons" aria-label={language === 'vi' ? 'Kiểu hiển thị' : 'View style'}>
+              <button className={`btn-layout-toggle ${viewMode === 'grid' ? 'active' : ''}`} onClick={() => setViewMode('grid')} aria-pressed={viewMode === 'grid'} aria-label={t.resources.titleGrid}>
+                <Grid size={18} aria-hidden="true" />
               </button>
-              <button className={`btn-layout-toggle ${viewMode === 'list' ? 'active' : ''}`} onClick={() => setViewMode('list')} title={t.resources.titleList}>
-                <List size={18} />
+              <button className={`btn-layout-toggle ${viewMode === 'list' ? 'active' : ''}`} onClick={() => setViewMode('list')} aria-pressed={viewMode === 'list'} aria-label={t.resources.titleList}>
+                <List size={18} aria-hidden="true" />
               </button>
             </div>
           </div>
 
-          <div className="resources-tabs-wrapper">
-            <button className={`tab-btn ${activeTab === 'all' ? 'active' : ''}`} onClick={() => handleTabClick('all')}>{language === 'vi' ? 'Tất cả tài liệu' : 'All Docs'} ({docs.length})</button>
-            <button className={`tab-btn ${activeTab === 'slide' ? 'active' : ''}`} onClick={() => handleTabClick('slide')}>{language === 'vi' ? 'Slide Bài Giảng' : 'Lecture Slides'}</button>
-            <button className={`tab-btn ${activeTab === 'support' ? 'active' : ''}`} onClick={() => handleTabClick('support')}>{language === 'vi' ? 'Chuyên Đề & Bài Tập' : 'Topics & Exercises'}</button>
+          <div className="resources-tabs-wrapper" aria-label={language === 'vi' ? 'Bộ lọc tài liệu' : 'Resource filters'}>
+            <button className={`tab-btn ${activeTab === 'all' ? 'active' : ''}`} aria-pressed={activeTab === 'all'} onClick={() => handleTabClick('all')}>{copy.allDocs} ({docs.length})</button>
+            <button className={`tab-btn ${activeTab === 'slide' ? 'active' : ''}`} aria-pressed={activeTab === 'slide'} onClick={() => handleTabClick('slide')}>{copy.slides}</button>
+            <button className={`tab-btn ${activeTab === 'support' ? 'active' : ''}`} aria-pressed={activeTab === 'support'} onClick={() => handleTabClick('support')}>{copy.support}</button>
             <Link to="/exams" className="tab-btn highlight-exam-tab">
-              📝 {language === 'vi' ? 'Đến Phòng Thi TCC (Đề Thi Giữa/Cuối Kỳ)' : 'Go to Exams Page'}
+              <ClipboardCheck size={16} aria-hidden="true" />
+              {copy.exams}
             </Link>
           </div>
         </div>
@@ -152,17 +204,19 @@ export default function ResourcesPage() {
         <div className="container quality-strip-grid">
           <div>
             <span className="resources-banner-subtitle">{t.resources.bannerSubtitle}</span>
-            <h2>{language === 'vi' ? 'Nội dung được gom theo nhu cầu học.' : 'Resources grouped by study needs.'}</h2>
+            <h2>{copy.groupedTitle}</h2>
           </div>
-          <p>{language === 'vi' 
-            ? 'Thư viện ưu tiên tài liệu dùng ngay: giáo trình, bài tập chương, PDF ôn tập và tài liệu giữa kỳ. Các bài luyện thi tương tác được tách sang phòng luyện thi riêng.'
-            : 'The library prioritizes directly applicable documents: textbooks, exercises, midterm review files, and mock exams. Interactive exams are structured inside the dedicated practice exam rooms.'}
-          </p>
+          <p>{copy.groupedDescription}</p>
         </div>
       </section>
 
       <section className="resources-content-section">
         <div className="container">
+          {!loading && (
+            <div className="resource-results-heading" aria-live="polite">
+              <span>{allItems.length}</span> {copy.results}
+            </div>
+          )}
           {loading ? (
             <BrandLoader compact label={t.docDetail.loading} />
           ) : paginatedItems.length === 0 ? (
@@ -183,6 +237,7 @@ export default function ResourcesPage() {
                         src={`/images/${item.image || 'tccvang.jpg'}`}
                         alt={item.title}
                         className="card-image"
+                        loading="lazy"
                         onError={(event) => { event.currentTarget.src = '/images/tccvang.jpg'; }}
                       />
                       <div className="card-category-tag">{item.displayCategory}</div>
@@ -218,6 +273,7 @@ export default function ResourcesPage() {
                         src={coverImage}
                         alt={item.title}
                         className="list-img"
+                        loading="lazy"
                         onError={(event) => { event.currentTarget.src = '/images/tccvang.jpg'; }}
                       />
                     </div>

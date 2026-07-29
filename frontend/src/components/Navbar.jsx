@@ -1,10 +1,10 @@
 import { useCallback, useState, useEffect, useContext, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
-  Menu, X, Mail, Phone, User, LogIn, PlusCircle, Loader2,
+  Menu, X, User, LogIn, PlusCircle, Loader2,
   Sun, Moon, Globe, Search, ChevronDown, ChevronRight, BookOpen, LogOut 
 } from 'lucide-react';
-import { API_BASE_URL } from '../config';
+import { apiFetch, readApiJson, toClientUser } from '../utils/apiClient';
 import '../assets/styles/Navbar.css';
 import { 
   auth, 
@@ -33,53 +33,45 @@ const PROFESSOR_NAMES = {
   ntvv: 'Thầy Nguyễn Thanh Vân'
 };
 
-const readStoredUser = () => {
-  try {
-    const savedUser = localStorage.getItem('ueh_tcc_user');
-    return savedUser ? JSON.parse(savedUser) : null;
-  } catch {
-    return null;
+const GITHUB_OAUTH_STATE_KEY = 'ueh_tcc_github_oauth_state';
+
+const createOAuthState = () => {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
   }
+  const bytes = crypto.getRandomValues(new Uint8Array(24));
+  return Array.from(bytes, (value) => value.toString(16).padStart(2, '0')).join('');
 };
 
 async function syncUserWithBackend(firebaseUser) {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/auth/sync`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        uid: firebaseUser.uid,
-        email: firebaseUser.email,
-        name: firebaseUser.displayName,
-        phoneNumber: firebaseUser.phoneNumber
-      })
-    });
-    const data = await response.json();
-    if (response.ok && data.success) {
-      return data.user;
-    }
-  } catch (error) {
-    console.error('Lỗi kết nối API Backend /api/auth/sync:', error);
+  if (!firebaseUser || typeof firebaseUser.getIdToken !== 'function') {
+    throw new Error('Firebase chưa cung cấp ID token hợp lệ.');
   }
 
-  return {
-    id: firebaseUser.uid,
-    uid: firebaseUser.uid,
-    name: firebaseUser.displayName || (firebaseUser.email ? firebaseUser.email.split('@')[0] : 'Người dùng OTP'),
-    username: firebaseUser.email || firebaseUser.phoneNumber || firebaseUser.uid,
-    role: firebaseUser.email?.toLowerCase() === 'luphuc321@gmail.com' ? 'Admin' : 'Student'
-  };
+  const idToken = await firebaseUser.getIdToken();
+  const response = await apiFetch('/api/auth/sync', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ idToken })
+  });
+  const data = await readApiJson(response);
+  if (!data.success || !data.user) {
+    throw new Error(data.message || 'Không thể đồng bộ phiên đăng nhập.');
+  }
+  return toClientUser(data.user);
 }
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const mobileToggleRef = useRef(null);
+  const mobileDrawerRef = useRef(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const [showLangMenu, setShowLangMenu] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showUserDropdown, setShowUserDropdown] = useState(false);
 
-  const { language, changeLanguage } = useContext(LanguageContext);
+  const { language, setLanguage: changeLanguage } = useContext(LanguageContext);
   const { theme, toggleTheme } = useContext(ThemeContext);
   const t = translations[language];
   
@@ -112,7 +104,9 @@ export default function Navbar() {
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
 
-  const [loggedInUser, setLoggedInUser] = useState(readStoredUser);
+  const [loggedInUser, setLoggedInUser] = useState(null);
+  const [sessionReady, setSessionReady] = useState(false);
+  const hasBackendSessionRef = useRef(false);
   const [authError, setAuthError] = useState('');
   const [authSuccessMsg, setAuthSuccessMsg] = useState('');
   const [isAuthenticating, setIsAuthenticating] = useState(false);
@@ -185,16 +179,87 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Restore session & listen to Firebase auth
   useEffect(() => {
-    if (isFirebaseConfigured && auth) {
+    if (!isOpen) return undefined;
+    const restoreFocusTarget = mobileToggleRef.current;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const focusFrame = window.requestAnimationFrame(() => {
+      mobileDrawerRef.current?.querySelector('[data-mobile-menu-close]')?.focus();
+    });
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        setIsOpen(false);
+        return;
+      }
+      if (event.key !== 'Tab' || !mobileDrawerRef.current) return;
+      const controls = Array.from(
+        mobileDrawerRef.current.querySelectorAll('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])')
+      ).filter((element) => element.getClientRects().length > 0);
+      if (controls.length === 0) return;
+      const first = controls[0];
+      const last = controls[controls.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      window.cancelAnimationFrame(focusFrame);
+      document.removeEventListener('keydown', handleEscape);
+      document.body.style.overflow = previousOverflow;
+      restoreFocusTarget?.focus({ preventScroll: true });
+    };
+  }, [isOpen]);
+
+  // Bootstrap the HttpOnly backend session. Browser storage is never an
+  // authentication source.
+  useEffect(() => {
+    let cancelled = false;
+
+    const bootstrapSession = async () => {
+      try {
+        const payload = await readApiJson(await apiFetch('/api/auth/me'));
+        if (!cancelled) {
+          hasBackendSessionRef.current = true;
+          setLoggedInUser(toClientUser(payload.user));
+        }
+      } catch {
+        if (!cancelled) {
+          hasBackendSessionRef.current = false;
+          setLoggedInUser(null);
+        }
+      } finally {
+        localStorage.removeItem('ueh_tcc_user');
+        if (!cancelled) setSessionReady(true);
+      }
+    };
+
+    bootstrapSession();
+    window.addEventListener('ueh-tcc-session-changed', bootstrapSession);
+    return () => {
+      cancelled = true;
+      window.removeEventListener('ueh-tcc-session-changed', bootstrapSession);
+    };
+  }, []);
+
+  // Listen for real Firebase sessions and exchange their verified ID token for
+  // a backend session cookie.
+  useEffect(() => {
+    if (sessionReady && isFirebaseConfigured && auth) {
       // Check for redirect result (e.g. from GitHub login)
       getRedirectResult(auth).then(async (result) => {
         if (result) {
           try {
             const dbUser = await syncUserWithBackend(result.user);
+            hasBackendSessionRef.current = true;
             setLoggedInUser(dbUser);
-            localStorage.setItem('ueh_tcc_user', JSON.stringify(dbUser));
+            window.dispatchEvent(new Event('ueh-tcc-session-changed'));
             setAuthSuccessMsg('Đăng nhập thành công!');
           } catch(err) {
             console.error("Lỗi đồng bộ Firebase user với Backend:", err);
@@ -210,11 +275,12 @@ export default function Navbar() {
       });
 
       const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-        if (firebaseUser) {
+        if (firebaseUser && !hasBackendSessionRef.current) {
           try {
             const dbUser = await syncUserWithBackend(firebaseUser);
+            hasBackendSessionRef.current = true;
             setLoggedInUser(dbUser);
-            localStorage.setItem('ueh_tcc_user', JSON.stringify(dbUser));
+            window.dispatchEvent(new Event('ueh-tcc-session-changed'));
           } catch(err) {
             console.error("Lỗi đồng bộ Firebase user với Backend:", err);
           }
@@ -222,7 +288,7 @@ export default function Navbar() {
       });
       return () => unsubscribe();
     }
-  }, []);
+  }, [sessionReady]);
 
   const isActivePath = (path) => location.pathname === path;
 
@@ -256,15 +322,16 @@ export default function Navbar() {
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/login`, {
+      const response = await apiFetch('/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
       });
       const data = await response.json();
       if (response.ok && data.success) {
-        setLoggedInUser(data.user);
-        localStorage.setItem('ueh_tcc_user', JSON.stringify(data.user));
+        hasBackendSessionRef.current = true;
+        setLoggedInUser(toClientUser(data.user));
+        window.dispatchEvent(new Event('ueh-tcc-session-changed'));
         setShowLoginModal(false);
         setUsername('');
         setPassword('');
@@ -295,7 +362,7 @@ export default function Navbar() {
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/signup`, {
+      const response = await apiFetch('/api/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -306,8 +373,9 @@ export default function Navbar() {
       });
       const data = await response.json();
       if (response.ok && data.success) {
-        setLoggedInUser(data.user);
-        localStorage.setItem('ueh_tcc_user', JSON.stringify(data.user));
+        hasBackendSessionRef.current = true;
+        setLoggedInUser(toClientUser(data.user));
+        window.dispatchEvent(new Event('ueh-tcc-session-changed'));
         setShowLoginModal(false);
         setSignupName('');
         setSignupUsername('');
@@ -338,8 +406,9 @@ export default function Navbar() {
       
       const userCredential = await signInWithCredential(auth, credential);
       const dbUser = await syncUserWithBackend(userCredential.user);
+      hasBackendSessionRef.current = true;
       setLoggedInUser(dbUser);
-      localStorage.setItem('ueh_tcc_user', JSON.stringify(dbUser));
+      window.dispatchEvent(new Event('ueh-tcc-session-changed'));
       setAuthSuccessMsg('Đăng nhập Google thành công!');
       setTimeout(() => {
         setShowLoginModal(false);
@@ -382,23 +451,33 @@ export default function Navbar() {
       // 2. GitHub (code in query string or hash)
       const queryParams = new URLSearchParams(window.location.search);
       let githubCode = queryParams.get('code');
+      let githubState = queryParams.get('state');
       
       // Fallback if GitHub appended it after the hash (e.g. /#/?code=...)
       if (!githubCode && window.location.hash.includes('code=')) {
         const hashQuery = window.location.hash.split('?')[1];
         if (hashQuery) {
-          githubCode = new URLSearchParams(hashQuery).get('code');
+          const hashParams = new URLSearchParams(hashQuery);
+          githubCode = hashParams.get('code');
+          githubState = hashParams.get('state');
         }
       }
       
       if (githubCode && processedCodeRef.current !== githubCode) {
         processedCodeRef.current = githubCode;
         setIsAuthenticating(true);
-        // Clear code from URL safely without triggering re-render
-        window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
+        const expectedState = sessionStorage.getItem(GITHUB_OAUTH_STATE_KEY);
+        sessionStorage.removeItem(GITHUB_OAUTH_STATE_KEY);
+        window.history.replaceState({}, document.title, window.location.pathname);
+
+        if (!expectedState || !githubState || expectedState !== githubState) {
+          setAuthError('Phiên đăng nhập GitHub không hợp lệ hoặc đã hết hạn. Vui lòng thử lại.');
+          setIsAuthenticating(false);
+          return;
+        }
         
         try {
-          const response = await fetch(`${API_BASE_URL}/api/auth/github/token`, {
+          const response = await apiFetch('/api/auth/github/token', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ code: githubCode })
@@ -407,22 +486,11 @@ export default function Navbar() {
           if (data.success && data.access_token) {
             const credential = GithubAuthProvider.credential(data.access_token);
             const userCredential = await signInWithCredential(auth, credential);
+            const dbUser = await syncUserWithBackend(userCredential.user);
             
-            // Pass the email and name we fetched directly from GitHub API
-            // Because Firebase sometimes hides the email if it's private on GitHub.
-            const extraData = {
-              email: data.email || userCredential.user.email,
-              name: data.name || userCredential.user.displayName
-            };
-            
-            const dbUser = await syncUserWithBackend({
-              ...userCredential.user,
-              email: extraData.email,
-              displayName: extraData.name
-            });
-            
+            hasBackendSessionRef.current = true;
             setLoggedInUser(dbUser);
-            localStorage.setItem('ueh_tcc_user', JSON.stringify(dbUser));
+            window.dispatchEvent(new Event('ueh-tcc-session-changed'));
             setAuthSuccessMsg('Đăng nhập GitHub thành công!');
           } else {
             const errorMsg = data.message || 'Lỗi lấy token từ GitHub.';
@@ -448,67 +516,26 @@ export default function Navbar() {
 
   const handleGoogleLogin = async () => {
     setAuthError('');
-    if (isFirebaseConfigured && auth && googleProvider) {
-      const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '889879979247-ui1p4bgdv0vah7sfddhfmpejtqtr2npv.apps.googleusercontent.com';
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    if (isFirebaseConfigured && auth && googleProvider && clientId) {
       const redirectUri = window.location.origin;
       const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=email%20profile`;
       window.location.href = url;
     } else {
-      setAuthSuccessMsg('🔄 Đang xác thực tài khoản Google (Mock)...');
-      try {
-        await new Promise(resolve => setTimeout(resolve, 600));
-        const mockFirebaseUser = {
-          uid: 'google-user-' + Math.random().toString(36).substr(2, 9),
-          email: 'sinhvien.google@ueh.edu.vn',
-          displayName: 'Google Student',
-          phoneNumber: null
-        };
-        const dbUser = await syncUserWithBackend(mockFirebaseUser);
-        setLoggedInUser(dbUser);
-        localStorage.setItem('ueh_tcc_user', JSON.stringify(dbUser));
-        setAuthSuccessMsg('Đăng nhập thành công!');
-        setTimeout(() => {
-          setShowLoginModal(false);
-          setAuthSuccessMsg('');
-        }, 1000);
-      } catch {
-        setAuthError('Không thể đăng nhập bằng tài khoản Google.');
-      }
+      setAuthError('Đăng nhập Google hiện không khả dụng. Vui lòng dùng email và mật khẩu.');
     }
-  };
-
-  const handleFacebookLogin = async () => {
-    setAuthError('Tính năng đăng nhập Facebook đang được bảo trì (Coming soon)');
-    setAuthSuccessMsg('');
   };
 
   const handleGithubLogin = async () => {
     setAuthError('');
-    if (isFirebaseConfigured && auth && githubProvider) {
-      const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID || 'Ov23livA8dLXS0qzY0kt';
-      const url = `https://github.com/login/oauth/authorize?client_id=${clientId}&scope=user:email`;
+    const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID;
+    if (isFirebaseConfigured && auth && githubProvider && clientId) {
+      const state = createOAuthState();
+      sessionStorage.setItem(GITHUB_OAUTH_STATE_KEY, state);
+      const url = `https://github.com/login/oauth/authorize?client_id=${encodeURIComponent(clientId)}&scope=user%3Aemail&state=${encodeURIComponent(state)}`;
       window.location.href = url;
     } else {
-      setAuthSuccessMsg('🔄 Đang xác thực tài khoản GitHub...');
-      try {
-        await new Promise(resolve => setTimeout(resolve, 600));
-        const mockFirebaseUser = {
-          uid: 'github-user-' + Math.random().toString(36).substr(2, 9),
-          email: 'sinhvien.github@ueh.edu.vn',
-          displayName: 'GitHub Student',
-          phoneNumber: null
-        };
-        const dbUser = await syncUserWithBackend(mockFirebaseUser);
-        setLoggedInUser(dbUser);
-        localStorage.setItem('ueh_tcc_user', JSON.stringify(dbUser));
-        setAuthSuccessMsg('Đăng nhập thành công!');
-        setTimeout(() => {
-          setShowLoginModal(false);
-          setAuthSuccessMsg('');
-        }, 1000);
-      } catch {
-        setAuthError('Không thể đăng nhập bằng tài khoản GitHub.');
-      }
+      setAuthError('Đăng nhập GitHub hiện không khả dụng. Vui lòng dùng email và mật khẩu.');
     }
   };
 
@@ -531,7 +558,7 @@ export default function Navbar() {
     const timeoutId = setTimeout(() => controller.abort(), 10000);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
+      const response = await apiFetch('/api/auth/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: forgotEmail }),
@@ -544,7 +571,7 @@ export default function Navbar() {
         if (data.otpCode) {
           setForgotOtp(data.otpCode);
         }
-        setAuthSuccessMsg(data.message || 'Mã xác thực OTP (6 chữ số) đã được khởi tạo thành công!');
+        setAuthSuccessMsg(data.message || 'Mã OTP gồm 6 chữ số đã được gửi đến email của bạn.');
         setForgotStep(2);
         return;
       }
@@ -553,9 +580,11 @@ export default function Navbar() {
     } catch (error) {
       clearTimeout(timeoutId);
       console.warn("Forgot password request notice:", error.name);
-      // Fail-safe: transition to Step 2 so user is never stuck
-      setAuthSuccessMsg('Đã khởi tạo yêu cầu gửi OTP! Vui lòng nhập mã OTP để khôi phục.');
-      setForgotStep(2);
+      setAuthError(
+        error.name === 'AbortError'
+          ? 'Máy chủ phản hồi quá lâu. Vui lòng thử gửi lại mã OTP.'
+          : 'Không thể gửi mã OTP lúc này. Vui lòng kiểm tra kết nối và thử lại.'
+      );
     } finally {
       setForgotLoading(false);
     }
@@ -570,8 +599,8 @@ export default function Navbar() {
       setAuthError('Vui lòng nhập đầy đủ thông tin!');
       return;
     }
-    if (forgotNewPassword.length < 3) {
-      setAuthError('Mật khẩu mới phải từ 3 ký tự trở lên!');
+    if (forgotNewPassword.length < 6) {
+      setAuthError('Mật khẩu mới phải có ít nhất 6 ký tự!');
       return;
     }
     if (forgotNewPassword !== forgotConfirmNewPassword) {
@@ -581,7 +610,7 @@ export default function Navbar() {
 
     setForgotLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/reset-password`, {
+      const response = await apiFetch('/api/auth/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -680,8 +709,9 @@ export default function Navbar() {
     try {
       const result = await confirmationResult.confirm(verificationCode);
       const dbUser = await syncUserWithBackend(result.user);
+      hasBackendSessionRef.current = true;
       setLoggedInUser(dbUser);
-      localStorage.setItem('ueh_tcc_user', JSON.stringify(dbUser));
+      window.dispatchEvent(new Event('ueh-tcc-session-changed'));
       setShowLoginModal(false);
       setIsOtpSent(false);
       setPhoneInput('');
@@ -695,6 +725,8 @@ export default function Navbar() {
   };
 
   const handleLogout = async () => {
+    await apiFetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
+    hasBackendSessionRef.current = false;
     if (isFirebaseConfigured && auth) {
       try {
         await firebaseSignOut(auth);
@@ -704,6 +736,7 @@ export default function Navbar() {
     }
     setLoggedInUser(null);
     localStorage.removeItem('ueh_tcc_user');
+    window.dispatchEvent(new Event('ueh-tcc-session-changed'));
   };
 
   const handleUploadSubmit = async (e) => {
@@ -738,7 +771,7 @@ export default function Navbar() {
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/resources`, {
+      const response = await apiFetch('/api/resources', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -777,28 +810,7 @@ export default function Navbar() {
   return (
     <>
       <header className={`header-wrapper ${isScrolled ? 'scrolled' : ''}`}>
-        {/* Topbar Info */}
-        <div className="topbar">
-          <div className="container topbar-content">
-            <div className="contact-links">
-              <a href="mailto:luphuc321@gmail.com" className="contact-item">
-                <Mail size={14} />
-                <span>luphuc321@gmail.com</span>
-              </a>
-              <a href="tel:0833830322" className="contact-item">
-                <Phone size={14} />
-                <span>0833830322</span>
-              </a>
-            </div>
-            <div className="author-badge">
-              <span>Học tập & Chia sẻ</span>
-              <span className="author-name">Lữ Phúc - K50 UEH</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Branding Navigation */}
-        <nav className="navbar">
+        <nav className="navbar" aria-label="Điều hướng chính">
           {/* Reading Progress Bar attached to Navbar Header (Blog Detail Page Only) */}
           {isBlogDetailPage && (
             <div
@@ -816,19 +828,20 @@ export default function Navbar() {
             </div>
           )}
           <div className="container navbar-container">
-            <Link to="/" className="navbar-logo" onClick={handleNavClick}>
+            <Link to="/" className="navbar-logo" onClick={handleNavClick} aria-label="UEH TCC — Trang chủ">
+              <span className="logo-symbol" aria-hidden="true" />
               <span className="logo-helper">UEH</span>
               <span className="logo-main">TCC</span>
             </Link>
 
             {/* Desktop Navigation Links */}
             <div className="nav-links">
-              <Link to="/" className={`nav-link-item ${isActivePath('/') ? 'active' : ''}`} onClick={handleNavClick}>{t.nav.home}</Link>
-              <Link to="/courses" className={`nav-link-item ${isActivePath('/courses') ? 'active' : ''}`} onClick={handleNavClick}>{t.nav.courses}</Link>
-              <Link to="/resources?category=all" className={`nav-link-item ${location.pathname === '/resources' ? 'active' : ''}`} onClick={handleNavClick}>{t.nav.library}</Link>
-              <Link to="/exams" className={`nav-link-item ${isActivePath('/exams') ? 'active' : ''}`} onClick={handleNavClick}>{t.nav.exams}</Link>
-              <Link to="/blog" className={`nav-link-item ${isActivePath('/blog') ? 'active' : ''}`} onClick={handleNavClick}>{t.nav.blog}</Link>
-              <Link to="/20-10" className={`nav-link-item rose-link ${location.pathname === '/20-10' ? 'active' : ''}`} onClick={handleNavClick}>{t.nav.gift}</Link>
+              <Link to="/" className={`nav-link-item ${isActivePath('/') ? 'active' : ''}`} aria-current={isActivePath('/') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.home}</Link>
+              <Link to="/courses" className={`nav-link-item ${isActivePath('/courses') ? 'active' : ''}`} aria-current={isActivePath('/courses') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.courses}</Link>
+              <Link to="/resources?category=all" className={`nav-link-item ${location.pathname === '/resources' ? 'active' : ''}`} aria-current={location.pathname === '/resources' ? 'page' : undefined} onClick={handleNavClick}>{t.nav.library}</Link>
+              <Link to="/exams" className={`nav-link-item ${isActivePath('/exams') ? 'active' : ''}`} aria-current={isActivePath('/exams') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.exams}</Link>
+              <Link to="/blog" className={`nav-link-item ${isActivePath('/blog') ? 'active' : ''}`} aria-current={isActivePath('/blog') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.blog}</Link>
+              <Link to="/20-10" className={`nav-link-item rose-link ${location.pathname === '/20-10' ? 'active' : ''}`} aria-current={location.pathname === '/20-10' ? 'page' : undefined} onClick={handleNavClick}>{t.nav.gift}</Link>
             </div>
 
             {/* Theme & Language Controls */}
@@ -837,7 +850,7 @@ export default function Navbar() {
                 type="button"
                 className="control-btn" 
                 onClick={() => setShowSearch(true)}
-                title="Tìm kiếm"
+                aria-label="Mở tìm kiếm"
               >
                 <Search size={18} />
               </button>
@@ -846,7 +859,7 @@ export default function Navbar() {
                 type="button"
                 className="control-btn theme-toggle-btn" 
                 onClick={toggleTheme}
-                title={theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+                aria-label={theme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}
               >
                 {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
               </button>
@@ -856,12 +869,15 @@ export default function Navbar() {
                   type="button" 
                   className="control-btn lang-btn"
                   onClick={() => setShowLangMenu(!showLangMenu)}
+                  aria-label="Chọn ngôn ngữ"
+                  aria-haspopup="menu"
+                  aria-expanded={showLangMenu}
                 >
                   <Globe size={16} />
                   <span className="lang-code-capsule">{language.toUpperCase()}</span>
                 </button>
                 {showLangMenu && (
-                  <div className="lang-dropdown-menu glass-panel">
+                  <div className="lang-dropdown-menu" role="menu">
                     <button type="button" className={`lang-option-btn ${language === 'vi' ? 'active' : ''}`} onClick={() => { changeLanguage('vi'); setShowLangMenu(false); }}>
                       <span>Tiếng Việt</span>
                     </button>
@@ -887,6 +903,8 @@ export default function Navbar() {
                     type="button" 
                     className="user-profile-pill-btn"
                     onClick={() => setShowUserDropdown(!showUserDropdown)}
+                    aria-haspopup="menu"
+                    aria-expanded={showUserDropdown}
                   >
                     <div className="user-avatar-circle">
                       {loggedInUser.avatar ? (
@@ -900,7 +918,7 @@ export default function Navbar() {
                   </button>
 
                   {showUserDropdown && (
-                    <div className="user-dropdown-card">
+                    <div className="user-dropdown-card" role="menu">
                       <div className="user-dropdown-header">
                         <div className="dropdown-avatar-circle">
                           {loggedInUser.name ? loggedInUser.name.charAt(0).toUpperCase() : 'U'}
@@ -980,7 +998,7 @@ export default function Navbar() {
                   <span>Đang xử lý...</span>
                 </button>
               ) : (
-                <button className="btn btn-primary btn-login-nav" onClick={() => { setAuthMode('login'); setAuthError(''); setAuthSuccessMsg(''); setShowLoginModal(true); }}>
+                <button type="button" className="btn btn-primary btn-login-nav" onClick={() => { setAuthMode('login'); setAuthError(''); setAuthSuccessMsg(''); setShowLoginModal(true); }}>
                   <LogIn size={15} />
                   <span>{t.nav.login}</span>
                 </button>
@@ -988,29 +1006,37 @@ export default function Navbar() {
             </div>
 
             {/* Mobile Menu Toggle Button */}
-            <button className="mobile-toggle" onClick={() => setIsOpen(!isOpen)} aria-label="Toggle menu">
+            <button
+              type="button"
+              ref={mobileToggleRef}
+              className="mobile-toggle"
+              onClick={() => setIsOpen(!isOpen)}
+              aria-label={isOpen ? 'Đóng menu' : 'Mở menu'}
+              aria-controls="mobile-navigation"
+              aria-expanded={isOpen}
+            >
               {isOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
         </nav>
 
         {/* Mobile Navigation Sidebar Drawer */}
-        <div className={`mobile-drawer ${isOpen ? 'open' : ''}`}>
-          <div className="mobile-drawer-overlay" onClick={() => setIsOpen(false)}></div>
-          <div className="mobile-drawer-content">
+        <div className={`mobile-drawer ${isOpen ? 'open' : ''}`} aria-hidden={!isOpen}>
+          <div className="mobile-drawer-overlay" onClick={() => setIsOpen(false)} />
+          <div ref={mobileDrawerRef} id="mobile-navigation" className="mobile-drawer-content" role="dialog" aria-modal="true" aria-label="Menu điều hướng">
             <div className="drawer-header">
               <span className="logo-main">Menu UEH TCC</span>
-              <button className="close-btn" onClick={() => setIsOpen(false)}>
+              <button type="button" className="close-btn" onClick={() => setIsOpen(false)} aria-label="Đóng menu" data-mobile-menu-close>
                 <X size={24} />
               </button>
             </div>
             <div className="mobile-links">
-              <Link to="/" className="mobile-link-item" onClick={handleNavClick}>{t.nav.home}</Link>
-              <Link to="/courses" className="mobile-link-item" onClick={handleNavClick}>{t.nav.courses}</Link>
-              <Link to="/resources?category=all" className="mobile-link-item" onClick={handleNavClick}>{t.nav.library}</Link>
-              <Link to="/exams" className="mobile-link-item" onClick={handleNavClick}>{t.nav.exams}</Link>
-              <Link to="/blog" className="mobile-link-item" onClick={handleNavClick}>{t.nav.blog}</Link>
-              <Link to="/20-10" className="mobile-link-item rose-link" onClick={handleNavClick}>{t.nav.gift}</Link>
+              <Link to="/" className={`mobile-link-item ${isActivePath('/') ? 'active' : ''}`} aria-current={isActivePath('/') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.home}</Link>
+              <Link to="/courses" className={`mobile-link-item ${isActivePath('/courses') ? 'active' : ''}`} aria-current={isActivePath('/courses') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.courses}</Link>
+              <Link to="/resources?category=all" className={`mobile-link-item ${location.pathname === '/resources' ? 'active' : ''}`} aria-current={location.pathname === '/resources' ? 'page' : undefined} onClick={handleNavClick}>{t.nav.library}</Link>
+              <Link to="/exams" className={`mobile-link-item ${isActivePath('/exams') ? 'active' : ''}`} aria-current={isActivePath('/exams') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.exams}</Link>
+              <Link to="/blog" className={`mobile-link-item ${isActivePath('/blog') ? 'active' : ''}`} aria-current={isActivePath('/blog') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.blog}</Link>
+              <Link to="/20-10" className={`mobile-link-item rose-link ${location.pathname === '/20-10' ? 'active' : ''}`} aria-current={location.pathname === '/20-10' ? 'page' : undefined} onClick={handleNavClick}>{t.nav.gift}</Link>
               
               {/* Mobile theme & language controls */}
               <div className="mobile-controls-row">
@@ -1054,10 +1080,10 @@ export default function Navbar() {
                         <span>{t.nav.upload} Admin</span>
                       </button>
                     )}
-                    <button className="btn btn-secondary w-full" onClick={handleLogout}>{t.nav.logout}</button>
+                    <button type="button" className="btn btn-secondary w-full" onClick={handleLogout}>{t.nav.logout}</button>
                   </div>
                 ) : (
-                  <button className="btn btn-primary w-full" onClick={() => { setIsOpen(false); setAuthMode('login'); setAuthError(''); setAuthSuccessMsg(''); setShowLoginModal(true); }}>
+                  <button type="button" className="btn btn-primary w-full" onClick={() => { setIsOpen(false); setAuthMode('login'); setAuthError(''); setAuthSuccessMsg(''); setShowLoginModal(true); }}>
                     <LogIn size={15} />
                     <span>{t.nav.login}</span>
                   </button>
@@ -1143,7 +1169,6 @@ export default function Navbar() {
         setConfirmationResult={setConfirmationResult}
         handleLoginSubmit={handleLoginSubmit}
         handleGoogleLogin={handleGoogleLogin}
-        handleFacebookLogin={handleFacebookLogin}
         handleGithubLogin={handleGithubLogin}
         handleSignupSubmit={handleSignupSubmit}
         handleForgotPasswordSubmit={handleForgotPasswordSubmit}

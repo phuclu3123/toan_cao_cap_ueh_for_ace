@@ -37,8 +37,7 @@ export const coursesData = [
             subtitle: 'Video bài học',
             type: 'video',
             duration: '03:41',
-            isLocked: false,
-            videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4'
+            isLocked: false
           },
           {
             id: 'les-1-2',
@@ -46,8 +45,7 @@ export const coursesData = [
             subtitle: 'Video bài học',
             type: 'video',
             duration: '04:20',
-            isLocked: false,
-            videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4'
+            isLocked: false
           },
           {
             id: 'les-1-3',
@@ -55,8 +53,7 @@ export const coursesData = [
             subtitle: 'Bài giảng text & File đính kèm',
             type: 'text',
             duration: '05:00',
-            isLocked: true,
-            content: 'Bộ tài liệu đính kèm gồm: Sổ tay công thức Toán Cao Cấp, File PDF 100 Câu hỏi trắc nghiệm tự luyện, Slide tóm tắt bài giảng.'
+            isLocked: true
           }
         ]
       },
@@ -72,8 +69,7 @@ export const coursesData = [
             subtitle: 'Video bài học',
             type: 'video',
             duration: '06:15',
-            isLocked: false,
-            videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4'
+            isLocked: false
           },
           {
             id: 'les-2-2',
@@ -81,8 +77,7 @@ export const coursesData = [
             subtitle: 'Video bài học',
             type: 'video',
             duration: '08:30',
-            isLocked: false,
-            videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoylikes.mp4'
+            isLocked: false
           }
         ]
       },
@@ -98,8 +93,7 @@ export const coursesData = [
             subtitle: 'Video bài học',
             type: 'video',
             duration: '10:12',
-            isLocked: true,
-            videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4'
+            isLocked: true
           },
           {
             id: 'les-3-2',
@@ -107,8 +101,7 @@ export const coursesData = [
             subtitle: 'Video bài học',
             type: 'video',
             duration: '12:45',
-            isLocked: true,
-            videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4'
+            isLocked: true
           },
           {
             id: 'les-3-3',
@@ -116,8 +109,7 @@ export const coursesData = [
             subtitle: 'Video bài học',
             type: 'video',
             duration: '09:30',
-            isLocked: true,
-            videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnTheLoose.mp4'
+            isLocked: true
           },
           {
             id: 'les-3-4',
@@ -125,8 +117,7 @@ export const coursesData = [
             subtitle: 'Video bài học',
             type: 'video',
             duration: '11:20',
-            isLocked: true,
-            videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4'
+            isLocked: true
           }
         ]
       },
@@ -142,8 +133,7 @@ export const coursesData = [
             subtitle: 'Video bài học',
             type: 'video',
             duration: '05:10',
-            isLocked: false,
-            videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4'
+            isLocked: false
           },
           {
             id: 'les-4-2',
@@ -151,8 +141,7 @@ export const coursesData = [
             subtitle: 'Video bài học',
             type: 'video',
             duration: '14:20',
-            isLocked: true,
-            videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4'
+            isLocked: true
           },
           {
             id: 'les-4-3',
@@ -160,8 +149,7 @@ export const coursesData = [
             subtitle: 'Video bài học',
             type: 'video',
             duration: '16:05',
-            isLocked: true,
-            videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4'
+            isLocked: true
           }
         ]
       }
@@ -204,8 +192,7 @@ export const coursesData = [
             subtitle: 'Video bài học',
             type: 'video',
             duration: '05:40',
-            isLocked: false,
-            videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4'
+            isLocked: false
           },
           {
             id: 'sql-1-2',
@@ -213,8 +200,7 @@ export const coursesData = [
             subtitle: 'Video bài học',
             type: 'video',
             duration: '08:15',
-            isLocked: false,
-            videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4'
+            isLocked: true
           },
           {
             id: 'sql-1-3',
@@ -222,8 +208,7 @@ export const coursesData = [
             subtitle: 'Video bài học',
             type: 'video',
             duration: '12:00',
-            isLocked: false,
-            videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4'
+            isLocked: true
           }
         ]
       }
@@ -265,8 +250,7 @@ export const coursesData = [
             subtitle: 'Video bài học',
             type: 'video',
             duration: '07:30',
-            isLocked: false,
-            videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoylikes.mp4'
+            isLocked: false
           },
           {
             id: 'k46-1-2',
@@ -274,8 +258,7 @@ export const coursesData = [
             subtitle: 'Video bài học',
             type: 'video',
             duration: '11:10',
-            isLocked: true,
-            videoUrl: 'https://youtu.be/78djtj2N9QI'
+            isLocked: true
           }
         ]
       },
@@ -291,8 +274,7 @@ export const coursesData = [
             subtitle: 'Video chữa đề chi tiết',
             type: 'video',
             duration: '45:00',
-            isLocked: false,
-            videoUrl: 'https://youtu.be/WDSHTnrv8JI'
+            isLocked: false
           }
         ]
       }
@@ -334,8 +316,7 @@ export const coursesData = [
             subtitle: 'Video bài học',
             type: 'video',
             duration: '09:15',
-            isLocked: false,
-            videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4'
+            isLocked: false
           },
           {
             id: 'k51-1-2',
@@ -343,8 +324,7 @@ export const coursesData = [
             subtitle: 'Video bài học',
             type: 'video',
             duration: '14:40',
-            isLocked: true,
-            videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnTheLoose.mp4'
+            isLocked: true
           }
         ]
       }

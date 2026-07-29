@@ -5,6 +5,16 @@ import { readJSONFile, writeJSONFile, dataDir } from '../utils/jsonHelper.js';
 import { sendOtpEmail } from '../services/emailService.js';
 import { hashPassword, verifyPassword } from '../utils/passwordHelper.js';
 import { roleForIdentifier } from '../utils/roles.js';
+import { issueSession } from '../services/sessionService.js';
+import { verifyFirebaseIdToken } from '../services/firebaseTokenService.js';
+import { assertPersistentStorage } from '../utils/storagePolicy.js';
+
+const exactIdentifier = (value) => new RegExp(
+  `^${String(value || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`,
+  'i'
+);
+
+const unavailableMessage = 'Hệ thống tài khoản đang tạm bảo trì. Vui lòng thử lại sau.';
 
 export const signup = async (req, res) => {
   const { username, password, name } = req.body;
@@ -14,10 +24,11 @@ export const signup = async (req, res) => {
   }
 
   try {
+    assertPersistentStorage();
     const hashedPassword = hashPassword(password);
 
     if (checkMongoDBConnected()) {
-      const userExists = await User.findOne({ username: new RegExp(`^${username}$`, 'i') });
+      const userExists = await User.findOne({ username: exactIdentifier(username) });
       if (userExists) {
         return res.status(400).json({ success: false, message: 'Tên đăng nhập hoặc Email này đã tồn tại!' });
       }
@@ -31,6 +42,7 @@ export const signup = async (req, res) => {
         role: roleForIdentifier(username)
       });
       await newUser.save();
+      await issueSession(res, newUser);
 
       return res.json({
         success: true,
@@ -62,6 +74,7 @@ export const signup = async (req, res) => {
 
       users.push(newUser);
       if (writeJSONFile(filePath, users)) {
+        await issueSession(res, newUser);
         return res.json({
           success: true,
           message: 'Đăng ký tài khoản thành công!',
@@ -78,7 +91,10 @@ export const signup = async (req, res) => {
     }
   } catch (error) {
     console.error("Lỗi đăng ký:", error);
-    return res.status(500).json({ success: false, message: 'Lỗi hệ thống khi đăng ký.' });
+    return res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.statusCode === 503 ? unavailableMessage : 'Lỗi hệ thống khi đăng ký.'
+    });
   }
 };
 
@@ -90,9 +106,10 @@ export const login = async (req, res) => {
   }
 
   try {
+    assertPersistentStorage();
     let user = null;
     if (checkMongoDBConnected()) {
-      user = await User.findOne({ username: new RegExp(`^${username}$`, 'i') });
+      user = await User.findOne({ username: exactIdentifier(username) });
     } else {
       const filePath = path.join(dataDir, 'users.json');
       const users = readJSONFile(filePath, []);
@@ -101,6 +118,22 @@ export const login = async (req, res) => {
 
     if (!user || !verifyPassword(password, user.password)) {
       return res.status(401).json({ success: false, message: 'Tên đăng nhập hoặc mật khẩu chưa chính xác!' });
+    }
+
+    const usedLegacyPlaintextPassword = !String(user.password || '').includes(':');
+    if (usedLegacyPlaintextPassword) {
+      user.password = hashPassword(password);
+      if (checkMongoDBConnected()) {
+        await user.save();
+      } else {
+        const filePath = path.join(dataDir, 'users.json');
+        const users = readJSONFile(filePath, []);
+        const storedUser = users.find((item) => item.id === user.id);
+        if (storedUser) {
+          storedUser.password = user.password;
+          writeJSONFile(filePath, users);
+        }
+      }
     }
 
     const resolvedRole = roleForIdentifier(user.username);
@@ -119,6 +152,7 @@ export const login = async (req, res) => {
       }
     }
 
+    await issueSession(res, user);
     return res.json({
       success: true,
       message: 'Đăng nhập thành công!',
@@ -131,24 +165,33 @@ export const login = async (req, res) => {
     });
   } catch (error) {
     console.error("Lỗi đăng nhập:", error);
-    return res.status(500).json({ success: false, message: 'Lỗi hệ thống khi đăng nhập.' });
+    return res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.statusCode === 503 ? unavailableMessage : 'Lỗi hệ thống khi đăng nhập.'
+    });
   }
 };
 
 export const syncFirebaseAuth = async (req, res) => {
-  const { uid, email, name, phoneNumber } = req.body;
+  const { idToken } = req.body;
 
-  if (!uid) {
-    return res.status(400).json({ success: false, message: 'Thiếu mã định danh UID từ Firebase!' });
+  if (!idToken) {
+    return res.status(400).json({
+      success: false,
+      message: 'Thiếu Firebase ID token để xác thực đăng nhập.'
+    });
   }
 
   try {
+    assertPersistentStorage();
+    const { uid, email, name, phoneNumber } = await verifyFirebaseIdToken(idToken);
+
     if (checkMongoDBConnected()) {
       let user = await User.findOne({ uid });
 
       if (!user) {
         if (email) {
-          user = await User.findOne({ username: new RegExp(`^${email}$`, 'i') });
+          user = await User.findOne({ username: exactIdentifier(email) });
         }
 
         if (user) {
@@ -203,6 +246,7 @@ export const syncFirebaseAuth = async (req, res) => {
         await user.save();
       }
 
+      await issueSession(res, user);
       return res.json({
         success: true,
         message: 'Đồng bộ tài khoản thành công!',
@@ -272,6 +316,7 @@ export const syncFirebaseAuth = async (req, res) => {
         writeJSONFile(filePath, users);
       }
 
+      await issueSession(res, user);
       return res.json({
         success: true,
         message: 'Đồng bộ tài khoản thành công!',
@@ -287,7 +332,13 @@ export const syncFirebaseAuth = async (req, res) => {
     }
   } catch (error) {
     console.error("Lỗi đồng bộ Firebase:", error);
-    return res.status(500).json({ success: false, message: 'Lỗi hệ thống khi đồng bộ tài khoản.' });
+    const status = error.statusCode || (error.code === 'INVALID_FIREBASE_TOKEN' ? 401 : 500);
+    return res.status(status).json({
+      success: false,
+      message: status === 503
+        ? unavailableMessage
+        : (status === 401 ? 'Phiên đăng nhập Firebase không hợp lệ.' : 'Lỗi hệ thống khi đồng bộ tài khoản.')
+    });
   }
 };
 
@@ -299,12 +350,13 @@ export const forgotPassword = async (req, res) => {
   }
 
   try {
+    assertPersistentStorage();
     let user = null;
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
     const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
 
     if (checkMongoDBConnected()) {
-      user = await User.findOne({ username: new RegExp(`^${email}$`, 'i') });
+      user = await User.findOne({ username: exactIdentifier(email) });
       if (!user) {
         return res.status(404).json({ success: false, message: 'Không tìm thấy tài khoản nào liên kết với email này!' });
       }
@@ -343,9 +395,11 @@ export const forgotPassword = async (req, res) => {
     });
   } catch (error) {
     console.error("Lỗi khi gửi email khôi phục mật khẩu:", error);
-    return res.status(500).json({
+    return res.status(error.statusCode || 500).json({
       success: false,
-      message: 'Gặp lỗi trong quá trình xử lý yêu cầu gửi mã OTP.'
+      message: error.statusCode === 503
+        ? unavailableMessage
+        : 'Gặp lỗi trong quá trình xử lý yêu cầu gửi mã OTP.'
     });
   }
 };
@@ -358,15 +412,16 @@ export const resetPassword = async (req, res) => {
   }
 
   try {
+    assertPersistentStorage();
     const hashedPassword = hashPassword(newPassword);
 
     if (checkMongoDBConnected()) {
-      const user = await User.findOne({ username: new RegExp(`^${email}$`, 'i') });
+      const user = await User.findOne({ username: exactIdentifier(email) });
       if (!user) {
         return res.status(404).json({ success: false, message: 'Không tìm thấy tài khoản liên kết với email này!' });
       }
 
-      const isValidOtp = user.otpCode && (user.otpCode === otpCode || otpCode === '123456');
+      const isValidOtp = user.otpCode && user.otpCode === otpCode;
       if (!isValidOtp) {
         return res.status(400).json({ success: false, message: 'Mã xác thực OTP không chính xác!' });
       }
@@ -397,7 +452,7 @@ export const resetPassword = async (req, res) => {
 
       const user = users[userIndex];
 
-      const isValidOtp = user.otpCode && (user.otpCode === otpCode || otpCode === '123456');
+      const isValidOtp = user.otpCode && user.otpCode === otpCode;
       if (!isValidOtp) {
         return res.status(400).json({ success: false, message: 'Mã xác thực OTP không chính xác!' });
       }
@@ -423,20 +478,23 @@ export const resetPassword = async (req, res) => {
     }
   } catch (error) {
     console.error("Lỗi đặt lại mật khẩu:", error);
-    return res.status(500).json({ success: false, message: 'Lỗi hệ thống khi cập nhật mật khẩu mới.' });
+    return res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.statusCode === 503
+        ? unavailableMessage
+        : 'Lỗi hệ thống khi cập nhật mật khẩu mới.'
+    });
   }
 };
 
 export const updateProfile = async (req, res) => {
-  const { username, name, phoneNumber, avatar, school, bio } = req.body;
-
-  if (!username) {
-    return res.status(400).json({ success: false, message: 'Username/Email không hợp lệ!' });
-  }
+  const { name, phoneNumber, avatar, school, bio } = req.body;
+  const username = req.authUser.username;
 
   try {
+    assertPersistentStorage();
     if (checkMongoDBConnected()) {
-      const user = await User.findOne({ username: new RegExp(`^${username}$`, 'i') });
+      const user = await User.findOne({ username: exactIdentifier(username) });
       if (!user) {
         return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng!' });
       }
@@ -480,7 +538,12 @@ export const updateProfile = async (req, res) => {
     }
   } catch (error) {
     console.error("Lỗi cập nhật profile:", error);
-    return res.status(500).json({ success: false, message: 'Lỗi hệ thống khi cập nhật profile.' });
+    return res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.statusCode === 503
+        ? unavailableMessage
+        : 'Lỗi hệ thống khi cập nhật profile.'
+    });
   }
 };
 
@@ -489,8 +552,15 @@ export const exchangeGithubToken = async (req, res) => {
   if (!code) return res.status(400).json({ success: false, message: 'Thiếu Authorization Code từ GitHub.' });
 
   try {
-    const clientId = process.env.GITHUB_CLIENT_ID || 'Ov23livA8dLXS0qzY0kt';
-    const clientSecret = process.env.GITHUB_CLIENT_SECRET || '11a209ae560df3bc01e719e950fd38c213feb290';
+    const clientId = process.env.GITHUB_CLIENT_ID;
+    const clientSecret = process.env.GITHUB_CLIENT_SECRET;
+
+    if (!clientId || !clientSecret) {
+      return res.status(503).json({
+        success: false,
+        message: 'GitHub OAuth chưa được cấu hình trên máy chủ.'
+      });
+    }
 
     const response = await fetch('https://github.com/login/oauth/access_token', {
       method: 'POST',

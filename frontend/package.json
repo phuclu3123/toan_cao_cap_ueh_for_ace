@@ -12,6 +12,7 @@
     "test": "node --test",
     "lint": "eslint .",
     "validate:math": "node scripts/validate-math.mjs",
+    "test:e2e": "playwright test",
     "check": "npm run lint && npm run test && npm run validate:math && npm run build",
     "preview": "vite preview"
   },
@@ -26,6 +27,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.62.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",

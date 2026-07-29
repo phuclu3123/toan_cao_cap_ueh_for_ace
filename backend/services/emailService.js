@@ -1,5 +1,12 @@
 import nodemailer from 'nodemailer';
 
+const escapeHtml = (value) => String(value || '')
+  .replaceAll('&', '&amp;')
+  .replaceAll('<', '&lt;')
+  .replaceAll('>', '&gt;')
+  .replaceAll('"', '&quot;')
+  .replaceAll("'", '&#039;');
+
 export const sendOtpEmail = async (email, name, otpCode, otpExpiresAt) => {
   const resendApiKey = process.env.RESEND_API_KEY;
   const user = process.env.EMAIL_USER;
@@ -30,7 +37,7 @@ export const sendOtpEmail = async (email, name, otpCode, otpExpiresAt) => {
           <tr>
             <td style="padding: 10px 40px 30px 40px;">
               <p style="font-size: 16px; line-height: 24px; margin: 0 0 20px 0; color: #1e293b;">
-                Xin chào <strong>${name || 'bạn'}</strong>,
+                Xin chào <strong>${escapeHtml(name || 'bạn')}</strong>,
               </p>
               <p style="font-size: 16px; line-height: 24px; margin: 0 0 30px 0; color: #334155;">
                 Chúng tôi vừa nhận được yêu cầu khôi phục mật khẩu cho tài khoản liên kết với email này. Vui lòng sử dụng mã bảo mật (OTP) dưới đây để tiếp tục:
@@ -102,12 +109,10 @@ export const sendOtpEmail = async (email, name, otpCode, otpExpiresAt) => {
 
       const resData = await response.json();
       if (response.ok) {
-        console.log(`[RESEND API SUCCESS] Gửi OTP thành công tới ${email}. Resend ID: ${resData.id}`);
+        console.log(`[RESEND API SUCCESS] OTP email accepted. Resend ID: ${resData.id}`);
         return { success: true, isMock: false, resendId: resData.id };
       } else {
-        console.warn('[RESEND API SANDBOX RESTRICTION]', resData.message || resData);
-        // Fallback gracefully so user can continue OTP step without scary errors
-        return { success: true, isMock: true, fallbackReason: 'Resend Sandbox restriction' };
+        console.warn('[RESEND API ERROR]', resData.message || 'Email provider rejected the request');
       }
     } catch (err) {
       console.error('[RESEND API FETCH ERROR]', err.message);
@@ -136,7 +141,7 @@ export const sendOtpEmail = async (email, name, otpCode, otpExpiresAt) => {
       };
 
       await transporter.sendMail(mailOptions);
-      console.log(`[GMAIL SMTP SUCCESS] Gửi mã OTP thành công tới ${email}`);
+      console.log('[GMAIL SMTP SUCCESS] OTP email accepted.');
       return { success: true, isMock: false };
     } catch (err) {
       console.error('[GMAIL SMTP ERROR] Lỗi gửi mail:', err.message);
@@ -146,7 +151,15 @@ export const sendOtpEmail = async (email, name, otpCode, otpExpiresAt) => {
     }
   }
 
-  // Fallback Mock Mode
+  if (process.env.NODE_ENV === 'production') {
+    const error = new Error('OTP email delivery is unavailable');
+    error.code = 'OTP_DELIVERY_UNAVAILABLE';
+    error.statusCode = 503;
+    throw error;
+  }
+
+  // Local development fallback only. Production must fail closed and must
+  // never write an OTP to process logs.
   console.log(`\n======================================================`);
   console.log(`[SMTP MOCK MODE] GỬI MÃ OTP QUÊN MẬT KHẨU`);
   console.log(`Email nhận: ${email}`);

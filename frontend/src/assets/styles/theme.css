@@ -1,42 +1,52 @@
-/* Light Theme (Porcelain & Ink) vs Dark Theme (Deep Navy & Ink) */
+/* Semantic color contracts. Light is the safe default; dark requires explicit opt-in. */
 :root {
-  /* Dark Mode Default Variables */
-  --color-canvas: #090d16;
-  --color-canvas-subtle: #111827;
-  --color-surface: #1e293b;
-  --color-surface-raised: #334155;
-  --color-text: #f8fafc;
-  --color-text-muted: #94a3b8;
-  --color-text-subtle: #64748b;
-  --color-border: #334155;
-  --color-border-strong: #475569;
-  --color-brand: #10b981;
-  --color-brand-hover: #059669;
-  --color-brand-active: #047857;
-  --color-focus: rgba(16, 185, 129, 0.4);
-  --color-info: #3b82f6;
-  --color-success: #10b981;
-  --color-warning: #f59e0b;
-  --color-danger: #ef4444;
+  color-scheme: light;
+
+  --color-canvas: #f5f2ea;
+  --color-canvas-subtle: #ece8de;
+  --color-surface: #fffdf8;
+  --color-surface-raised: #f8f5ed;
+  --color-text: #10211b;
+  --color-text-muted: #526159;
+  --color-text-subtle: #738078;
+  --color-border: rgba(16, 46, 38, 0.14);
+  --color-border-strong: rgba(16, 46, 38, 0.24);
+
+  --color-brand: #176f62;
+  --color-brand-hover: #0f5b51;
+  --color-brand-active: #0b493f;
+  --color-on-brand: #ffffff;
+  --color-champagne: #a87b38;
+  --color-focus: rgba(23, 111, 98, 0.27);
+
+  --color-info: #245fae;
+  --color-success: #177447;
+  --color-warning: #9a6416;
+  --color-danger: #b83b3b;
 }
 
-:root.light-theme {
-  /* Light Mode Porcelain Variables */
-  --color-canvas: #f8fafc;
-  --color-canvas-subtle: #f1f5f9;
-  --color-surface: #ffffff;
-  --color-surface-raised: #f8fafc;
-  --color-text: #0f172a;
-  --color-text-muted: #475569;
-  --color-text-subtle: #94a3b8;
-  --color-border: #e2e8f0;
-  --color-border-strong: #cbd5e1;
-  --color-brand: #0d9488;
-  --color-brand-hover: #0f766e;
-  --color-brand-active: #115e59;
-  --color-focus: rgba(13, 148, 136, 0.3);
-  --color-info: #2563eb;
-  --color-success: #059669;
-  --color-warning: #d97706;
-  --color-danger: #dc2626;
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --color-canvas: #07110f;
+  --color-canvas-subtle: #0b1915;
+  --color-surface: #0f201b;
+  --color-surface-raised: #142a23;
+  --color-text: #f3f8f5;
+  --color-text-muted: #b4c2bb;
+  --color-text-subtle: #87978f;
+  --color-border: rgba(220, 239, 231, 0.13);
+  --color-border-strong: rgba(220, 239, 231, 0.24);
+
+  --color-brand: #78cfb7;
+  --color-brand-hover: #9adfcd;
+  --color-brand-active: #57b99f;
+  --color-on-brand: #07211b;
+  --color-champagne: #d1ad70;
+  --color-focus: rgba(120, 207, 183, 0.38);
+
+  --color-info: #7db3f4;
+  --color-success: #6fd0a1;
+  --color-warning: #e6b96c;
+  --color-danger: #f28b8b;
 }

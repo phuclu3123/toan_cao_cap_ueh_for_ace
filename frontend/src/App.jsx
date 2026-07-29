@@ -89,6 +89,7 @@ const DocDetail = safeLazy(() => import('./pages/DocDetail'));
 const ExamDetail = safeLazy(() => import('./pages/ExamDetail'));
 const CourseDetail = safeLazy(() => import('./pages/CourseDetail'));
 const ProfilePage = safeLazy(() => import('./pages/ProfilePage'));
+const PaymentResult = safeLazy(() => import('./pages/PaymentResult'));
 
 function Layout() {
   const location = useLocation();
@@ -166,6 +167,14 @@ const router = createBrowserRouter([
         element: (
           <Suspense fallback={<BrandLoader label="Đang tải thông tin cá nhân" />}>
             <ProfilePage />
+          </Suspense>
+        )
+      },
+      {
+        path: 'payment/result',
+        element: (
+          <Suspense fallback={<BrandLoader label="Đang đối soát giao dịch PayOS" />}>
+            <PaymentResult />
           </Suspense>
         )
       },

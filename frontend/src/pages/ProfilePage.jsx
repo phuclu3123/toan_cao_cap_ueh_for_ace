@@ -1,315 +1,458 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LogOut, Save, User } from 'lucide-react';
+import {
+  BookOpen,
+  CheckCircle2,
+  CreditCard,
+  GraduationCap,
+  LifeBuoy,
+  LogOut,
+  Save,
+  ShieldCheck,
+  User
+} from 'lucide-react';
 import { coursesData } from '../data/coursesData';
-import '../assets/styles/Home.css';
-import '../assets/styles/Courses.css';
+import { apiFetch, readApiJson, toClientUser } from '../utils/apiClient';
+import {
+  auth,
+  isFirebaseConfigured,
+  signOut as firebaseSignOut
+} from '../firebase';
+import '../assets/styles/ProfilePage.css';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+const DEFAULT_SCHOOL = 'Đại học Kinh tế TP.HCM (UEH)';
 
-const readStoredUser = () => {
-  try {
-    const savedUser = localStorage.getItem('ueh_tcc_user');
-    return savedUser ? JSON.parse(savedUser) : null;
-  } catch {
-    return null;
-  }
+const getInitials = (value = '') => {
+  const initials = value
+    .trim()
+    .split(/\s+/)
+    .slice(-2)
+    .map((part) => part[0])
+    .join('')
+    .toUpperCase();
+
+  return initials || 'HV';
 };
 
 export default function ProfilePage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [user, setUser] = useState(readStoredUser);
   const requestedTab = new URLSearchParams(location.search).get('tab');
   const activeTab = requestedTab === 'profile' ? 'profile' : 'courses';
 
-  // Form fields
-  const [name, setName] = useState(() => user?.name || '');
-  const [phoneNumber, setPhoneNumber] = useState(() => user?.phoneNumber || '');
-  const [school, setSchool] = useState(() => user?.school || 'Đại học Kinh tế TP.HCM (UEH)');
-  const [bio, setBio] = useState(() => user?.bio || '');
-  const [avatar] = useState(() => {
-    if (!user) return '';
-    const fallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=059669&color=fff&bold=true`;
-    return user.photoURL || user.avatar || fallbackAvatar;
-  });
+  const [user, setUser] = useState(null);
+  const [enrollments, setEnrollments] = useState([]);
+  const [sessionLoading, setSessionLoading] = useState(true);
 
+  const [name, setName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [school, setSchool] = useState(DEFAULT_SCHOOL);
+  const [bio, setBio] = useState('');
   const [statusMsg, setStatusMsg] = useState({ type: '', text: '' });
-  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  const handleSaveProfile = async (e) => {
-    e.preventDefault();
-    if (!user) return;
+  const [legacyOrderCode, setLegacyOrderCode] = useState('');
+  const [legacyReference, setLegacyReference] = useState('');
+  const [claimingLegacy, setClaimingLegacy] = useState(false);
+  const [legacyStatus, setLegacyStatus] = useState({ type: '', text: '' });
+
+  const applySession = useCallback((payload) => {
+    const sessionUser = toClientUser(payload.user);
+    setUser(sessionUser);
+    setEnrollments(Array.isArray(payload.enrollments) ? payload.enrollments : []);
+    setName(sessionUser?.name || '');
+    setPhoneNumber(sessionUser?.phoneNumber || '');
+    setSchool(sessionUser?.school || DEFAULT_SCHOOL);
+    setBio(sessionUser?.bio || '');
+  }, []);
+
+  const refreshSession = useCallback(async () => {
+    const payload = await readApiJson(await apiFetch('/api/auth/me'));
+    applySession(payload);
+    return payload;
+  }, [applySession]);
+
+  useEffect(() => {
+    let active = true;
+
+    const loadSession = async () => {
+      try {
+        const payload = await readApiJson(await apiFetch('/api/auth/me'));
+        if (active) applySession(payload);
+      } catch {
+        if (active) {
+          setUser(null);
+          setEnrollments([]);
+        }
+      } finally {
+        if (active) setSessionLoading(false);
+      }
+    };
+
+    loadSession();
+    window.addEventListener('ueh-tcc-session-changed', loadSession);
+    return () => {
+      active = false;
+      window.removeEventListener('ueh-tcc-session-changed', loadSession);
+    };
+  }, [applySession]);
+
+  const enrolledCourses = useMemo(() => {
+    const byId = new Map(coursesData.map((course) => [course.id, course]));
+    return enrollments
+      .map((enrollment) => ({ enrollment, course: byId.get(enrollment.courseId) }))
+      .filter((item) => item.course);
+  }, [enrollments]);
+
+  const handleSaveProfile = async (event) => {
+    event.preventDefault();
     setStatusMsg({ type: '', text: '' });
-    setLoading(true);
+    setSaving(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/update-profile`, {
+      const payload = await readApiJson(await apiFetch('/api/auth/update-profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          username: user.username || user.email,
           name,
           phoneNumber,
           school,
           bio,
-          avatar
+          avatar: user?.avatar || user?.photoURL || ''
         })
-      });
+      }));
 
-      const data = await response.json();
-      if (response.ok && data.success) {
-        const updatedUser = { ...user, name, phoneNumber, school, bio, avatar };
-        setUser(updatedUser);
-        localStorage.setItem('ueh_tcc_user', JSON.stringify(updatedUser));
-        setStatusMsg({ type: 'success', text: 'Cập nhật thông tin cá nhân thành công!' });
-      } else {
-        setStatusMsg({ type: 'error', text: data.message || 'Cập nhật thất bại!' });
-      }
-    } catch {
-      const updatedUser = { ...user, name, phoneNumber, school, bio, avatar };
+      const updatedUser = toClientUser({
+        ...user,
+        ...(payload.user || {}),
+        name,
+        phoneNumber,
+        school,
+        bio
+      });
       setUser(updatedUser);
-      localStorage.setItem('ueh_tcc_user', JSON.stringify(updatedUser));
-      setStatusMsg({ type: 'success', text: 'Đã lưu thông tin trên thiết bị cá nhân thành công!' });
+      setStatusMsg({ type: 'success', text: 'Thông tin cá nhân đã được cập nhật.' });
+    } catch (error) {
+      setStatusMsg({
+        type: 'error',
+        text: error.message || 'Chưa thể lưu thay đổi. Vui lòng thử lại.'
+      });
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('ueh_tcc_user');
+  const handleLegacyClaim = async (event) => {
+    event.preventDefault();
+    setLegacyStatus({ type: '', text: '' });
+
+    const normalizedOrderCode = legacyOrderCode.replace(/\D/g, '');
+    const normalizedReference = legacyReference.trim();
+    if (!normalizedOrderCode || normalizedReference.length < 6) {
+      setLegacyStatus({
+        type: 'error',
+        text: 'Vui lòng nhập mã đơn và mã tham chiếu giao dịch trên biên nhận PayOS.'
+      });
+      return;
+    }
+
+    setClaimingLegacy(true);
+    try {
+      const payload = await readApiJson(await apiFetch('/api/orders/claim-legacy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderCode: normalizedOrderCode,
+          reference: normalizedReference
+        })
+      }));
+
+      await refreshSession();
+      setLegacyOrderCode('');
+      setLegacyReference('');
+      setLegacyStatus({
+        type: 'success',
+        text: payload.data?.courseId
+          ? 'Đối soát thành công. Khóa học đã được mở cho tài khoản này.'
+          : 'Đơn hàng đã được xác minh.'
+      });
+    } catch (error) {
+      setLegacyStatus({
+        type: 'error',
+        text: error.message || 'Chưa thể đối soát đơn hàng cũ.'
+      });
+    } finally {
+      setClaimingLegacy(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    await apiFetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
+    if (isFirebaseConfigured && auth) {
+      await firebaseSignOut(auth).catch(() => {});
+    }
+    window.dispatchEvent(new Event('ueh-tcc-session-changed'));
     window.location.href = '/';
   };
 
-  if (!user) {
+  if (sessionLoading) {
     return (
-      <div className="courses-page" style={{ padding: '140px 0', textAlign: 'center', minHeight: '80vh' }}>
-        <div className="container">
-          <h2>Bạn chưa đăng nhập</h2>
-          <p style={{ color: '#64748b', marginBottom: '24px' }}>Vui lòng đăng nhập tài khoản để xem khóa học của tôi và chỉnh sửa thông tin.</p>
-          <Link to="/courses" className="btn-course-detail">
-            Quay lại trang chính
-          </Link>
+      <main className="profile-page profile-page--state" aria-busy="true">
+        <div className="profile-state-card">
+          <span className="profile-loader" aria-hidden="true" />
+          <p>Đang tải không gian học tập…</p>
         </div>
-      </div>
+      </main>
     );
   }
 
-  const userAvatarSrc =
-    avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=059669&color=fff&bold=true`;
+  if (!user) {
+    return (
+      <main className="profile-page profile-page--state">
+        <div className="profile-state-card">
+          <div className="profile-state-icon"><User aria-hidden="true" /></div>
+          <p className="profile-eyebrow">Tài khoản học viên</p>
+          <h1>Đăng nhập để tiếp tục</h1>
+          <p>Quyền học được lưu an toàn trên hệ thống và gắn với tài khoản của bạn.</p>
+          <Link to="/courses" className="profile-primary-link">Xem các khóa học</Link>
+        </div>
+      </main>
+    );
+  }
+
+  const avatarUrl = user.photoURL || user.avatar;
+  const identity = user.username || user.email;
 
   return (
-    <div className="courses-page" style={{ padding: '120px 0 90px', background: 'var(--course-bg)', minHeight: '100vh' }}>
-      <div className="container">
-        {/* Top Header Row matching Image 1 */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px', flexWrap: 'wrap', gap: '16px' }}>
+    <main className="profile-page">
+      <div className="profile-orbit profile-orbit--one" aria-hidden="true" />
+      <div className="profile-orbit profile-orbit--two" aria-hidden="true" />
+
+      <div className="profile-shell">
+        <header className="profile-heading">
           <div>
-            <span style={{ fontSize: '0.78rem', fontWeight: '800', color: '#059669', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-              TÀI KHOẢN HỌC VIÊN
-            </span>
-            <h1 style={{ fontSize: '2.2rem', fontWeight: '900', color: '#0f172a', margin: '4px 0 0' }}>
-              Khóa học của tôi
-            </h1>
+            <p className="profile-eyebrow">Không gian học viên</p>
+            <h1>{activeTab === 'profile' ? 'Thông tin tài khoản' : 'Khóa học của tôi'}</h1>
+            <p className="profile-heading-copy">
+              {activeTab === 'profile'
+                ? 'Quản lý thông tin dùng cho học tập và hỗ trợ.'
+                : 'Tiếp tục đúng khóa học đã được hệ thống xác nhận quyền truy cập.'}
+            </p>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <Link
-              to="/courses"
-              style={{
-                background: '#ffffff',
-                border: '1px solid #e2e8f0',
-                color: '#047857',
-                padding: '10px 20px',
-                borderRadius: '999px',
-                fontSize: '0.88rem',
-                fontWeight: '800',
-                textDecoration: 'none',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.04)',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}
-            >
-              Xem thêm khóa học
-            </Link>
-
+          <nav className="profile-tabs" aria-label="Khu vực tài khoản">
             <button
               type="button"
-              className={`pill-glass-badge ${activeTab === 'profile' ? 'active' : ''}`}
-              style={{ background: activeTab === 'profile' ? '#10b981' : '#ffffff', color: activeTab === 'profile' ? '#fff' : '#0f172a', border: '1px solid #e2e8f0', cursor: 'pointer', padding: '10px 18px', borderRadius: '999px', fontWeight: '800' }}
-              onClick={() => navigate(`/account?tab=${activeTab === 'profile' ? 'courses' : 'profile'}`)}
+              className={activeTab === 'courses' ? 'is-active' : ''}
+              aria-current={activeTab === 'courses' ? 'page' : undefined}
+              onClick={() => navigate('/account?tab=courses')}
             >
-              <User size={16} /> {activeTab === 'profile' ? 'Xem khóa học' : 'Sửa Profile'}
+              <BookOpen aria-hidden="true" />
+              Khóa học
             </button>
-          </div>
-        </div>
+            <button
+              type="button"
+              className={activeTab === 'profile' ? 'is-active' : ''}
+              aria-current={activeTab === 'profile' ? 'page' : undefined}
+              onClick={() => navigate('/account?tab=profile')}
+            >
+              <User aria-hidden="true" />
+              Tài khoản
+            </button>
+          </nav>
+        </header>
 
-        {/* Tab 1: My Courses Grid (Exact Card Layout from Image 1) */}
+        <section className="profile-identity" aria-label="Tài khoản hiện tại">
+          <div className="profile-avatar" aria-hidden="true">
+            {avatarUrl
+              ? <img src={avatarUrl} alt="" />
+              : <span>{getInitials(user.name || identity)}</span>}
+          </div>
+          <div className="profile-identity-copy">
+            <strong>{user.name || 'Học viên UEH TCC'}</strong>
+            <span>{identity}</span>
+          </div>
+          <div className="profile-verified">
+            <ShieldCheck aria-hidden="true" />
+            Phiên đăng nhập đã xác thực
+          </div>
+        </section>
+
         {activeTab === 'courses' && (
-          <div className="my-courses-grid">
-            {coursesData.map((c) => (
-              <div className="my-course-card" key={c.id}>
-                <div className="my-course-cover">
-                  <img src={c.image} alt={c.title} />
-                  <span className="paid-badge-pill">Đã thanh toán</span>
-                </div>
-                <div className="my-course-body">
-                  <h3 className="my-course-title">{c.title}</h3>
-
-                  <div className="my-course-meta-box">
-                    <div>
-                      <div className="meta-box-label">NGÀY ĐĂNG KÝ</div>
-                      <div className="meta-box-val">07/07/2026</div>
+          <>
+            {enrolledCourses.length > 0 ? (
+              <section className="profile-course-grid" aria-label="Danh sách khóa học">
+                {enrolledCourses.map(({ course, enrollment }) => (
+                  <article className="profile-course-card" key={course.id}>
+                    <div className="profile-course-cover">
+                      <img src={course.image} alt="" />
+                      <span>
+                        <CheckCircle2 aria-hidden="true" />
+                        {enrollment.source === 'FREE' ? 'Đã kích hoạt' : 'Đã thanh toán'}
+                      </span>
                     </div>
-                    <span style={{ fontSize: '0.78rem', background: '#ffffff', color: '#64748b', padding: '4px 10px', borderRadius: '999px', fontWeight: '700', border: '1px solid #e2e8f0' }}>
-                      E-learning
-                    </span>
-                  </div>
+                    <div className="profile-course-body">
+                      <p className="profile-course-type">E-learning · học theo tiến độ riêng</p>
+                      <h2>{course.title}</h2>
+                      <div className="profile-course-meta">
+                        <div>
+                          <span>Ngày mở quyền</span>
+                          <strong>
+                            {enrollment.grantedAt
+                              ? new Date(enrollment.grantedAt).toLocaleDateString('vi-VN')
+                              : 'Đã kích hoạt'}
+                          </strong>
+                        </div>
+                        <div>
+                          <span>Trạng thái</span>
+                          <strong>Đang học</strong>
+                        </div>
+                      </div>
+                      <Link to={`/course/${course.id}`} className="profile-course-enter">
+                        Vào học
+                        <span aria-hidden="true">→</span>
+                      </Link>
+                    </div>
+                  </article>
+                ))}
+              </section>
+            ) : (
+              <section className="profile-empty">
+                <div className="profile-state-icon"><GraduationCap aria-hidden="true" /></div>
+                <p className="profile-eyebrow">Lộ trình của bạn</p>
+                <h2>Chưa có khóa học được kích hoạt</h2>
+                <p>Sau khi PayOS xác nhận thanh toán, khóa học sẽ tự xuất hiện tại đây.</p>
+                <Link to="/courses" className="profile-primary-link">Khám phá khóa học</Link>
+              </section>
+            )}
 
-                  <Link to={`/course/${c.id}`} className="btn-vua-hoc">
-                    <span>Vào học</span>
-                  </Link>
+            <details className="profile-recovery">
+              <summary>
+                <span className="profile-recovery-icon"><CreditCard aria-hidden="true" /></span>
+                <span>
+                  <strong>Đã thanh toán trước đợt nâng cấp?</strong>
+                  <small>Đối soát đơn PayOS cũ để khôi phục quyền học</small>
+                </span>
+                <span className="profile-recovery-chevron" aria-hidden="true">⌄</span>
+              </summary>
+
+              <div className="profile-recovery-content">
+                <div className="profile-recovery-intro">
+                  <ShieldCheck aria-hidden="true" />
+                  <p>
+                    Hệ thống sẽ kiểm tra trực tiếp trạng thái, số tiền và mã tham chiếu với
+                    PayOS. Dữ liệu lưu trong trình duyệt không được dùng để mở khóa học.
+                  </p>
                 </div>
+
+                <form onSubmit={handleLegacyClaim} className="profile-recovery-form">
+                  <label>
+                    <span>Mã đơn hàng</span>
+                    <input
+                      inputMode="numeric"
+                      autoComplete="off"
+                      value={legacyOrderCode}
+                      onChange={(event) => setLegacyOrderCode(event.target.value.replace(/\D/g, ''))}
+                      placeholder="Ví dụ: 1723456789"
+                      required
+                    />
+                  </label>
+                  <label>
+                    <span>Mã tham chiếu giao dịch</span>
+                    <input
+                      autoComplete="off"
+                      value={legacyReference}
+                      onChange={(event) => setLegacyReference(event.target.value)}
+                      placeholder="Trên biên nhận PayOS"
+                      minLength={6}
+                      required
+                    />
+                  </label>
+                  <button type="submit" disabled={claimingLegacy}>
+                    {claimingLegacy ? 'Đang đối soát…' : 'Khôi phục quyền học'}
+                  </button>
+                </form>
+
+                {legacyStatus.text && (
+                  <p className={`profile-message profile-message--${legacyStatus.type}`} role="status">
+                    {legacyStatus.text}
+                  </p>
+                )}
+
+                <p className="profile-recovery-help">
+                  Không còn biên nhận? <a href="mailto:luphuc321@gmail.com">Liên hệ hỗ trợ</a> để được kiểm tra thủ công.
+                </p>
               </div>
-            ))}
-          </div>
+            </details>
+          </>
         )}
 
-        {/* Tab 2: Profile Settings */}
         {activeTab === 'profile' && (
-          <div
-            style={{
-              background: '#ffffff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '24px',
-              padding: '36px',
-              boxShadow: '0 16px 40px rgba(15, 23, 42, 0.06)',
-              maxWidth: '800px',
-              margin: '0 auto'
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '32px', paddingBottom: '24px', borderBottom: '1px solid #e2e8f0' }}>
-              <img
-                src={userAvatarSrc}
-                alt={user.name}
-                style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #10b981' }}
-              />
+          <section className="profile-settings">
+            <div className="profile-section-heading">
               <div>
-                <h3 style={{ fontSize: '1.3rem', fontWeight: '900', color: '#0f172a', margin: '0 0 4px' }}>{user.name}</h3>
-                <p style={{ fontSize: '0.88rem', color: '#64748b', margin: 0 }}>{user.username || user.email}</p>
+                <p className="profile-eyebrow">Thông tin học viên</p>
+                <h2>Hồ sơ cá nhân</h2>
               </div>
+              <span><LifeBuoy aria-hidden="true" /> Dùng cho hỗ trợ học tập</span>
             </div>
 
             {statusMsg.text && (
-              <div
-                style={{
-                  padding: '12px 18px',
-                  borderRadius: '12px',
-                  marginBottom: '20px',
-                  fontSize: '0.9rem',
-                  fontWeight: '700',
-                  background: statusMsg.type === 'success' ? '#d1fae5' : '#fee2e2',
-                  color: statusMsg.type === 'success' ? '#065f46' : '#991b1b'
-                }}
-              >
+              <p className={`profile-message profile-message--${statusMsg.type}`} role="status">
                 {statusMsg.text}
-              </div>
+              </p>
             )}
 
-            <form onSubmit={handleSaveProfile}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginBottom: '20px' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '800', color: '#0f172a', marginBottom: '8px' }}>
-                    Họ và Tên:
-                  </label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    style={{ width: '100%', padding: '12px', borderRadius: '10px' }}
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '800', color: '#0f172a', marginBottom: '8px' }}>
-                    Email / Tên đăng nhập (Cố định):
-                  </label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    style={{ width: '100%', padding: '12px', borderRadius: '10px', background: '#f8fafc' }}
-                    value={user.username || user.email}
-                    disabled
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '800', color: '#0f172a', marginBottom: '8px' }}>
-                    Số điện thoại liên hệ:
-                  </label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    style={{ width: '100%', padding: '12px', borderRadius: '10px' }}
-                    value={phoneNumber}
-                    placeholder="VD: 0833830322"
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '800', color: '#0f172a', marginBottom: '8px' }}>
-                    Trường học / Chuyên ngành:
-                  </label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    style={{ width: '100%', padding: '12px', borderRadius: '10px' }}
-                    value={school}
-                    onChange={(e) => setSchool(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div style={{ marginBottom: '24px' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: '800', color: '#0f172a', marginBottom: '8px' }}>
-                  Giới thiệu bản thân (Bio):
+            <form onSubmit={handleSaveProfile} className="profile-settings-form">
+              <div className="profile-form-grid">
+                <label>
+                  <span>Họ và tên</span>
+                  <input value={name} onChange={(event) => setName(event.target.value)} required />
                 </label>
-                <textarea
-                  className="form-input"
-                  style={{ width: '100%', padding: '12px', borderRadius: '10px' }}
-                  rows="3"
-                  placeholder="Viết một vài dòng ngắn về mục tiêu học tập..."
-                  value={bio}
-                  onChange={(e) => setBio(e.target.value)}
-                />
+                <label>
+                  <span>Email / tài khoản</span>
+                  <input value={identity} disabled aria-describedby="fixed-identity-note" />
+                  <small id="fixed-identity-note">Thông tin đăng nhập không thể thay đổi tại đây.</small>
+                </label>
+                <label>
+                  <span>Số điện thoại liên hệ</span>
+                  <input
+                    inputMode="tel"
+                    autoComplete="tel"
+                    value={phoneNumber}
+                    placeholder="Ví dụ: 0833830322"
+                    onChange={(event) => setPhoneNumber(event.target.value)}
+                  />
+                </label>
+                <label>
+                  <span>Trường học / chuyên ngành</span>
+                  <input value={school} onChange={(event) => setSchool(event.target.value)} />
+                </label>
               </div>
+              <label className="profile-bio">
+                <span>Giới thiệu ngắn</span>
+                <textarea
+                  rows={4}
+                  value={bio}
+                  placeholder="Mục tiêu học tập hoặc nội dung bạn đang cần hỗ trợ…"
+                  onChange={(event) => setBio(event.target.value)}
+                />
+              </label>
 
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  style={{ background: '#fee2e2', color: '#ef4444', border: 'none', padding: '10px 18px', borderRadius: '999px', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
-                >
-                  <LogOut size={16} /> Đăng xuất
+              <div className="profile-form-actions">
+                <button type="button" className="profile-logout" onClick={handleLogout}>
+                  <LogOut aria-hidden="true" />
+                  Đăng xuất
                 </button>
-
-                <button
-                  type="submit"
-                  className="btn-enroll-primary"
-                  style={{ width: 'auto', padding: '12px 28px' }}
-                  disabled={loading}
-                >
-                  <Save size={16} />
-                  <span>{loading ? 'Đang lưu...' : 'Lưu thay đổi'}</span>
+                <button type="submit" className="profile-save" disabled={saving}>
+                  <Save aria-hidden="true" />
+                  {saving ? 'Đang lưu…' : 'Lưu thay đổi'}
                 </button>
               </div>
             </form>
-          </div>
+          </section>
         )}
       </div>
-    </div>
+    </main>
   );
 }

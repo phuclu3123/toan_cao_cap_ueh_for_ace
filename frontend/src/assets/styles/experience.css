@@ -34,7 +34,7 @@
   --ease-curtain: cubic-bezier(.76, 0, .24, 1);
 }
 
-:root:not(.light-theme) {
+:root[data-theme='dark'] {
   --bg-primary: #07110f;
   --bg-secondary: #0c1916;
   --bg-tertiary: #12231f;
@@ -305,16 +305,6 @@ body {
   letter-spacing: -.055em;
 }
 
-.navbar-logo::before {
-  position: absolute;
-  left: 0;
-  width: 8px;
-  height: 28px;
-  border-radius: 99px;
-  content: '';
-  background: linear-gradient(180deg, var(--accent-gold), var(--accent-teal));
-}
-
 .navbar-logo .logo-helper {
   color: var(--text-primary);
 }
@@ -445,7 +435,7 @@ body {
     linear-gradient(145deg, color-mix(in srgb, var(--bg-secondary) 72%, transparent), transparent 72%);
 }
 
-:root:not(.light-theme) .enterprise-hero {
+:root[data-theme='dark'] .enterprise-hero {
   background:
     radial-gradient(circle at 78% 28%, rgba(86, 216, 184, .11), transparent 27rem),
     radial-gradient(circle at 14% 80%, rgba(216, 170, 97, .08), transparent 25rem),
@@ -2079,7 +2069,7 @@ body {
     #f4f2ec;
 }
 
-:root:not(.light-theme) .enterprise-hero {
+:root[data-theme='dark'] .enterprise-hero {
   background:
     linear-gradient(90deg, rgba(7, 17, 15, .98), rgba(7, 17, 15, .75) 48%, transparent 76%),
     radial-gradient(circle at 84% 16%, rgba(98, 217, 188, .13), transparent 27rem),
@@ -3043,22 +3033,22 @@ body {
   background: rgba(11, 119, 106, .075);
 }
 
-:root:not(.light-theme) .page-shell .exam-room-card {
+:root[data-theme='dark'] .page-shell .exam-room-card {
   border-color: rgba(224, 243, 236, .12);
   background:
     radial-gradient(circle at 104% -8%, rgba(98, 217, 188, .1), transparent 13rem),
     linear-gradient(155deg, #10211d, #0a1714);
 }
 
-:root:not(.light-theme) .page-shell .exam-room-card h3 {
+:root[data-theme='dark'] .page-shell .exam-room-card h3 {
   color: #f2faf7;
 }
 
-:root:not(.light-theme) .page-shell .exam-room-card p {
+:root[data-theme='dark'] .page-shell .exam-room-card p {
   color: #aebeb7;
 }
 
-:root:not(.light-theme) .page-shell .exam-room-card .exam-room-action {
+:root[data-theme='dark'] .page-shell .exam-room-card .exam-room-action {
   color: #7ee2c6;
   background: rgba(98, 217, 188, .08);
 }
