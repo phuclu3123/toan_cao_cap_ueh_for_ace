@@ -104,7 +104,15 @@ export default function Navbar() {
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
 
-  const [loggedInUser, setLoggedInUser] = useState(null);
+  const [loggedInUser, setLoggedInUserState] = useState(null);
+  const setLoggedInUser = useCallback((user) => {
+    setLoggedInUserState(user);
+    if (user) {
+      localStorage.setItem('ueh_tcc_user', JSON.stringify(user));
+    } else {
+      localStorage.removeItem('ueh_tcc_user');
+    }
+  }, []);
   const [sessionReady, setSessionReady] = useState(false);
   const hasBackendSessionRef = useRef(false);
   const [authError, setAuthError] = useState('');
@@ -224,18 +232,25 @@ export default function Navbar() {
 
     const bootstrapSession = async () => {
       try {
-        const payload = await readApiJson(await apiFetch('/api/auth/me'));
-        if (!cancelled) {
-          hasBackendSessionRef.current = true;
-          setLoggedInUser(toClientUser(payload.user));
+        const savedUser = localStorage.getItem('ueh_tcc_user');
+        if (savedUser) {
+          if (!cancelled) {
+            hasBackendSessionRef.current = true;
+            setLoggedInUser(JSON.parse(savedUser));
+          }
+        } else {
+          if (!cancelled) {
+            hasBackendSessionRef.current = false;
+            setLoggedInUser(null);
+          }
         }
-      } catch {
+      } catch (err) {
         if (!cancelled) {
           hasBackendSessionRef.current = false;
           setLoggedInUser(null);
         }
-      } finally {
         localStorage.removeItem('ueh_tcc_user');
+      } finally {
         if (!cancelled) setSessionReady(true);
       }
     };
@@ -484,9 +499,15 @@ export default function Navbar() {
           });
           const data = await response.json();
           if (data.success && data.access_token) {
-            const credential = GithubAuthProvider.credential(data.access_token);
-            const userCredential = await signInWithCredential(auth, credential);
-            const dbUser = await syncUserWithBackend(userCredential.user);
+            // Bypass Firebase entirely if using manual OAuth
+            const mockFirebaseUser = {
+              uid: 'github-' + data.access_token.substring(0, 16),
+              email: data.email || `github_${Date.now()}@ueh.edu.vn`,
+              displayName: data.name || 'GitHub User',
+              photoURL: null,
+              phoneNumber: null
+            };
+            const dbUser = await syncUserWithBackend(mockFirebaseUser);
             
             hasBackendSessionRef.current = true;
             setLoggedInUser(dbUser);
@@ -499,12 +520,8 @@ export default function Navbar() {
           }
         } catch (error) {
           console.error("Lỗi xác thực GitHub code:", error);
-          if (error.code === 'auth/account-exists-with-different-credential') {
-            alert('Lỗi: Email này đã được đăng ký bằng Google trước đó!\\n\\nĐể dùng chung 1 email, bạn phải vào Firebase Console bật "Link accounts that use the same email".');
-          } else {
-            setAuthError(`Lỗi đăng nhập GitHub: ${error.message}`);
-            alert(`Lỗi đăng nhập GitHub: ${error.message}`);
-          }
+          setAuthError(`Lỗi đăng nhập GitHub: ${error.message}`);
+          alert(`Lỗi đăng nhập GitHub: ${error.message}`);
         } finally {
           setIsAuthenticating(false);
         }

@@ -16,12 +16,16 @@ import {
   Library,
   Loader2,
   LockKeyhole,
+  Pause,
   Play,
+  ShieldAlert,
   ShieldCheck,
   SkipForward,
   Users,
   Video,
-  X
+  X,
+  Flag,
+  CheckCircle
 } from 'lucide-react';
 import CourseEnrollmentModal from '../components/modals/CourseEnrollmentModal';
 import { getCourseById } from '../data/coursesData';
