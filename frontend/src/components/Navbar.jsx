@@ -516,27 +516,20 @@ export default function Navbar() {
 
   const handleGoogleLogin = async () => {
     setAuthError('');
-    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-    if (isFirebaseConfigured && auth && googleProvider && clientId) {
-      const redirectUri = window.location.origin;
-      const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=email%20profile`;
-      window.location.href = url;
-    } else {
-      setAuthError('Đăng nhập Google hiện không khả dụng. Vui lòng dùng email và mật khẩu.');
-    }
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '889879979247-ui1p4bgdv0vah7sfddhfmpejtqtr2npv.apps.googleusercontent.com';
+    const redirectUri = window.location.origin;
+    const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=email%20profile`;
+    window.location.href = url;
   };
 
   const handleGithubLogin = async () => {
     setAuthError('');
-    const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID;
-    if (isFirebaseConfigured && auth && githubProvider && clientId) {
-      const state = createOAuthState();
-      sessionStorage.setItem(GITHUB_OAUTH_STATE_KEY, state);
-      const url = `https://github.com/login/oauth/authorize?client_id=${encodeURIComponent(clientId)}&scope=user%3Aemail&state=${encodeURIComponent(state)}`;
-      window.location.href = url;
-    } else {
-      setAuthError('Đăng nhập GitHub hiện không khả dụng. Vui lòng dùng email và mật khẩu.');
-    }
+    const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID || 'Ov23livA8dLXS0qzY0kt';
+    const state = createOAuthState();
+    sessionStorage.setItem(GITHUB_OAUTH_STATE_KEY, state);
+    const redirectUri = window.location.origin;
+    const url = `https://github.com/login/oauth/authorize?client_id=${encodeURIComponent(clientId)}&scope=user%3Aemail&state=${encodeURIComponent(state)}`;
+    window.location.href = url;
   };
 
   const handleForgotPasswordSubmit = async (e) => {

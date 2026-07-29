@@ -861,15 +861,15 @@
 }
 
 .midterm-room-section {
-  background: #080d18;
+  background: var(--home-ivory);
 }
 
 .midterm-room-section .section-title h2 {
-  color: #ffffff;
+  color: #11231a;
 }
 
 .midterm-room-section .section-title p {
-  color: rgba(226, 232, 240, 0.72);
+  color: #3b4c42;
 }
 
 .midterm-room-card {
@@ -878,15 +878,24 @@
 }
 
 .teacher-exam-card {
-  background: #0d111b;
-  border-color: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.24);
+  background: #ffffff;
+  border-color: rgba(16, 185, 129, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.teacher-exam-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(16, 185, 129, 0.3);
+  box-shadow: 0 12px 24px rgba(16, 185, 129, 0.1);
 }
 
 .teacher-cover {
   position: relative;
+  width: 100%;
   aspect-ratio: 16 / 9;
+  border-radius: 6px;
   overflow: hidden;
+  margin-bottom: 20px;
 }
 
 .teacher-cover img {
