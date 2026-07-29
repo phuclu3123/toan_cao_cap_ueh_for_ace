@@ -67,6 +67,7 @@ export const sendOtpEmail = async (email, name, otpCode, otpExpiresAt) => {
   // Priority 2: Resend API (When RESEND_API_KEY is available)
   if (resendApiKey) {
     try {
+      const fromEmail = process.env.RESEND_FROM_EMAIL || 'UEH TCC Helper <onboarding@resend.dev>';
       const response = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
@@ -74,7 +75,7 @@ export const sendOtpEmail = async (email, name, otpCode, otpExpiresAt) => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          from: 'UEH TCC Helper <onboarding@resend.dev>',
+          from: fromEmail,
           to: [email],
           subject: '[UEH TCC] Mã OTP khôi phục mật khẩu tài khoản của bạn',
           html: emailHtml
