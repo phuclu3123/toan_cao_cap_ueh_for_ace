@@ -44,15 +44,19 @@ const createOAuthState = () => {
 };
 
 async function syncUserWithBackend(firebaseUser) {
-  if (!firebaseUser || typeof firebaseUser.getIdToken !== 'function') {
-    throw new Error('Firebase chưa cung cấp ID token hợp lệ.');
+  if (!firebaseUser || !firebaseUser.uid) {
+    throw new Error('Dữ liệu người dùng không hợp lệ.');
   }
 
-  const idToken = await firebaseUser.getIdToken();
   const response = await apiFetch('/api/auth/sync', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ idToken })
+    body: JSON.stringify({
+      uid: firebaseUser.uid,
+      email: firebaseUser.email,
+      name: firebaseUser.displayName,
+      phoneNumber: firebaseUser.phoneNumber
+    })
   });
   const data = await readApiJson(response);
   if (!data.success || !data.user) {
