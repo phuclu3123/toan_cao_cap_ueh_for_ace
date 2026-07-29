@@ -2705,8 +2705,10 @@ body {
   border: 1px solid color-mix(in srgb, var(--accent-teal) 22%, transparent);
   border-radius: 50%;
   box-shadow:
-    0 0 0 34px color-mix(in srgb, var(--accent-teal) 5%, transparent),
-    0 0 0 78px color-mix(in srgb, var(--accent-gold) 3.5%, transparent);
+    0 0 0 24px color-mix(in srgb, var(--accent-teal) 6%, transparent),
+    0 0 0 54px color-mix(in srgb, var(--accent-gold) 4%, transparent),
+    0 0 0 92px color-mix(in srgb, var(--accent-teal) 3%, transparent),
+    0 0 0 140px color-mix(in srgb, var(--accent-gold) 1.5%, transparent);
   transform: perspective(700px) rotateX(68deg) rotateZ(-7deg);
   animation: publication-orbit 12s ease-in-out infinite alternate;
 }
@@ -2750,6 +2752,10 @@ body {
   border: 1px dashed color-mix(in srgb, var(--accent-teal) 25%, transparent);
   border-radius: 50%;
   content: '';
+  box-shadow:
+    0 0 0 20px color-mix(in srgb, var(--accent-teal) 5%, transparent),
+    0 0 0 45px color-mix(in srgb, var(--accent-gold) 3%, transparent),
+    0 0 0 80px color-mix(in srgb, var(--accent-teal) 2%, transparent);
   opacity: .62;
   transform: rotate(-10deg);
   animation: publication-drift 10s ease-in-out infinite alternate;
@@ -2786,7 +2792,7 @@ body {
 
 .publication-cover--k51 {
   top: 96px;
-  left: 13%;
+  left: 24%;
   width: 276px;
   height: 390px;
   transform: perspective(1000px) rotateY(5deg) rotateZ(-6deg);
@@ -2795,7 +2801,7 @@ body {
 
 .publication-cover--final {
   top: 126px;
-  right: 5%;
+  right: 20%;
   width: 255px;
   height: 361px;
   filter: saturate(.94);
@@ -3096,8 +3102,10 @@ body {
   border: 1px solid rgba(11, 119, 106, .16);
   content: '';
   box-shadow:
-    34px 34px 0 -1px rgba(11, 119, 106, .045),
-    68px 68px 0 -1px rgba(189, 138, 61, .03);
+    24px 24px 0 -1px rgba(11, 119, 106, .05),
+    54px 54px 0 -1px rgba(189, 138, 61, .04),
+    92px 92px 0 -1px rgba(11, 119, 106, .03),
+    140px 140px 0 -1px rgba(189, 138, 61, .02);
   transform: rotate(45deg);
   animation: route-diamond 12s ease-in-out infinite alternate;
 }

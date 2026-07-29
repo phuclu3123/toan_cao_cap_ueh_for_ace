@@ -2459,6 +2459,7 @@ body:not(.dark-mode) .video-modal-container:not(.dark-player-box) .btn-resume-re
   padding: 22px;
   overflow-y: auto;
   background: rgba(18, 25, 22, 0.72);
+  backdrop-filter: blur(8px);
 }
 
 .cd-player-dialog,

@@ -244,9 +244,9 @@ function CourseDetailContent({ course }) {
       ? { position: 'fixed', left: `${customPos.x}px`, top: `${customPos.y}px` }
       : {};
 
-    const classNameProp = `floating-study-widget ${isModalContext ? 'under-video-anchor' : 'top-right-anchor'} ${
-      isTimerCollapsed ? 'collapsed' : ''
-    }`;
+    const classNameProp = `floating-study-widget ${
+      !customPos ? (isModalContext ? 'under-video-anchor' : 'top-right-anchor') : ''
+    } ${isTimerCollapsed ? 'collapsed' : ''}`;
 
     return (
       <div className={classNameProp} style={{ touchAction: 'none', ...styleProp }} onPointerDown={handleTimerPointerDown}>
@@ -388,6 +388,14 @@ function CourseDetailContent({ course }) {
     const request = new AbortController();
     contentRequestRef.current = request;
     setLoadingLessonId(lesson.id);
+
+    // BYPASS: If lesson already has a videoUrl (like YouTube), play it directly
+    if (lesson.type === 'video' && lesson.videoUrl) {
+      setActiveLesson(lesson);
+      setShowPlayer(true);
+      setLoadingLessonId(null);
+      return;
+    }
 
     try {
       const response = await apiFetch(
