@@ -3389,47 +3389,45 @@
     transform: none;
   }
 }
- 
- . p a g i n a t i o n - c o n t a i n e r   {  
-     d i s p l a y :   f l e x ;  
-     w i d t h :   1 0 0 % ;  
-     g a p :   7 p x ;  
-     j u s t i f y - c o n t e n t :   c e n t e r ;  
-     a l i g n - i t e m s :   c e n t e r ;  
-     m a r g i n - t o p :   4 4 p x ;  
- }  
-  
- . b t n - p a g e   {  
-     d i s p l a y :   i n l i n e - f l e x ;  
-     w i d t h :   4 0 p x ;  
-     h e i g h t :   4 0 p x ;  
-     a l i g n - i t e m s :   c e n t e r ;  
-     j u s t i f y - c o n t e n t :   c e n t e r ;  
-     b o r d e r :   1 p x   s o l i d   # d d d 9 c f ;  
-     b o r d e r - r a d i u s :   8 p x ;  
-     c o l o r :   # 4 f 5 a 5 4 ;  
-     b a c k g r o u n d :   # f f f f f f ;  
-     f o n t - s i z e :   0 . 9 5 r e m ;  
-     f o n t - w e i g h t :   6 0 0 ;  
-     c u r s o r :   p o i n t e r ;  
-     t r a n s i t i o n :   a l l   1 6 0 m s   e a s e ;  
- }  
-  
- . b t n - p a g e : h o v e r : n o t ( : d i s a b l e d )   {  
-     b o r d e r - c o l o r :   # 1 7 6 b 5 2 ;  
-     c o l o r :   # 1 7 6 b 5 2 ;  
-     b a c k g r o u n d :   # e 6 f 0 e b ;  
- }  
-  
- . b t n - p a g e . a c t i v e   {  
-     b o r d e r - c o l o r :   # 1 7 6 b 5 2 ;  
-     c o l o r :   # f f f f f f ;  
-     b a c k g r o u n d :   # 1 7 6 b 5 2 ;  
- }  
-  
- . b t n - p a g e : d i s a b l e d   {  
-     o p a c i t y :   0 . 4 ;  
-     c u r s o r :   n o t - a l l o w e d ;  
- }  
-  
- 
+
+.pagination-container {
+  display: flex;
+  width: 100%;
+  gap: 7px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 44px;
+}
+
+.btn-page {
+  display: inline-flex;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ddd9cf;
+  border-radius: 8px;
+  color: #4f5a54;
+  background: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 160ms ease;
+}
+
+.btn-page:hover:not(:disabled) {
+  border-color: #176b52;
+  color: #176b52;
+  background: #e6f0eb;
+}
+
+.btn-page.active {
+  border-color: #176b52;
+  color: #ffffff;
+  background: #176b52;
+}
+
+.btn-page:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
