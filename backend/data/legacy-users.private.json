@@ -1,0 +1,26 @@
+[
+  {
+    "id": "u-admin",
+    "username": "admin@ueh.edu.vn",
+    "password": "7dfbc1bfa0594b8430ea5d34d4b203b8:98e1e192157288a6e1dec3ea926294f9cc5f012a2010d032c092fcb96ee020cd1cb34faff3040ba6196933bdf4aa90307e1af0213629e4042e9750346a909da2",
+    "name": "Quản Trị Viên",
+    "role": "Admin",
+    "createdAt": "2026-05-22T00:00:00.000Z"
+  },
+  {
+    "id": "u-luphuc321",
+    "username": "luphuc321@gmail.com",
+    "password": "7dfbc1bfa0594b8430ea5d34d4b203b8:98e1e192157288a6e1dec3ea926294f9cc5f012a2010d032c092fcb96ee020cd1cb34faff3040ba6196933bdf4aa90307e1af0213629e4042e9750346a909da2",
+    "name": "Lữ Phúc (Admin)",
+    "role": "Admin",
+    "createdAt": "2026-05-22T00:00:00.000Z"
+  },
+  {
+    "id": "u-demo",
+    "username": "sinhvien@ueh.edu.vn",
+    "password": "872e6c13362f3a8cc23e1c049920356e:7e4a7ac0a8cd4aafbe559beb1589ef3b0370efffba39e3fd797471ea561e3709197cb20f968a42e736be168f62af6ecbfef2c56032dfdec570a08b29af2127c2",
+    "name": "Nguyễn Văn A",
+    "role": "Student",
+    "createdAt": "2026-05-22T00:00:00.000Z"
+  }
+]

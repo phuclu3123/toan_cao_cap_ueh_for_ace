@@ -1,5 +1,13 @@
-import { createContext, useState, useEffect, lazy, Suspense, Component } from 'react';
-import { createHashRouter, RouterProvider, useLocation, useRouteError } from 'react-router-dom';
+import { createContext, useState, useEffect, lazy, Suspense } from 'react';
+import {
+  createBrowserRouter,
+  Navigate,
+  RouterProvider,
+  useLocation,
+  useNavigate,
+  useParams,
+  useRouteError
+} from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -18,7 +26,7 @@ const BlogPage = safeLazy(() => import('./pages/BlogPage'));
 const PayOSApiPage = safeLazy(() => import('./pages/PayOSApiPage'));
 const AboutPage = safeLazy(() => import('./pages/AboutPage'));
 const NotFoundPage = safeLazy(() => import('./pages/NotFoundPage'));
-import { safeLocalStorage, safeSessionStorage } from './utils/safeStorage';
+import { safeLocalStorage } from './utils/safeStorage';
 import './App.css';
 import './assets/styles/experience.css';
 
@@ -84,8 +92,17 @@ const ProfilePage = safeLazy(() => import('./pages/ProfilePage'));
 
 function Layout() {
   const location = useLocation();
+  const navigate = useNavigate();
   const isGiftPage = location.pathname === '/20-10';
   const isExamPage = location.pathname.startsWith('/exam/');
+
+  useEffect(() => {
+    const legacyHash = window.location.hash;
+    if (!legacyHash.startsWith('#/')) return;
+
+    const legacyTarget = legacyHash.slice(1);
+    navigate(legacyTarget, { replace: true });
+  }, [navigate]);
   
   const showHeaderFooter = !isGiftPage && !isExamPage;
 
@@ -104,7 +121,17 @@ function Layout() {
   );
 }
 
-const router = createHashRouter([
+function LegacyDocumentRedirect() {
+  const { id } = useParams();
+  return <Navigate to={`/document/${id}`} replace />;
+}
+
+function LegacyAccountRedirect() {
+  const { search } = useLocation();
+  return <Navigate to={`/account${search}`} replace />;
+}
+
+const router = createBrowserRouter([
   {
     path: '/',
     element: <Layout />,
@@ -127,7 +154,7 @@ const router = createHashRouter([
         )
       },
       {
-        path: 'course/:id',
+        path: 'course/:slug',
         element: (
           <Suspense fallback={<BrandLoader label="Đang tải khóa học E-Learning" />}>
             <CourseDetail />
@@ -135,7 +162,7 @@ const router = createHashRouter([
         )
       },
       {
-        path: 'profile',
+        path: 'account',
         element: (
           <Suspense fallback={<BrandLoader label="Đang tải thông tin cá nhân" />}>
             <ProfilePage />
@@ -159,7 +186,7 @@ const router = createHashRouter([
         )
       },
       {
-        path: 'blog/:id',
+        path: 'blog/:slug',
         element: (
           <Suspense fallback={<BrandLoader label="Đang tải bài viết kiến thức" />}>
             <BlogDetailPage />
@@ -175,7 +202,7 @@ const router = createHashRouter([
         )
       },
       {
-        path: 'doc/:id',
+        path: 'document/:id',
         element: (
           <Suspense fallback={<BrandLoader label="Đang tải tài liệu học tập" />}>
             <DocDetail />
@@ -189,6 +216,18 @@ const router = createHashRouter([
             <ExamDetail />
           </Suspense>
         )
+      },
+      {
+        path: 'doc/:id',
+        element: <LegacyDocumentRedirect />
+      },
+      {
+        path: 'profile',
+        element: <LegacyAccountRedirect />
+      },
+      {
+        path: 'payos-api',
+        element: <Navigate to="/payos-api-docs" replace />
       },
       {
         path: 'payos-api-docs',

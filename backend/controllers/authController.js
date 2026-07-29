@@ -4,6 +4,7 @@ import { checkMongoDBConnected } from '../config/db.js';
 import { readJSONFile, writeJSONFile, dataDir } from '../utils/jsonHelper.js';
 import { sendOtpEmail } from '../services/emailService.js';
 import { hashPassword, verifyPassword } from '../utils/passwordHelper.js';
+import { roleForIdentifier } from '../utils/roles.js';
 
 export const signup = async (req, res) => {
   const { username, password, name } = req.body;
@@ -27,7 +28,7 @@ export const signup = async (req, res) => {
         username,
         password: hashedPassword,
         name,
-        role: 'Student'
+        role: roleForIdentifier(username)
       });
       await newUser.save();
 
@@ -55,7 +56,7 @@ export const signup = async (req, res) => {
         username,
         password: hashedPassword,
         name,
-        role: 'Student',
+        role: roleForIdentifier(username),
         createdAt: new Date().toISOString()
       };
 
@@ -100,6 +101,22 @@ export const login = async (req, res) => {
 
     if (!user || !verifyPassword(password, user.password)) {
       return res.status(401).json({ success: false, message: 'Tên đăng nhập hoặc mật khẩu chưa chính xác!' });
+    }
+
+    const resolvedRole = roleForIdentifier(user.username);
+    if (user.role !== resolvedRole) {
+      user.role = resolvedRole;
+      if (checkMongoDBConnected()) {
+        await user.save();
+      } else {
+        const filePath = path.join(dataDir, 'users.json');
+        const users = readJSONFile(filePath, []);
+        const storedUser = users.find((item) => item.id === user.id);
+        if (storedUser) {
+          storedUser.role = resolvedRole;
+          writeJSONFile(filePath, users);
+        }
+      }
     }
 
     return res.json({
@@ -148,7 +165,7 @@ export const syncFirebaseAuth = async (req, res) => {
             username: email || phoneNumber || uid,
             name: name || (email ? email.split('@')[0] : 'Người dùng OTP'),
             phoneNumber: phoneNumber || null,
-            role: 'Student'
+            role: roleForIdentifier(email || phoneNumber || uid)
           });
           try {
             await user.save();
@@ -178,6 +195,12 @@ export const syncFirebaseAuth = async (req, res) => {
         if (updated) {
           await user.save();
         }
+      }
+
+      const resolvedRole = roleForIdentifier(user.username);
+      if (user.role !== resolvedRole) {
+        user.role = resolvedRole;
+        await user.save();
       }
 
       return res.json({
@@ -216,7 +239,7 @@ export const syncFirebaseAuth = async (req, res) => {
             username: email || phoneNumber || uid,
             name: name || (email ? email.split('@')[0] : 'Người dùng OTP'),
             phoneNumber: phoneNumber || null,
-            role: 'Student',
+            role: roleForIdentifier(email || phoneNumber || uid),
             createdAt: new Date().toISOString()
           };
           users.push(user);
@@ -241,6 +264,12 @@ export const syncFirebaseAuth = async (req, res) => {
           user.updatedAt = new Date().toISOString();
           writeJSONFile(filePath, users);
         }
+      }
+
+      const resolvedRole = roleForIdentifier(user.username);
+      if (user.role !== resolvedRole) {
+        user.role = resolvedRole;
+        writeJSONFile(filePath, users);
       }
 
       return res.json({

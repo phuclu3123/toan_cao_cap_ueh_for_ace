@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
+import { useCallback, useState, useEffect, useContext, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Menu, X, Mail, Phone, User, LogIn, PlusCircle, Loader2,
@@ -9,26 +9,67 @@ import '../assets/styles/Navbar.css';
 import { 
   auth, 
   googleProvider, 
-  facebookProvider,
   githubProvider,
   isFirebaseConfigured,
   RecaptchaVerifier,
   signInWithPhoneNumber,
-  sendPasswordResetEmail,
   signOut as firebaseSignOut,
   onAuthStateChanged,
-  signInWithPopup,
-  signInWithRedirect,
   getRedirectResult
 } from '../firebase';
 import { GoogleAuthProvider, GithubAuthProvider, signInWithCredential } from 'firebase/auth';
-import { useGoogleLogin, useGoogleOneTapLogin } from '@react-oauth/google';
+import { useGoogleOneTapLogin } from '@react-oauth/google';
 import { LanguageContext, ThemeContext } from '../App';
 import { translations } from '../utils/translations';
 
 import SearchModal from './modals/SearchModal';
 import UploadModal from './modals/UploadModal';
 import AuthModal from './modals/AuthModal';
+
+const PROFESSOR_NAMES = {
+  pnta: 'Thầy Phan Ngô Tuấn Anh',
+  ndt: 'Thầy Nguyễn Đình Tuấn',
+  ntv: 'Thầy Ngô Trấn Vũ',
+  ntvv: 'Thầy Nguyễn Thanh Vân'
+};
+
+const readStoredUser = () => {
+  try {
+    const savedUser = localStorage.getItem('ueh_tcc_user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  } catch {
+    return null;
+  }
+};
+
+async function syncUserWithBackend(firebaseUser) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/auth/sync`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        uid: firebaseUser.uid,
+        email: firebaseUser.email,
+        name: firebaseUser.displayName,
+        phoneNumber: firebaseUser.phoneNumber
+      })
+    });
+    const data = await response.json();
+    if (response.ok && data.success) {
+      return data.user;
+    }
+  } catch (error) {
+    console.error('Lỗi kết nối API Backend /api/auth/sync:', error);
+  }
+
+  return {
+    id: firebaseUser.uid,
+    uid: firebaseUser.uid,
+    name: firebaseUser.displayName || (firebaseUser.email ? firebaseUser.email.split('@')[0] : 'Người dùng OTP'),
+    username: firebaseUser.email || firebaseUser.phoneNumber || firebaseUser.uid,
+    role: firebaseUser.email?.toLowerCase() === 'luphuc321@gmail.com' ? 'Admin' : 'Student'
+  };
+}
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -71,7 +112,7 @@ export default function Navbar() {
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
 
-  const [loggedInUser, setLoggedInUser] = useState(null);
+  const [loggedInUser, setLoggedInUser] = useState(readStoredUser);
   const [authError, setAuthError] = useState('');
   const [authSuccessMsg, setAuthSuccessMsg] = useState('');
   const [isAuthenticating, setIsAuthenticating] = useState(false);
@@ -84,13 +125,13 @@ export default function Navbar() {
   const [uploadImage, setUploadImage] = useState('tccvang.jpg');
   const [uploadPdf, setUploadPdf] = useState('tccvang.pdf');
   const [uploadProf, setUploadProf] = useState('pnta');
-  const [uploadProfName, setUploadProfName] = useState('Thầy Phan Ngô Tuấn Anh');
   const [uploadExternalUrl, setUploadExternalUrl] = useState('');
   const [uploadStatus, setUploadStatus] = useState('idle');
   const [uploadMsg, setUploadMsg] = useState('');
   
   const location = useLocation();
   const navigate = useNavigate();
+  const uploadProfName = PROFESSOR_NAMES[uploadProf] || 'Giảng viên UEH';
 
   const [readingProgress, setReadingProgress] = useState(0);
   const isBlogDetailPage = location.pathname.startsWith('/blog/');
@@ -98,7 +139,6 @@ export default function Navbar() {
   // Reading progress tracker ONLY for blog detail pages (/blog/:slug)
   useEffect(() => {
     if (!isBlogDetailPage) {
-      setReadingProgress(0);
       return undefined;
     }
 
@@ -112,7 +152,7 @@ export default function Navbar() {
       setReadingProgress(Math.min(100, Math.max(0, progress)));
     };
 
-    handleScrollProgress();
+    const initialFrame = window.requestAnimationFrame(handleScrollProgress);
     window.addEventListener('scroll', handleScrollProgress, { passive: true });
     window.addEventListener('resize', handleScrollProgress);
 
@@ -125,6 +165,7 @@ export default function Navbar() {
     }
 
     return () => {
+      window.cancelAnimationFrame(initialFrame);
       window.removeEventListener('scroll', handleScrollProgress);
       window.removeEventListener('resize', handleScrollProgress);
       if (resizeObserver) resizeObserver.disconnect();
@@ -146,13 +187,6 @@ export default function Navbar() {
 
   // Restore session & listen to Firebase auth
   useEffect(() => {
-    const savedUser = localStorage.getItem('ueh_tcc_user');
-    if (savedUser) {
-      try {
-        setLoggedInUser(JSON.parse(savedUser));
-      } catch(e) {}
-    }
-
     if (isFirebaseConfigured && auth) {
       // Check for redirect result (e.g. from GitHub login)
       getRedirectResult(auth).then(async (result) => {
@@ -189,45 +223,6 @@ export default function Navbar() {
       return () => unsubscribe();
     }
   }, []);
-
-  // Sync Prof Name based on Prof ID
-  useEffect(() => {
-    const profMap = {
-      pnta: 'Thầy Phan Ngô Tuấn Anh',
-      ndt: 'Thầy Nguyễn Đình Tuấn',
-      ntv: 'Thầy Ngô Trấn Vũ',
-      ntvv: 'Thầy Nguyễn Thanh Vân'
-    };
-    setUploadProfName(profMap[uploadProf] || 'Giảng viên UEH');
-  }, [uploadProf]);
-
-  const syncUserWithBackend = async (firebaseUser) => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/sync`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          uid: firebaseUser.uid,
-          email: firebaseUser.email,
-          name: firebaseUser.displayName,
-          phoneNumber: firebaseUser.phoneNumber
-        })
-      });
-      const data = await response.json();
-      if (response.ok && data.success) {
-        return data.user;
-      }
-    } catch (error) {
-      console.error("Lỗi kết nối API Backend /api/auth/sync:", error);
-    }
-    return {
-      id: firebaseUser.uid,
-      uid: firebaseUser.uid,
-      name: firebaseUser.displayName || (firebaseUser.email ? firebaseUser.email.split('@')[0] : 'Người dùng OTP'),
-      username: firebaseUser.email || firebaseUser.phoneNumber || firebaseUser.uid,
-      role: (firebaseUser.email && (firebaseUser.email.toLowerCase() === 'admin@ueh.edu.vn' || firebaseUser.email.toLowerCase() === 'luphuc321@gmail.com')) ? 'Admin' : 'Student'
-    };
-  };
 
   const isActivePath = (path) => location.pathname === path;
 
@@ -276,7 +271,7 @@ export default function Navbar() {
       } else {
         setAuthError(data.message || 'Tên đăng nhập hoặc mật khẩu không chính xác!');
       }
-    } catch (error) {
+    } catch {
       setAuthError('Không thể kết nối đến máy chủ Backend!');
     }
   };
@@ -321,12 +316,12 @@ export default function Navbar() {
       } else {
         setAuthError(data.message || 'Không thể tạo tài khoản!');
       }
-    } catch (error) {
+    } catch {
       setAuthError('Không thể kết nối đến máy chủ Backend!');
     }
   };
 
-  const handleGoogleAuthSuccess = async (response) => {
+  const handleGoogleAuthSuccess = useCallback(async (response) => {
     setAuthError('');
     setAuthSuccessMsg('Đang xác thực Google...');
     try {
@@ -356,7 +351,7 @@ export default function Navbar() {
     } finally {
       setIsAuthenticating(false);
     }
-  };
+  }, []);
 
   // Google One Tap UI (appears in top right)
   useGoogleOneTapLogin({
@@ -449,7 +444,7 @@ export default function Navbar() {
     };
     
     handleOAuthReturn();
-  }, [navigate]);
+  }, [navigate, handleGoogleAuthSuccess]);
 
   const handleGoogleLogin = async () => {
     setAuthError('');
@@ -476,7 +471,7 @@ export default function Navbar() {
           setShowLoginModal(false);
           setAuthSuccessMsg('');
         }, 1000);
-      } catch (error) {
+      } catch {
         setAuthError('Không thể đăng nhập bằng tài khoản Google.');
       }
     }
@@ -511,7 +506,7 @@ export default function Navbar() {
           setShowLoginModal(false);
           setAuthSuccessMsg('');
         }, 1000);
-      } catch (error) {
+      } catch {
         setAuthError('Không thể đăng nhập bằng tài khoản GitHub.');
       }
     }
@@ -609,7 +604,7 @@ export default function Navbar() {
       } else {
         setAuthError(data.message || 'Mã xác thực OTP không chính xác!');
       }
-    } catch (error) {
+    } catch {
       setAuthError('Không thể kết nối đến backend để xác thực OTP.');
     } finally {
       setForgotLoading(false);
@@ -692,7 +687,7 @@ export default function Navbar() {
       setPhoneInput('');
       setVerificationCode('');
       setConfirmationResult(null);
-    } catch (error) {
+    } catch {
       setAuthError('Mã OTP chưa chính xác hoặc đã hết hạn!');
     } finally {
       setOtpLoading(false);
@@ -703,7 +698,9 @@ export default function Navbar() {
     if (isFirebaseConfigured && auth) {
       try {
         await firebaseSignOut(auth);
-      } catch (error) {}
+      } catch {
+        // Local session cleanup must continue even if Firebase sign-out fails.
+      }
     }
     setLoggedInUser(null);
     localStorage.removeItem('ueh_tcc_user');
@@ -771,7 +768,7 @@ export default function Navbar() {
         setUploadStatus('error');
         setUploadMsg(data.message || 'Có lỗi xảy ra khi đăng tải.');
       }
-    } catch (error) {
+    } catch {
       setUploadStatus('error');
       setUploadMsg('Lỗi kết nối server Backend! Hãy chắc chắn server port 3001 đã khởi động.');
     }
@@ -831,7 +828,6 @@ export default function Navbar() {
               <Link to="/resources?category=all" className={`nav-link-item ${location.pathname === '/resources' ? 'active' : ''}`} onClick={handleNavClick}>{t.nav.library}</Link>
               <Link to="/exams" className={`nav-link-item ${isActivePath('/exams') ? 'active' : ''}`} onClick={handleNavClick}>{t.nav.exams}</Link>
               <Link to="/blog" className={`nav-link-item ${isActivePath('/blog') ? 'active' : ''}`} onClick={handleNavClick}>{t.nav.blog}</Link>
-              <Link to="/payos-api" className={`nav-link-item api-nav-link ${isActivePath('/payos-api') ? 'active' : ''}`} onClick={handleNavClick}>Dọc API</Link>
               <Link to="/20-10" className={`nav-link-item rose-link ${location.pathname === '/20-10' ? 'active' : ''}`} onClick={handleNavClick}>{t.nav.gift}</Link>
             </div>
 
@@ -918,7 +914,7 @@ export default function Navbar() {
                       <div className="user-dropdown-divider" />
 
                       <Link 
-                        to="/profile?tab=courses" 
+                        to="/account?tab=courses"
                         className="user-dropdown-item" 
                         onClick={() => setShowUserDropdown(false)}
                       >
@@ -932,7 +928,7 @@ export default function Navbar() {
                       </Link>
 
                       <Link 
-                        to="/profile?tab=profile" 
+                        to="/account?tab=profile"
                         className="user-dropdown-item" 
                         onClick={() => setShowUserDropdown(false)}
                       >
@@ -1014,7 +1010,6 @@ export default function Navbar() {
               <Link to="/resources?category=all" className="mobile-link-item" onClick={handleNavClick}>{t.nav.library}</Link>
               <Link to="/exams" className="mobile-link-item" onClick={handleNavClick}>{t.nav.exams}</Link>
               <Link to="/blog" className="mobile-link-item" onClick={handleNavClick}>{t.nav.blog}</Link>
-              <Link to="/payos-api" className="mobile-link-item api-mobile-link" onClick={handleNavClick}>Dọc API</Link>
               <Link to="/20-10" className="mobile-link-item rose-link" onClick={handleNavClick}>{t.nav.gift}</Link>
               
               {/* Mobile theme & language controls */}
@@ -1148,7 +1143,6 @@ export default function Navbar() {
         setConfirmationResult={setConfirmationResult}
         handleLoginSubmit={handleLoginSubmit}
         handleGoogleLogin={handleGoogleLogin}
-        handleGoogleAuthSuccess={handleGoogleAuthSuccess}
         handleFacebookLogin={handleFacebookLogin}
         handleGithubLogin={handleGithubLogin}
         handleSignupSubmit={handleSignupSubmit}

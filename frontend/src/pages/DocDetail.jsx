@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Calendar, Download, Eye, FileText, ArrowLeft, ArrowUpRight, AlertTriangle, BookOpen, PlayCircle } from 'lucide-react';
+import { Calendar, Download, Eye, FileText, ArrowLeft, ArrowUpRight, AlertTriangle, BookOpen } from 'lucide-react';
 import { documentsData, midtermExams, finalExams } from '../data/documentsData';
 import { API_BASE_URL } from '../config';
 import { formatResourceDate } from '../utils/resourceDate';

@@ -1075,7 +1075,7 @@ const practiceExamsData = [
           }
         ],
         "correct": "B",
-        "explanation": "Phương trình vi phân đã cho là phương trình tách biến:\n$$y' + \\frac{2xy}{1 + x^2} = 0 \\Leftrightarrow \\frac{dy}{y} = -\\frac{2x}{1 + x^2} dx \\quad (\\text{với } y \\neq 0)$$\nTích phân hai vế:\n$$\\int \\frac{dy}{y} = -\\int \\frac{2x}{1 + x^2} dx \\Leftrightarrow \\ln|y| = -\\ln(1+x^2) + C \\Leftrightarrow y = \\frac{C_1}{1+x^2}$$\nThay điều kiện ban đầu $y(2) = 10$:\n$$10 = \\frac{C_1}{1 + 2^2} = \\frac{C_1}{5} \\Rightarrow C_1 = 50$$\nVậy nghiệm của phương trình là:\n$$y(x) = \\frac{50}{1+x^2}$$\nTính $y(-3)$:\n$$y(-3) = \\frac{50}{1 + (-3)^2} = \\frac{50}{10} = 5$$\nDo đó chọn B."
+        "explanation": "Phương trình vi phân đã cho là phương trình tách biến (với $y \\neq 0$):\n$$y' + \\frac{2xy}{1 + x^2} = 0 \\Leftrightarrow \\frac{dy}{y} = -\\frac{2x}{1 + x^2} dx$$\nTích phân hai vế:\n$$\\int \\frac{dy}{y} = -\\int \\frac{2x}{1 + x^2} dx \\Leftrightarrow \\ln|y| = -\\ln(1+x^2) + C \\Leftrightarrow y = \\frac{C_1}{1+x^2}$$\nThay điều kiện ban đầu $y(2) = 10$:\n$$10 = \\frac{C_1}{1 + 2^2} = \\frac{C_1}{5} \\Rightarrow C_1 = 50$$\nVậy nghiệm của phương trình là:\n$$y(x) = \\frac{50}{1+x^2}$$\nTính $y(-3)$:\n$$y(-3) = \\frac{50}{1 + (-3)^2} = \\frac{50}{10} = 5$$\nDo đó chọn B."
       },
       {
         "id": "k51-442-q7",
@@ -1710,32 +1710,32 @@ const practiceExamsData = [
       {
         "id": "ap1-f1-q1",
         "section": "Trắc nghiệm",
-        "prompt": "Câu 1. Nghiệm tổng quát của phương trình vi phân $y' + \\\\frac{y}{x} = \\\\frac{\\\\sin x}{x}$ là",
+        "prompt": "Câu 1. Nghiệm tổng quát của phương trình vi phân $y' + \\frac{y}{x} = \\frac{\\sin x}{x}$ là",
         "options": [
           {
             "id": "A",
-            "text": "$\\\\frac{C + \\\\cos x}{x}, C \\\\in \\\\mathbb{R}$"
+            "text": "$\\frac{C + \\cos x}{x}, C \\in \\mathbb{R}$"
           },
           {
             "id": "B",
-            "text": "$x(C + \\\\cos x), C \\\\in \\\\mathbb{R}$"
+            "text": "$x(C + \\cos x), C \\in \\mathbb{R}$"
           },
           {
             "id": "C",
-            "text": "$\\\\frac{C - \\\\cos x}{x}, C \\\\in \\\\mathbb{R}$"
+            "text": "$\\frac{C - \\cos x}{x}, C \\in \\mathbb{R}$"
           },
           {
             "id": "D",
-            "text": "$x(C + \\\\sin x), C \\\\in \\\\mathbb{R}$"
+            "text": "$x(C + \\sin x), C \\in \\mathbb{R}$"
           }
         ],
         "correct": "C",
-        "explanation": "Đáp án đúng là C. Giải chi tiết: Phương trình vi phân $y' + \\\\frac{y}{x} = \\\\frac{\\\\sin x}{x}$ có nghiệm tổng quát là $y = \\\\frac{C - \\\\cos x}{x}, C \\\\in \\\\mathbb{R}$."
+        "explanation": "Đáp án đúng là C. Giải chi tiết: Phương trình vi phân $y' + \\frac{y}{x} = \\frac{\\sin x}{x}$ có nghiệm tổng quát là $y = \\frac{C - \\cos x}{x}, C \\in \\mathbb{R}$."
       },
       {
         "id": "ap1-f1-q2",
         "section": "Trắc nghiệm",
-        "prompt": "Câu 2. Cho $g(x) = f(x^3 - 3x)$ khả vi trên $\\\\mathbb{R}$ và $f'(x) > 0, \\\\forall x$. Chọn phát biểu đúng.",
+        "prompt": "Câu 2. Cho $g(x) = f(x^3 - 3x)$ khả vi trên $\\mathbb{R}$ và $f'(x) > 0, \\forall x$. Chọn phát biểu đúng.",
         "options": [
           {
             "id": "A",
@@ -1747,15 +1747,15 @@ const practiceExamsData = [
           },
           {
             "id": "C",
-            "text": "Hàm $g$ tăng trên $(0, +\\\\infty)$."
+            "text": "Hàm $g$ tăng trên $(0, +\\infty)$."
           },
           {
             "id": "D",
-            "text": "Hàm $g$ giảm trên $(-\\\\infty, -3)$."
+            "text": "Hàm $g$ giảm trên $(-\\infty, -3)$."
           }
         ],
         "correct": "A",
-        "explanation": "Ta có $g'(x) = 3(x^2 - 1)f'(x^3 - 3x)$. Vì $f'(t) > 0, \\\\forall t$ nên dấu của $g'(x)$ cùng dấu với biểu thức $3(x^2 - 1)$. Bảng xét dấu của $g'(x)$ cho thấy $g'(x)$ đổi chiều từ dương sang âm tại $x = -1$, do đó hàm số $g(x)$ đạt cực đại tại $x = -1$."
+        "explanation": "Ta có $g'(x) = 3(x^2 - 1)f'(x^3 - 3x)$. Vì $f'(t) > 0, \\forall t$ nên dấu của $g'(x)$ cùng dấu với biểu thức $3(x^2 - 1)$. Bảng xét dấu của $g'(x)$ cho thấy $g'(x)$ đổi chiều từ dương sang âm tại $x = -1$, do đó hàm số $g(x)$ đạt cực đại tại $x = -1$."
       },
       {
         "id": "ap1-f1-q3",
@@ -1772,15 +1772,15 @@ const practiceExamsData = [
           },
           {
             "id": "C",
-            "text": "$A = \\\\pm B$"
+            "text": "$A = \\pm B$"
           },
           {
             "id": "D",
-            "text": "$|\\\\det(A)| = |\\\\det(B)|$"
+            "text": "$|\\det(A)| = |\\det(B)|$"
           }
         ],
         "correct": "C",
-        "explanation": "Từ giả thiết $A^2 = I_n$ và $B^2 = I_n$, ta có $A^{-1} = A$ và $B^{-1} = B$. Do đó:\\n- $(AB)^{-1} = B^{-1}A^{-1} = BA$ (đúng).\\n- $AB^{-1} = AB = A^{-1}B$ (đúng).\\n- $\\\\det(A)^2 = \\\\det(I_n) = 1 \\\\implies |\\\\det(A)| = 1$. Tương tự, $|\\\\det(B)| = 1$. Suy ra $|\\\\det(A)| = |\\\\det(B)|$ (đúng).\\n- Hệ thức $A = \\\\pm B$ không nhất thiết đúng (ví dụ $A = \\\\begin{bmatrix} 1 & 0 \\\\\\\\ 0 & -1 \\\\end{bmatrix}$ và $B = I_2$ đều có bình phương bằng $I_2$ nhưng $A \\\\neq \\\\pm B$)."
+        "explanation": "Từ giả thiết $A^2 = I_n$ và $B^2 = I_n$, ta có $A^{-1} = A$ và $B^{-1} = B$. Do đó:\\n- $(AB)^{-1} = B^{-1}A^{-1} = BA$ (đúng).\\n- $AB^{-1} = AB = A^{-1}B$ (đúng).\\n- $\\det(A)^2 = \\det(I_n) = 1 \\implies |\\det(A)| = 1$. Tương tự, $|\\det(B)| = 1$. Suy ra $|\\det(A)| = |\\det(B)|$ (đúng).\\n- Hệ thức $A = \\pm B$ không nhất thiết đúng (ví dụ $A = \\begin{bmatrix} 1 & 0 \\\\ 0 & -1 \\end{bmatrix}$ và $B = I_2$ đều có bình phương bằng $I_2$ nhưng $A \\neq \\pm B$)."
       },
       {
         "id": "ap1-f1-q4",
@@ -1805,12 +1805,12 @@ const practiceExamsData = [
           }
         ],
         "correct": "A",
-        "explanation": "Điểm $M(1, 1)$ phải là điểm dừng của hàm số $f(x, y)$, do đó ta có hệ điều kiện cần:\\n$\\\\begin{cases} \\\\frac{\\\\partial f}{\\\\partial x}(1, 1) = 0 \\\\\\\\ \\\\frac{\\\\partial f}{\\\\partial y}(1, 1) = 0 \\\\end{cases} \\\\implies \\\\begin{cases} 2(1) + 1 - 3 = 0 \\\\\\\\ 1 + 2(1) - m = 0 \\\\end{cases} \\\\implies m = 3$.\\nKhi đó, giá trị nhỏ nhất của hàm số là $z_M = f(1, 1) = 1^2 + 1\\\\cdot 1 + 1^2 - 3(1) - 3(1) + 2(3) = 3$."
+        "explanation": "Điểm $M(1, 1)$ phải là điểm dừng của hàm số $f(x, y)$, do đó ta có hệ điều kiện cần:\\n$\\begin{cases} \\frac{\\partial f}{\\partial x}(1, 1) = 0 \\\\ \\frac{\\partial f}{\\partial y}(1, 1) = 0 \\end{cases} \\implies \\begin{cases} 2(1) + 1 - 3 = 0 \\\\ 1 + 2(1) - m = 0 \\end{cases} \\implies m = 3$.\\nKhi đó, giá trị nhỏ nhất của hàm số là $z_M = f(1, 1) = 1^2 + 1\\cdot 1 + 1^2 - 3(1) - 3(1) + 2(3) = 3$."
       },
       {
         "id": "ap1-f1-q5",
         "section": "Trắc nghiệm",
-        "prompt": "Câu 5. Trong mô hình Input - Output mở, cho ma trận hệ số đầu vào\\n$A = \\\\begin{bmatrix} 0.1 & 0.3 & 0.3 \\\\\\\\ 0.2 & 0.2 & 0.2 \\\\\\\\ 0.3 & 0.3 & 0.2 \\\\end{bmatrix}$\\nBiết ngành 3 cung cấp 60 (đvt) cho ngành 2. Khi đó ngành 2 phải cung cấp cho chính nó là",
+        "prompt": "Câu 5. Trong mô hình Input - Output mở, cho ma trận hệ số đầu vào\\n$A = \\begin{bmatrix} 0.1 & 0.3 & 0.3 \\\\ 0.2 & 0.2 & 0.2 \\\\ 0.3 & 0.3 & 0.2 \\end{bmatrix}$\\nBiết ngành 3 cung cấp 60 (đvt) cho ngành 2. Khi đó ngành 2 phải cung cấp cho chính nó là",
         "options": [
           {
             "id": "A",
@@ -1830,20 +1830,20 @@ const practiceExamsData = [
           }
         ],
         "correct": "C",
-        "explanation": "Gọi $x_2$ là tổng sản lượng của ngành 2. Theo công thức của mô hình Input - Output, lượng sản phẩm ngành 3 cung cấp cho ngành 2 là $x_{32} = a_{32} x_2$.\\nTừ ma trận $A$, ta có $a_{32} = 0.3$. Do đó:\\n$60 = 0.3 x_2 \\\\implies x_2 = 200$.\\nLượng sản phẩm ngành 2 tự cung cấp cho chính nó là:\\n$x_{22} = a_{22} x_2 = 0.2 \\\\cdot 200 = 40$."
+        "explanation": "Gọi $x_2$ là tổng sản lượng của ngành 2. Theo công thức của mô hình Input - Output, lượng sản phẩm ngành 3 cung cấp cho ngành 2 là $x_{32} = a_{32} x_2$.\\nTừ ma trận $A$, ta có $a_{32} = 0.3$. Do đó:\\n$60 = 0.3 x_2 \\implies x_2 = 200$.\\nLượng sản phẩm ngành 2 tự cung cấp cho chính nó là:\\n$x_{22} = a_{22} x_2 = 0.2 \\cdot 200 = 40$."
       },
       {
         "id": "ap1-f1-q6",
         "section": "Trắc nghiệm",
-        "prompt": "Câu 6. Cho hệ phương trình (I): $\\\\begin{cases} mx - y + 4z = -3 \\\\\\\\ x + y + 2z = 2m \\\\\\\\ 2mx - 3y + 4z = m \\\\end{cases}$. Hệ (I) có nghiệm duy nhất nếu và chỉ nếu",
+        "prompt": "Câu 6. Cho hệ phương trình (I): $\\begin{cases} mx - y + 4z = -3 \\\\ x + y + 2z = 2m \\\\ 2mx - 3y + 4z = m \\end{cases}$. Hệ (I) có nghiệm duy nhất nếu và chỉ nếu",
         "options": [
           {
             "id": "A",
-            "text": "$m \\\\neq -4$"
+            "text": "$m \\neq -4$"
           },
           {
             "id": "B",
-            "text": "$m \\\\neq 2$"
+            "text": "$m \\neq 2$"
           },
           {
             "id": "C",
@@ -1851,16 +1851,16 @@ const practiceExamsData = [
           },
           {
             "id": "D",
-            "text": "$m \\\\neq 4$"
+            "text": "$m \\neq 4$"
           }
         ],
         "correct": "A",
-        "explanation": "Hệ phương trình tuyến tính (I) có nghiệm duy nhất khi và chỉ khi định thức của ma trận hệ số khác 0:\\n$D = \\\\det \\\\begin{bmatrix} m & -1 & 4 \\\\\\\\ 1 & 1 & 2 \\\\\\\\ 2m & -3 & 4 \\\\end{bmatrix} \\\\neq 0$.\\nTa tính định thức bằng cách khai triển hoặc biến đổi:\\n$D = m(4 + 6) + 1(4 - 4m) + 4(-3 - 2m) = 10m + 4 - 4m - 12 - 8m = -2m - 8$.\\nĐiều kiện để hệ có nghiệm duy nhất là $D \\\\neq 0 \\\\implies -2m - 8 \\\\neq 0 \\\\implies m \\\\neq -4$."
+        "explanation": "Hệ phương trình tuyến tính (I) có nghiệm duy nhất khi và chỉ khi định thức của ma trận hệ số khác 0:\\n$D = \\det \\begin{bmatrix} m & -1 & 4 \\\\ 1 & 1 & 2 \\\\ 2m & -3 & 4 \\end{bmatrix} \\neq 0$.\\nTa tính định thức bằng cách khai triển hoặc biến đổi:\\n$D = m(4 + 6) + 1(4 - 4m) + 4(-3 - 2m) = 10m + 4 - 4m - 12 - 8m = -2m - 8$.\\nĐiều kiện để hệ có nghiệm duy nhất là $D \\neq 0 \\implies -2m - 8 \\neq 0 \\implies m \\neq -4$."
       },
       {
         "id": "ap1-f1-q7",
         "section": "Trắc nghiệm",
-        "prompt": "Câu 7. Cho hàm số $u(x, y)$ có các đạo hàm riêng cấp một liên tục trên $\\\\mathbb{R}^2$. Giả sử ta có điều kiện $6x^2 + 5y^2 = 230$ (1). Điều kiện cần để $u$ đạt cực trị tại $(x, y)$ thỏa mãn điều kiện (1) là",
+        "prompt": "Câu 7. Cho hàm số $u(x, y)$ có các đạo hàm riêng cấp một liên tục trên $\\mathbb{R}^2$. Giả sử ta có điều kiện $6x^2 + 5y^2 = 230$ (1). Điều kiện cần để $u$ đạt cực trị tại $(x, y)$ thỏa mãn điều kiện (1) là",
         "options": [
           {
             "id": "A",
@@ -1880,12 +1880,12 @@ const practiceExamsData = [
           }
         ],
         "correct": "D",
-        "explanation": "Đặt điều kiện ràng buộc là $g(x, y) = 6x^2 + 5y^2 - 230 = 0$. Theo phương pháp nhân tử Lagrange, điều kiện cần để hàm số đạt cực trị có điều kiện là tồn tại $\\\\lambda$ sao cho:\\n$\\\\begin{cases} u'_x = \\\\lambda g'_x \\\\\\\\ u'_y = \\\\lambda g'_y \\\\end{cases} \\\\implies \\\\begin{cases} u'_x = 12\\\\lambda x \\\\\\\\ u'_y = 10\\\\lambda y \\\\end{cases}$\\nNhân phương trình đầu với $5y$ và phương trình sau với $6x$, ta được:\\n$5y u'_x = 60\\\\lambda xy$ và $6x u'_y = 60\\\\lambda xy$. Suy ra $5y u'_x = 6x u'_y$."
+        "explanation": "Đặt điều kiện ràng buộc là $g(x, y) = 6x^2 + 5y^2 - 230 = 0$. Theo phương pháp nhân tử Lagrange, điều kiện cần để hàm số đạt cực trị có điều kiện là tồn tại $\\lambda$ sao cho:\\n$\\begin{cases} u'_x = \\lambda g'_x \\\\ u'_y = \\lambda g'_y \\end{cases} \\implies \\begin{cases} u'_x = 12\\lambda x \\\\ u'_y = 10\\lambda y \\end{cases}$\\nNhân phương trình đầu với $5y$ và phương trình sau với $6x$, ta được:\\n$5y u'_x = 60\\lambda xy$ và $6x u'_y = 60\\lambda xy$. Suy ra $5y u'_x = 6x u'_y$."
       },
       {
         "id": "ap1-f1-q8",
         "section": "Trắc nghiệm",
-        "prompt": "Câu 8. Cho $A$ là ma trận vuông cấp 4 thỏa mãn $(A^T)^3 A = 3I_4$. Định thức của ma trận $\\\\left( \\\\frac{1}{6} A^T \\\\right)^{-1}$ có giá trị",
+        "prompt": "Câu 8. Cho $A$ là ma trận vuông cấp 4 thỏa mãn $(A^T)^3 A = 3I_4$. Định thức của ma trận $\\left( \\frac{1}{6} A^T \\right)^{-1}$ có giá trị",
         "options": [
           {
             "id": "A",
@@ -1893,7 +1893,7 @@ const practiceExamsData = [
           },
           {
             "id": "B",
-            "text": "$\\\\pm 432$"
+            "text": "$\\pm 432$"
           },
           {
             "id": "C",
@@ -1901,16 +1901,16 @@ const practiceExamsData = [
           },
           {
             "id": "D",
-            "text": "$\\\\pm 216$"
+            "text": "$\\pm 216$"
           }
         ],
         "correct": "B",
-        "explanation": "Từ giả thiết $(A^T)^3 A = 3I_4$, lấy định thức hai vế:\\n$\\\\det((A^T)^3 A) = \\\\det(3I_4) \\\\implies (\\\\det A)^3 \\\\cdot \\\\det A = 3^4 \\\\cdot \\\\det(I_4) \\\\implies (\\\\det A)^4 = 81 \\\\implies \\\\det A = \\\\pm 3$.\\nĐịnh thức của ma trận cần tìm là:\\n$\\\\det\\\\left( \\\\left( \\\\frac{1}{6} A^T \\\\right)^{-1} \\\\right) = \\\\frac{1}{\\\\det\\\\left( \\\\frac{1}{6} A^T \\\\right)} = \\\\frac{1}{6^{-4} \\\\cdot \\\\det(A^T)} = \\\\frac{1296}{\\\\det A} = \\\\frac{1296}{\\\\pm 3} = \\\\pm 432$."
+        "explanation": "Từ giả thiết $(A^T)^3 A = 3I_4$, lấy định thức hai vế:\\n$\\det((A^T)^3 A) = \\det(3I_4) \\implies (\\det A)^3 \\cdot \\det A = 3^4 \\cdot \\det(I_4) \\implies (\\det A)^4 = 81 \\implies \\det A = \\pm 3$.\\nĐịnh thức của ma trận cần tìm là:\\n$\\det\\left( \\left( \\frac{1}{6} A^T \\right)^{-1} \\right) = \\frac{1}{\\det\\left( \\frac{1}{6} A^T \\right)} = \\frac{1}{6^{-4} \\cdot \\det(A^T)} = \\frac{1296}{\\det A} = \\frac{1296}{\\pm 3} = \\pm 432$."
       },
       {
         "id": "ap1-f1-q9",
         "section": "Trắc nghiệm",
-        "prompt": "Câu 9. Hàm tổng chi phí khi sản xuất một sản phẩm cho bởi $C = \\\\frac{3Q^2}{\\\\sqrt{Q^2 + 5}} + 1000$, với $Q$ là sản lượng. Tính chi phí biên khi $Q = 10$ (làm tròn kết quả đến 2 chữ số thập phân).",
+        "prompt": "Câu 9. Hàm tổng chi phí khi sản xuất một sản phẩm cho bởi $C = \\frac{3Q^2}{\\sqrt{Q^2 + 5}} + 1000$, với $Q$ là sản lượng. Tính chi phí biên khi $Q = 10$ (làm tròn kết quả đến 2 chữ số thập phân).",
         "options": [
           {
             "id": "A",
@@ -1930,32 +1930,32 @@ const practiceExamsData = [
           }
         ],
         "correct": "C",
-        "explanation": "Chi phí biên là đạo hàm bậc nhất của hàm tổng chi phí theo $Q$:\\n$MC(Q) = C'(Q) = \\\\left( \\\\frac{3Q^2}{\\\\sqrt{Q^2 + 5}} + 1000 \\\\right)'$\\n$= \\\\frac{(3Q^2)' \\\\sqrt{Q^2 + 5} - 3Q^2 \\\\left( \\\\sqrt{Q^2 + 5} \\\\right)'}{Q^2 + 5} = \\\\frac{6Q\\\\sqrt{Q^2+5} - 3Q^2 \\\\cdot \\\\frac{Q}{\\\\sqrt{Q^2+5}}}{Q^2 + 5} = \\\\frac{3Q^3 + 30Q}{(Q^2 + 5)^{3/2}}$.\\nTại $Q = 10$, ta có:\\n$MC(10) = \\\\frac{3(10)^3 + 30(10)}{(10^2 + 5)^{3/2}} = \\\\frac{3300}{105^{3/2}} \\\\approx 3.07$."
+        "explanation": "Chi phí biên là đạo hàm bậc nhất của hàm tổng chi phí theo $Q$:\\n$MC(Q) = C'(Q) = \\left( \\frac{3Q^2}{\\sqrt{Q^2 + 5}} + 1000 \\right)'$\\n$= \\frac{(3Q^2)' \\sqrt{Q^2 + 5} - 3Q^2 \\left( \\sqrt{Q^2 + 5} \\right)'}{Q^2 + 5} = \\frac{6Q\\sqrt{Q^2+5} - 3Q^2 \\cdot \\frac{Q}{\\sqrt{Q^2+5}}}{Q^2 + 5} = \\frac{3Q^3 + 30Q}{(Q^2 + 5)^{3/2}}$.\\nTại $Q = 10$, ta có:\\n$MC(10) = \\frac{3(10)^3 + 30(10)}{(10^2 + 5)^{3/2}} = \\frac{3300}{105^{3/2}} \\approx 3.07$."
       },
       {
         "id": "ap1-f1-q10",
         "section": "Trắc nghiệm",
-        "prompt": "Câu 10. Giả sử $x = \\\\begin{bmatrix} x_1 \\\\ x_2 \\\\end{bmatrix}$ là nghiệm của hệ phương trình $\\\\begin{cases} -x_1 - 2x_2 = 1 \\\\ 2x_1 + 3x_2 = -1 \\\\end{cases}$ (*). Gọi $A$ là ma trận hệ số của (*). Tính $A^{2025} x$.",
+        "prompt": "Câu 10. Giả sử $x = \\begin{bmatrix} x_1 \\\\ x_2 \\end{bmatrix}$ là nghiệm của hệ phương trình $\\begin{cases} -x_1 - 2x_2 = 1 \\\\ 2x_1 + 3x_2 = -1 \\end{cases}$ (*). Gọi $A$ là ma trận hệ số của (*). Tính $A^{2025} x$.",
         "options": [
           {
             "id": "A",
-            "text": "$\\\\begin{bmatrix} 1 \\\\\\\\ 1 \\\\end{bmatrix}$"
+            "text": "$\\begin{bmatrix} 1 \\\\ 1 \\end{bmatrix}$"
           },
           {
             "id": "B",
-            "text": "$\\\\begin{bmatrix} 2025 \\\\\\\\ 2024 \\\\end{bmatrix}$"
+            "text": "$\\begin{bmatrix} 2025 \\\\ 2024 \\end{bmatrix}$"
           },
           {
             "id": "C",
-            "text": "$\\\\begin{bmatrix} 1 \\\\\\\\ -1 \\\\end{bmatrix}$"
+            "text": "$\\begin{bmatrix} 1 \\\\ -1 \\end{bmatrix}$"
           },
           {
             "id": "D",
-            "text": "$\\\\begin{bmatrix} 2024 \\\\\\\\ 2025 \\\\end{bmatrix}$"
+            "text": "$\\begin{bmatrix} 2024 \\\\ 2025 \\end{bmatrix}$"
           }
         ],
         "correct": "C",
-        "explanation": "Giải hệ phương trình (*):\\n$\\\\begin{cases} -x_1 - 2x_2 = 1 \\\\\\\\ 2x_1 + 3x_2 = -1 \\\\end{cases} \\\\implies \\\\begin{cases} x_1 = 1 \\\\ x_2 = -1 \\\\end{cases} \\\\implies x = \\\\begin{bmatrix} 1 \\\\\\\\ -1 \\\\end{bmatrix}$.\\nMa trận hệ số của (*) là $A = \\\\begin{bmatrix} -1 & -2 \\\\\\\\ 2 & 3 \\\\end{bmatrix}$.\\nTa có:\\n$Ax = \\\\begin{bmatrix} -1 & -2 \\\\\\\\ 2 & 3 \\\\end{bmatrix} \\\\begin{bmatrix} 1 \\\\\\\\ -1 \\\\end{bmatrix} = \\\\begin{bmatrix} -1(1) - 2(-1) \\\\\\\\ 2(1) + 3(-1) \\\\end{bmatrix} = \\\\begin{bmatrix} 1 \\\\\\\\ -1 \\\\end{bmatrix} = x$.\\nVì $Ax = x$, ta suy ra $A^{2025} x = x = \\\\begin{bmatrix} 1 \\\\\\\\ -1 \\\\end{bmatrix}$."
+        "explanation": "Giải hệ phương trình (*):\\n$\\begin{cases} -x_1 - 2x_2 = 1 \\\\ 2x_1 + 3x_2 = -1 \\end{cases} \\implies \\begin{cases} x_1 = 1 \\\\ x_2 = -1 \\end{cases} \\implies x = \\begin{bmatrix} 1 \\\\ -1 \\end{bmatrix}$.\\nMa trận hệ số của (*) là $A = \\begin{bmatrix} -1 & -2 \\\\ 2 & 3 \\end{bmatrix}$.\\nTa có:\\n$Ax = \\begin{bmatrix} -1 & -2 \\\\ 2 & 3 \\end{bmatrix} \\begin{bmatrix} 1 \\\\ -1 \\end{bmatrix} = \\begin{bmatrix} -1(1) - 2(-1) \\\\ 2(1) + 3(-1) \\end{bmatrix} = \\begin{bmatrix} 1 \\\\ -1 \\end{bmatrix} = x$.\\nVì $Ax = x$, ta suy ra $A^{2025} x = x = \\begin{bmatrix} 1 \\\\ -1 \\end{bmatrix}$."
       }
     ]
   },

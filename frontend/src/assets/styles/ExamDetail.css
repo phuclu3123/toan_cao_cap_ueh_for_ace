@@ -412,22 +412,25 @@
   word-break: break-word;
 }
 
-.question-prompt mjx-container[display="true"],
-.option-text mjx-container[display="true"],
-.explanation-body mjx-container[display="true"] {
+.question-prompt .math-block,
+.option-text .math-block,
+.explanation-body .math-block {
+  display: block;
+  max-width: 100%;
   margin: 0.45em 0;
   overflow-x: auto;
   overflow-y: hidden;
   text-align: left !important;
+  scrollbar-width: thin;
 }
 
-.option-text mjx-container[display="true"] {
+.option-text .math-block {
   margin: 0;
 }
 
-.question-prompt mjx-container[jax="SVG"],
-.option-text mjx-container[jax="SVG"],
-.explanation-body mjx-container[jax="SVG"] {
+.question-prompt .katex,
+.option-text .katex,
+.explanation-body .katex {
   max-width: 100%;
 }
 
@@ -1225,4 +1228,3 @@ body.dark-mode .exam-video-modal-card {
   height: 100%;
   border: 0;
 }
-

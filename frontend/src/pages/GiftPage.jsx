@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { ArrowLeft, Heart, X, Gift } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { LanguageContext } from '../App';
@@ -16,21 +16,16 @@ export default function GiftPage() {
   // Letter content typing states
   const [typedTitle, setTypedTitle] = useState('');
   const [typedBody, setTypedBody] = useState('');
-  const [isTypingFinished, setIsTypingFinished] = useState(false);
 
   const titleText = t.giftPage.letterTitle;
   const bodyText = t.giftPage.letterBody;
 
   // Typing effect trigger
   useEffect(() => {
-    if (!isModalOpen) {
-      setTypedTitle('');
-      setTypedBody('');
-      setIsTypingFinished(false);
-      return;
-    }
+    if (!isModalOpen) return undefined;
 
     let titleIndex = 0;
+    let bodyInterval;
     let titleInterval = setInterval(() => {
       if (titleIndex < titleText.length) {
         setTypedTitle((prev) => prev + titleText[titleIndex]);
@@ -40,13 +35,12 @@ export default function GiftPage() {
         
         // Start typing body
         let bodyIndex = 0;
-        let bodyInterval = setInterval(() => {
+        bodyInterval = setInterval(() => {
           if (bodyIndex < bodyText.length) {
             setTypedBody((prev) => prev + bodyText[bodyIndex]);
             bodyIndex++;
           } else {
             clearInterval(bodyInterval);
-            setIsTypingFinished(true);
           }
         }, 50); // Speed of body text typing
       }
@@ -54,8 +48,15 @@ export default function GiftPage() {
 
     return () => {
       clearInterval(titleInterval);
+      clearInterval(bodyInterval);
     };
   }, [isModalOpen, titleText, bodyText]);
+
+  const openLetter = () => {
+    setTypedTitle('');
+    setTypedBody('');
+    setIsModalOpen(true);
+  };
 
   // Rose auto-timer fallback to display Click Me
   const [showClickPrompt, setShowClickPrompt] = useState(false);
@@ -186,7 +187,7 @@ export default function GiftPage() {
               <div className="envelope-front"></div>
               
               {/* Floating inner card */}
-              <div className="letter-inner-card" onClick={() => setIsModalOpen(true)}>
+              <div className="letter-inner-card" onClick={openLetter}>
                 <div className="card-message">
                   <span>Happy</span>
                   <br />

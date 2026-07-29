@@ -136,7 +136,7 @@ export default function ExamsPage() {
           </div>
 
           <div className="midterm-room-grid midterm-teacher-grid">
-            {localizedMidtermExams.map((exam, index) => (
+            {localizedMidtermExams.map((exam) => (
               <Link className="midterm-room-card teacher-exam-card" to={`/document/${exam.id}`} key={exam.id}>
                 <div className="teacher-cover">
                   <img src={`/images/${exam.image}`} alt={exam.professorName} onError={(event) => { event.currentTarget.src = '/images/tccvang.jpg'; }} />

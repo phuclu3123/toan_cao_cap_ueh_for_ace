@@ -1,5 +1,5 @@
-import React, { useContext } from 'react';
-import { BookOpen, GraduationCap, ShieldCheck, Target, Users } from 'lucide-react';
+import { useContext } from 'react';
+import { GraduationCap, ShieldCheck, Target } from 'lucide-react';
 import { LanguageContext } from '../App';
 import '../assets/styles/AboutPage.css';
 

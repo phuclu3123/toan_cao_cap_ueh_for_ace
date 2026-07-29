@@ -1,4 +1,3 @@
-import React from 'react';
 import { X, Shield, Upload, CheckCircle, AlertCircle } from 'lucide-react';
 
 export default function UploadModal({

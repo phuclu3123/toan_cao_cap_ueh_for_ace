@@ -1,11 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { 
   X, CheckCircle, ShieldCheck, QrCode, Copy, 
-  PhoneCall, Sparkles, CreditCard, Check, User, Mail, 
-  Phone, Lock, Wallet, Smartphone, ExternalLink, RefreshCw, Clock, ArrowRight, ChevronRight, BookOpen, Building2
+  PhoneCall, Check, User, Wallet, Smartphone, ExternalLink,
+  RefreshCw, Clock, ArrowRight, ChevronRight, BookOpen
 } from 'lucide-react';
 import { API_BASE_URL } from '../../config';
+
+const readStoredLearner = () => {
+  try {
+    const savedUser = localStorage.getItem('ueh_tcc_user');
+    if (!savedUser) return {};
+    const user = JSON.parse(savedUser);
+    return {
+      name: user.name || '',
+      email: user.email || user.username || '',
+      phone: user.phoneNumber || user.phone || ''
+    };
+  } catch {
+    return {};
+  }
+};
 
 export default function CourseEnrollmentModal({
   isOpen,
@@ -15,19 +30,35 @@ export default function CourseEnrollmentModal({
 }) {
   if (!isOpen || !course) return null;
 
+  return (
+    <CourseEnrollmentModalContent
+      isOpen={isOpen}
+      onClose={onClose}
+      course={course}
+      onEnrollSuccess={onEnrollSuccess}
+    />
+  );
+}
+
+function CourseEnrollmentModalContent({
+  isOpen,
+  onClose,
+  course,
+  onEnrollSuccess
+}) {
+  const [storedLearner] = useState(readStoredLearner);
+
   // Form states
-  const [learnerName, setLearnerName] = useState('');
-  const [learnerEmail, setLearnerEmail] = useState('');
-  const [learnerPhone, setLearnerPhone] = useState('');
+  const [learnerName, setLearnerName] = useState(storedLearner.name || '');
+  const [learnerEmail, setLearnerEmail] = useState(storedLearner.email || '');
+  const [learnerPhone, setLearnerPhone] = useState(storedLearner.phone || '');
   const [voucherCode, setVoucherCode] = useState('');
   const [voucherApplied, setVoucherApplied] = useState(false);
   const [voucherDiscount, setVoucherDiscount] = useState(0);
-  const [note, setNote] = useState('');
 
   // Step flow: 1 = Form Info, 2 = PayOS Payment, 3 = Completed
   const [modalStep, setModalStep] = useState(1);
   const [paymentTab, setPaymentTab] = useState('vietqr');
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
   const [copiedField, setCopiedField] = useState('');
   const [imgError, setImgError] = useState(false);
@@ -44,19 +75,6 @@ export default function CourseEnrollmentModal({
   const [timeLeft, setTimeLeft] = useState(900);
   // 5-second auto redirect countdown upon payment success
   const [autoCloseCountdown, setAutoCloseCountdown] = useState(5);
-
-  // Pre-fill user info if logged in
-  useEffect(() => {
-    try {
-      const savedUser = localStorage.getItem('ueh_tcc_user');
-      if (savedUser) {
-        const u = JSON.parse(savedUser);
-        if (u.name) setLearnerName(u.name);
-        if (u.email || u.username) setLearnerEmail(u.email || u.username);
-        if (u.phoneNumber || u.phone) setLearnerPhone(u.phoneNumber || u.phone);
-      }
-    } catch (e) {}
-  }, [isOpen]);
 
   // Clean body overflow & ensure navigation is never locked
   useEffect(() => {
@@ -97,7 +115,7 @@ export default function CourseEnrollmentModal({
     return () => {
       if (autoCloseTimer) clearInterval(autoCloseTimer);
     };
-  }, [isCompleted, autoCloseCountdown]);
+  }, [isCompleted, autoCloseCountdown, onClose]);
 
   const formatTimer = (seconds) => {
     const m = Math.floor(seconds / 60);
@@ -170,12 +188,34 @@ export default function CourseEnrollmentModal({
       } else {
         setPayosError(data.message || 'Hệ thống đã kết nối VietQR MBBank Pro.');
       }
-    } catch (err) {
+    } catch {
       setPayosError('Đã chuyển sang mã VietQR MBBank mặc định.');
     } finally {
       setPayosLoading(false);
     }
   };
+
+  // Auto-mark completion and unlock course
+  const handleMarkCompleted = useCallback(() => {
+    try {
+      const existing = localStorage.getItem('ueh_tcc_enrolled_courses');
+      const enrolled = existing ? JSON.parse(existing) : [];
+      const validEnrollments = Array.isArray(enrolled) ? enrolled : [];
+      if (!validEnrollments.includes(course.id)) {
+        localStorage.setItem(
+          'ueh_tcc_enrolled_courses',
+          JSON.stringify([...validEnrollments, course.id])
+        );
+        window.dispatchEvent(new Event('storage'));
+      }
+    } catch {
+      // The server-side entitlement flow remains the source of truth.
+    }
+
+    setIsCompleted(true);
+    setModalStep(3);
+    onEnrollSuccess?.(course.id);
+  }, [course.id, onEnrollSuccess]);
 
   // Real-Time Status Polling (Every 3 Seconds)
   useEffect(() => {
@@ -192,34 +232,16 @@ export default function CourseEnrollmentModal({
             clearInterval(pollingInterval);
             handleMarkCompleted();
           }
-        } catch (err) {}
+        } catch {
+          // A transient polling failure is retried on the next interval.
+        }
       }, 3000);
     }
 
     return () => {
       if (pollingInterval) clearInterval(pollingInterval);
     };
-  }, [payosOrderCode, paymentStatus, isCompleted, modalStep]);
-
-  // Auto-mark completion and unlock course
-  const handleMarkCompleted = () => {
-    try {
-      const existing = localStorage.getItem('ueh_tcc_enrolled_courses');
-      let enrolled = existing ? JSON.parse(existing) : [];
-      if (!Array.isArray(enrolled)) enrolled = [];
-      if (!enrolled.includes(course.id)) {
-        enrolled.push(course.id);
-        localStorage.setItem('ueh_tcc_enrolled_courses', JSON.stringify(enrolled));
-        window.dispatchEvent(new Event('storage'));
-      }
-    } catch (err) {}
-
-    setIsCompleted(true);
-    setModalStep(3);
-    if (onEnrollSuccess) {
-      onEnrollSuccess(course.id);
-    }
-  };
+  }, [payosOrderCode, paymentStatus, isCompleted, modalStep, handleMarkCompleted]);
 
   const handleCopy = (text, fieldName) => {
     navigator.clipboard.writeText(text);
@@ -582,6 +604,12 @@ export default function CourseEnrollmentModal({
                   <PhoneCall size={16} color="#2563eb" /> Zalo / Hotline
                 </button>
               </div>
+
+              {payosError && (
+                <p role="status" style={{ margin: '0 0 16px', color: '#92400e', fontSize: '0.82rem' }}>
+                  {payosError}
+                </p>
+              )}
 
               {/* TAB 1: PAYOS VIETQR */}
               {paymentTab === 'vietqr' && (

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useContext } from 'react';
+import { useState, useEffect, useEffectEvent, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useParams, Link } from 'react-router-dom';
 import {
@@ -23,13 +23,11 @@ import {
   ShieldAlert,
   ShieldCheck,
   SkipForward,
-  Video,
   Volume2,
   VolumeX,
   X
 } from 'lucide-react';
 import { getCourseById } from '../data/coursesData';
-import { LanguageContext } from '../App';
 import NotFoundPage from './NotFoundPage';
 import CourseEnrollmentModal from '../components/modals/CourseEnrollmentModal';
 import {
@@ -41,15 +39,50 @@ import {
 import '../assets/styles/Home.css';
 import '../assets/styles/Courses.css';
 
+const getUserScope = () => {
+  try {
+    const savedUser = localStorage.getItem('ueh_tcc_user');
+    if (savedUser) {
+      const user = JSON.parse(savedUser);
+      if (user?.id || user?.email || user?.username) {
+        return user.id || user.email || user.username;
+      }
+    }
+  } catch {
+    // Corrupt local data falls back to the guest scope.
+  }
+  return 'guest';
+};
+
+const seekNativeVideo = (video, time) => {
+  video.currentTime = time;
+};
+
+const setNativePlaybackRate = (video, rate) => {
+  video.playbackRate = rate;
+};
+
+const setNativeMuted = (video, muted) => {
+  video.muted = muted;
+};
+
+const setNativeVolume = (video, volume) => {
+  video.volume = volume;
+  video.muted = volume === 0;
+};
+
 export default function CourseDetail() {
-  const { id } = useParams();
-  const { language } = useContext(LanguageContext);
-  const course = getCourseById(id);
+  const { slug } = useParams();
+  const course = getCourseById(slug);
 
   if (!course) {
     return <NotFoundPage />;
   }
 
+  return <CourseDetailContent course={course} />;
+}
+
+function CourseDetailContent({ course }) {
   // Admin Check helper
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -67,7 +100,9 @@ export default function CourseDetail() {
             setIsAdmin(true);
             return;
           }
-        } catch (e) {}
+        } catch {
+          // Invalid local session data is treated as a student session.
+        }
       }
       setIsAdmin(false);
     };
@@ -92,7 +127,9 @@ export default function CourseDetail() {
             return;
           }
         }
-      } catch (e) {}
+      } catch {
+        // Invalid local enrollment cache is treated as not enrolled.
+      }
       setIsEnrolled(false);
     };
 
@@ -196,17 +233,11 @@ export default function CourseDetail() {
 
   // Anti-Piracy Security States (DevTools, Dynamic Watermark, Multi-Device Concurrency)
   const [showDevToolsWarning, setShowDevToolsWarning] = useState(false);
-  const [showWatermark, setShowWatermark] = useState(false);
-  const [watermarkText, setWatermarkText] = useState('');
   const [showConcurrentWarning, setShowConcurrentWarning] = useState(false);
-  const [isAccLocked, setIsAccLocked] = useState(false);
-
-  // Check Account Lock status on mount
-  useEffect(() => {
-    if (isAccountLocked()) {
-      setIsAccLocked(true);
-    }
-  }, []);
+  const [isAccLocked, setIsAccLocked] = useState(isAccountLocked);
+  const watermarkSecond = Math.floor(currentTime) % 600;
+  const showWatermark = showVideoModal && !isAdminAccount() && watermarkSecond <= 14;
+  const watermarkText = showWatermark ? getStudentIdentifier() : '';
 
   // DevTools & F12 Key / Context Menu Shield (Exempt Admin luphuc321@gmail.com)
   useEffect(() => {
@@ -230,9 +261,9 @@ export default function CourseDetail() {
         if (showVideoModal) {
           setShowDevToolsWarning(true);
           if (ytPlayerRef.current && typeof ytPlayerRef.current.pauseVideo === 'function') {
-            try { ytPlayerRef.current.pauseVideo(); } catch (err) {}
+            try { ytPlayerRef.current.pauseVideo(); } catch { /* Player may already be disposed. */ }
           } else if (videoRef.current) {
-            try { videoRef.current.pause(); } catch (err) {}
+            try { videoRef.current.pause(); } catch { /* Player may already be disposed. */ }
           }
           setIsPlaying(false);
         }
@@ -248,9 +279,9 @@ export default function CourseDetail() {
       if (widthDiff || heightDiff) {
         setShowDevToolsWarning(true);
         if (ytPlayerRef.current && typeof ytPlayerRef.current.pauseVideo === 'function') {
-          try { ytPlayerRef.current.pauseVideo(); } catch (err) {}
+          try { ytPlayerRef.current.pauseVideo(); } catch { /* Player may already be disposed. */ }
         } else if (videoRef.current) {
-          try { videoRef.current.pause(); } catch (err) {}
+          try { videoRef.current.pause(); } catch { /* Player may already be disposed. */ }
         }
         setIsPlaying(false);
       }
@@ -266,26 +297,6 @@ export default function CourseDetail() {
       window.removeEventListener('keydown', handleKeyDownSecurity, true);
     };
   }, [showVideoModal]);
-
-  // Dynamic Watermark Sweep Trigger (Exact second-based 10-minute block check: 00:00-00:14, 10:00-10:14, 20:00-20:14, etc.)
-  useEffect(() => {
-    if (!showVideoModal || isAdminAccount()) {
-      setShowWatermark(false);
-      return;
-    }
-
-    const sec = Math.floor(currentTime);
-    const secInBlock = sec % 600; // 600 seconds = 10 minutes
-
-    // Trigger sweep during the first 14 seconds of every 10-minute block (works on rewind/seek too!)
-    if (secInBlock >= 0 && secInBlock <= 14) {
-      const identifier = getStudentIdentifier();
-      setWatermarkText(identifier);
-      setShowWatermark(true);
-    } else {
-      setShowWatermark(false);
-    }
-  }, [showVideoModal, currentTime]);
 
   // Random Micro-Watermark Corner Position State (Top/Bottom corners only to avoid obscuring lecture text)
   const [microPosStyle, setMicroPosStyle] = useState({ top: '16px', right: '20px' });
@@ -329,9 +340,9 @@ export default function CourseDetail() {
             ) {
               // Watermark node was tampered/deleted! Instantly pause video!
               if (ytPlayerRef.current && typeof ytPlayerRef.current.pauseVideo === 'function') {
-                try { ytPlayerRef.current.pauseVideo(); } catch (err) {}
+                try { ytPlayerRef.current.pauseVideo(); } catch { /* Player may already be disposed. */ }
               } else if (videoRef.current) {
-                try { videoRef.current.pause(); } catch (err) {}
+                try { videoRef.current.pause(); } catch { /* Player may already be disposed. */ }
               }
               setIsPlaying(false);
               setShowDevToolsWarning(true);
@@ -382,7 +393,9 @@ export default function CourseDetail() {
           JSON.stringify({ sessionId: currentSessionId, timestamp: now })
         );
         setShowConcurrentWarning(false);
-      } catch (e) {}
+      } catch {
+        // Ignore malformed session heartbeats and retry on the next interval.
+      }
     };
 
     const heartbeatInterval = setInterval(checkConcurrentStreams, 3000);
@@ -424,7 +437,6 @@ export default function CourseDetail() {
   };
 
   const videoRef = useRef(null);
-  const iframeRef = useRef(null);
   const ytPlayerRef = useRef(null);
   const playerFrameRef = useRef(null);
 
@@ -506,20 +518,6 @@ export default function CourseDetail() {
     return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
   };
 
-  // User Scoped Storage Helper for Guest vs Logged-In Users & Cache Clearing Safety
-  const getUserScope = () => {
-    try {
-      const savedUserStr = localStorage.getItem('ueh_tcc_user');
-      if (savedUserStr) {
-        const user = JSON.parse(savedUserStr);
-        if (user && (user.id || user.email || user.username)) {
-          return user.id || user.email || user.username;
-        }
-      }
-    } catch (e) {}
-    return 'guest';
-  };
-
   const getSavedVideoPos = (lessonId) => {
     if (!lessonId) return null;
     const scope = getUserScope();
@@ -529,7 +527,7 @@ export default function CourseDetail() {
       const legacyVal = scope === 'guest' ? localStorage.getItem(`course_video_pos_${lessonId}`) : null;
       const val = scopedVal || legacyVal;
       return val ? parseFloat(val) : null;
-    } catch (e) {
+    } catch {
       return null;
     }
   };
@@ -542,7 +540,9 @@ export default function CourseDetail() {
       if (scope === 'guest') {
         localStorage.setItem(`course_video_pos_${lessonId}`, time.toString());
       }
-    } catch (e) {}
+    } catch {
+      // Invalid saved progress is ignored.
+    }
   };
 
   const removeSavedVideoPos = (lessonId) => {
@@ -551,7 +551,9 @@ export default function CourseDetail() {
     try {
       localStorage.removeItem(`course_video_pos_${scope}_${lessonId}`);
       localStorage.removeItem(`course_video_pos_${lessonId}`);
-    } catch (e) {}
+    } catch {
+      // Storage may be unavailable in privacy-restricted browsers.
+    }
   };
 
   // Detect & Load Last Active Lesson on Page Load / Auth change / Mount
@@ -573,7 +575,9 @@ export default function CourseDetail() {
             return;
           }
         }
-      } catch (e) {}
+      } catch {
+        // Invalid last-active data is ignored.
+      }
       setLastActiveInfo(null);
     };
 
@@ -590,7 +594,9 @@ export default function CourseDetail() {
         try {
           const t = ytPlayerRef.current.getCurrentTime();
           if (t && t > 0) cur = t;
-        } catch (e) {}
+        } catch {
+          // The YouTube player may not be ready yet.
+        }
       } else if (videoRef.current && videoRef.current.currentTime > 0) {
         cur = videoRef.current.currentTime;
       }
@@ -605,7 +611,9 @@ export default function CourseDetail() {
         };
         try {
           localStorage.setItem(`course_last_active_lesson_${scope}_${course.id}`, JSON.stringify(info));
-        } catch (e) {}
+        } catch {
+          // Storage may be unavailable in privacy-restricted browsers.
+        }
         if (!(activeLesson.isLocked && scope === 'guest' && !isAdmin)) {
           setLastActiveInfo(info);
         }
@@ -616,11 +624,15 @@ export default function CourseDetail() {
     if (ytPlayerRef.current && typeof ytPlayerRef.current.pauseVideo === 'function') {
       try {
         ytPlayerRef.current.pauseVideo();
-      } catch (e) {}
+      } catch {
+        // The YouTube player may already be disposed.
+      }
     } else if (videoRef.current) {
       try {
         videoRef.current.pause();
-      } catch (e) {}
+      } catch {
+        // The native player may already be disposed.
+      }
     }
     setIsPlaying(false);
     setShowVideoModal(false);
@@ -685,7 +697,9 @@ export default function CourseDetail() {
       if (ytPlayerRef.current) {
         try {
           ytPlayerRef.current.destroy();
-        } catch (e) {}
+        } catch {
+          // The previous YouTube player may already be disposed.
+        }
       }
 
       ytPlayerRef.current = new window.YT.Player('yt-player-element', {
@@ -712,7 +726,9 @@ export default function CourseDetail() {
               setIsPlaying(false);
               try {
                 event.target.pauseVideo();
-              } catch (e) {}
+              } catch {
+                // Ignore a pause request after the player has been disposed.
+              }
             } else {
               event.target.playVideo();
               setIsPlaying(true);
@@ -751,7 +767,9 @@ export default function CourseDetail() {
       if (ytPlayerRef.current) {
         try {
           ytPlayerRef.current.destroy();
-        } catch (e) {}
+        } catch {
+          // The previous YouTube player may already be disposed.
+        }
         ytPlayerRef.current = null;
       }
     };
@@ -791,7 +809,9 @@ export default function CourseDetail() {
         try {
           const t = ytPlayerRef.current.getCurrentTime();
           if (t && t > 0) timeToSave = t;
-        } catch (e) {}
+        } catch {
+          // The YouTube player may not be ready yet.
+        }
       } else if (videoRef.current && videoRef.current.currentTime > 0) {
         timeToSave = videoRef.current.currentTime;
       }
@@ -802,7 +822,9 @@ export default function CourseDetail() {
         try {
           localStorage.setItem(`course_last_active_lesson_${scope}_${course.id}`, JSON.stringify(info));
           localStorage.setItem(`course_last_active_lesson_${course.id}`, JSON.stringify(info));
-        } catch (e) {}
+        } catch {
+          // Storage may be unavailable in privacy-restricted browsers.
+        }
       }
     };
 
@@ -813,7 +835,7 @@ export default function CourseDetail() {
       window.removeEventListener('beforeunload', saveCurrentProgress);
       window.removeEventListener('pagehide', saveCurrentProgress);
     };
-  }, [activeLesson, isYouTube, currentTime, showResumePrompt]);
+  }, [activeLesson, isYouTube, currentTime, showResumePrompt, course.id]);
 
   // Listen to visibilitychange (Tab Switch Auto Pause)
   useEffect(() => {
@@ -883,7 +905,7 @@ export default function CourseDetail() {
       ytPlayerRef.current.seekTo(target, true);
       setCurrentTime(target);
     } else if (videoRef.current) {
-      videoRef.current.currentTime = Math.max(0, videoRef.current.currentTime - 5);
+      seekNativeVideo(videoRef.current, Math.max(0, videoRef.current.currentTime - 5));
     }
   };
 
@@ -895,7 +917,7 @@ export default function CourseDetail() {
       ytPlayerRef.current.seekTo(target, true);
       setCurrentTime(target);
     } else if (videoRef.current) {
-      videoRef.current.currentTime = Math.min(duration, videoRef.current.currentTime + 5);
+      seekNativeVideo(videoRef.current, Math.min(duration, videoRef.current.currentTime + 5));
     }
   };
 
@@ -907,7 +929,7 @@ export default function CourseDetail() {
       ytPlayerRef.current.seekTo(newTime, true);
       setCurrentTime(newTime);
     } else if (videoRef.current) {
-      videoRef.current.currentTime = newTime;
+      seekNativeVideo(videoRef.current, newTime);
       setCurrentTime(newTime);
     }
   };
@@ -917,7 +939,7 @@ export default function CourseDetail() {
     if (isYouTube && ytPlayerRef.current) {
       ytPlayerRef.current.setPlaybackRate(speed);
     } else if (videoRef.current) {
-      videoRef.current.playbackRate = speed;
+      setNativePlaybackRate(videoRef.current, speed);
     }
     setShowSettingsPopover(false);
   };
@@ -932,7 +954,7 @@ export default function CourseDetail() {
         setIsMuted(true);
       }
     } else if (videoRef.current) {
-      videoRef.current.muted = !isMuted;
+      setNativeMuted(videoRef.current, !isMuted);
       setIsMuted(!isMuted);
     }
   };
@@ -945,8 +967,7 @@ export default function CourseDetail() {
       if (val === 0) ytPlayerRef.current.mute();
       else ytPlayerRef.current.unMute();
     } else if (videoRef.current) {
-      videoRef.current.volume = val;
-      videoRef.current.muted = val === 0;
+      setNativeVolume(videoRef.current, val);
     }
     setIsMuted(val === 0);
   };
@@ -966,7 +987,7 @@ export default function CourseDetail() {
         ytPlayerRef.current.seekTo(resumeTime, true);
         ytPlayerRef.current.playVideo();
       } else if (videoRef.current) {
-        videoRef.current.currentTime = resumeTime;
+        seekNativeVideo(videoRef.current, resumeTime);
         videoRef.current.play();
       }
       setIsPlaying(true);
@@ -979,7 +1000,7 @@ export default function CourseDetail() {
       ytPlayerRef.current.seekTo(0, true);
       ytPlayerRef.current.playVideo();
     } else if (videoRef.current) {
-      videoRef.current.currentTime = 0;
+      seekNativeVideo(videoRef.current, 0);
       videoRef.current.play();
     }
     setIsPlaying(true);
@@ -999,58 +1020,60 @@ export default function CourseDetail() {
     if (isYouTube && ytPlayerRef.current && typeof ytPlayerRef.current.setPlaybackQuality === 'function') {
       try {
         ytPlayerRef.current.setPlaybackQuality(quality);
-      } catch (e) {}
+      } catch {
+        // Quality selection is best-effort because YouTube controls availability.
+      }
     }
   };
 
   // Global Keyboard Shortcuts for Video Player Modal (Space, Arrows, F, M, Esc)
+  const handleVideoKeyDown = useEffectEvent((event) => {
+    const activeEl = document.activeElement;
+    if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.tagName === 'SELECT')) {
+      return;
+    }
+
+    if (event.code === 'Space' || event.key === 'k' || event.key === 'K') {
+      event.preventDefault();
+      togglePlayPause();
+      triggerScreenPulseAnim();
+    } else if (event.key === 'ArrowLeft' || event.key === 'j' || event.key === 'J') {
+      event.preventDefault();
+      handleRewind5();
+    } else if (event.key === 'ArrowRight' || event.key === 'l' || event.key === 'L') {
+      event.preventDefault();
+      handleForward5();
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      setVolume((prev) => {
+        const next = Math.min(1, parseFloat((prev + 0.1).toFixed(2)));
+        handleVolumeChange({ target: { value: next } });
+        return next;
+      });
+    } else if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      setVolume((prev) => {
+        const next = Math.max(0, parseFloat((prev - 0.1).toFixed(2)));
+        handleVolumeChange({ target: { value: next } });
+        return next;
+      });
+    } else if (event.key === 'f' || event.key === 'F') {
+      event.preventDefault();
+      toggleFullscreen();
+    } else if (event.key === 'm' || event.key === 'M') {
+      event.preventDefault();
+      toggleMute();
+    } else if (event.key === 'Escape') {
+      closeVideoModal();
+    }
+  });
+
   useEffect(() => {
-    if (!showVideoModal) return;
+    if (!showVideoModal) return undefined;
 
-    const handleKeyDown = (e) => {
-      const activeEl = document.activeElement;
-      if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.tagName === 'SELECT')) {
-        return;
-      }
-
-      if (e.code === 'Space' || e.key === 'k' || e.key === 'K') {
-        e.preventDefault();
-        togglePlayPause();
-        triggerScreenPulseAnim();
-      } else if (e.key === 'ArrowLeft' || e.key === 'j' || e.key === 'J') {
-        e.preventDefault();
-        handleRewind5();
-      } else if (e.key === 'ArrowRight' || e.key === 'l' || e.key === 'L') {
-        e.preventDefault();
-        handleForward5();
-      } else if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        setVolume((prev) => {
-          const next = Math.min(1, parseFloat((prev + 0.1).toFixed(2)));
-          handleVolumeChange({ target: { value: next } });
-          return next;
-        });
-      } else if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        setVolume((prev) => {
-          const next = Math.max(0, parseFloat((prev - 0.1).toFixed(2)));
-          handleVolumeChange({ target: { value: next } });
-          return next;
-        });
-      } else if (e.key === 'f' || e.key === 'F') {
-        e.preventDefault();
-        toggleFullscreen();
-      } else if (e.key === 'm' || e.key === 'M') {
-        e.preventDefault();
-        toggleMute();
-      } else if (e.key === 'Escape') {
-        closeVideoModal();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [showVideoModal, isPlaying, duration, volume, isMuted, activeLesson]);
+    window.addEventListener('keydown', handleVideoKeyDown);
+    return () => window.removeEventListener('keydown', handleVideoKeyDown);
+  }, [showVideoModal]);
 
   const handleReportSubmit = (e) => {
     e.preventDefault();

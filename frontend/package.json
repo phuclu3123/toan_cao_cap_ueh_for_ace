@@ -3,10 +3,16 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "test": "node --test",
     "lint": "eslint .",
+    "validate:math": "node scripts/validate-math.mjs",
+    "check": "npm run lint && npm run test && npm run validate:math && npm run build",
     "preview": "vite preview"
   },
   "dependencies": {

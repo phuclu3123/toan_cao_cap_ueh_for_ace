@@ -2,13 +2,10 @@ import { useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowRight,
-  BookOpenCheck,
   CheckCircle,
-  Clock,
   FileText,
   Mail,
   Phone,
-  Play,
   Users,
   Video
 } from 'lucide-react';
@@ -46,7 +43,6 @@ export default function CoursesPage() {
     window.location.href = `mailto:luphuc321@gmail.com?subject=${encodeURIComponent('Đăng ký tư vấn UEH TCC')}&body=${encodeURIComponent(body)}`;
   };
 
-  const syllabus = t.coursesPage.syllabus;
   const benefits = t.coursesPage.benefits;
 
   return (

@@ -1193,11 +1193,9 @@
   font-size: 1.1rem;
 }
 
-/* KaTeX Math Formatting: Completely unboxed, centered, NO SCROLLBAR */
+/* KaTeX Math Formatting: unboxed with local overflow containment */
 .math-block {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  display: block;
   text-align: center;
   margin: 16px 0 !important;
   padding: 4px 0 !important;
@@ -1205,11 +1203,12 @@
   border: none !important;
   box-shadow: none !important;
   border-radius: 0 !important;
-  overflow: visible !important;
-  overflow-x: visible !important;
-  overflow-y: visible !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
   font-size: 1.14rem;
+  max-width: 100%;
   width: 100%;
+  scrollbar-width: thin;
 }
 
 :root.light-theme .math-block {
@@ -1220,7 +1219,17 @@
 .math-block .katex-display {
   margin: 0 !important;
   background: transparent !important;
-  overflow: visible !important;
+  min-width: max-content;
+}
+
+.math-render-error {
+  display: inline-block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  color: #b91c1c;
+  background: rgba(185, 28, 28, 0.08);
+  border-radius: 0.35rem;
+  padding: 0.1rem 0.35rem;
 }
 
 /* Figure styling: Clean, unboxed image display without outer frame card */

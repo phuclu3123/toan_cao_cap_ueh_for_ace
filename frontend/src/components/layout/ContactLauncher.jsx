@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import { useState, useContext } from 'react';
 import { MessageSquare, X, Send, PhoneCall, FileText } from 'lucide-react';
 import { LanguageContext } from '../../App';
 import ConsultationForm from '../ConsultationForm';

@@ -450,7 +450,7 @@ check = np.cov(dW_correlated[:, 0, :], rowvar=False)`,
 \end{aligned}
 $$`,
           note:
-            'Ký hiệu đạo hàm: Dấu 1 chấm trên đầu (ví dụ \dot x_t = \mathrm dx_t/\mathrm dt) là đạo hàm bậc nhất theo thời gian, tức tốc độ thay đổi của trạng thái x_t hoặc shadow price p_t. Đây là Pontryagin Minimum Principle vì objective là cost cần tối thiểu.',
+            'Ký hiệu đạo hàm: Dấu 1 chấm trên đầu (ví dụ $\\dot{x}_t = \\mathrm{d}x_t/\\mathrm{d}t$) là đạo hàm bậc nhất theo thời gian, tức tốc độ thay đổi của trạng thái $x_t$ hoặc shadow price $p_t$. Đây là Pontryagin Minimum Principle vì objective là cost cần tối thiểu.',
         },
         {
           type: 'comparison',
@@ -487,7 +487,7 @@ a-a_t^\star
 \end{aligned}
 $$`,
           note:
-            'Giải thích ký hiệu: X_t là quá trình trạng thái (state); \alpha_t là biến điều khiển (control policy); \ell là running cost (chi phí tức thời); g(X_T) là terminal cost tại thời điểm T; W_t là quá trình ngẫu nhiên Brownian motion.',
+            'Giải thích ký hiệu: $X_t$ là quá trình trạng thái (state); $\\alpha_t$ là biến điều khiển (control policy); $\\ell$ là running cost (chi phí tức thời); $g(X_T)$ là terminal cost tại thời điểm $T$; $W_t$ là quá trình ngẫu nhiên Brownian motion.',
         },
         {
           type: 'formula',
@@ -600,7 +600,7 @@ $$`,
 \end{aligned}
 $$`,
           note:
-            'Giải thích ký hiệu: R \succ 0 là ma trận chi phí giao dịch tức thời (temporary execution cost); Q \succeq 0 là ma trận phạt rủi ro nắm giữ vị thế (inventory risk); A \succeq 0 là phạt vị thế dư thừa cuối kỳ (terminal penalty).',
+            'Giải thích ký hiệu: $R \\succ 0$ là ma trận chi phí giao dịch tức thời (temporary execution cost); $Q \\succeq 0$ là ma trận phạt rủi ro nắm giữ vị thế (inventory risk); $A \\succeq 0$ là phạt vị thế dư thừa cuối kỳ (terminal penalty).',
         },
         {
           type: 'formula',
@@ -621,7 +621,7 @@ $$`,
 \end{aligned}
 $$`,
           note:
-            'Giải thích ký hiệu: P_t là nghiệm ma trận Riccati (mã hóa độ cong shadow-cost tại thời điểm t); \dot P_t = \mathrm dP_t/\mathrm dt là đạo hàm theo thời gian của P_t; A là điều kiện biên cuối kỳ P_T = A.',
+            'Giải thích ký hiệu: $P_t$ là nghiệm ma trận Riccati (mã hóa độ cong shadow-cost tại thời điểm $t$); $\\dot{P}_t = \\mathrm{d}P_t/\\mathrm{d}t$ là đạo hàm theo thời gian của $P_t$; $A$ là điều kiện biên cuối kỳ $P_T = A$.',
         },
         {
           type: 'formula',
@@ -770,7 +770,7 @@ $$`,
 \end{aligned}
 $$`,
           note:
-            'Giải thích ký hiệu: \alpha_t = -\dot X_t là tốc độ bán tại thời điểm t (với \dot X_t là đạo hàm bậc nhất của vị thế); \eta là temporary-impact scale (chi phí thanh khoản tức thời); \lambda là hệ số ngại rủi ro (risk aversion); \sigma là price volatility.',
+            'Giải thích ký hiệu: $\\alpha_t = -\\dot{X}_t$ là tốc độ bán tại thời điểm $t$ (với $\\dot{X}_t$ là đạo hàm bậc nhất của vị thế); $\\eta$ là temporary-impact scale (chi phí thanh khoản tức thời); $\\lambda$ là hệ số ngại rủi ro (risk aversion); $\\sigma$ là price volatility.',
         },
         {
           type: 'formula',
@@ -786,7 +786,7 @@ $$`,
 \end{aligned}
 $$`,
           note:
-            'Giải thích ký hiệu đạo hàm: Dấu 1 chấm trên đầu \dot X_t = \mathrm dX_t/\mathrm dt = -\alpha_t là tốc độ bán (trading velocity); dấu 2 chấm trên đầu \ddot X_t = \mathrm d^2X_t/\mathrm dt^2 là gia tốc bán (trading acceleration). Phương trình nói rằng độ cong lịch bán được quyết định bởi tỷ lệ inventory risk trên temporary liquidity cost.',
+            'Giải thích ký hiệu đạo hàm: Dấu 1 chấm trên đầu $\\dot{X}_t = \\mathrm{d}X_t/\\mathrm{d}t = -\\alpha_t$ là tốc độ bán (trading velocity); dấu 2 chấm trên đầu $\\ddot{X}_t = \\mathrm{d}^2X_t/\\mathrm{d}t^2$ là gia tốc bán (trading acceleration). Phương trình nói rằng độ cong lịch bán được quyết định bởi tỷ lệ inventory risk trên temporary liquidity cost.',
         },
         {
           type: 'formula',

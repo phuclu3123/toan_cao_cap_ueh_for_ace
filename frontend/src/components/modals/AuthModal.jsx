@@ -1,4 +1,3 @@
-import React from 'react';
 import { X, User, KeyRound, Mail, Lock, Shield, Smartphone, PhoneCall, ArrowLeft } from 'lucide-react';
 
 export default function AuthModal({
@@ -43,7 +42,6 @@ export default function AuthModal({
   setConfirmationResult,
   handleLoginSubmit,
   handleGoogleLogin,
-  handleGoogleAuthSuccess,
   handleFacebookLogin,
   handleGithubLogin,
   handleSignupSubmit,

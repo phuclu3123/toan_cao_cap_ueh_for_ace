@@ -13,7 +13,9 @@ export const isAdminAccount = () => {
         return true;
       }
     }
-  } catch (e) {}
+  } catch {
+    // Invalid local session data is treated as a non-admin account.
+  }
   return false;
 };
 
@@ -27,7 +29,9 @@ export const getStudentIdentifier = () => {
         return `${idStr} • UEH TCC`;
       }
     }
-  } catch (e) {}
+  } catch {
+    // Invalid local session data falls back to the guest watermark.
+  }
   return 'Guest • UEH TCC';
 };
 
@@ -43,7 +47,9 @@ export const isAccountLocked = () => {
         return localStorage.getItem(`acc_locked_violation_${userKey}`) === 'true';
       }
     }
-  } catch (e) {}
+  } catch {
+    // Invalid local session data is treated as unlocked here.
+  }
   return false;
 };
 
@@ -58,12 +64,16 @@ export const lockAccountDueToViolation = () => {
         localStorage.setItem(`acc_locked_violation_${userKey}`, 'true');
       }
     }
-  } catch (e) {}
+  } catch {
+    // Storage may be unavailable in privacy-restricted browsers.
+  }
 };
 
 export const unlockAccountByAdmin = (userKey) => {
   if (!userKey) return;
   try {
     localStorage.removeItem(`acc_locked_violation_${userKey}`);
-  } catch (e) {}
+  } catch {
+    // Storage may be unavailable in privacy-restricted browsers.
+  }
 };

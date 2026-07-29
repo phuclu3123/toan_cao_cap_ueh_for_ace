@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, useContext } from 'react';
+import { useEffect, useMemo, useState, useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Download, Grid, HelpCircle, List, Search } from 'lucide-react';
 import DocCard from '../components/DocCard';

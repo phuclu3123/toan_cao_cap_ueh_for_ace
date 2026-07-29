@@ -5,16 +5,33 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   build: {
-    rollupOptions: {
+    rolldownOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/storage'],
-          icons: ['lucide-react'],
-          math: ['katex']
+        codeSplitting: {
+          groups: [
+            {
+              name: 'react-vendor',
+              test: /node_modules[\\/](?:react|react-dom|react-router|react-router-dom)[\\/]/,
+              priority: 20
+            },
+            {
+              name: 'firebase',
+              test: /node_modules[\\/](?:firebase|@firebase)[\\/]/,
+              priority: 15
+            },
+            {
+              name: 'icons',
+              test: /node_modules[\\/]lucide-react[\\/]/,
+              priority: 10
+            },
+            {
+              name: 'math',
+              test: /node_modules[\\/]katex[\\/]/,
+              priority: 10
+            }
+          ]
         }
       }
-    },
-    chunkSizeWarningLimit: 1500
+    }
   }
 })

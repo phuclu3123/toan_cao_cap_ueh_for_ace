@@ -3,6 +3,7 @@ import Resource from '../models/Resource.js';
 import User from '../models/User.js';
 import { checkMongoDBConnected } from '../config/db.js';
 import { readJSONFile, writeJSONFile, dataDir } from '../utils/jsonHelper.js';
+import { hasOwnerRole } from '../utils/roles.js';
 
 export const incrementResourceView = async (req, res) => {
   const { id } = req.params;
@@ -38,7 +39,7 @@ export const getResources = async (req, res) => {
 };
 
 export const createResource = async (req, res) => {
-  const { type, item, adminRole, uid, email } = req.body;
+  const { type, item, uid, email } = req.body;
 
   try {
     let dbUser = null;
@@ -59,7 +60,7 @@ export const createResource = async (req, res) => {
     }
 
     // Role verification (Strictly require verified Admin user record)
-    const isAuthorized = Boolean(dbUser && dbUser.role === 'Admin');
+    const isAuthorized = hasOwnerRole(dbUser);
 
     if (!isAuthorized) {
       return res.status(403).json({ success: false, message: 'Bạn không có quyền thực hiện hành động này (Từ chối bởi Server)!' });

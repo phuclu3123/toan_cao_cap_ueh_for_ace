@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useContext } from 'react';
+import { useEffect, useMemo, useRef, useState, useContext } from 'react';
 import { useNavigate, useParams, useBlocker } from 'react-router-dom';
 import {
   AlertTriangle,
@@ -15,10 +15,7 @@ import {
   RotateCcw,
   Send,
   ShieldCheck,
-  XCircle,
-  PlayCircle,
-  Video,
-  X
+  XCircle
 } from 'lucide-react';
 import { getPracticeExamById, isPracticeExamId } from '../data/practiceExams';
 import { LanguageContext } from '../App';
@@ -60,18 +57,23 @@ const formatTime = (seconds) => {
 };
 
 export default function ExamDetail() {
-  const { language } = useContext(LanguageContext);
-  const t = translations[language];
-  const navigate = useNavigate();
   const { id } = useParams();
   const isValidExam = isPracticeExamId(id);
-  const exam = useMemo(() => (isValidExam ? getPracticeExamById(id) : null), [id, isValidExam]);
+  const exam = isValidExam ? getPracticeExamById(id) : null;
 
   if (!isValidExam || !exam) {
     return <NotFoundPage />;
   }
 
-  const questions = exam.questions || [];
+  return <ExamDetailContent key={exam.id} exam={exam} />;
+}
+
+function ExamDetailContent({ exam }) {
+  const { language } = useContext(LanguageContext);
+  const t = translations[language];
+  const navigate = useNavigate();
+
+  const questions = useMemo(() => exam.questions || [], [exam.questions]);
   const durationMinutes = exam.durationMinutes || DEFAULT_DURATION_MINUTES;
   const durationSeconds = durationMinutes * 60;
 
@@ -84,38 +86,8 @@ export default function ExamDetail() {
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [showExitModal, setShowExitModal] = useState(false);
 
-  // Video Solution Modal & Auto Pause State
-  const [showVideoModal, setShowVideoModal] = useState(false);
-  const [showTabPauseToast, setShowTabPauseToast] = useState(false);
-  const videoIframeRef = React.useRef(null);
-
-  const getYouTubeEmbedUrl = (url) => {
-    if (!url) return '';
-    const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/))([a-zA-Z0-9_-]{11})/);
-    if (match && match[1]) {
-      return `https://www.youtube.com/embed/${match[1]}?enablejsapi=1&autoplay=1&rel=0`;
-    }
-    return url;
-  };
-
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'hidden' && showVideoModal && videoIframeRef.current) {
-        try {
-          videoIframeRef.current.contentWindow?.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
-        } catch (e) {
-          // ignore cross-origin error
-        }
-        setShowTabPauseToast(true);
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [showVideoModal]);
-
   // Set up router navigation blocker with bypass ref to avoid routing deadlock
-  const bypassBlockerRef = React.useRef(false);
+  const bypassBlockerRef = useRef(false);
 
   const blocker = useBlocker(
     ({ currentValue, nextLocation }) => {
@@ -123,12 +95,6 @@ export default function ExamDetail() {
       return !submitted && currentValue.location.pathname !== nextLocation.pathname;
     }
   );
-
-  useEffect(() => {
-    if (blocker.state === 'blocked') {
-      setShowExitModal(true);
-    }
-  }, [blocker.state]);
 
   const handleExitCancel = () => {
     bypassBlockerRef.current = false;
@@ -185,27 +151,17 @@ export default function ExamDetail() {
   }, [answers, answeredCount, flaggedCount, questions, unansweredCount]);
 
   useEffect(() => {
-    setCurrentIndex(0);
-    setAnswers({});
-    setFlaggedQuestions([]);
-    setTimeLeft(durationSeconds);
-    setSubmitted(false);
-    setSubmitReason('');
-    setShowSubmitModal(false);
-    setShowExitModal(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [durationSeconds, exam.id]);
-
-  useEffect(() => {
     if (submitted) return undefined;
 
     if (timeLeft <= 0) {
-      setSubmitReason('time');
-      setSubmitted(true);
-      setShowSubmitModal(false);
-      setShowExitModal(false);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return undefined;
+      const expiryTimer = window.setTimeout(() => {
+        setSubmitReason('time');
+        setSubmitted(true);
+        setShowSubmitModal(false);
+        setShowExitModal(false);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 0);
+      return () => window.clearTimeout(expiryTimer);
     }
 
     const timer = window.setTimeout(() => {
@@ -225,34 +181,7 @@ export default function ExamDetail() {
 
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [submitted]);
-
-  useEffect(() => {
-    // A short timeout ensures that MathJax runs after React has committed the DOM changes
-    const timer = setTimeout(() => {
-      if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
-        const container = document.querySelector('.exam-practice-page');
-        if (container) {
-          try {
-            window.MathJax.typesetClear([container]);
-            window.MathJax.typesetPromise([container]).catch((error) => {
-              console.warn('MathJax typesetting failed: ', error);
-            });
-          } catch (e) {
-            console.warn('MathJax clear or typeset failed, falling back: ', e);
-            window.MathJax.typesetPromise().catch((error) => {
-              console.warn('MathJax typesetting fallback failed: ', error);
-            });
-          }
-        } else {
-          window.MathJax.typesetPromise().catch((error) => {
-            console.warn('MathJax typesetting failed: ', error);
-          });
-        }
-      }
-    }, 60);
-    return () => clearTimeout(timer);
-  }, [currentIndex, submitted, answers, exam.id]);
+  }, [submitted, t.exam.exitModalDesc]);
 
   const selectAnswer = (questionId, optionId) => {
     if (submitted) return;
@@ -298,6 +227,7 @@ export default function ExamDetail() {
 
   const selectedAnswer = answers[currentQuestion.id];
   const isCurrentFlagged = flaggedQuestions.includes(currentQuestion.id);
+  const shouldShowExitModal = (showExitModal || blocker.state === 'blocked') && !submitted;
 
   return (
     <div className="exam-practice-page">
@@ -634,7 +564,7 @@ export default function ExamDetail() {
         </div>
       )}
 
-      {showExitModal && !submitted && (
+      {shouldShowExitModal && (
         <div className="exam-modal-overlay" role="dialog" aria-modal="true">
           <div className="exam-modal glass-panel">
             <div className="modal-icon danger"><AlertTriangle size={24} /></div>

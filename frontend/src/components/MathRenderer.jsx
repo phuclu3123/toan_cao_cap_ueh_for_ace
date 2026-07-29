@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 
@@ -22,7 +22,7 @@ export default function MathRenderer({ text, className = '' }) {
           return (
             <figure key={index} className="article-diagram-figure">
               <img src={src} alt={alt} className="article-diagram-img" />
-              {alt && <figcaption className="article-diagram-caption">📌 {alt}</figcaption>}
+              {alt && <figcaption className="article-diagram-caption">Ghi chú: {alt}</figcaption>}
             </figure>
           );
         }
@@ -33,13 +33,16 @@ export default function MathRenderer({ text, className = '' }) {
         try {
           const html = katex.renderToString(math, {
             displayMode: true,
-            throwOnError: false,
-            trust: true
+            throwOnError: true,
+            trust: false,
+            strict: 'error'
           });
           return <span key={index} className="math-block" dangerouslySetInnerHTML={{ __html: html }} />;
-        } catch (e) {
-          console.warn("KaTeX render error:", e);
-          return <span key={index}>{part}</span>;
+        } catch (error) {
+          if (import.meta.env.DEV) {
+            console.warn('KaTeX display render error:', error);
+          }
+          return <code key={index} className="math-render-error">{part}</code>;
         }
       }
 
@@ -48,13 +51,16 @@ export default function MathRenderer({ text, className = '' }) {
         try {
           const html = katex.renderToString(math, {
             displayMode: false,
-            throwOnError: false,
-            trust: true
+            throwOnError: true,
+            trust: false,
+            strict: 'error'
           });
           return <span key={index} className="math-inline" dangerouslySetInnerHTML={{ __html: html }} />;
-        } catch (e) {
-          console.warn("KaTeX render error:", e);
-          return <span key={index}>{part}</span>;
+        } catch (error) {
+          if (import.meta.env.DEV) {
+            console.warn('KaTeX inline render error:', error);
+          }
+          return <code key={index} className="math-render-error">{part}</code>;
         }
       }
 
@@ -68,7 +74,7 @@ export default function MathRenderer({ text, className = '' }) {
               const content = line.trim().slice(2);
               return (
                 <div key={lIdx} className="article-list-item">
-                  <span className="bullet-dash">•</span>
+                  <span className="bullet-dash" aria-hidden="true">•</span>
                   <span>{parseFormattedTokens(content)}</span>
                 </div>
               );

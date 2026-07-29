@@ -1,52 +1,41 @@
-import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { BookOpen, CheckCircle, Crown, LogOut, Save, ShieldCheck, User, ArrowRight } from 'lucide-react';
+import { useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { LogOut, Save, User } from 'lucide-react';
 import { coursesData } from '../data/coursesData';
 import '../assets/styles/Home.css';
 import '../assets/styles/Courses.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
 
+const readStoredUser = () => {
+  try {
+    const savedUser = localStorage.getItem('ueh_tcc_user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  } catch {
+    return null;
+  }
+};
+
 export default function ProfilePage() {
   const location = useLocation();
-  const [user, setUser] = useState(null);
-  const [activeTab, setActiveTab] = useState('courses'); // Default to 'courses' matching user request!
+  const navigate = useNavigate();
+  const [user, setUser] = useState(readStoredUser);
+  const requestedTab = new URLSearchParams(location.search).get('tab');
+  const activeTab = requestedTab === 'profile' ? 'profile' : 'courses';
 
   // Form fields
-  const [name, setName] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [school, setSchool] = useState('');
-  const [bio, setBio] = useState('');
-  const [avatar, setAvatar] = useState('');
+  const [name, setName] = useState(() => user?.name || '');
+  const [phoneNumber, setPhoneNumber] = useState(() => user?.phoneNumber || '');
+  const [school, setSchool] = useState(() => user?.school || 'Đại học Kinh tế TP.HCM (UEH)');
+  const [bio, setBio] = useState(() => user?.bio || '');
+  const [avatar] = useState(() => {
+    if (!user) return '';
+    const fallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=059669&color=fff&bold=true`;
+    return user.photoURL || user.avatar || fallbackAvatar;
+  });
 
   const [statusMsg, setStatusMsg] = useState({ type: '', text: '' });
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    const savedUserStr = localStorage.getItem('ueh_tcc_user');
-    if (savedUserStr) {
-      try {
-        const u = JSON.parse(savedUserStr);
-        setUser(u);
-        setName(u.name || '');
-        setPhoneNumber(u.phoneNumber || '');
-        setSchool(u.school || 'Đại học Kinh tế TP.HCM (UEH)');
-        setBio(u.bio || '');
-
-        // Avatar logic: Google photoURL or custom avatar or UI Avatar fallback
-        const fallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(u.name || 'User')}&background=059669&color=fff&bold=true`;
-        setAvatar(u.photoURL || u.avatar || fallbackAvatar);
-      } catch (e) {}
-    }
-
-    const searchParams = new URLSearchParams(location.search);
-    const tabParam = searchParams.get('tab');
-    if (tabParam === 'profile' || location.hash === '#profile') {
-      setActiveTab('profile');
-    } else if (tabParam === 'courses' || location.hash === '#courses') {
-      setActiveTab('courses');
-    }
-  }, [location]);
 
   const handleSaveProfile = async (e) => {
     e.preventDefault();
@@ -77,7 +66,7 @@ export default function ProfilePage() {
       } else {
         setStatusMsg({ type: 'error', text: data.message || 'Cập nhật thất bại!' });
       }
-    } catch (err) {
+    } catch {
       const updatedUser = { ...user, name, phoneNumber, school, bio, avatar };
       setUser(updatedUser);
       localStorage.setItem('ueh_tcc_user', JSON.stringify(updatedUser));
@@ -148,7 +137,7 @@ export default function ProfilePage() {
               type="button"
               className={`pill-glass-badge ${activeTab === 'profile' ? 'active' : ''}`}
               style={{ background: activeTab === 'profile' ? '#10b981' : '#ffffff', color: activeTab === 'profile' ? '#fff' : '#0f172a', border: '1px solid #e2e8f0', cursor: 'pointer', padding: '10px 18px', borderRadius: '999px', fontWeight: '800' }}
-              onClick={() => setActiveTab(activeTab === 'profile' ? 'courses' : 'profile')}
+              onClick={() => navigate(`/account?tab=${activeTab === 'profile' ? 'courses' : 'profile'}`)}
             >
               <User size={16} /> {activeTab === 'profile' ? 'Xem khóa học' : 'Sửa Profile'}
             </button>
