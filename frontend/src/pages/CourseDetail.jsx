@@ -371,7 +371,7 @@ function CourseDetailContent({ course }) {
                   <strong>{course.instructor}</strong>
                 </figcaption>
               </div>
-              <span className="cd-art-formula" aria-hidden="true">∫ · ∇ · det(A)</span>
+              <span className="cd-art-formula" aria-hidden="true">{course.artFormula || '∫ · ∇ · det(A)'}</span>
             </figure>
           </div>
         </div>

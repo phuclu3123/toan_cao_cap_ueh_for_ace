@@ -605,8 +605,10 @@
 
 .resources-page .pagination-container {
   display: flex;
+  width: 100%;
   gap: 7px;
   justify-content: center;
+  align-items: center;
   margin-top: 44px;
 }
 

@@ -2075,17 +2075,20 @@ body:not(.dark-mode) .video-modal-container:not(.dark-player-box) .btn-resume-re
 
 .cd-art-formula {
   position: absolute;
-  top: -2px;
-  right: 4px;
-  z-index: 3;
-  padding: 8px 12px;
+  top: -12px;
+  right: -10px;
+  z-index: 4;
+  padding: 10px 16px;
   color: var(--cd-accent-deep);
-  border: 1px solid var(--cd-line);
-  border-radius: 8px;
+  border: 2px solid var(--cd-accent);
+  border-radius: 10px;
   background: var(--cd-paper);
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 0.84rem;
-  transform: rotate(-4deg);
+  font-size: 1.05rem;
+  font-weight: 700;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  transform: rotate(-5deg);
+  backdrop-filter: blur(4px);
 }
 
 .cd-main {

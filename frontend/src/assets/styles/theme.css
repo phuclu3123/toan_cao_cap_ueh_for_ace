@@ -28,10 +28,10 @@
 :root[data-theme='dark'] {
   color-scheme: dark;
 
-  --color-canvas: #07110f;
-  --color-canvas-subtle: #0b1915;
-  --color-surface: #0f201b;
-  --color-surface-raised: #142a23;
+  --color-canvas: #101c18;
+  --color-canvas-subtle: #162420;
+  --color-surface: #192a25;
+  --color-surface-raised: #20352e;
   --color-text: #f3f8f5;
   --color-text-muted: #b4c2bb;
   --color-text-subtle: #87978f;
