@@ -32,39 +32,7 @@ export const sendOtpEmail = async (email, name, otpCode, otpExpiresAt) => {
     </div>
   `;
 
-  // Priority 1: Gmail SMTP (Preferred when EMAIL_USER and EMAIL_PASS are set)
-  if (user && pass) {
-    try {
-      const host = process.env.EMAIL_HOST || 'smtp.gmail.com';
-      const port = parseInt(process.env.EMAIL_PORT) || 587;
-      const secure = process.env.EMAIL_SECURE === 'true' || port === 465;
-
-      const transporter = nodemailer.createTransport({
-        host,
-        port,
-        secure,
-        auth: { user, pass }
-      });
-
-      const mailOptions = {
-        from: `"Hệ thống Hỗ trợ Học tập UEH TCC" <${user}>`,
-        to: email,
-        subject: '[UEH TCC] Mã OTP khôi phục mật khẩu tài khoản của bạn',
-        html: emailHtml
-      };
-
-      await transporter.sendMail(mailOptions);
-      console.log(`[GMAIL SMTP SUCCESS] Gửi mã OTP thành công tới ${email}`);
-      return { success: true, isMock: false };
-    } catch (err) {
-      console.error('[GMAIL SMTP ERROR] Lỗi gửi mail:', err.message);
-      if (err.message.includes('Invalid login') || err.message.includes('535-5.7.8')) {
-        console.error('=> GỢI Ý: Google không cho phép dùng mật khẩu Gmail thông thường. Bạn PHẢI tạo "Mật khẩu ứng dụng" (App Password) gồm 16 chữ cái trong Google Account và dùng nó làm EMAIL_PASS.');
-      }
-    }
-  }
-
-  // Priority 2: Resend API (When RESEND_API_KEY is available)
+  // Priority 1: Resend API (Preferred when RESEND_API_KEY is available)
   if (resendApiKey) {
     try {
       const fromEmail = process.env.RESEND_FROM_EMAIL || 'UEH TCC Helper <onboarding@resend.dev>';
@@ -93,6 +61,38 @@ export const sendOtpEmail = async (email, name, otpCode, otpExpiresAt) => {
       }
     } catch (err) {
       console.error('[RESEND API FETCH ERROR]', err.message);
+    }
+  }
+
+  // Priority 2: Gmail SMTP (Fallback when EMAIL_USER and EMAIL_PASS are set)
+  if (user && pass) {
+    try {
+      const host = process.env.EMAIL_HOST || 'smtp.gmail.com';
+      const port = parseInt(process.env.EMAIL_PORT) || 587;
+      const secure = process.env.EMAIL_SECURE === 'true' || port === 465;
+
+      const transporter = nodemailer.createTransport({
+        host,
+        port,
+        secure,
+        auth: { user, pass }
+      });
+
+      const mailOptions = {
+        from: `"Hệ thống Hỗ trợ Học tập UEH TCC" <${user}>`,
+        to: email,
+        subject: '[UEH TCC] Mã OTP khôi phục mật khẩu tài khoản của bạn',
+        html: emailHtml
+      };
+
+      await transporter.sendMail(mailOptions);
+      console.log(`[GMAIL SMTP SUCCESS] Gửi mã OTP thành công tới ${email}`);
+      return { success: true, isMock: false };
+    } catch (err) {
+      console.error('[GMAIL SMTP ERROR] Lỗi gửi mail:', err.message);
+      if (err.message.includes('Invalid login') || err.message.includes('535-5.7.8')) {
+        console.error('=> GỢI Ý: Google không cho phép dùng mật khẩu Gmail thông thường. Bạn PHẢI tạo "Mật khẩu ứng dụng" (App Password) gồm 16 chữ cái trong Google Account và dùng nó làm EMAIL_PASS.');
+      }
     }
   }
 
