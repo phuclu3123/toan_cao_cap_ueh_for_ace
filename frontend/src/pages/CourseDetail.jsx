@@ -8,24 +8,25 @@ import {
   Check,
   CheckCircle2,
   ChevronDown,
+  Clock,
   Clock3,
   Eye,
   FileText,
   FolderOpen,
+  GripVertical,
   GraduationCap,
   Library,
   Loader2,
   LockKeyhole,
+  Maximize2,
+  Minimize2,
   Pause,
   Play,
-  ShieldAlert,
   ShieldCheck,
   SkipForward,
   Users,
   Video,
-  X,
-  Flag,
-  CheckCircle
+  X
 } from 'lucide-react';
 import CourseEnrollmentModal from '../components/modals/CourseEnrollmentModal';
 import { getCourseById } from '../data/coursesData';
@@ -149,6 +150,7 @@ function CourseDetailContent({ course }) {
   const [lockReason, setLockReason] = useState('ENROLLMENT_REQUIRED');
   const [showEnrollment, setShowEnrollment] = useState(false);
 
+
   // Floating Study Timer States
   const [isDraggingTimer, setIsDraggingTimer] = useState(false);
   const [isTimerCollapsed, setIsTimerCollapsed] = useState(false);
@@ -228,53 +230,70 @@ function CourseDetailContent({ course }) {
     };
   }, [isDraggingTimer, dragOffset]);
 
-  // Timer counter
   useEffect(() => {
-    let interval;
-    if (showPlayer && activeLesson) {
-      interval = setInterval(() => setTotalStudySeconds(s => s + 1), 1000);
-    }
-    return () => clearInterval(interval);
-  }, [showPlayer, activeLesson]);
+    const timer = setInterval(() => {
+      setTotalStudySeconds((prev) => prev + 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const progressPercent = 0; // fallback for now
 
   const renderStudyTimerWidget = (isModalContext = false) => {
-    if (!hasCourseAccess) return null;
-
-    const progressPercent = Math.min(100, Math.round((totalStudySeconds / 1800) * 100)); // Demo calculation
-    const styleProp = customPos 
-      ? { left: `${customPos.x}px`, top: `${customPos.y}px`, right: 'auto', bottom: 'auto', position: 'fixed' }
+    const styleProp = customPos
+      ? { position: 'fixed', left: `${customPos.x}px`, top: `${customPos.y}px` }
       : {};
 
-    const classNameProp = `floating-study-widget ${isModalContext ? 'under-video-anchor' : 'top-right-anchor'} ${isTimerCollapsed ? 'collapsed' : ''}`;
+    const classNameProp = `floating-study-widget ${isModalContext ? 'under-video-anchor' : 'top-right-anchor'} ${
+      isTimerCollapsed ? 'collapsed' : ''
+    }`;
 
     return (
       <div className={classNameProp} style={{ touchAction: 'none', ...styleProp }} onPointerDown={handleTimerPointerDown}>
-        <div className="timer-drag-handle" title="Kâ”œâŒo thÃŸâ•‘Ãº â”€Ã¦ÃŸâ•—Ã¢ di chuyÃŸâ•—Ã¢n vÃŸâ•—Ã¯ trâ”œÂ¡" style={{ cursor: 'grab', padding: '8px' }}>
-          <Clock3 size={16} />
+        <div className="timer-drag-handle" title="Kéo thả để di chuyển vị trí">
+          <GripVertical size={16} />
         </div>
+
         {!isTimerCollapsed ? (
           <>
-            <div className="timer-badge-active" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Clock3 size={16} />
-              <span>â”€Ã‰â”œÃº hÃŸâ•—Ã¬c: {Math.floor(totalStudySeconds / 60)} phâ”œâ•‘t {totalStudySeconds % 60}s</span>
+            <div className="timer-badge-active">
+              <Clock size={16} />
+              <span>Đã học: {Math.floor(totalStudySeconds / 60)} phút {totalStudySeconds % 60}s</span>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}>
-              <span>TiÃŸâ•‘â”n â”€Ã¦ÃŸâ•—Ã–: {progressPercent}%</span>
-              <div className="progress-widget-bar" style={{ width: '100px', height: '6px', background: '#e2e8f0', borderRadius: '4px', overflow: 'hidden' }}>
-                <div className="progress-widget-fill" style={{ width: `${progressPercent}%`, height: '100%', background: '#10b981' }} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span>Tiến độ: {progressPercent}%</span>
+              <div className="progress-widget-bar">
+                <div className="progress-widget-fill" style={{ width: `${progressPercent}%` }} />
               </div>
             </div>
-            <button type="button" className="btn-timer-collapse" onClick={(e) => { e.stopPropagation(); setIsTimerCollapsed(true); }} style={{ padding: '4px', background: 'transparent', border: 'none', cursor: 'pointer' }}>
-              Thu gÃŸâ•—Ã¬n
+            <button
+              type="button"
+              className="btn-timer-collapse"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsTimerCollapsed(true);
+              }}
+              title="Thu gọn thanh đếm giờ"
+            >
+              <Minimize2 size={12} />
             </button>
           </>
         ) : (
           <>
-            <div className="timer-badge-active" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span>{Math.floor(totalStudySeconds / 60)}m</span>
+            <div className="timer-badge-active">
+              <Clock size={15} />
+              <span>{Math.floor(totalStudySeconds / 60)}m {totalStudySeconds % 60}s ({progressPercent}%)</span>
             </div>
-            <button type="button" className="btn-timer-collapse" onClick={(e) => { e.stopPropagation(); setIsTimerCollapsed(false); }} style={{ padding: '4px', background: 'transparent', border: 'none', cursor: 'pointer' }}>
-              MÃŸâ•—Æ’
+            <button
+              type="button"
+              className="btn-timer-collapse"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsTimerCollapsed(false);
+              }}
+              title="Mở rộng thanh đếm giờ"
+            >
+              <Maximize2 size={12} />
             </button>
           </>
         )}
@@ -287,7 +306,7 @@ function CourseDetailContent({ course }) {
   const playerCloseRef = useRef(null);
   const lockDialogRef = useRef(null);
   const lockCloseRef = useRef(null);
-  const videoRef = useRef(null);
+  const nativeVideoRef = useRef(null);
 
   const allLessons = useMemo(
     () => course.chapters.flatMap((chapter) => chapter.lessons || []),
@@ -297,9 +316,9 @@ function CourseDetailContent({ course }) {
   const courseTone = COURSE_TONES[course.id] || 'emerald';
 
   const closePlayer = useCallback(() => {
-    if (videoRef.current && activeLesson) {
-      saveProgress(course.id, activeLesson.id, videoRef.current.currentTime);
-      videoRef.current.pause();
+    if (nativeVideoRef.current && activeLesson) {
+      saveProgress(course.id, activeLesson.id, nativeVideoRef.current.currentTime);
+      nativeVideoRef.current.pause();
     }
     setShowPlayer(false);
     setActiveLesson(null);
@@ -396,7 +415,7 @@ function CourseDetailContent({ course }) {
         || content.type !== lesson.type
         || (lesson.type === 'video' && !content.media)
       ) {
-        throw new Error(payload.message || 'NÃŸâ•—Ã–i dung bâ”œÃ¡i hÃŸâ•—Ã¬c châ•žâ–‘a sÃŸâ•‘â•¡n sâ”œÃ¡ng.');
+        throw new Error(payload.message || 'Nội dung bài học chưa sẵn sàng.');
       }
 
       setActiveLesson({
@@ -407,7 +426,7 @@ function CourseDetailContent({ course }) {
       setShowPlayer(true);
     } catch (error) {
       if (error.name !== 'AbortError') {
-        setNotice(error.message || 'Khâ”œâ”¤ng thÃŸâ•—Ã¢ mÃŸâ•—Æ’ bâ”œÃ¡i hÃŸâ•—Ã¬c lâ”œâ•‘c nâ”œÃ¡y. Vui lâ”œâ–“ng thÃŸâ•—Â¡ lÃŸâ•‘Ã­i.');
+        setNotice(error.message || 'Không thể mở bài học lúc này. Vui lòng thử lại.');
       }
     } finally {
       if (contentRequestRef.current === request) {
@@ -455,11 +474,12 @@ function CourseDetailContent({ course }) {
 
   return (
     <div className={`course-detail-page cd-tone-${courseTone}`}>
+      {!showVideoModal && renderStudyTimerWidget(false)}
       <header className="cd-hero">
         <div className="container cd-hero__inner">
           <Link to="/courses" className="cd-back-link">
             <ArrowLeft size={17} aria-hidden="true" />
-            TÃŸâ•‘Ã‘t cÃŸâ•‘Ãº khâ”œâ”‚a hÃŸâ•—Ã¬c
+            Tất cả khóa học
           </Link>
 
           <div className="cd-hero__grid">
@@ -471,11 +491,11 @@ function CourseDetailContent({ course }) {
               <h1>{course.title}</h1>
               <p>{course.desc}</p>
 
-              <div className="cd-meta-grid" aria-label="Thâ”œâ”¤ng tin khâ”œâ”‚a hÃŸâ•—Ã¬c">
-                <span><BookOpen size={18} /> {allLessons.length} bâ”œÃ¡i hiÃŸâ•—Ã§n câ”œâ”‚</span>
-                <span><FolderOpen size={18} /> {course.sectionsCount} phÃŸâ•‘Âºn</span>
+              <div className="cd-meta-grid" aria-label="Thông tin khóa học">
+                <span><BookOpen size={18} /> {allLessons.length} bài hiện có</span>
+                <span><FolderOpen size={18} /> {course.sectionsCount} phần</span>
                 <span><Clock3 size={18} /> {course.duration}</span>
-                <span><Users size={18} /> {course.studentsCount} hÃŸâ•—Ã¬c viâ”œÂ¬n</span>
+                <span><Users size={18} /> {course.studentsCount} học viên</span>
               </div>
 
               <div className="cd-hero__actions">
@@ -489,11 +509,11 @@ function CourseDetailContent({ course }) {
                     {loadingLessonId === firstLesson.id
                       ? <Loader2 size={18} className="spinner" />
                       : <Play size={18} fill="currentColor" />}
-                    Xem bâ”œÃ¡i hÃŸâ•—Ã¬c â”€Ã¦ÃŸâ•‘Âºu tiâ”œÂ¬n
+                    Xem bài học đầu tiên
                   </button>
                 )}
                 <a href="#curriculum" className="cd-button cd-button--secondary">
-                  Xem lÃŸâ•—Ã– trâ”œÂ¼nh
+                  Xem lộ trình
                   <ArrowRight size={17} />
                 </a>
               </div>
@@ -502,20 +522,14 @@ function CourseDetailContent({ course }) {
             <figure className="cd-hero__art">
               <div className="cd-art-orbit cd-art-orbit--one" aria-hidden="true" />
               <div className="cd-art-orbit cd-art-orbit--two" aria-hidden="true" />
-              {course.artSvg && (
-                <div 
-                  className="cd-art-svg-container"
-                  dangerouslySetInnerHTML={{ __html: course.artSvg }}
-                />
-              )}
               <div className="cd-art-card">
-                <img src={course.image} alt={`ÃŸâ•‘Ã³nh bâ”œÂ¼a ${course.title}`} />
+                <img src={course.image} alt={`Ảnh bìa ${course.title}`} />
                 <figcaption>
                   <span>{course.badge}</span>
                   <strong>{course.instructor}</strong>
                 </figcaption>
               </div>
-              <span className="cd-art-formula" aria-hidden="true">{course.artFormula || course.mathFormula || 'Î“ÃªÂ½ â”¬â•– Î“ÃªÃ§ â”¬â•– det(A)'}</span>
+              <span className="cd-art-formula" aria-hidden="true">{course.artFormula || '∫ · ∇ · det(A)'}</span>
             </figure>
           </div>
         </div>
@@ -526,10 +540,10 @@ function CourseDetailContent({ course }) {
           <section id="curriculum" className="cd-curriculum" aria-labelledby="curriculum-title">
             <div className="cd-section-heading">
               <div>
-                <span className="cd-eyebrow">LÃŸâ•—Ã– trâ”œÂ¼nh hÃŸâ•—Ã¬c</span>
-                <h2 id="curriculum-title">NÃŸâ•—Ã–i dung khâ”œâ”‚a hÃŸâ•—Ã¬c</h2>
+                <span className="cd-eyebrow">Lộ trình học</span>
+                <h2 id="curriculum-title">Nội dung khóa học</h2>
               </div>
-              <p>ChÃŸâ•—Ã¬n bâ”œÃ¡i xem thÃŸâ•—Â¡ hoÃŸâ•‘â•–c â”€Ã¦â”€Ã¢ng nhÃŸâ•‘Â¡p â”€Ã¦â”œâ•‘ng tâ”œÃ¡i khoÃŸâ•‘Ãºn â”€Ã¦â”œÃº kâ”œÂ¡ch hoÃŸâ•‘Ã­t â”€Ã¦ÃŸâ•—Ã¢ mÃŸâ•—Æ’ nÃŸâ•—Ã–i dung câ”œâ”‚ khâ”œâ”‚a.</p>
+              <p>Chọn bài xem thử hoặc đăng nhập đúng tài khoản đã kích hoạt để mở nội dung có khóa.</p>
             </div>
 
             {notice && (
@@ -563,7 +577,7 @@ function CourseDetailContent({ course }) {
                         <strong>{chapter.title}</strong>
                       </span>
                       <span className="cd-chapter__count">
-                        {(chapter.lessons || []).length} bâ”œÃ¡i
+                        {(chapter.lessons || []).length} bài
                         <ChevronDown size={18} aria-hidden="true" />
                       </span>
                     </button>
@@ -591,17 +605,17 @@ function CourseDetailContent({ course }) {
                               </span>
                               <span className="cd-lesson__copy">
                                 <strong>{lesson.title}</strong>
-                                <small>{lesson.subtitle} â”¬â•– {lesson.duration}</small>
+                                <small>{lesson.subtitle} · {lesson.duration}</small>
                               </span>
                               <span className={`cd-lesson__state ${lockedForUser ? 'is-locked' : ''}`}>
                                 {isLoading ? (
-                                  <><Loader2 size={15} className="spinner" /> â”€Ã‰ang mÃŸâ•—Æ’</>
+                                  <><Loader2 size={15} className="spinner" /> Đang mở</>
                                 ) : lockedForUser ? (
-                                  <><LockKeyhole size={15} /> CÃŸâ•‘Âºn quyÃŸâ•—Ã¼n hÃŸâ•—Ã¬c</>
+                                  <><LockKeyhole size={15} /> Cần quyền học</>
                                 ) : lesson.isLocked ? (
-                                  <><Play size={15} /> Vâ”œÃ¡o hÃŸâ•—Ã¬c</>
+                                  <><Play size={15} /> Vào học</>
                                 ) : (
-                                  <><Eye size={15} /> Xem thÃŸâ•—Â¡</>
+                                  <><Eye size={15} /> Xem thử</>
                                 )}
                               </span>
                             </button>
@@ -615,7 +629,7 @@ function CourseDetailContent({ course }) {
             </div>
           </section>
 
-          <aside className="cd-enrollment" aria-label="â”€Ã‰â”€Ã¢ng kâ”œâ•œ khâ”œâ”‚a hÃŸâ•—Ã¬c">
+          <aside className="cd-enrollment" aria-label="Đăng ký khóa học">
             <div className="cd-enrollment__cover">
               <img src={course.image} alt="" />
               <span>{course.tag}</span>
@@ -625,15 +639,15 @@ function CourseDetailContent({ course }) {
               {hasCourseAccess ? (
                 <div className="cd-access-badge">
                   <CheckCircle2 size={18} />
-                  {isAdmin ? 'QuyÃŸâ•—Ã¼n chÃŸâ•—Âº sÃŸâ•—Æ’ hÃŸâ•—Â»u' : 'Khâ”œâ”‚a hÃŸâ•—Ã¬c â”€Ã¦â”œÃº kâ”œÂ¡ch hoÃŸâ•‘Ã­t'}
+                  {isAdmin ? 'Quyền chủ sở hữu' : 'Khóa học đã kích hoạt'}
                 </div>
               ) : (
-                <span className="cd-enrollment__eyebrow">QuyÃŸâ•—Ã¼n hÃŸâ•—Ã¬c trÃŸâ•—Ã¬n khâ”œâ”‚a</span>
+                <span className="cd-enrollment__eyebrow">Quyền học trọn khóa</span>
               )}
 
               <div className="cd-price">
                 {course.isFree ? (
-                  <strong>MiÃŸâ•—Ã n phâ”œÂ¡</strong>
+                  <strong>Miễn phí</strong>
                 ) : (
                   <>
                     <span>{course.originalPrice}</span>
@@ -664,93 +678,29 @@ function CourseDetailContent({ course }) {
                 }}
               >
                 {accessLoading ? (
-                  <><Loader2 size={18} className="spinner" /> â”€Ã‰ang kiÃŸâ•—Ã¢m tra quyÃŸâ•—Ã¼n</>
+                  <><Loader2 size={18} className="spinner" /> Đang kiểm tra quyền</>
                 ) : hasCourseAccess ? (
-                  <><Play size={18} fill="currentColor" /> Vâ”œÃ¡o hÃŸâ•—Ã¬c ngay</>
+                  <><Play size={18} fill="currentColor" /> Vào học ngay</>
                 ) : course.isFree ? (
-                  <><BookOpen size={18} /> Kâ”œÂ¡ch hoÃŸâ•‘Ã­t miÃŸâ•—Ã n phâ”œÂ¡</>
+                  <><BookOpen size={18} /> Kích hoạt miễn phí</>
                 ) : (
-                  <><ShieldCheck size={18} /> â”€Ã‰â”€Ã¢ng kâ”œâ•œ khâ”œâ”‚a hÃŸâ•—Ã¬c</>
+                  <><ShieldCheck size={18} /> Đăng ký khóa học</>
                 )}
               </button>
 
               <p className="cd-enrollment__trust">
-                QuyÃŸâ•—Ã¼n hÃŸâ•—Ã¬c â”€Ã¦â•žâ–‘ÃŸâ•—Ãºc xâ”œÃ­c nhÃŸâ•‘Â¡n tÃŸâ•—Â½ mâ”œÃ­y chÃŸâ•—Âº vâ”œÃ¡ gÃŸâ•‘Â»n vÃŸâ•—Â¢i tâ”œÃ¡i khoÃŸâ•‘Ãºn cÃŸâ•—Âºa bÃŸâ•‘Ã­n.
+                Quyền học được xác nhận từ máy chủ và gắn với tài khoản của bạn.
               </p>
 
               <Link to="/resources" className="cd-resource-link">
                 <Library size={17} />
-                Khâ”œÃ­m phâ”œÃ­ thâ•žâ–‘ viÃŸâ•—Ã§n hÃŸâ•—Ã¬c liÃŸâ•—Ã§u
+                Khám phá thư viện học liệu
                 <ArrowRight size={16} />
               </Link>
             </div>
           </aside>
         </div>
       </main>
-      {/* Floating Study Timer Widget */}
-      {!showVideoModal && renderStudyTimerWidget(false)}
-
-      {/* Redesigned Report Error Flag Modal */}
-      {showReportModal && createPortal(
-        <div className="report-modal-backdrop" onClick={() => setShowReportModal(false)}>
-          <div className="report-modal-card" onClick={(e) => e.stopPropagation()}>
-            <div className="report-modal-header">
-              <div>
-                <h3>
-                  <Flag size={20} color="#ef4444" /> BÃ¡o lá»—i bÃ i giáº£ng cho Admin
-                </h3>
-                <p>GiÃºp1 Ä‘á»™i ngÅ© UEH TCC sá»­a chÆ°a sá»± cá»‘ nhanh nháº¥t cÃ³ thá»ƒ.</p>
-              </div>
-              <button type="button" className="modal-close-btn" onClick={() => setShowReportModal(false)}>
-                <X size={18} />
-              </button>
-            </div>
-
-            {reportSuccess ? (
-              <div style={{ textAlign: 'center', padding: '24px 0', color: '#10b981', fontWeight: '700' }}>
-                <CheckCircle size={40} style={{ margin: '0 auto 12px' }} />
-                <p style={{ margin: 0, fontSize: '1rem' }}>Ä‘Ã£ gá»­i bÃ¡o cÃ¡o sá»± cá»‘ thÃ nh cÃ´ng cho Admin!</p>
-              </div>
-            ) : (
-              <form onSubmit={handleReportSubmit} className="report-modal-form">
-                <div className="report-field-group">
-                  <label>Loáº¡i sá»± cá»‘ gáº·p pháº£i:</label>
-                  <select
-                    className="report-select"
-                    value={reportReason}
-                    onChange={(e) => setReportReason(e.target.value)}
-                  >
-                    <option value="Video bá»‹ Ä‘á»©ng/lag">Video bá»‹ Ä‘á»©ng / giáº­t lag</option>
-                    <option value="Lá»—i Ã¢m thanh">Máº¥t tiáº¿ng / Ã‚m thanh bá»‹ mÃ©o</option>
-                    <option value="Sai cÃ´ng thá»©c">Sai Ä‘Ã¡p Ã¡n / Sai cÃ´ng thá»©c bÃ i há»c</option>
-                    <option value="KhÃ¡c">Sá»± cá»‘ khÃ¡c</option>
-                  </select>
-                </div>
-
-                <div className="report-field-group">
-                  <label>MÃ´ táº£ thÃªm (TÃ¹y chá»n):</label>
-                  <textarea
-                    className="report-textarea"
-                    rows={3}
-                    placeholder="MÃ´ táº£ cá»¥ thá»ƒ vá»‹ trÃ­ phÃºt giÃ¢y bá»‹ lá»—i..."
-                    value={reportNote}
-                    onChange={(e) => setReportNote(e.target.value)}
-                  />
-                </div>
-
-                <div className="report-modal-footer">
-                  <button type="button" className="btn-report-cancel" onClick={() => setShowReportModal(false)}>Há»§y</button>
-                  <button type="submit" className="btn-report-submit" disabled={reportLoading}>
-                    {reportLoading ? 'Äang gá»¯i...' : 'Gá»­i bÃ¡o cÃ¡o'}
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
-        </div>,
-        document.body
-      )}
-
 
       {showPlayer && activeLesson && createPortal(
         <div
@@ -769,7 +719,7 @@ function CourseDetailContent({ course }) {
           >
             <header className="cd-player-dialog__header">
               <div>
-                <span>{activeLesson.type === 'video' ? 'Video bâ”œÃ¡i hÃŸâ•—Ã¬c' : 'Bâ”œÃ¡i giÃŸâ•‘Ãºng text'}</span>
+                <span>{activeLesson.type === 'video' ? 'Video bài học' : 'Bài giảng text'}</span>
                 <h2 id="player-title">{activeLesson.title}</h2>
               </div>
               <button
@@ -777,60 +727,13 @@ function CourseDetailContent({ course }) {
                 className="cd-icon-button"
                 onClick={closePlayer}
                 ref={playerCloseRef}
-                aria-label="â”€Ã‰â”œâ”‚ng bâ”œÃ¡i hÃŸâ•—Ã¬c"
+                aria-label="Đóng bài học"
               >
                 <X size={20} />
               </button>
             </header>
 
             <div className="cd-player-dialog__body">
-              {/* Anti-Piracy & UX Overlays */}
-              {isYouTube && (
-                <div className="video-canvas-click-overlay" onClick={() => { togglePlayPause(); triggerScreenPulseAnim(); }}>
-                  {showPlayPauseAnim && (
-                    <div className="play-pause-pulse-icon">
-                      {isPlaying ? <Pause size={36} fill="currentColor" /> : <Play size={36} fill="currentColor" />}
-                    </div>
-                  )}
-                </div>
-              )}
-              {showTabPauseToast && (
-                <div className="tab-pause-toast">
-                  â‹ï¸ Video tá»± Ä‘á»™ng táº¡m dá»«ng do báº¡n vá»«a chuyá»ƒn tab (Facebook/cë»¯a sá»• khÃ¡c)
-                </div>
-              )}
-              {showWatermark && (
-                <div className="dynamic-watermark-overlay">
-                  ðŸ”¥ {watermarkText}
-                </div>
-              )}
-              {!adminAccount && (
-                <div className="random-micro-watermark" style={microPosStyle}>
-                  ðŸ”¥ {watermarkText || getStudentIdentifier()}
-                </div>
-              )}
-              {showResumePrompt && (
-                <div className="smart-resume-card">
-                  <div className="resume-content">
-                    <p>PhÃ¡t hiá»‡n báº¡n Ä‘Ã£ xem bÃ i nÃ y Ä‘áº¿n phÃºt <strong>{Math.floor(resumeTime / 60)}:{(resumeTime % 60).toString().padStart(2, '0')}</strong>.</p>
-                    <span>Báº¡n cÃ³ muá»‘n xem tiáº¿p tá»« vá»‹ trÃ­ Ä‘Ã³ khÃ´ng?</span>
-                  </div>
-                  <div className="resume-actions">
-                    <button type="button" className="btn-resume-yes" onClick={handleResumeYes}>CÃ³, xem tiáº¿p</button>
-                    <button type="button" className="btn-resume-no" onClick={handleResumeNo}>KhÃ´ng, xem tá»« Ä‘áº§u</button>
-                  </div>
-                </div>
-              )}
-              {showDetToolsWarning && (
-                <div className="devtools-warning-overlay">
-                  <ShieldAlert size={48} color="#ef4444" style={{ marginBottom: '16px' }} />
-                  <h2>Cáº¢NH BÃO BÃO Máº¬T</h2>
-                  <p>Eá»‡ thá»‘ng phÃ¡t hiá»‡n báº¡n Ä‘ang má»Ÿ Developer Tools (F12).</p>
-                  <p>HÃ nh vi táº£i trá»™m/sao chÃ©p video sáº½ bá»‹ <strong>khÃ³a tÃ i khoáº£n vÄ©nh viá»…n</strong> vÃ  há»§y toÃ n bá»™ káº¿t quáº£ há»c táº­p.</p>
-                  <p style={{ marginTop: '12px', fontSize: '13px', opacity: 0.8 }}>Vui lÃ²ng Ä‘Ã³ng Developer Tools (F12) Ä‘á»ƒ tiáº¿p tá»¥c xem bÃ i giáº£ng.</p>
-                </div>
-              )}
-
               {activeLesson.type === 'video' ? (
                 activeLesson?.media?.provider === 'youtube' ? (
                   <div className="cd-video-frame">
@@ -844,7 +747,7 @@ function CourseDetailContent({ course }) {
                 ) : (
                   <div className="cd-video-frame">
                     <video
-                      ref={videoRef}
+                      ref={nativeVideoRef}
                       src={activeLesson.media?.url}
                       controls
                       autoPlay
@@ -860,25 +763,23 @@ function CourseDetailContent({ course }) {
               ) : (
                 <article className="cd-text-lesson">
                   <FileText size={24} aria-hidden="true" />
-                  <p>{activeLesson.content || 'NÃŸâ•—Ã–i dung bâ”œÃ¡i hÃŸâ•—Ã¬c â”€Ã¦ang â”€Ã¦â•žâ–‘ÃŸâ•—Ãºc cÃŸâ•‘Â¡p nhÃŸâ•‘Â¡t.'}</p>
+                  <p>{activeLesson.content || 'Nội dung bài học đang được cập nhật.'}</p>
                 </article>
               )}
             </div>
 
-            {renderStudyTimerWidget(true)}
             <footer className="cd-player-dialog__footer">
               <span>
                 <ShieldCheck size={16} />
-                NÃŸâ•—Ã–i dung â”€Ã¦â•žâ–‘ÃŸâ•—Ãºc cÃŸâ•‘Ã‘p sau khi mâ”œÃ­y chÃŸâ•—Âº kiÃŸâ•—Ã¢m tra quyÃŸâ•—Ã¼n hÃŸâ•—Ã¬c.
+                Nội dung được cấp sau khi máy chủ kiểm tra quyền học.
               </span>
               {hasNextLesson && (
                 <button type="button" className="cd-button cd-button--primary" onClick={handleNextLesson}>
-                  Bâ”œÃ¡i tiÃŸâ•‘â”p theo
+                  Bài tiếp theo
                   <SkipForward size={17} />
                 </button>
               )}
             </footer>
-            {renderStudyTimerWidget(true)}
           </section>
         </div>,
         document.body
@@ -905,7 +806,7 @@ function CourseDetailContent({ course }) {
               className="cd-icon-button cd-lock-dialog__close"
               onClick={closeLockPrompt}
               ref={lockCloseRef}
-              aria-label="â”€Ã‰â”œâ”‚ng thâ”œâ”¤ng bâ”œÃ­o"
+              aria-label="Đóng thông báo"
             >
               <X size={20} />
             </button>
@@ -914,26 +815,24 @@ function CourseDetailContent({ course }) {
             </span>
             <h2 id="lock-dialog-title">
               {lockReason === 'AUTH_REQUIRED'
-                ? 'â”€Ã‰â”€Ã¢ng nhÃŸâ•‘Â¡p â”€Ã¦ÃŸâ•—Ã¢ tiÃŸâ•‘â”p tÃŸâ•—Ã‘c hÃŸâ•—Ã¬c'
-                : 'Kâ”œÂ¡ch hoÃŸâ•‘Ã­t khâ”œâ”‚a hÃŸâ•—Ã¬c â”€Ã¦ÃŸâ•—Ã¢ mÃŸâ•—Æ’ bâ”œÃ¡i'}
+                ? 'Đăng nhập để tiếp tục học'
+                : 'Kích hoạt khóa học để mở bài'}
             </h2>
             <p id="lock-dialog-description">
               {lockReason === 'AUTH_REQUIRED'
-                ? 'Phiâ”œÂ¬n â”€Ã¦â”€Ã¢ng nhÃŸâ•‘Â¡p châ•žâ–‘a câ”œâ”‚ hoÃŸâ•‘â•–c â”€Ã¦â”œÃº hÃŸâ•‘â”t hÃŸâ•‘Ã­n. Hâ”œÃºy â”€Ã¦â”€Ã¢ng nhÃŸâ•‘Â¡p â”€Ã¦â”œâ•‘ng tâ”œÃ¡i khoÃŸâ•‘Ãºn hÃŸâ•—Ã¬c viâ”œÂ¬n rÃŸâ•—Ã´i thÃŸâ•—Â¡ lÃŸâ•‘Ã­i.'
+                ? 'Phiên đăng nhập chưa có hoặc đã hết hạn. Hãy đăng nhập đúng tài khoản học viên rồi thử lại.'
                 : course.isFree
-                ? 'Bâ”œÃ¡i â”€Ã¦ÃŸâ•‘Âºu tiâ”œÂ¬n lâ”œÃ¡ nÃŸâ•—Ã–i dung xem thÃŸâ•—Â¡. Hâ”œÃºy kâ”œÂ¡ch hoÃŸâ•‘Ã­t khâ”œâ”‚a hÃŸâ•—Ã¬c miÃŸâ•—Ã n phâ”œÂ¡ â”€Ã¦ÃŸâ•—Ã¢ mÃŸâ•—Æ’ câ”œÃ­c bâ”œÃ¡i tiÃŸâ•‘â”p theo.'
-                : 'Bâ”œÃ¡i hÃŸâ•—Ã¬c nâ”œÃ¡y chÃŸâ•—Ã« mÃŸâ•—Æ’ cho tâ”œÃ¡i khoÃŸâ•‘Ãºn â”€Ã¦â”œÃº â”€Ã¦â”€Ã¢ng kâ”œâ•œ vâ”œÃ¡ â”€Ã¦â•žâ–‘ÃŸâ•—Ãºc hÃŸâ•—Ã§ thÃŸâ•—Ã¦ng xâ”œÃ­c nhÃŸâ•‘Â¡n quyÃŸâ•—Ã¼n hÃŸâ•—Ã¬c.'}
+                ? 'Bài đầu tiên là nội dung xem thử. Hãy kích hoạt khóa học miễn phí để mở các bài tiếp theo.'
+                : 'Bài học này chỉ mở cho tài khoản đã đăng ký và được hệ thống xác nhận quyền học.'}
             </p>
             <button type="button" className="cd-button cd-button--primary cd-button--full" onClick={openEnrollment}>
-              {course.isFree ? 'Kâ”œÂ¡ch hoÃŸâ•‘Ã­t miÃŸâ•—Ã n phâ”œÂ¡' : 'Xem thâ”œâ”¤ng tin â”€Ã¦â”€Ã¢ng kâ”œâ•œ'}
+              {course.isFree ? 'Kích hoạt miễn phí' : 'Xem thông tin đăng ký'}
               <ArrowRight size={17} />
             </button>
           </section>
         </div>,
         document.body
       )}
-      {/* Floating Study Timer Widget */}
-      {renderStudyTimerWidget(false)}
 
       <CourseEnrollmentModal
         isOpen={showEnrollment}

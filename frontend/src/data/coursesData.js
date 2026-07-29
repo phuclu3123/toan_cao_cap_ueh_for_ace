@@ -280,7 +280,8 @@ export const coursesData = [
             subtitle: 'Video chữa đề chi tiết',
             type: 'video',
             duration: '45:00',
-            isLocked: false
+            isLocked: false,
+            videoUrl: 'https://youtu.be/WDSHTnrv8JI'
           }
         ]
       }

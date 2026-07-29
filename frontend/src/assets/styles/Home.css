@@ -22,18 +22,18 @@
 .page-hero.exams-page-hero,
 .page-hero.resources-page-hero {
   background:
-    radial-gradient(circle at 82% 8%, rgba(45, 212, 191, 0.08), transparent 26%),
-    linear-gradient(120deg, #f8fafc 0%, #e2e8f0 58%, #cbd5e1 100%);
+    radial-gradient(circle at 90% 10%, rgba(99, 102, 241, 0.15), transparent 30%),
+    linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
 }
 
 .page-hero.exams-page-hero h1,
 .page-hero.resources-page-hero h1 {
-  color: #0f172a;
+  color: #f8fafc;
 }
 
 .page-hero.exams-page-hero p,
 .page-hero.resources-page-hero p {
-  color: #334155;
+  color: #cbd5e1;
 }
 
 .page-hero.exams-page-hero .hero-badge,
@@ -861,15 +861,15 @@
 }
 
 .midterm-room-section {
-  background: var(--home-ivory);
+  background: linear-gradient(145deg, #0f172a, #020617);
 }
 
 .midterm-room-section .section-title h2 {
-  color: #11231a;
+  color: #f8fafc;
 }
 
 .midterm-room-section .section-title p {
-  color: #3b4c42;
+  color: #94a3b8;
 }
 
 .midterm-room-card {
