@@ -6,46 +6,80 @@ export const sendOtpEmail = async (email, name, otpCode, otpExpiresAt) => {
   const pass = process.env.EMAIL_PASS;
 
   const emailHtml = `
-    <div style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f4f7f6; padding: 40px 20px; margin: 0;">
-      <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-        
-        <!-- Header -->
-        <div style="background-color: #0d9488; padding: 30px 20px; text-align: center;">
-          <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 700; letter-spacing: 1px;">UEH TCC</h1>
-          <p style="color: #ccfbf1; margin: 8px 0 0 0; font-size: 15px;">Hệ thống Hỗ trợ Học tập Toán Cao Cấp</p>
-        </div>
-        
-        <!-- Body -->
-        <div style="padding: 40px 30px; color: #334155; line-height: 1.6;">
-          <p style="font-size: 16px; margin-top: 0;">Chào <strong>${name || 'bạn'}</strong>,</p>
-          <p style="font-size: 16px; margin-bottom: 25px;">Chúng tôi nhận được yêu cầu khôi phục mật khẩu cho tài khoản của bạn. Vui lòng sử dụng mã xác thực (OTP) dưới đây để tiếp tục:</p>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Khôi phục mật khẩu</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f6f9fc; color: #333333; -webkit-font-smoothing: antialiased;">
+  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f6f9fc; padding: 40px 0;">
+    <tr>
+      <td align="center">
+        <table width="100%" max-width="600" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);">
+          <!-- Header -->
+          <tr>
+            <td style="padding: 40px 40px 20px 40px; text-align: center;">
+              <h1 style="margin: 0; font-size: 28px; font-weight: 800; color: #0d9488; letter-spacing: -0.5px;">UEH TCC</h1>
+              <p style="margin: 8px 0 0 0; font-size: 15px; color: #64748b; font-weight: 500;">Hệ thống Hỗ trợ Học tập</p>
+            </td>
+          </tr>
           
-          <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 25px; text-align: center; margin: 30px 0;">
-            <span style="display: block; font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: 700; letter-spacing: 1.5px; margin-bottom: 15px;">Mã xác thực của bạn</span>
-            <span style="font-size: 38px; font-weight: 800; color: #0d9488; letter-spacing: 8px; display: inline-block;">${otpCode}</span>
-          </div>
+          <!-- Content -->
+          <tr>
+            <td style="padding: 10px 40px 30px 40px;">
+              <p style="font-size: 16px; line-height: 24px; margin: 0 0 20px 0; color: #1e293b;">
+                Xin chào <strong>${name || 'bạn'}</strong>,
+              </p>
+              <p style="font-size: 16px; line-height: 24px; margin: 0 0 30px 0; color: #334155;">
+                Chúng tôi vừa nhận được yêu cầu khôi phục mật khẩu cho tài khoản liên kết với email này. Vui lòng sử dụng mã bảo mật (OTP) dưới đây để tiếp tục:
+              </p>
+              
+              <!-- OTP Box -->
+              <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 30px 20px; text-align: center; margin-bottom: 30px;">
+                <p style="margin: 0 0 15px 0; font-size: 13px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">Mã xác minh của bạn</p>
+                <div style="font-size: 42px; font-weight: 700; color: #0f172a; letter-spacing: 10px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+                  ${otpCode}
+                </div>
+                <p style="margin: 15px 0 0 0; font-size: 14px; color: #64748b;">
+                  Mã có hiệu lực trong <strong>10 phút</strong>.
+                </p>
+              </div>
+
+              <!-- Security Warning -->
+              <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #fffbeb; border-left: 4px solid #f59e0b; border-radius: 4px; margin-bottom: 30px;">
+                <tr>
+                  <td style="padding: 16px; font-size: 14px; line-height: 22px; color: #92400e;">
+                    <strong>Cảnh báo bảo mật:</strong> Nếu bạn <strong>không</strong> yêu cầu thay đổi mật khẩu, ai đó có thể đang cố gắng truy cập vào tài khoản của bạn. Vui lòng phớt lờ email này, tài khoản của bạn vẫn an toàn.
+                  </td>
+                </tr>
+              </table>
+              
+              <p style="font-size: 16px; line-height: 24px; margin: 0; color: #334155;">
+                Trân trọng,<br>
+                <strong style="color: #0f172a;">Đội ngũ hỗ trợ UEH TCC</strong>
+              </p>
+            </td>
+          </tr>
           
-          <p style="font-size: 14px; color: #64748b; text-align: center; margin-bottom: 30px;">
-            Mã này có hiệu lực trong vòng <strong>10 phút</strong> và chỉ sử dụng được 1 lần.
-          </p>
-          
-          <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 30px 0;" />
-          
-          <p style="font-size: 14px; color: #64748b; margin-bottom: 0;">
-            Nếu bạn không yêu cầu đổi mật khẩu, vui lòng bỏ qua email này. Tài khoản của bạn vẫn được bảo mật an toàn.
-          </p>
-        </div>
-        
-        <!-- Footer -->
-        <div style="background-color: #f8fafc; padding: 20px; text-align: center; border-top: 1px solid #e2e8f0;">
-          <p style="margin: 0; font-size: 12px; color: #94a3b8;">
-            © ${new Date().getFullYear()} UEH TCC Study Helper.<br>
-            Đây là email tự động, vui lòng không phản hồi.
-          </p>
-        </div>
-        
-      </div>
-    </div>
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #f8fafc; padding: 30px 40px; text-align: center; border-top: 1px solid #e2e8f0;">
+              <p style="margin: 0 0 10px 0; font-size: 13px; color: #64748b;">
+                Đây là email tự động từ hệ thống. Xin vui lòng không trả lời.
+              </p>
+              <p style="margin: 0; font-size: 12px; color: #94a3b8;">
+                &copy; ${new Date().getFullYear()} UEH TCC Study Helper. All rights reserved.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
   `;
 
   // Priority 1: Resend API (Preferred when RESEND_API_KEY is available)
