@@ -9,15 +9,15 @@ import AppBootLifecycle from './components/layout/AppBootLifecycle';
 import MotionOrchestrator from './components/layout/MotionOrchestrator';
 import PageTransition from './components/layout/PageTransition';
 import BrandLoader from './components/ui/BrandLoader';
-import Home from './pages/Home';
-import GiftPage from './pages/GiftPage';
-import ResourcesPage from './pages/ResourcesPage';
-import CoursesPage from './pages/CoursesPage';
-import ExamsPage from './pages/ExamsPage';
-import BlogPage from './pages/BlogPage';
-import PayOSApiPage from './pages/PayOSApiPage';
-import AboutPage from './pages/AboutPage';
-import NotFoundPage from './pages/NotFoundPage';
+const Home = safeLazy(() => import('./pages/Home'));
+const GiftPage = safeLazy(() => import('./pages/GiftPage'));
+const ResourcesPage = safeLazy(() => import('./pages/ResourcesPage'));
+const CoursesPage = safeLazy(() => import('./pages/CoursesPage'));
+const ExamsPage = safeLazy(() => import('./pages/ExamsPage'));
+const BlogPage = safeLazy(() => import('./pages/BlogPage'));
+const PayOSApiPage = safeLazy(() => import('./pages/PayOSApiPage'));
+const AboutPage = safeLazy(() => import('./pages/AboutPage'));
+const NotFoundPage = safeLazy(() => import('./pages/NotFoundPage'));
 import { safeLocalStorage, safeSessionStorage } from './utils/safeStorage';
 import './App.css';
 import './assets/styles/experience.css';
@@ -112,11 +112,19 @@ const router = createHashRouter([
     children: [
       {
         path: '',
-        element: <Home />
+        element: (
+          <Suspense fallback={<BrandLoader label="Đang tải trang chủ..." />}>
+            <Home />
+          </Suspense>
+        )
       },
       {
         path: 'courses',
-        element: <CoursesPage />
+        element: (
+          <Suspense fallback={<BrandLoader label="Đang tải danh sách khóa học..." />}>
+            <CoursesPage />
+          </Suspense>
+        )
       },
       {
         path: 'course/:id',
@@ -136,11 +144,19 @@ const router = createHashRouter([
       },
       {
         path: 'exams',
-        element: <ExamsPage />
+        element: (
+          <Suspense fallback={<BrandLoader label="Đang tải danh sách đề thi..." />}>
+            <ExamsPage />
+          </Suspense>
+        )
       },
       {
         path: 'blog',
-        element: <BlogPage />
+        element: (
+          <Suspense fallback={<BrandLoader label="Đang tải trang bài viết..." />}>
+            <BlogPage />
+          </Suspense>
+        )
       },
       {
         path: 'blog/:id',
@@ -152,7 +168,11 @@ const router = createHashRouter([
       },
       {
         path: 'resources',
-        element: <ResourcesPage />
+        element: (
+          <Suspense fallback={<BrandLoader label="Đang tải kho tài liệu..." />}>
+            <ResourcesPage />
+          </Suspense>
+        )
       },
       {
         path: 'doc/:id',
@@ -172,19 +192,35 @@ const router = createHashRouter([
       },
       {
         path: 'payos-api-docs',
-        element: <PayOSApiPage />
+        element: (
+          <Suspense fallback={<BrandLoader label="Đang tải tài liệu API..." />}>
+            <PayOSApiPage />
+          </Suspense>
+        )
       },
       {
         path: 'about',
-        element: <AboutPage />
+        element: (
+          <Suspense fallback={<BrandLoader label="Đang tải giới thiệu..." />}>
+            <AboutPage />
+          </Suspense>
+        )
       },
       {
         path: '20-10',
-        element: <GiftPage />
+        element: (
+          <Suspense fallback={<BrandLoader label="Đang tải quà tặng..." />}>
+            <GiftPage />
+          </Suspense>
+        )
       },
       {
         path: '*',
-        element: <NotFoundPage />
+        element: (
+          <Suspense fallback={<BrandLoader label="Đang xử lý..." />}>
+            <NotFoundPage />
+          </Suspense>
+        )
       }
     ]
   }
