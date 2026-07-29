@@ -24,19 +24,14 @@ import '../assets/styles/Home.css';
 import '../assets/styles/BlogDetail.css';
 
 export default function BlogDetailPage() {
+  const { language } = useContext(LanguageContext);
+  const t = translations[language];
   const { slug } = useParams();
   const post = getBlogPostBySlug(slug);
 
   if (!post) {
     return <NotFoundPage />;
   }
-
-  return <BlogDetailContent post={post} slug={slug} />;
-}
-
-function BlogDetailContent({ post, slug }) {
-  const { language } = useContext(LanguageContext);
-  const t = translations[language];
   const [activeSectionId, setActiveSectionId] = useState('');
   const [copiedSectionId, setCopiedSectionId] = useState('');
   const [readingProgress, setReadingProgress] = useState(0);
@@ -55,7 +50,7 @@ function BlogDetailContent({ post, slug }) {
 
   // Scroll to top or target query section when post slug changes
   useEffect(() => {
-    const searchParams = new URLSearchParams(window.location.search);
+    const searchParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
     const targetSection = searchParams.get('section');
 
     if (targetSection) {
@@ -154,7 +149,7 @@ function BlogDetailContent({ post, slug }) {
   const copySectionLink = (e, heading) => {
     e.preventDefault();
     const id = getSectionId(heading);
-    const url = `${window.location.origin}/blog/${slug}?section=${id}`;
+    const url = `${window.location.origin}/#/blog/${slug}?section=${id}`;
     navigator.clipboard.writeText(url).then(() => {
       setCopiedSectionId(id);
       setTimeout(() => setCopiedSectionId(''), 2500);

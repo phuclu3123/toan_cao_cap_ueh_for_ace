@@ -144,6 +144,96 @@ function CourseDetailContent({ course }) {
   const [lockReason, setLockReason] = useState('ENROLLMENT_REQUIRED');
   const [showEnrollment, setShowEnrollment] = useState(false);
 
+  // Floating Study Timer States
+  const [isDraggingTimer, setIsDraggingTimer] = useState(false);
+  const [isTimerCollapsed, setIsTimerCollapsed] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [customPos, setCustomPos] = useState(null);
+  const [totalStudySeconds, setTotalStudySeconds] = useState(0);
+
+  const handleTimerPointerDown = (e) => {
+    setIsDraggingTimer(true);
+    const rect = e.currentTarget.getBoundingClientRect();
+    setDragOffset({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
+    });
+  };
+
+  useEffect(() => {
+    const handlePointerMove = (e) => {
+      if (isDraggingTimer) {
+        const newX = Math.max(10, Math.min(window.innerWidth - 200, e.clientX - dragOffset.x));
+        const newY = Math.max(10, Math.min(window.innerHeight - 60, e.clientY - dragOffset.y));
+        setCustomPos({ x: newX, y: newY });
+      }
+    };
+    const handlePointerUp = () => setIsDraggingTimer(false);
+
+    if (isDraggingTimer) {
+      window.addEventListener('pointermove', handlePointerMove);
+      window.addEventListener('pointerup', handlePointerUp);
+    }
+    return () => {
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerUp);
+    };
+  }, [isDraggingTimer, dragOffset]);
+
+  // Timer counter
+  useEffect(() => {
+    let interval;
+    if (showPlayer && activeLesson) {
+      interval = setInterval(() => setTotalStudySeconds(s => s + 1), 1000);
+    }
+    return () => clearInterval(interval);
+  }, [showPlayer, activeLesson]);
+
+  const renderStudyTimerWidget = (isModalContext = false) => {
+    if (!hasCourseAccess) return null;
+
+    const progressPercent = Math.min(100, Math.round((totalStudySeconds / 1800) * 100)); // Demo calculation
+    const styleProp = customPos 
+      ? { left: `${customPos.x}px`, top: `${customPos.y}px`, right: 'auto', bottom: 'auto', position: 'fixed' }
+      : {};
+
+    const classNameProp = `floating-study-widget ${isModalContext ? 'under-video-anchor' : 'top-right-anchor'} ${isTimerCollapsed ? 'collapsed' : ''}`;
+
+    return (
+      <div className={classNameProp} style={{ touchAction: 'none', ...styleProp }} onPointerDown={handleTimerPointerDown}>
+        <div className="timer-drag-handle" title="Kéo thả để di chuyển vị trí" style={{ cursor: 'grab', padding: '8px' }}>
+          <Clock3 size={16} />
+        </div>
+        {!isTimerCollapsed ? (
+          <>
+            <div className="timer-badge-active" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Clock3 size={16} />
+              <span>Đã học: {Math.floor(totalStudySeconds / 60)} phút {totalStudySeconds % 60}s</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}>
+              <span>Tiến độ: {progressPercent}%</span>
+              <div className="progress-widget-bar" style={{ width: '100px', height: '6px', background: '#e2e8f0', borderRadius: '4px', overflow: 'hidden' }}>
+                <div className="progress-widget-fill" style={{ width: `${progressPercent}%`, height: '100%', background: '#10b981' }} />
+              </div>
+            </div>
+            <button type="button" className="btn-timer-collapse" onClick={(e) => { e.stopPropagation(); setIsTimerCollapsed(true); }} style={{ padding: '4px', background: 'transparent', border: 'none', cursor: 'pointer' }}>
+              Thu gọn
+            </button>
+          </>
+        ) : (
+          <>
+            <div className="timer-badge-active" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span>{Math.floor(totalStudySeconds / 60)}m</span>
+            </div>
+            <button type="button" className="btn-timer-collapse" onClick={(e) => { e.stopPropagation(); setIsTimerCollapsed(false); }} style={{ padding: '4px', background: 'transparent', border: 'none', cursor: 'pointer' }}>
+              Mở
+            </button>
+          </>
+        )}
+      </div>
+    );
+  };
+
   const contentRequestRef = useRef(null);
   const playerDialogRef = useRef(null);
   const playerCloseRef = useRef(null);
@@ -364,6 +454,12 @@ function CourseDetailContent({ course }) {
             <figure className="cd-hero__art">
               <div className="cd-art-orbit cd-art-orbit--one" aria-hidden="true" />
               <div className="cd-art-orbit cd-art-orbit--two" aria-hidden="true" />
+              {course.artSvg && (
+                <div 
+                  className="cd-art-svg-container"
+                  dangerouslySetInnerHTML={{ __html: course.artSvg }}
+                />
+              )}
               <div className="cd-art-card">
                 <img src={course.image} alt={`Ảnh bìa ${course.title}`} />
                 <figcaption>
@@ -371,14 +467,7 @@ function CourseDetailContent({ course }) {
                   <strong>{course.instructor}</strong>
                 </figcaption>
               </div>
-              {course.artSvg && (
-                <div 
-                  className="cd-art-svg-bg" 
-                  aria-hidden="true" 
-                  dangerouslySetInnerHTML={{ __html: course.artSvg }} 
-                />
-              )}
-              <span className="cd-art-formula" aria-hidden="true">{course.artFormula || '∫ · ∇ · det(A)'}</span>
+              <span className="cd-art-formula" aria-hidden="true">{course.artFormula || course.mathFormula || '∫ · ∇ · det(A)'}</span>
             </figure>
           </div>
         </div>
@@ -629,6 +718,7 @@ function CourseDetailContent({ course }) {
                 </button>
               )}
             </footer>
+            {renderStudyTimerWidget(true)}
           </section>
         </div>,
         document.body
@@ -682,6 +772,8 @@ function CourseDetailContent({ course }) {
         </div>,
         document.body
       )}
+      {/* Floating Study Timer Widget */}
+      {renderStudyTimerWidget(false)}
 
       <CourseEnrollmentModal
         isOpen={showEnrollment}
