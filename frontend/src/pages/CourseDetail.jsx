@@ -274,7 +274,16 @@ function CourseDetailContent({ course }) {
   };
 
 
-  const togglePlayPause = () => { setIsPlaying(!isPlaying); };
+  const togglePlayPause = () => {
+    if (activeLesson?.media?.provider === 'youtube' && ytPlayerRef.current) {
+      if (isPlaying) ytPlayerRef.current.pauseVideo();
+      else ytPlayerRef.current.playVideo();
+    } else if (nativeVideoRef.current) {
+      if (isPlaying) nativeVideoRef.current.pause();
+      else nativeVideoRef.current.play();
+    }
+    setIsPlaying(!isPlaying);
+  };
   const triggerScreenPulseAnim = () => {
     setShowPlayPauseAnim(true);
     setTimeout(() => setShowPlayPauseAnim(false), 500);
@@ -486,36 +495,62 @@ function CourseDetailContent({ course }) {
   const handleResumeYes = () => { setShowResumePrompt(false); };
   const handleResumeNo = () => { setShowResumePrompt(false); setResumeTime(0); };
 
+  const dragState = useRef({ isDragging: false, startX: 0, startY: 0, initialLeft: 0, initialTop: 0 });
+
   const handleTimerPointerDown = (e) => {
     if (e.target.closest('.btn-timer-collapse')) return;
-    const rect = timerRef.current.getBoundingClientRect();
-    const offsetX = e.clientX - rect.left;
-    const offsetY = e.clientY - rect.top;
     
+    // Fallback if not fixed
+    if (window.getComputedStyle(timerRef.current).position !== 'fixed') {
+        const rect = timerRef.current.getBoundingClientRect();
+        timerRef.current.style.position = 'fixed';
+        timerRef.current.style.left = `${rect.left}px`;
+        timerRef.current.style.top = `${rect.top}px`;
+        timerRef.current.style.zIndex = 99999;
+    }
+
+    const currentLeft = parseInt(timerRef.current.style.left) || 10;
+    const currentTop = parseInt(timerRef.current.style.top) || 10;
+    
+    dragState.current = {
+      isDragging: true,
+      startX: e.clientX,
+      startY: e.clientY,
+      initialLeft: currentLeft,
+      initialTop: currentTop
+    };
+
     const handlePointerMove = (moveEvent) => {
       moveEvent.preventDefault();
-      let newX = moveEvent.clientX - offsetX;
-      let newY = moveEvent.clientY - offsetY;
+      if (!dragState.current.isDragging) return;
+      
+      const dx = moveEvent.clientX - dragState.current.startX;
+      const dy = moveEvent.clientY - dragState.current.startY;
+      
+      let newX = dragState.current.initialLeft + dx;
+      let newY = dragState.current.initialTop + dy;
+      
       newX = Math.max(10, Math.min(window.innerWidth - timerRef.current.offsetWidth - 10, newX));
       newY = Math.max(10, Math.min(window.innerHeight - timerRef.current.offsetHeight - 10, newY));
       
+      // Update DOM directly for buttery smooth 60fps drag without React re-renders!
       timerRef.current.style.left = `${newX}px`;
       timerRef.current.style.top = `${newY}px`;
-      timerRef.current.style.transform = 'none';
-      timerRef.current.dataset.dragged = 'true';
     };
-    
-    const handlePointerUp = (upEvent) => {
+
+    const handlePointerUp = () => {
+      dragState.current.isDragging = false;
       window.removeEventListener('pointermove', handlePointerMove);
       window.removeEventListener('pointerup', handlePointerUp);
       
-      const newX = parseInt(timerRef.current.style.left);
-      const newY = parseInt(timerRef.current.style.top);
-      if (!isNaN(newX) && !isNaN(newY)) {
-        setCustomPos({ x: newX, y: newY });
+      // Only update React state ONCE when dragging finishes!
+      const finalX = parseInt(timerRef.current.style.left);
+      const finalY = parseInt(timerRef.current.style.top);
+      if (!isNaN(finalX) && !isNaN(finalY)) {
+         setCustomPos({ x: finalX, y: finalY });
       }
     };
-    
+
     window.addEventListener('pointermove', handlePointerMove, { passive: false });
     window.addEventListener('pointerup', handlePointerUp);
   };
@@ -532,7 +567,7 @@ function CourseDetailContent({ course }) {
 
     const renderStudyTimerWidget = (isModalContext = false) => {
     const styleProp = customPos
-      ? { position: 'fixed', left: `${customPos.x}px`, top: `${customPos.y}px`, zIndex: 99999, transform: 'none' }
+      ? { position: 'fixed', left: `${customPos.x}px`, top: `${customPos.y}px`, zIndex: 99999, transform: 'none' } // We let DOM style.left/top persist!
       : { zIndex: 99999 };
 
     const classNameProp = `floating-study-widget ${!customPos ? (isModalContext ? 'under-video-anchor' : 'top-right-anchor') : ''} ${isTimerCollapsed ? 'collapsed' : ''}`;
@@ -1020,7 +1055,7 @@ function CourseDetailContent({ course }) {
                   ref={playerFrameRef}
                   onMouseMove={handleMouseMoveOnPlayer}
                   onMouseLeave={handleMouseLeavePlayer}
-                  style={{ width: '100%', height: '100%', position: 'relative', background: '#000', overflow: 'hidden' }}
+                  style={{ width: '100%', height: '100%', position: 'relative', background: '#000', overflow: 'hidden', cursor: (!areControlsVisible && isPlaying) ? 'none' : 'default' }}
                 >
                   {activeLesson.media?.provider === 'youtube' ? (
                     <div id="youtube-player-container" style={{ width: '100%', height: '100%', pointerEvents: 'none' }} />
