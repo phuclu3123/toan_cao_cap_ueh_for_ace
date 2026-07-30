@@ -78,7 +78,7 @@ const useAccessibleDialog = (isOpen, dialogRef, initialFocusRef, onClose) => {
 };
 
 const getProgressKey = (courseId, lessonId) => (
-  `course_playback_progress_${courseId}_${lessonId}`
+  `course_playback_progress_${lessonId}`
 );
 
 const getSavedProgress = (courseId, lessonId) => {
@@ -342,9 +342,9 @@ function CourseDetailContent({ course }) {
       if (activeLesson) {
         if (activeLesson.media?.provider === 'youtube' && ytPlayerRef.current) {
            const time = ytPlayerRef.current.getCurrentTime();
-           if (time) saveProgress(course.id, activeLesson.id, time);
+           if (time) saveProgress(course.id, activeLesson.media?.videoId || activeLesson.id, time);
         } else if (nativeVideoRef.current) {
-           saveProgress(course.id, activeLesson.id, nativeVideoRef.current.currentTime);
+           saveProgress(course.id, activeLesson.media?.videoId || activeLesson.id, nativeVideoRef.current.currentTime);
         }
       }
     };
@@ -368,14 +368,15 @@ function CourseDetailContent({ course }) {
       container.style.height = '100%';
       ytMountRef.current.appendChild(container);
       
+      const savedTime = getSavedProgress(course.id, activeLesson.media.videoId);
       loadYouTubeAPI().then((YT) => {
         player = new YT.Player(container, {
           videoId: activeLesson.media.videoId,
-          playerVars: { autoplay: 1, controls: 0, disablekb: 1, fs: 0, modestbranding: 1, rel: 0, playsinline: 1 },
+          playerVars: { autoplay: savedTime > 5 ? 0 : 1, controls: 0, disablekb: 1, fs: 0, modestbranding: 1, rel: 0, playsinline: 1 },
           events: {
             onReady: (event) => {
               ytPlayerRef.current = event.target;
-              const savedTime = getSavedProgress(course.id, activeLesson.id);
+              const savedTime = getSavedProgress(course.id, activeLesson.media?.videoId || activeLesson.id);
               if (savedTime > 5) {
                 event.target.pauseVideo();
                 checkAndPromptResume(savedTime);
@@ -388,7 +389,7 @@ function CourseDetailContent({ course }) {
                 const dur = event.target.getDuration();
                 if (time) {
                   setCurrentTime(time);
-                  saveProgress(course.id, activeLesson.id, time);
+                  saveProgress(course.id, activeLesson.media?.videoId || activeLesson.id, time);
                 }
                 if (dur) setDuration(dur);
               }, 1000);
@@ -403,7 +404,7 @@ function CourseDetailContent({ course }) {
         if (ytSaveIntervalRef.current) clearInterval(ytSaveIntervalRef.current);
         if (ytPlayerRef.current) {
           const time = ytPlayerRef.current.getCurrentTime();
-          if (time) saveProgress(course.id, activeLesson.id, time);
+          if (time) saveProgress(course.id, activeLesson.media?.videoId || activeLesson.id, time);
           ytPlayerRef.current.destroy();
           ytPlayerRef.current = null;
         }
@@ -629,12 +630,12 @@ function CourseDetailContent({ course }) {
 
   const closePlayer = useCallback(() => {
     if (nativeVideoRef.current && activeLesson) {
-      saveProgress(course.id, activeLesson.id, nativeVideoRef.current.currentTime);
+      saveProgress(course.id, activeLesson.media?.videoId || activeLesson.id, nativeVideoRef.current.currentTime);
       nativeVideoRef.current.pause();
     }
     if (activeLesson?.media?.provider === 'youtube' && ytPlayerRef.current) {
       const time = ytPlayerRef.current.getCurrentTime();
-      if (time) saveProgress(course.id, activeLesson.id, time);
+      if (time) saveProgress(course.id, activeLesson.media?.videoId || activeLesson.id, time);
       ytPlayerRef.current.pauseVideo();
     }
     setShowPlayer(false);
@@ -778,7 +779,7 @@ function CourseDetailContent({ course }) {
 
   const handleNativeLoaded = (event) => {
     if (!activeLesson) return;
-    const savedTime = getSavedProgress(course.id, activeLesson.id);
+    const savedTime = getSavedProgress(course.id, activeLesson.media?.videoId || activeLesson.id);
     if (savedTime > 5 && savedTime < event.currentTarget.duration - 3) {
       event.currentTarget.pause();
       checkAndPromptResume(savedTime);
@@ -1081,7 +1082,7 @@ function CourseDetailContent({ course }) {
                   )}
 
                   <div className="video-overlay-controls yt-theme" style={{position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)', padding: '20px 16px 12px', display: 'flex', flexDirection: 'column', gap: 8, zIndex: 20, opacity: areControlsVisible || !isPlaying ? 1 : 0, transition: 'opacity 0.2s'}}>
-                    <div className="video-progress-scrubber" onClick={handleSeek} style={{height: 5, background: 'rgba(255,255,255,0.3)', cursor: 'pointer', position: 'relative', transition: 'height 0.1s'}} onMouseEnter={(e) => e.currentTarget.style.height = '8px'} onMouseLeave={(e) => e.currentTarget.style.height = '5px'}>
+                    <div className="video-progress-scrubber" onClick={handleSeek} style={{height: 5, background: 'rgba(255,255,255,0.15)', cursor: 'pointer', position: 'relative', transition: 'height 0.1s'}} onMouseEnter={(e) => e.currentTarget.style.height = '8px'} onMouseLeave={(e) => e.currentTarget.style.height = '5px'}>
                       <div className="video-progress-fill" style={{ width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%`, height: '100%', background: 'var(--cd-accent)', transition: 'width 0.1s linear' }}>
                          <div style={{position: 'absolute', right: '-6px', top: '50%', transform: 'translateY(-50%)', width: 12, height: 12, background: 'var(--cd-accent)', borderRadius: '50%', opacity: 0, transition: 'opacity 0.1s'}} className="scrubber-thumb" />
                       </div>
