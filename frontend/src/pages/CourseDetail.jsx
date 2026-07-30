@@ -2,31 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useParams } from 'react-router-dom';
 import {
-  ArrowLeft,
-  ArrowRight,
-  BookOpen,
-  Check,
-  CheckCircle2,
-  ChevronDown,
-  Clock,
-  Clock3,
-  Eye,
-  FileText,
-  FolderOpen,
-  GripVertical,
-  GraduationCap,
-  Library,
-  Loader2,
-  LockKeyhole,
-  Maximize2,
-  Minimize2,
-  Pause,
-  Play,
-  ShieldCheck,
-  SkipForward,
-  Users,
-  Video,
-  X
+  ArrowLeft, ArrowRight, BookOpen, Check, CheckCircle2, ChevronDown, Clock, Clock3, Eye, FileText, FolderOpen, GripVertical, GraduationCap, Library, Loader2, LockKeyhole, Maximize2, Minimize2, Pause, Play, ShieldCheck, SkipForward, Users, Video, X,
+  CheckCircle, Flag, Lightbulb, RotateCcw, RotateCw, Settings, Volume2, VolumeX
 } from 'lucide-react';
 import CourseEnrollmentModal from '../components/modals/CourseEnrollmentModal';
 import { getCourseById } from '../data/coursesData';
@@ -189,6 +166,111 @@ function CourseDetailContent({ course }) {
   const [showTabPauseToast, setShowTabPauseToast] = useState(false);
   const [showDetToolsWarning, setShowDetToolsWarning] = useState(false);
   const [showPlayPauseAnim, setShowPlayPauseAnim] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [playbackSpeed, setPlaybackSpeed] = useState(1);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [volume, setVolume] = useState(1);
+  const [isMuted, setIsMuted] = useState(false);
+  const [isPlayerDarkMode, setIsPlayerDarkMode] = useState(false);
+  const [showSettingsPopover, setShowSettingsPopover] = useState(false);
+  const [videoQuality, setVideoQuality] = useState('hd1080');
+  const [areControlsVisible, setAreControlsVisible] = useState(true);
+  const controlsTimeoutRef = useRef(null);
+  const playerFrameRef = useRef(null);
+
+  const formatTime = (secs) => {
+    if (!secs || isNaN(secs)) return '00:00';
+    const m = Math.floor(secs / 60);
+    const s = Math.floor(secs % 60);
+    return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+  };
+
+  const handleTimeUpdate = (e) => {
+    setCurrentTime(e.target.currentTime);
+  };
+  const handleLoadedMetadata = (e) => {
+    setDuration(e.target.duration);
+  };
+  const toggleFullscreen = () => {
+    if (!playerFrameRef.current) return;
+    if (!document.fullscreenElement) {
+      playerFrameRef.current.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  };
+  useEffect(() => {
+    const onFSChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', onFSChange);
+    return () => document.removeEventListener('fullscreenchange', onFSChange);
+  }, []);
+
+  const handleSeek = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const pos = (e.clientX - rect.left) / rect.width;
+    const newTime = pos * duration;
+    if (activeLesson?.media?.provider === 'youtube' && ytPlayerRef.current) {
+      ytPlayerRef.current.seekTo(newTime, true);
+    } else if (nativeVideoRef.current) {
+      nativeVideoRef.current.currentTime = newTime;
+    }
+  };
+  const handleRewind5 = () => {
+    if (activeLesson?.media?.provider === 'youtube' && ytPlayerRef.current) {
+      ytPlayerRef.current.seekTo(ytPlayerRef.current.getCurrentTime() - 5, true);
+    } else if (nativeVideoRef.current) {
+      nativeVideoRef.current.currentTime -= 5;
+    }
+  };
+  const handleForward5 = () => {
+    if (activeLesson?.media?.provider === 'youtube' && ytPlayerRef.current) {
+      ytPlayerRef.current.seekTo(ytPlayerRef.current.getCurrentTime() + 5, true);
+    } else if (nativeVideoRef.current) {
+      nativeVideoRef.current.currentTime += 5;
+    }
+  };
+  const toggleMute = () => {
+    setIsMuted(!isMuted);
+    if (activeLesson?.media?.provider === 'youtube' && ytPlayerRef.current) {
+      isMuted ? ytPlayerRef.current.unMute() : ytPlayerRef.current.mute();
+    } else if (nativeVideoRef.current) {
+      nativeVideoRef.current.muted = !isMuted;
+    }
+  };
+  const handleVolumeChange = (e) => {
+    const v = parseFloat(e.target.value);
+    setVolume(v);
+    setIsMuted(v === 0);
+    if (activeLesson?.media?.provider === 'youtube' && ytPlayerRef.current) {
+      ytPlayerRef.current.setVolume(v * 100);
+      if (v > 0) ytPlayerRef.current.unMute();
+    } else if (nativeVideoRef.current) {
+      nativeVideoRef.current.volume = v;
+      nativeVideoRef.current.muted = v === 0;
+    }
+  };
+  const handleQualitySelect = (q) => setVideoQuality(q);
+  const handleSpeedSelect = (s) => {
+    setPlaybackSpeed(s);
+    if (activeLesson?.media?.provider === 'youtube' && ytPlayerRef.current) {
+      ytPlayerRef.current.setPlaybackRate(s);
+    } else if (nativeVideoRef.current) {
+      nativeVideoRef.current.playbackRate = s;
+    }
+  };
+  
+  const handleMouseMoveOnPlayer = () => {
+    setAreControlsVisible(true);
+    if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
+    if (isPlaying) {
+      controlsTimeoutRef.current = setTimeout(() => setAreControlsVisible(false), 2500);
+    }
+  };
+  const handleMouseLeavePlayer = () => {
+    if (isPlaying) setAreControlsVisible(false);
+  };
+
 
   const togglePlayPause = () => { setIsPlaying(!isPlaying); };
   const triggerScreenPulseAnim = () => {
@@ -271,12 +353,7 @@ function CourseDetailContent({ course }) {
       loadYouTubeAPI().then((YT) => {
         player = new YT.Player('youtube-player-container', {
           videoId: activeLesson.media.videoId,
-          playerVars: {
-            autoplay: 1,
-            modestbranding: 1,
-            rel: 0,
-            playsinline: 1,
-          },
+          playerVars: { autoplay: 1, controls: 0, disablekb: 1, fs: 0, modestbranding: 1, rel: 0, playsinline: 1 },
           events: {
             onReady: (event) => {
               ytPlayerRef.current = event.target;
@@ -288,11 +365,15 @@ function CourseDetailContent({ course }) {
                 event.target.playVideo();
               }
               
-              // start saving interval
               ytSaveIntervalRef.current = setInterval(() => {
                 const time = event.target.getCurrentTime();
-                if (time) saveProgress(course.id, activeLesson.id, time);
-              }, 5000);
+                const dur = event.target.getDuration();
+                if (time) {
+                  setCurrentTime(time);
+                  saveProgress(course.id, activeLesson.id, time);
+                }
+                if (dur) setDuration(dur);
+              }, 1000);
             },
             onStateChange: (event) => {
               setIsPlaying(event.data === YT.PlayerState.PLAYING);
@@ -436,12 +517,14 @@ function CourseDetailContent({ course }) {
 
   const renderStudyTimerWidget = (isModalContext = false) => {
     const styleProp = customPos
-      ? { position: 'fixed', left: 0, top: 0, transform: `translate(${customPos.x}px, ${customPos.y}px)`, zIndex: 99999 }
+      ? { position: 'fixed', left: `${customPos.x}px`, top: `${customPos.y}px`, zIndex: 99999 }
       : { zIndex: 99999 };
 
     const classNameProp = `floating-study-widget ${
       !customPos ? (isModalContext ? 'under-video-anchor' : 'top-right-anchor') : ''
     } ${isTimerCollapsed ? 'collapsed' : ''}`;
+
+    const progressPercent = allLessons.length > 0 ? Math.round((0 / allLessons.length) * 100) : 0; // fallback
 
     return (
       <div className={classNameProp} style={{ touchAction: 'none', ...styleProp }} onPointerDown={handleTimerPointerDown}>
@@ -461,15 +544,7 @@ function CourseDetailContent({ course }) {
                 <div className="progress-widget-fill" style={{ width: `${progressPercent}%` }} />
               </div>
             </div>
-            <button
-              type="button"
-              className="btn-timer-collapse"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsTimerCollapsed(true);
-              }}
-              title="Thu gọn thanh đếm giờ"
-            >
+            <button type="button" className="btn-timer-collapse" onClick={(e) => { e.stopPropagation(); setIsTimerCollapsed(true); }}>
               <Minimize2 size={12} />
             </button>
           </>
@@ -479,15 +554,7 @@ function CourseDetailContent({ course }) {
               <Clock size={15} />
               <span>{Math.floor(totalStudySeconds / 60)}m {totalStudySeconds % 60}s ({progressPercent}%)</span>
             </div>
-            <button
-              type="button"
-              className="btn-timer-collapse"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsTimerCollapsed(false);
-              }}
-              title="Mở rộng thanh đếm giờ"
-            >
+            <button type="button" className="btn-timer-collapse" onClick={(e) => { e.stopPropagation(); setIsTimerCollapsed(false); }}>
               <Maximize2 size={12} />
             </button>
           </>
