@@ -126,6 +126,20 @@ const getYouTubeEmbedUrl = (videoId) => (
   `https://www.youtube-nocookie.com/embed/${encodeURIComponent(videoId)}?autoplay=1&rel=0&modestbranding=1&playsinline=1`
 );
 
+
+const loadYouTubeAPI = () => {
+  return new Promise((resolve) => {
+    if (window.YT && window.YT.Player) {
+      resolve(window.YT);
+      return;
+    }
+    window.onYouTubeIframeAPIReady = () => resolve(window.YT);
+    const script = document.createElement('script');
+    script.src = 'https://www.youtube.com/iframe_api';
+    document.body.appendChild(script);
+  });
+};
+
 export default function CourseDetail() {
   const { slug } = useParams();
   const course = getCourseById(slug);
@@ -181,6 +195,167 @@ function CourseDetailContent({ course }) {
     setShowPlayPauseAnim(true);
     setTimeout(() => setShowPlayPauseAnim(false), 500);
   };
+
+  const ytPlayerRef = useRef(null);
+  const ytSaveIntervalRef = useRef(null);
+
+  // Resume Prompt Logic
+  const checkAndPromptResume = (savedTime) => {
+    if (savedTime > 5) {
+      setResumeTime(savedTime);
+      setShowResumePrompt(true);
+      // Native video pauses immediately via handleNativeLoaded below
+      // YouTube pauses below in onReady
+    }
+  };
+
+  // Visibility and BeforeUnload saving
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden && activeLesson && showPlayer) {
+        if (nativeVideoRef.current && !nativeVideoRef.current.paused) {
+          nativeVideoRef.current.pause();
+          setShowTabPauseToast(true);
+          setTimeout(() => setShowTabPauseToast(false), 3000);
+        } else if (ytPlayerRef.current && ytPlayerRef.current.getPlayerState() === window.YT.PlayerState.PLAYING) {
+          ytPlayerRef.current.pauseVideo();
+          setShowTabPauseToast(true);
+          setTimeout(() => setShowTabPauseToast(false), 3000);
+        }
+      }
+    };
+
+    const handleBeforeUnload = () => {
+      if (activeLesson) {
+        if (activeLesson.media?.provider === 'youtube' && ytPlayerRef.current) {
+           const time = ytPlayerRef.current.getCurrentTime();
+           if (time) saveProgress(course.id, activeLesson.id, time);
+        } else if (nativeVideoRef.current) {
+           saveProgress(course.id, activeLesson.id, nativeVideoRef.current.currentTime);
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [activeLesson, showPlayer, course.id]);
+
+  // YouTube Player Initialization
+  useEffect(() => {
+    if (showPlayer && activeLesson?.type === 'video' && activeLesson.media?.provider === 'youtube') {
+      let player;
+      loadYouTubeAPI().then((YT) => {
+        player = new YT.Player('youtube-player-container', {
+          videoId: activeLesson.media.videoId,
+          playerVars: {
+            autoplay: 1,
+            modestbranding: 1,
+            rel: 0,
+            playsinline: 1,
+          },
+          events: {
+            onReady: (event) => {
+              ytPlayerRef.current = event.target;
+              const savedTime = getSavedProgress(course.id, activeLesson.id);
+              if (savedTime > 5) {
+                event.target.pauseVideo();
+                checkAndPromptResume(savedTime);
+              } else {
+                event.target.playVideo();
+              }
+              
+              // start saving interval
+              ytSaveIntervalRef.current = setInterval(() => {
+                const time = event.target.getCurrentTime();
+                if (time) saveProgress(course.id, activeLesson.id, time);
+              }, 5000);
+            },
+            onStateChange: (event) => {
+              setIsPlaying(event.data === YT.PlayerState.PLAYING);
+            }
+          }
+        });
+      });
+      return () => {
+        if (ytSaveIntervalRef.current) clearInterval(ytSaveIntervalRef.current);
+        if (ytPlayerRef.current) {
+          const time = ytPlayerRef.current.getCurrentTime();
+          if (time) saveProgress(course.id, activeLesson.id, time);
+          ytPlayerRef.current.destroy();
+          ytPlayerRef.current = null;
+        }
+      };
+    }
+  }, [showPlayer, activeLesson, course.id]);
+
+  // Handle YouTube custom controls (rewind/forward/speed) - using native keyboard since YouTube iframe captures focus
+  useEffect(() => {
+    if (!showPlayer || !activeLesson) return;
+
+    const handleKeyDown = (e) => {
+      // Don't trigger if user is typing in an input
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
+
+      let isNative = nativeVideoRef.current != null;
+      let isYT = activeLesson.media?.provider === 'youtube' && ytPlayerRef.current;
+      
+      if (!isNative && !isYT) return;
+
+      const seekBy = (seconds) => {
+        if (isYT) {
+          const currentTime = ytPlayerRef.current.getCurrentTime();
+          ytPlayerRef.current.seekTo(currentTime + seconds, true);
+        } else if (isNative) {
+          nativeVideoRef.current.currentTime += seconds;
+        }
+      };
+
+      const togglePlay = () => {
+        if (isYT) {
+          if (ytPlayerRef.current.getPlayerState() === window.YT.PlayerState.PLAYING) {
+            ytPlayerRef.current.pauseVideo();
+          } else {
+            ytPlayerRef.current.playVideo();
+          }
+        } else if (isNative) {
+          if (nativeVideoRef.current.paused) {
+            nativeVideoRef.current.play();
+          } else {
+            nativeVideoRef.current.pause();
+          }
+        }
+        triggerScreenPulseAnim();
+      };
+
+      switch(e.key) {
+        case 'ArrowLeft':
+          e.preventDefault();
+          seekBy(-5);
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          seekBy(5);
+          break;
+        case ' ': // Space
+          e.preventDefault();
+          togglePlay();
+          break;
+        case 'n': // Next video
+        case 'N':
+          if (hasNextLesson) handleNextLesson();
+          break;
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [showPlayer, activeLesson, hasNextLesson]);
   const adminAccount = isAdminAccount(course.id);
 
   const handleReportSubmit = (e) => {
@@ -241,8 +416,8 @@ function CourseDetailContent({ course }) {
 
   const renderStudyTimerWidget = (isModalContext = false) => {
     const styleProp = customPos
-      ? { position: 'fixed', left: `${customPos.x}px`, top: `${customPos.y}px` }
-      : {};
+      ? { position: 'fixed', left: 0, top: 0, transform: `translate(${customPos.x}px, ${customPos.y}px)`, zIndex: 99999 }
+      : { zIndex: 99999 };
 
     const classNameProp = `floating-study-widget ${
       !customPos ? (isModalContext ? 'under-video-anchor' : 'top-right-anchor') : ''
@@ -320,6 +495,11 @@ function CourseDetailContent({ course }) {
       saveProgress(course.id, activeLesson.id, nativeVideoRef.current.currentTime);
       nativeVideoRef.current.pause();
     }
+    if (activeLesson?.media?.provider === 'youtube' && ytPlayerRef.current) {
+      const time = ytPlayerRef.current.getCurrentTime();
+      if (time) saveProgress(course.id, activeLesson.id, time);
+      ytPlayerRef.current.pauseVideo();
+    }
     setShowPlayer(false);
     setActiveLesson(null);
   }, [activeLesson, course.id]);
@@ -391,7 +571,9 @@ function CourseDetailContent({ course }) {
 
     // BYPASS: If lesson already has a videoUrl (like YouTube), play it directly
     if (lesson.type === 'video' && lesson.videoUrl) {
-      setActiveLesson(lesson);
+      const ytMatch = lesson.videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+      let media = ytMatch ? { provider: 'youtube', videoId: ytMatch[1] } : { url: lesson.videoUrl };
+      setActiveLesson({ ...lesson, media });
       setShowPlayer(true);
       setLoadingLessonId(null);
       return;
@@ -460,8 +642,9 @@ function CourseDetailContent({ course }) {
   const handleNativeLoaded = (event) => {
     if (!activeLesson) return;
     const savedTime = getSavedProgress(course.id, activeLesson.id);
-    if (savedTime > 0 && savedTime < event.currentTarget.duration - 3) {
-      event.currentTarget.currentTime = savedTime;
+    if (savedTime > 5 && savedTime < event.currentTarget.duration - 3) {
+      event.currentTarget.pause();
+      checkAndPromptResume(savedTime);
     }
   };
 
@@ -482,7 +665,7 @@ function CourseDetailContent({ course }) {
 
   return (
     <div className={`course-detail-page cd-tone-${courseTone}`}>
-      {!showVideoModal && renderStudyTimerWidget(false)}
+      {renderStudyTimerWidget(false)}
       <header className="cd-hero">
         <div className="container cd-hero__inner">
           <Link to="/courses" className="cd-back-link">
@@ -744,13 +927,8 @@ function CourseDetailContent({ course }) {
             <div className="cd-player-dialog__body">
               {activeLesson.type === 'video' ? (
                 activeLesson?.media?.provider === 'youtube' ? (
-                  <div className="cd-video-frame">
-                    <iframe
-                      src={getYouTubeEmbedUrl(activeLesson.media.videoId)}
-                      title={activeLesson.title}
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                      allowFullScreen
-                    />
+                  <div className="cd-video-frame" style={{ position: 'relative' }}>
+                    <div id="youtube-player-container" style={{ width: '100%', height: '100%' }}></div>
                   </div>
                 ) : (
                   <div className="cd-video-frame">
@@ -842,7 +1020,62 @@ function CourseDetailContent({ course }) {
         document.body
       )}
 
-      <CourseEnrollmentModal
+      
+      {showResumePrompt && activeLesson && createPortal(
+        <div className={`cd-dialog-backdrop cd-tone-${courseTone}`} style={{ zIndex: 10002 }}>
+          <div className="cd-lock-dialog" style={{ textAlign: 'center', padding: '30px' }}>
+            <h3 style={{ marginBottom: '15px' }}>Tiếp tục xem bài học?</h3>
+            <p style={{ marginBottom: '25px', color: 'var(--cd-color-text-secondary)' }}>
+              Bạn đang xem tới <strong>{Math.floor(resumeTime / 60)} phút {Math.floor(resumeTime % 60)} giây</strong>.
+            </p>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+              <button 
+                className="cd-button cd-button--secondary"
+                onClick={() => {
+                  setShowResumePrompt(false);
+                  if (activeLesson.media?.provider === 'youtube' && ytPlayerRef.current) {
+                    ytPlayerRef.current.seekTo(0);
+                    ytPlayerRef.current.playVideo();
+                  } else if (nativeVideoRef.current) {
+                    nativeVideoRef.current.currentTime = 0;
+                    nativeVideoRef.current.play();
+                  }
+                }}
+              >
+                Xem lại từ đầu
+              </button>
+              <button 
+                className="cd-button cd-button--primary"
+                onClick={() => {
+                  setShowResumePrompt(false);
+                  if (activeLesson.media?.provider === 'youtube' && ytPlayerRef.current) {
+                    ytPlayerRef.current.seekTo(resumeTime);
+                    ytPlayerRef.current.playVideo();
+                  } else if (nativeVideoRef.current) {
+                    nativeVideoRef.current.currentTime = resumeTime;
+                    nativeVideoRef.current.play();
+                  }
+                }}
+              >
+                Tiếp tục xem
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+      
+      {showTabPauseToast && createPortal(
+        <div style={{
+          position: 'fixed', top: '20px', left: '50%', transform: 'translateX(-50%)',
+          background: 'rgba(0,0,0,0.8)', color: 'white', padding: '10px 20px', 
+          borderRadius: '8px', zIndex: 10003, fontWeight: 'bold'
+        }}>
+          Video đã tự động tạm dừng vì bạn chuyển tab!
+        </div>,
+        document.body
+      )}
+\n      <CourseEnrollmentModal
         isOpen={showEnrollment}
         onClose={() => setShowEnrollment(false)}
         course={course}
