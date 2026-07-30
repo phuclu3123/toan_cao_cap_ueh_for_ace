@@ -1074,7 +1074,7 @@ function CourseDetailContent({ course }) {
                   {activeLesson.media?.provider === 'youtube' && (
                     <div className="video-canvas-click-overlay" onClick={() => { togglePlayPause(); triggerScreenPulseAnim(); }} style={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 60, cursor: 'pointer', zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                       {showPlayPauseAnim && (
-                        <div className="play-pause-pulse-icon" style={{background: 'rgba(255, 255, 255, 0.25)', backdropFilter: 'blur(8px)', color: '#fff'}}>
+                        <div className="play-pause-pulse-icon" style={{background: 'rgba(0, 0, 0, 0.45)', backdropFilter: 'blur(8px)', color: '#fff'}}>
                           {isPlaying ? <Pause size={48} fill="currentColor" /> : <Play size={48} fill="currentColor" />}
                         </div>
                       )}
