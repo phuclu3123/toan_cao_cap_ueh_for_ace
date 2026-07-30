@@ -196,6 +196,26 @@ function CourseDetailContent({ course }) {
     setTimeout(() => setShowPlayPauseAnim(false), 500);
   };
 
+  const allLessons = useMemo(
+    () => course.chapters.flatMap((chapter) => chapter.lessons || []),
+    [course.chapters]
+  );
+
+  const handleNextLesson = () => {
+    if (!activeLesson) return;
+    const currentIndex = allLessons.findIndex((lesson) => lesson.id === activeLesson.id);
+    const nextLesson = allLessons[currentIndex + 1];
+    if (!nextLesson) return;
+    closePlayer();
+    openLesson(nextLesson);
+  };
+
+  const firstLesson = allLessons[0];
+  const activeIndex = activeLesson
+    ? allLessons.findIndex((lesson) => lesson.id === activeLesson.id)
+    : -1;
+  const hasNextLesson = activeIndex >= 0 && activeIndex < allLessons.length - 1;
+
   const ytPlayerRef = useRef(null);
   const ytSaveIntervalRef = useRef(null);
 
@@ -483,10 +503,7 @@ function CourseDetailContent({ course }) {
   const lockCloseRef = useRef(null);
   const nativeVideoRef = useRef(null);
 
-  const allLessons = useMemo(
-    () => course.chapters.flatMap((chapter) => chapter.lessons || []),
-    [course.chapters]
-  );
+
   const hasCourseAccess = isAdmin || isEnrolled;
   const courseTone = COURSE_TONES[course.id] || 'emerald';
 
@@ -648,20 +665,7 @@ function CourseDetailContent({ course }) {
     }
   };
 
-  const handleNextLesson = () => {
-    if (!activeLesson) return;
-    const currentIndex = allLessons.findIndex((lesson) => lesson.id === activeLesson.id);
-    const nextLesson = allLessons[currentIndex + 1];
-    if (!nextLesson) return;
-    closePlayer();
-    openLesson(nextLesson);
-  };
 
-  const firstLesson = allLessons[0];
-  const activeIndex = activeLesson
-    ? allLessons.findIndex((lesson) => lesson.id === activeLesson.id)
-    : -1;
-  const hasNextLesson = activeIndex >= 0 && activeIndex < allLessons.length - 1;
 
   return (
     <div className={`course-detail-page cd-tone-${courseTone}`}>
