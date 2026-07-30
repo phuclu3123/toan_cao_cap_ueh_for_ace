@@ -77,9 +77,10 @@ const useAccessibleDialog = (isOpen, dialogRef, initialFocusRef, onClose) => {
   }, [dialogRef, initialFocusRef, isOpen, onClose]);
 };
 
-const getProgressKey = (courseId, lessonId) => (
-  `course_playback_progress_${lessonId}`
-);
+const getProgressKey = (courseId, lessonId) => {
+  const userId = auth?.currentUser?.uid || 'guest';
+  return `course_playback_progress_${userId}_${lessonId}`;
+};
 
 const getSavedProgress = (courseId, lessonId) => {
   try {
@@ -158,6 +159,7 @@ function CourseDetailContent({ course }) {
   const [reportSuccess, setReportSuccess] = useState(false);
   const [isYouTube, setIsYouTube] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isVideoEnded, setIsVideoEnded] = useState(false);
   const [showWatermark, setShowWatermark] = useState(true);
   const [watermarkText, setWatermarkText] = useState('');
   const [microPosStyle, setMicroPosStyle] = useState({ top: '10%', left: '10%' });
@@ -396,6 +398,8 @@ function CourseDetailContent({ course }) {
             },
             onStateChange: (event) => {
               setIsPlaying(event.data === YT.PlayerState.PLAYING);
+              if (event.data === YT.PlayerState.PLAYING) setIsVideoEnded(false);
+              if (event.data === YT.PlayerState.ENDED) setIsVideoEnded(true);
             }
           }
         });
@@ -711,6 +715,7 @@ function CourseDetailContent({ course }) {
     if (lesson.type === 'video' && lesson.videoUrl) {
       const ytMatch = lesson.videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
       let media = ytMatch ? { provider: 'youtube', videoId: ytMatch[1] } : { url: lesson.videoUrl };
+      setIsVideoEnded(false);
       setActiveLesson({ ...lesson, media });
       setShowPlayer(true);
       setLoadingLessonId(null);
@@ -1066,24 +1071,40 @@ function CourseDetailContent({ course }) {
                       src={activeLesson.media?.url || activeLesson.videoUrl}
                       onTimeUpdate={handleTimeUpdate}
                       onLoadedMetadata={handleLoadedMetadata}
+                      onEnded={() => setIsVideoEnded(true)}
+                      onPlay={() => setIsVideoEnded(false)}
                       onClick={() => { togglePlayPause(); triggerScreenPulseAnim(); }}
                       style={{ width: '100%', height: '100%', cursor: 'pointer' }}
                     />
                   )}
+                  {activeLesson.media?.provider !== 'youtube' && isVideoEnded && hasNextLesson && (
+                    <div style={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10, pointerEvents: 'none'}}>
+                       <button type="button" onClick={(e) => { e.stopPropagation(); handleNextLesson(); }} style={{padding: '12px 24px', background: 'var(--cd-accent)', color: '#fff', border: 'none', borderRadius: 30, fontSize: 16, fontWeight: 600, cursor: 'pointer', pointerEvents: 'auto', display: 'flex', alignItems: 'center', gap: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.5)'}}>
+                          <SkipForward size={20} />
+                          Bài tiếp theo
+                        </button>
+                    </div>
+                  )}
 
                   {activeLesson.media?.provider === 'youtube' && (
-                    <div className="video-canvas-click-overlay" onClick={() => { togglePlayPause(); triggerScreenPulseAnim(); }} style={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 60, cursor: 'pointer', zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                    <div className="video-canvas-click-overlay" onClick={() => { togglePlayPause(); triggerScreenPulseAnim(); }} style={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 60, cursor: 'pointer', zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column'}}>
                       {showPlayPauseAnim && (
                         <div className="play-pause-pulse-icon" style={{background: 'rgba(0, 0, 0, 0.45)', backdropFilter: 'blur(8px)', color: '#fff'}}>
                           {isPlaying ? <Pause size={48} fill="currentColor" /> : <Play size={48} fill="currentColor" />}
                         </div>
+                      )}
+                      {isVideoEnded && hasNextLesson && (
+                        <button type="button" onClick={(e) => { e.stopPropagation(); handleNextLesson(); }} style={{marginTop: 20, padding: '12px 24px', background: 'var(--cd-accent)', color: '#fff', border: 'none', borderRadius: 30, fontSize: 16, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, boxShadow: '0 4px 12px rgba(0,0,0,0.5)'}}>
+                          <SkipForward size={20} />
+                          Bài tiếp theo
+                        </button>
                       )}
                     </div>
                   )}
 
                   <div className="video-overlay-controls yt-theme" style={{position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)', padding: '20px 16px 12px', display: 'flex', flexDirection: 'column', gap: 8, zIndex: 20, opacity: areControlsVisible || !isPlaying ? 1 : 0, transition: 'opacity 0.2s'}}>
                     <div className="video-progress-scrubber" onClick={handleSeek} style={{height: 5, background: 'rgba(255,255,255,0.15)', cursor: 'pointer', position: 'relative', transition: 'height 0.1s'}} onMouseEnter={(e) => e.currentTarget.style.height = '8px'} onMouseLeave={(e) => e.currentTarget.style.height = '5px'}>
-                      <div className="video-progress-fill" style={{ width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%`, height: '100%', background: 'var(--cd-accent)', transition: 'width 0.1s linear' }}>
+                      <div className="video-progress-fill" style={{ width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%`, height: '100%', background: 'var(--cd-accent)', boxShadow: '0 0 8px var(--cd-accent)', transition: 'width 0.1s linear' }}>
                          <div style={{position: 'absolute', right: '-6px', top: '50%', transform: 'translateY(-50%)', width: 12, height: 12, background: 'var(--cd-accent)', borderRadius: '50%', opacity: 0, transition: 'opacity 0.1s'}} className="scrubber-thumb" />
                       </div>
                     </div>
