@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useParams } from 'react-router-dom';
+import { auth } from '../firebase';
 import {
   ArrowLeft, ArrowRight, BookOpen, Check, CheckCircle2, ChevronDown, Clock, Clock3, Eye, FileText, FolderOpen, GripVertical, GraduationCap, Library, Loader2, LockKeyhole, Maximize2, Minimize2, Pause, Play, ShieldCheck, SkipForward, Users, Video, X,
   CheckCircle, Flag, Lightbulb, RotateCcw, RotateCw, Settings, Volume2, VolumeX
@@ -78,7 +79,15 @@ const useAccessibleDialog = (isOpen, dialogRef, initialFocusRef, onClose) => {
 };
 
 const getProgressKey = (courseId, lessonId) => {
-  const userId = auth?.currentUser?.uid || 'guest';
+  let userId = 'guest';
+  try {
+    const savedUser = localStorage.getItem('ueh_tcc_user');
+    if (savedUser) {
+      const user = JSON.parse(savedUser);
+      if (user && user.uid) userId = user.uid;
+    }
+  } catch (e) {}
+  if (userId === 'guest') userId = auth?.currentUser?.uid || 'guest';
   return `course_playback_progress_${userId}_${lessonId}`;
 };
 
@@ -1114,6 +1123,12 @@ function CourseDetailContent({ course }) {
                         <button type="button" onClick={() => { togglePlayPause(); triggerScreenPulseAnim(); }} title="Phát / Tạm dừng" style={{background: 'none', border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center'}}>
                           {isPlaying ? <Pause size={24} fill="currentColor" /> : <Play size={24} fill="currentColor" />}
                         </button>
+                        
+                        {hasNextLesson && (
+                          <button type="button" onClick={handleNextLesson} title="Bài tiếp theo" style={{background: 'none', border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', marginLeft: -4}}>
+                            <SkipForward size={24} fill="currentColor" />
+                          </button>
+                        )}
 
                         <button type="button" onClick={handleRewind5} title="Tua lùi 5s" style={{background: 'none', border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center'}}>
                           <RotateCcw size={20} />
@@ -1135,11 +1150,6 @@ function CourseDetailContent({ course }) {
                       </div>
 
                       <div className="controls-right-group" style={{display: 'flex', alignItems: 'center', gap: 16}}>
-                        {hasNextLesson && (
-                          <button type="button" onClick={handleNextLesson} title="Bài tiếp" style={{background: 'none', border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center'}}>
-                            <SkipForward size={20} />
-                          </button>
-                        )}
                         <div style={{position: 'relative'}}>
                           <button type="button" onClick={() => setShowSettingsPopover(!showSettingsPopover)} title="Cài đặt phát" style={{background: 'none', border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center'}}>
                             <Settings size={20} />
