@@ -371,7 +371,7 @@ function CourseDetailContent({ course }) {
       loadYouTubeAPI().then((YT) => {
         player = new YT.Player(container, {
           videoId: activeLesson.media.videoId,
-          playerVars: { autoplay: 1, mute: 1, controls: 0, disablekb: 1, fs: 0, modestbranding: 1, rel: 0, playsinline: 1 },
+          playerVars: { autoplay: 1, controls: 0, disablekb: 1, fs: 0, modestbranding: 1, rel: 0, playsinline: 1 },
           events: {
             onReady: (event) => {
               ytPlayerRef.current = event.target;
@@ -1073,7 +1073,7 @@ function CourseDetailContent({ course }) {
                   {activeLesson.media?.provider === 'youtube' && (
                     <div className="video-canvas-click-overlay" onClick={() => { togglePlayPause(); triggerScreenPulseAnim(); }} style={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 60, cursor: 'pointer', zIndex: 10}}>
                       {showPlayPauseAnim && (
-                        <div className="play-pause-pulse-icon" style={{color: 'var(--cd-color-primary)'}}>
+                        <div className="play-pause-pulse-icon" style={{color: 'var(--cd-accent)'}}>
                           {isPlaying ? <Pause size={48} fill="currentColor" /> : <Play size={48} fill="currentColor" />}
                         </div>
                       )}
@@ -1082,8 +1082,8 @@ function CourseDetailContent({ course }) {
 
                   <div className="video-overlay-controls yt-theme" style={{position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)', padding: '20px 16px 12px', display: 'flex', flexDirection: 'column', gap: 8, zIndex: 20, opacity: areControlsVisible || !isPlaying ? 1 : 0, transition: 'opacity 0.2s'}}>
                     <div className="video-progress-scrubber" onClick={handleSeek} style={{height: 5, background: 'rgba(255,255,255,0.3)', cursor: 'pointer', position: 'relative', transition: 'height 0.1s'}} onMouseEnter={(e) => e.currentTarget.style.height = '8px'} onMouseLeave={(e) => e.currentTarget.style.height = '5px'}>
-                      <div className="video-progress-fill" style={{ width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%`, height: '100%', background: 'var(--cd-color-primary)', transition: 'width 0.1s linear' }}>
-                         <div style={{position: 'absolute', right: '-6px', top: '50%', transform: 'translateY(-50%)', width: 12, height: 12, background: 'var(--cd-color-primary)', borderRadius: '50%', opacity: 0, transition: 'opacity 0.1s'}} className="scrubber-thumb" />
+                      <div className="video-progress-fill" style={{ width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%`, height: '100%', background: 'var(--cd-accent)', transition: 'width 0.1s linear' }}>
+                         <div style={{position: 'absolute', right: '-6px', top: '50%', transform: 'translateY(-50%)', width: 12, height: 12, background: 'var(--cd-accent)', borderRadius: '50%', opacity: 0, transition: 'opacity 0.1s'}} className="scrubber-thumb" />
                       </div>
                     </div>
 
@@ -1093,7 +1093,9 @@ function CourseDetailContent({ course }) {
                           {isPlaying ? <Pause size={24} fill="currentColor" /> : <Play size={24} fill="currentColor" />}
                         </button>
 
-                        $1
+                        <button type="button" onClick={handleRewind5} title="Tua lùi 5s" style={{background: 'none', border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center'}}>
+                          <RotateCcw size={20} />
+                        </button>
                         <button type="button" onClick={handleForward5} title="Tua tới 5s" style={{background: 'none', border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center'}}>
                           <RotateCw size={20} />
                         </button>
@@ -1102,7 +1104,7 @@ function CourseDetailContent({ course }) {
                           <button type="button" onClick={toggleMute} style={{background: 'none', border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center'}}>
                             {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
                           </button>
-                          <input type="range" min="0" max="1" step="0.05" value={isMuted ? 0 : volume} onChange={handleVolumeChange} style={{ width: '60px', cursor: 'pointer', accentColor: 'var(--cd-color-primary)' }} />
+                          <input type="range" min="0" max="1" step="0.05" value={isMuted ? 0 : volume} onChange={handleVolumeChange} style={{ width: '60px', cursor: 'pointer', accentColor: 'var(--cd-accent)' }} />
                         </div>
 
                         <span style={{fontSize: 13, fontFamily: 'Roboto, Arial, sans-serif', opacity: 0.9, userSelect: 'none'}}>
@@ -1126,7 +1128,7 @@ function CourseDetailContent({ course }) {
                               {[0.5, 0.75, 1, 1.25, 1.5, 2].map((spd) => (
                                 <div key={spd} onClick={() => handleSpeedSelect(spd)} style={{padding: '8px 16px', cursor: 'pointer', color: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13}} onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
                                   <span>{spd === 1 ? 'Chuẩn' : `${spd}x`}</span>
-                                  {playbackSpeed === spd && <CheckCircle size={16} color="var(--cd-color-primary)" />}
+                                  {playbackSpeed === spd && <CheckCircle size={16} color="var(--cd-accent)" />}
                                 </div>
                               ))}
                             </div>
