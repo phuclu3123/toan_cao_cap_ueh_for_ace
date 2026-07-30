@@ -147,6 +147,7 @@ function CourseDetailContent({ course }) {
   const [loadingLessonId, setLoadingLessonId] = useState(null);
   const [notice, setNotice] = useState('');
   const [showPlayer, setShowPlayer] = useState(false);
+  const [resumePromptData, setResumePromptData] = useState(null);
   const [showLockPrompt, setShowLockPrompt] = useState(false);
   const [lockReason, setLockReason] = useState('ENROLLMENT_REQUIRED');
   const [showEnrollment, setShowEnrollment] = useState(false);
@@ -390,7 +391,7 @@ function CourseDetailContent({ course }) {
               const savedTime = getSavedProgress(course.id, activeLesson.media?.videoId || activeLesson.id);
               if (savedTime > 5) {
                 event.target.pauseVideo();
-                checkAndPromptResume(savedTime);
+                setResumePromptData({ time: savedTime });
               } else {
                 event.target.playVideo();
               }
@@ -416,8 +417,12 @@ function CourseDetailContent({ course }) {
       return () => {
         if (ytSaveIntervalRef.current) clearInterval(ytSaveIntervalRef.current);
         if (ytPlayerRef.current) {
-          const time = ytPlayerRef.current.getCurrentTime();
-          if (time) saveProgress(course.id, activeLesson.media?.videoId || activeLesson.id, time);
+          try {
+            if (typeof ytPlayerRef.current.getCurrentTime === 'function') {
+              const time = ytPlayerRef.current.getCurrentTime();
+              if (time) saveProgress(course.id, activeLesson.media?.videoId || activeLesson.id, time);
+            }
+          } catch (e) {}
           ytPlayerRef.current.destroy();
           ytPlayerRef.current = null;
         }
@@ -725,6 +730,7 @@ function CourseDetailContent({ course }) {
       const ytMatch = lesson.videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
       let media = ytMatch ? { provider: 'youtube', videoId: ytMatch[1] } : { url: lesson.videoUrl };
       setIsVideoEnded(false);
+      setResumePromptData(null);
       setActiveLesson({ ...lesson, media });
       setShowPlayer(true);
       setLoadingLessonId(null);
@@ -1092,6 +1098,45 @@ function CourseDetailContent({ course }) {
                           <SkipForward size={20} />
                           Bài tiếp theo
                         </button>
+                    </div>
+                  )}
+
+                  {resumePromptData && (
+                    <div style={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', color: '#fff', backdropFilter: 'blur(4px)'}}>
+                      <div style={{background: '#1f1f1f', padding: '24px 32px', borderRadius: 12, maxWidth: 400, textAlign: 'center', boxShadow: '0 8px 32px rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.1)'}}>
+                        <h3 style={{marginTop: 0, marginBottom: 16, fontSize: 20}}>Tiếp tục bài học?</h3>
+                        <p style={{marginBottom: 24, color: '#ccc', lineHeight: 1.5, fontSize: 15}}>
+                          Bạn đang xem bài học này ở phút <strong style={{color: 'var(--cd-accent)', fontSize: 16}}>{formatTime(resumePromptData.time)}</strong>. Bạn muốn xem tiếp hay xem lại từ đầu?
+                        </p>
+                        <div style={{display: 'flex', gap: 12, justifyContent: 'center'}}>
+                          <button onClick={(e) => {
+                             e.stopPropagation();
+                             if (ytPlayerRef.current && typeof ytPlayerRef.current.seekTo === 'function') {
+                                ytPlayerRef.current.seekTo(resumePromptData.time, true);
+                                ytPlayerRef.current.playVideo();
+                             } else if (nativeVideoRef.current) {
+                                nativeVideoRef.current.currentTime = resumePromptData.time;
+                                nativeVideoRef.current.play();
+                             }
+                             setResumePromptData(null);
+                          }} style={{padding: '10px 24px', background: 'var(--cd-accent)', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14, transition: 'opacity 0.2s'}} onMouseEnter={e => e.currentTarget.style.opacity=0.9} onMouseLeave={e => e.currentTarget.style.opacity=1}>
+                            Xem tiếp
+                          </button>
+                          <button onClick={(e) => {
+                             e.stopPropagation();
+                             if (ytPlayerRef.current && typeof ytPlayerRef.current.seekTo === 'function') {
+                                ytPlayerRef.current.seekTo(0, true);
+                                ytPlayerRef.current.playVideo();
+                             } else if (nativeVideoRef.current) {
+                                nativeVideoRef.current.currentTime = 0;
+                                nativeVideoRef.current.play();
+                             }
+                             setResumePromptData(null);
+                          }} style={{padding: '10px 24px', background: 'transparent', color: '#fff', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14, transition: 'background 0.2s'}} onMouseEnter={e => e.currentTarget.style.background='rgba(255,255,255,0.1)'} onMouseLeave={e => e.currentTarget.style.background='transparent'}>
+                            Từ đầu
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   )}
 
