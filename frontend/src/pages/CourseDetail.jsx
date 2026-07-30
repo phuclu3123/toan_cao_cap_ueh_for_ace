@@ -371,7 +371,7 @@ function CourseDetailContent({ course }) {
       loadYouTubeAPI().then((YT) => {
         player = new YT.Player(container, {
           videoId: activeLesson.media.videoId,
-          playerVars: { autoplay: 1, controls: 0, disablekb: 1, fs: 0, modestbranding: 1, rel: 0, playsinline: 1 },
+          playerVars: { autoplay: 1, mute: 1, controls: 0, disablekb: 1, fs: 0, modestbranding: 1, rel: 0, playsinline: 1 },
           events: {
             onReady: (event) => {
               ytPlayerRef.current = event.target;
@@ -789,7 +789,7 @@ function CourseDetailContent({ course }) {
 
   return (
     <div className={`course-detail-page cd-tone-${courseTone}`}>
-      {renderStudyTimerWidget(false)}
+      {createPortal(renderStudyTimerWidget(false), document.body)}
       <header className="cd-hero">
         <div className="container cd-hero__inner">
           <Link to="/courses" className="cd-back-link">
@@ -1058,7 +1058,7 @@ function CourseDetailContent({ course }) {
                   style={{ width: '100%', height: '100%', position: 'relative', background: '#000', overflow: 'hidden', cursor: (!areControlsVisible && isPlaying) ? 'none' : 'default' }}
                 >
                   {activeLesson.media?.provider === 'youtube' ? (
-                    <div id="youtube-player-container" style={{ width: '100%', height: '100%', pointerEvents: 'none' }} />
+                    <div ref={ytMountRef} style={{ width: '100%', height: '100%', pointerEvents: 'none' }} />
                   ) : (
                     <video
                       ref={nativeVideoRef}
