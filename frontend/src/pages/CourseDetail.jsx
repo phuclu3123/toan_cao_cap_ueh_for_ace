@@ -965,79 +965,131 @@ function CourseDetailContent({ course }) {
       </main>
 
       {showPlayer && activeLesson && createPortal(
-        <div
-          className={`cd-dialog-backdrop cd-tone-${courseTone}`}
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) closePlayer();
-          }}
-        >
-          <section
-            className="cd-player-dialog"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="player-title"
-            ref={playerDialogRef}
-            tabIndex={-1}
+        <div className="video-modal-backdrop" onClick={closePlayer}>
+          <div
+            className={`video-modal-container ${isPlayerDarkMode ? 'dark-player-box' : ''}`}
+            onClick={(e) => e.stopPropagation()}
           >
-            <header className="cd-player-dialog__header">
-              <div>
-                <span>{activeLesson.type === 'video' ? 'Video bài học' : 'Bài giảng text'}</span>
-                <h2 id="player-title">{activeLesson.title}</h2>
+            <div className="video-modal-header">
+              <div className="modal-header-title">
+                <span className="modal-header-badge">
+                  {activeLesson.type === 'video' ? 'Video bài học' : 'Bài giảng text'}
+                </span>
+                <h3>{activeLesson.title}</h3>
               </div>
-              <button
-                type="button"
-                className="cd-icon-button"
-                onClick={closePlayer}
-                ref={playerCloseRef}
-                aria-label="Đóng bài học"
-              >
-                <X size={20} />
+              <button type="button" className="modal-close-btn" onClick={closePlayer}>
+                <X size={18} />
               </button>
-            </header>
-
-            <div className="cd-player-dialog__body">
-              {activeLesson.type === 'video' ? (
-                activeLesson?.media?.provider === 'youtube' ? (
-                  <div className="cd-video-frame" style={{ position: 'relative' }}>
-                    <div id="youtube-player-container" style={{ width: '100%', height: '100%' }}></div>
-                  </div>
-                ) : (
-                  <div className="cd-video-frame">
-                    <video
-                      ref={nativeVideoRef}
-                      src={activeLesson.media?.url}
-                      controls
-                      autoPlay
-                      playsInline
-                      preload="metadata"
-                      onLoadedMetadata={handleNativeLoaded}
-                      onTimeUpdate={(event) => {
-                        saveProgress(course.id, activeLesson.id, event.currentTarget.currentTime);
-                      }}
-                    />
-                  </div>
-                )
-              ) : (
-                <article className="cd-text-lesson">
-                  <FileText size={24} aria-hidden="true" />
-                  <p>{activeLesson.content || 'Nội dung bài học đang được cập nhật.'}</p>
-                </article>
-              )}
             </div>
 
-            <footer className="cd-player-dialog__footer">
-              <span>
-                <ShieldCheck size={16} />
-                Nội dung được cấp sau khi máy chủ kiểm tra quyền học.
-              </span>
-              {hasNextLesson && (
-                <button type="button" className="cd-button cd-button--primary" onClick={handleNextLesson}>
-                  Bài tiếp theo
-                  <SkipForward size={17} />
-                </button>
-              )}
-            </footer>
-          </section>
+            {activeLesson.type === 'video' ? (
+              <div
+                className={`video-player-frame ${!areControlsVisible && isPlaying ? 'hide-controls' : ''}`}
+                ref={playerFrameRef}
+                onMouseMove={handleMouseMoveOnPlayer}
+                onMouseLeave={handleMouseLeavePlayer}
+              >
+                {activeLesson.media?.provider === 'youtube' ? (
+                  <div id="youtube-player-container" style={{ width: '100%', height: '100%', pointerEvents: 'none' }} />
+                ) : (
+                  <video
+                    ref={nativeVideoRef}
+                    src={activeLesson.media?.url || activeLesson.videoUrl}
+                    onTimeUpdate={handleTimeUpdate}
+                    onLoadedMetadata={handleLoadedMetadata}
+                    onClick={() => { togglePlayPause(); triggerScreenPulseAnim(); }}
+                    style={{ width: '100%', height: '100%', background: '#000', cursor: 'pointer' }}
+                  />
+                )}
+
+                {activeLesson.media?.provider === 'youtube' && (
+                  <div className="video-canvas-click-overlay" onClick={() => { togglePlayPause(); triggerScreenPulseAnim(); }} style={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 60, cursor: 'pointer', zIndex: 10}}>
+                    {showPlayPauseAnim && (
+                      <div className="play-pause-pulse-icon">
+                        {isPlaying ? <Pause size={36} fill="currentColor" /> : <Play size={36} fill="currentColor" />}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div className="video-overlay-controls" style={{position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.9), transparent)', padding: '20px 24px 16px', display: 'flex', flexDirection: 'column', gap: 12, zIndex: 20, opacity: areControlsVisible || !isPlaying ? 1 : 0, transition: 'opacity 0.3s'}}>
+                  <div className="video-progress-scrubber" onClick={handleSeek} style={{height: 6, background: 'rgba(255,255,255,0.2)', borderRadius: 3, cursor: 'pointer', position: 'relative'}}>
+                    <div className="video-progress-fill" style={{ width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%`, height: '100%', background: '#10b981', borderRadius: 3, transition: 'width 0.1s linear' }} />
+                  </div>
+
+                  <div className="video-controls-bottom-bar" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#fff'}}>
+                    <div className="controls-left-group" style={{display: 'flex', alignItems: 'center', gap: 16}}>
+                      <button type="button" onClick={() => { togglePlayPause(); triggerScreenPulseAnim(); }} title="Phát / Tạm dừng" style={{background: 'none', border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center'}}>
+                        {isPlaying ? <Pause size={24} fill="currentColor" /> : <Play size={24} fill="currentColor" />}
+                      </button>
+
+                      <button type="button" onClick={handleRewind5} title="Tua lùi 5s" style={{background: 'none', border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 13}}>
+                        <RotateCcw size={18} /> -5s
+                      </button>
+                      <button type="button" onClick={handleForward5} title="Tua tới 5s" style={{background: 'none', border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 13}}>
+                        <RotateCw size={18} /> +5s
+                      </button>
+
+                      <div style={{display: 'flex', alignItems: 'center', gap: 8}}>
+                        <button type="button" onClick={toggleMute} style={{background: 'none', border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center'}}>
+                          {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
+                        </button>
+                        <input type="range" min="0" max="1" step="0.05" value={isMuted ? 0 : volume} onChange={handleVolumeChange} style={{ width: '80px', cursor: 'pointer', accentColor: '#10b981' }} />
+                      </div>
+
+                      <span style={{fontSize: 14, fontFamily: 'monospace', opacity: 0.9}}>
+                        {formatTime(currentTime)} / {formatTime(duration)}
+                      </span>
+                    </div>
+
+                    <div className="controls-right-group" style={{display: 'flex', alignItems: 'center', gap: 16}}>
+                      {hasNextLesson && (
+                        <button type="button" onClick={handleNextLesson} title="Bài tiếp" style={{background: 'none', border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 14, fontWeight: 'bold'}}>
+                          Bài tiếp <SkipForward size={18} />
+                        </button>
+                      )}
+
+                      <button type="button" onClick={() => setIsPlayerDarkMode(!isPlayerDarkMode)} title="Đổi giao diện Sáng / Tối" style={{background: 'none', border: 'none', color: isPlayerDarkMode ? '#fbbf24' : '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center'}}>
+                        <Lightbulb size={20} />
+                      </button>
+
+                      <button type="button" onClick={() => setShowReportModal(true)} title="Báo lỗi bài giảng" style={{background: 'none', border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center'}}>
+                        <Flag size={20} />
+                      </button>
+
+                      <div style={{position: 'relative'}}>
+                        <button type="button" onClick={() => setShowSettingsPopover(!showSettingsPopover)} title="Cài đặt phát" style={{background: 'none', border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center'}}>
+                          <Settings size={20} />
+                        </button>
+                        {showSettingsPopover && (
+                          <div className="settings-popover-menu" onClick={(e) => e.stopPropagation()} style={{position: 'absolute', bottom: '100%', right: 0, marginBottom: 12, background: 'rgba(15, 23, 42, 0.95)', padding: 16, borderRadius: 12, minWidth: 200, border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(8px)', zIndex: 100}}>
+                            <h4 style={{margin: '0 0 12px', fontSize: 14, color: '#94a3b8', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: 8}}>Cài đặt phát</h4>
+                            <div style={{fontSize: 12, color: '#94a3b8', marginBottom: 8}}>Tốc độ phát:</div>
+                            <div style={{display: 'flex', flexDirection: 'column', gap: 4}}>
+                              {[0.5, 0.75, 1, 1.25, 1.5, 2].map((spd) => (
+                                <div key={spd} onClick={() => handleSpeedSelect(spd)} style={{padding: '6px 12px', borderRadius: 6, cursor: 'pointer', background: playbackSpeed === spd ? 'rgba(16, 185, 129, 0.2)' : 'transparent', color: playbackSpeed === spd ? '#10b981' : '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13}}>
+                                  <span>{spd === 1 ? '1.0x (Chuẩn)' : `${spd}x`}</span>
+                                  {playbackSpeed === spd && <CheckCircle size={14} />}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      <button type="button" onClick={toggleFullscreen} title="Toàn màn hình" style={{background: 'none', border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center'}}>
+                        {isFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div style={{ padding: '32px', color: '#0f172a', lineHeight: '1.8' }}>
+                <p>{activeLesson.content || 'Nội dung bài học đang được cập nhật.'}</p>
+              </div>
+            )}
+          </div>
         </div>,
         document.body
       )}
