@@ -104,11 +104,17 @@ export default function ProfilePage() {
   }, [applySession]);
 
   const enrolledCourses = useMemo(() => {
+    if (user?.role === 'Admin') {
+      return coursesData.map(course => ({
+        enrollment: { status: 'ACTIVE', source: 'ADMIN', grantedAt: new Date().toISOString() },
+        course
+      }));
+    }
     const byId = new Map(coursesData.map((course) => [course.id, course]));
     return enrollments
       .map((enrollment) => ({ enrollment, course: byId.get(enrollment.courseId) }))
       .filter((item) => item.course);
-  }, [enrollments]);
+  }, [enrollments, user]);
 
   const handleSaveProfile = async (event) => {
     event.preventDefault();
