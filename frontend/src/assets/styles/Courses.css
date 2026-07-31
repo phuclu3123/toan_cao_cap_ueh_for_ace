@@ -2824,3 +2824,67 @@ body:not(.dark-mode) .video-modal-container:not(.dark-player-box) .btn-resume-re
     transition: none;
   }
 }
+
+/* --- PICTURE IN PICTURE MINIMIZED PLAYER --- */
+.cd-dialog-backdrop.minimized-player-container {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  pointer-events: none !important;
+  display: block;
+}
+
+.cd-dialog-backdrop.minimized-player-container .cd-player-dialog {
+  pointer-events: auto !important;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 400px !important;
+  max-width: calc(100vw - 40px);
+  height: auto;
+  z-index: 100100;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  resize: both;
+  overflow: hidden;
+  cursor: grab;
+}
+.cd-dialog-backdrop.minimized-player-container .cd-player-dialog:active {
+  cursor: grabbing;
+}
+
+.cd-dialog-backdrop.minimized-player-container .cd-player-dialog__header {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  padding: 8px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent);
+  border: none;
+  z-index: 30;
+  cursor: inherit;
+}
+
+.cd-dialog-backdrop.minimized-player-container .cd-player-dialog__header > div {
+  display: none;
+}
+
+.cd-dialog-backdrop.minimized-player-container .cd-player-dialog__header .header-actions {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  justify-content: flex-end;
+}
+
+.cd-dialog-backdrop.minimized-player-container .cd-player-dialog__footer {
+  display: none !important;
+}
+
+.cd-dialog-backdrop.minimized-player-container .cd-icon-button {
+  width: 28px;
+  height: 28px;
+  background: rgba(0,0,0,0.5);
+  color: white;
+  border: none;
+}
+.cd-dialog-backdrop.minimized-player-container .cd-icon-button svg {
+  width: 16px;
+  height: 16px;
+}

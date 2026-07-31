@@ -147,6 +147,8 @@ function CourseDetailContent({ course }) {
   const [loadingLessonId, setLoadingLessonId] = useState(null);
   const [notice, setNotice] = useState('');
   const [showPlayer, setShowPlayer] = useState(false);
+  const [isPlayerMinimized, setIsPlayerMinimized] = useState(false);
+  const [playerCustomPos, setPlayerCustomPos] = useState(null);
   const [resumePromptData, setResumePromptData] = useState(null);
   const [showLockPrompt, setShowLockPrompt] = useState(false);
   const [lockReason, setLockReason] = useState('ENROLLMENT_REQUIRED');
@@ -311,7 +313,19 @@ function CourseDetailContent({ course }) {
     const currentIndex = allLessons.findIndex((lesson) => lesson.id === activeLesson.id);
     const nextLesson = allLessons[currentIndex + 1];
     if (!nextLesson) return;
-    closePlayer();
+    
+    // Save progress before switching
+    if (activeLesson.media?.provider === 'youtube' && ytPlayerRef.current) {
+      try {
+        if (typeof ytPlayerRef.current.getCurrentTime === 'function') {
+          const time = ytPlayerRef.current.getCurrentTime();
+          if (time) saveProgress(course.id, activeLesson.media?.videoId || activeLesson.id, time);
+        }
+      } catch (e) {}
+    } else if (nativeVideoRef.current) {
+      saveProgress(course.id, activeLesson.media?.videoId || activeLesson.id, nativeVideoRef.current.currentTime);
+    }
+    
     openLesson(nextLesson);
   };
 
@@ -514,6 +528,66 @@ function CourseDetailContent({ course }) {
   const handleResumeYes = () => { setShowResumePrompt(false); };
   const handleResumeNo = () => { setShowResumePrompt(false); setResumeTime(0); };
 
+  const playerDragState = useRef({ isDragging: false, startX: 0, startY: 0, initialLeft: 0, initialTop: 0 });
+
+  const handlePlayerPointerDown = (e) => {
+    if (!isPlayerMinimized) return;
+    if (e.target.closest('button') || e.target.closest('.video-overlay-controls') || e.target.closest('.video-canvas-click-overlay')) return;
+    
+    if (window.getComputedStyle(playerDialogRef.current).position !== 'fixed') {
+        const rect = playerDialogRef.current.getBoundingClientRect();
+        playerDialogRef.current.style.position = 'fixed';
+        playerDialogRef.current.style.left = `${rect.left}px`;
+        playerDialogRef.current.style.top = `${rect.top}px`;
+        playerDialogRef.current.style.margin = '0';
+    }
+
+    const currentLeft = parseInt(playerDialogRef.current.style.left) || 0;
+    const currentTop = parseInt(playerDialogRef.current.style.top) || 0;
+    
+    playerDragState.current = {
+      isDragging: true,
+      startX: e.clientX,
+      startY: e.clientY,
+      initialLeft: currentLeft,
+      initialTop: currentTop
+    };
+
+    const handlePointerMove = (moveEvent) => {
+      moveEvent.preventDefault();
+      if (!playerDragState.current.isDragging) return;
+      
+      const dx = moveEvent.clientX - playerDragState.current.startX;
+      const dy = moveEvent.clientY - playerDragState.current.startY;
+      
+      let newX = playerDragState.current.initialLeft + dx;
+      let newY = playerDragState.current.initialTop + dy;
+      
+      newX = Math.max(10, Math.min(window.innerWidth - playerDialogRef.current.offsetWidth - 10, newX));
+      newY = Math.max(10, Math.min(window.innerHeight - playerDialogRef.current.offsetHeight - 10, newY));
+      
+      playerDialogRef.current.style.left = `${newX}px`;
+      playerDialogRef.current.style.top = `${newY}px`;
+      playerDialogRef.current.style.bottom = 'auto';
+      playerDialogRef.current.style.right = 'auto';
+    };
+
+    const handlePointerUp = () => {
+      playerDragState.current.isDragging = false;
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerUp);
+      
+      const finalX = parseInt(playerDialogRef.current.style.left);
+      const finalY = parseInt(playerDialogRef.current.style.top);
+      if (!isNaN(finalX) && !isNaN(finalY)) {
+         setPlayerCustomPos({ x: finalX, y: finalY });
+      }
+    };
+
+    window.addEventListener('pointermove', handlePointerMove, { passive: false });
+    window.addEventListener('pointerup', handlePointerUp);
+  };
+
   const dragState = useRef({ isDragging: false, startX: 0, startY: 0, initialLeft: 0, initialTop: 0 });
 
   const handleTimerPointerDown = (e) => {
@@ -647,6 +721,7 @@ function CourseDetailContent({ course }) {
   const courseTone = COURSE_TONES[course.id] || 'emerald';
 
   const closePlayer = useCallback(() => {
+    setIsPlayerMinimized(false);
     if (nativeVideoRef.current && activeLesson) {
       saveProgress(course.id, activeLesson.media?.videoId || activeLesson.id, nativeVideoRef.current.currentTime);
       nativeVideoRef.current.pause();
@@ -731,6 +806,7 @@ function CourseDetailContent({ course }) {
       let media = ytMatch ? { provider: 'youtube', videoId: ytMatch[1] } : { url: lesson.videoUrl };
       setIsVideoEnded(false);
       setResumePromptData(null);
+      setShowResumePrompt(false);
       setActiveLesson({ ...lesson, media });
       setShowPlayer(true);
       setLoadingLessonId(null);
@@ -1040,7 +1116,7 @@ function CourseDetailContent({ course }) {
 
             {showPlayer && activeLesson && createPortal(
         <div
-          className={`cd-dialog-backdrop cd-tone-${courseTone}`}
+          className={`cd-dialog-backdrop cd-tone-${courseTone} ${isPlayerMinimized ? 'minimized-player-container' : ''}`}
           onMouseDown={(event) => {
             if (event.target === event.currentTarget) closePlayer();
           }}
@@ -1052,21 +1128,41 @@ function CourseDetailContent({ course }) {
             aria-labelledby="player-title"
             ref={playerDialogRef}
             tabIndex={-1}
+            onPointerDown={handlePlayerPointerDown}
+            style={isPlayerMinimized && playerCustomPos ? { left: `${playerCustomPos.x}px`, top: `${playerCustomPos.y}px`, bottom: 'auto', right: 'auto' } : (isPlayerMinimized ? {} : { left: '', top: '', bottom: '', right: '', position: '', margin: '' })}
           >
             <header className="cd-player-dialog__header">
               <div>
                 <span>{activeLesson.type === 'video' ? 'Video bài học' : 'Bài giảng text'}</span>
                 <h2 id="player-title">{activeLesson.title}</h2>
               </div>
-              <button
-                type="button"
-                className="cd-icon-button"
-                onClick={closePlayer}
-                ref={playerCloseRef}
-                aria-label="Đóng bài học"
-              >
-                <X size={20} />
-              </button>
+              <div className="header-actions" style={{ display: 'flex', gap: '8px', zIndex: 50 }}>
+                {activeLesson.type === 'video' && (
+                  <button
+                    type="button"
+                    className="cd-icon-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsPlayerMinimized(!isPlayerMinimized);
+                    }}
+                    aria-label={isPlayerMinimized ? 'Phóng to' : 'Thu nhỏ'}
+                  >
+                    {isPlayerMinimized ? <Maximize2 size={20} /> : <Minimize2 size={20} />}
+                  </button>
+                )}
+                <button
+                  type="button"
+                  className="cd-icon-button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    closePlayer();
+                  }}
+                  ref={playerCloseRef}
+                  aria-label="Đóng bài học"
+                >
+                  <X size={20} />
+                </button>
+              </div>
             </header>
 
             <div className="cd-player-dialog__body" style={{ padding: 0 }}>
@@ -1102,7 +1198,7 @@ function CourseDetailContent({ course }) {
                   )}
 
                   {resumePromptData && (
-                    <div style={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', color: '#fff', backdropFilter: 'blur(4px)'}}>
+                    <div id="yt-resume-prompt" style={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', color: '#fff', backdropFilter: 'blur(4px)'}}>
                       <div style={{background: '#1f1f1f', padding: '24px 32px', borderRadius: 12, maxWidth: 400, textAlign: 'center', boxShadow: '0 8px 32px rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.1)'}}>
                         <h3 style={{marginTop: 0, marginBottom: 16, fontSize: 20}}>Tiếp tục bài học?</h3>
                         <p style={{marginBottom: 24, color: '#ccc', lineHeight: 1.5, fontSize: 15}}>
@@ -1111,6 +1207,9 @@ function CourseDetailContent({ course }) {
                         <div style={{display: 'flex', gap: 12, justifyContent: 'center'}}>
                           <button onClick={(e) => {
                              e.stopPropagation();
+                             const el = document.getElementById('yt-resume-prompt');
+                             if (el) el.style.display = 'none';
+                             
                              if (ytPlayerRef.current && typeof ytPlayerRef.current.seekTo === 'function') {
                                 ytPlayerRef.current.seekTo(resumePromptData.time, true);
                                 ytPlayerRef.current.playVideo();
@@ -1118,12 +1217,14 @@ function CourseDetailContent({ course }) {
                                 nativeVideoRef.current.currentTime = resumePromptData.time;
                                 nativeVideoRef.current.play();
                              }
-                             setResumePromptData(null);
                           }} style={{padding: '10px 24px', background: 'var(--cd-accent)', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14, transition: 'opacity 0.2s'}} onMouseEnter={e => e.currentTarget.style.opacity=0.9} onMouseLeave={e => e.currentTarget.style.opacity=1}>
                             Xem tiếp
                           </button>
                           <button onClick={(e) => {
                              e.stopPropagation();
+                             const el = document.getElementById('yt-resume-prompt');
+                             if (el) el.style.display = 'none';
+
                              if (ytPlayerRef.current && typeof ytPlayerRef.current.seekTo === 'function') {
                                 ytPlayerRef.current.seekTo(0, true);
                                 ytPlayerRef.current.playVideo();
@@ -1131,7 +1232,6 @@ function CourseDetailContent({ course }) {
                                 nativeVideoRef.current.currentTime = 0;
                                 nativeVideoRef.current.play();
                              }
-                             setResumePromptData(null);
                           }} style={{padding: '10px 24px', background: 'transparent', color: '#fff', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 14, transition: 'background 0.2s'}} onMouseEnter={e => e.currentTarget.style.background='rgba(255,255,255,0.1)'} onMouseLeave={e => e.currentTarget.style.background='transparent'}>
                             Từ đầu
                           </button>
@@ -1169,11 +1269,9 @@ function CourseDetailContent({ course }) {
                           {isPlaying ? <Pause size={24} fill="currentColor" /> : <Play size={24} fill="currentColor" />}
                         </button>
                         
-                        {hasNextLesson && (
-                          <button type="button" onClick={handleNextLesson} title="Bài tiếp theo" style={{background: 'none', border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', marginLeft: -4}}>
-                            <SkipForward size={24} fill="currentColor" />
-                          </button>
-                        )}
+                        <button type="button" onClick={handleNextLesson} title="Bài tiếp theo" disabled={!hasNextLesson} style={{background: 'none', border: 'none', color: '#fff', cursor: hasNextLesson ? 'pointer' : 'not-allowed', opacity: hasNextLesson ? 1 : 0.4, display: 'flex', alignItems: 'center', marginLeft: -4}}>
+                          <SkipForward size={24} fill="currentColor" />
+                        </button>
 
                         <button type="button" onClick={handleRewind5} title="Tua lùi 5s" style={{background: 'none', border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center'}}>
                           <RotateCcw size={20} />
@@ -1232,12 +1330,16 @@ function CourseDetailContent({ course }) {
                 <ShieldCheck size={16} />
                 Nội dung được cấp sau khi máy chủ kiểm tra quyền học.
               </span>
-              {hasNextLesson && (
-                <button type="button" className="cd-button cd-button--primary" onClick={handleNextLesson}>
-                  Bài tiếp theo
-                  <SkipForward size={17} />
-                </button>
-              )}
+              <button 
+                type="button" 
+                className="cd-button cd-button--primary" 
+                onClick={handleNextLesson}
+                disabled={!hasNextLesson}
+                style={!hasNextLesson ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
+              >
+                Bài tiếp theo
+                <SkipForward size={17} />
+              </button>
             </footer>
           </section>
         </div>,
@@ -1295,7 +1397,7 @@ function CourseDetailContent({ course }) {
 
       
       {showResumePrompt && activeLesson && createPortal(
-        <div className={`cd-dialog-backdrop cd-tone-${courseTone}`} style={{ zIndex: 10002 }}>
+        <div id="native-resume-prompt" className={`cd-dialog-backdrop cd-tone-${courseTone}`} style={{ zIndex: 10002 }}>
           <div className="cd-lock-dialog" style={{ textAlign: 'center', padding: '30px' }}>
             <h3 style={{ marginBottom: '15px' }}>Tiếp tục xem bài học?</h3>
             <p style={{ marginBottom: '25px', color: 'var(--cd-color-text-secondary)' }}>
@@ -1305,7 +1407,9 @@ function CourseDetailContent({ course }) {
               <button 
                 className="cd-button cd-button--secondary"
                 onClick={() => {
-                  setShowResumePrompt(false);
+                  const el = document.getElementById('native-resume-prompt');
+                  if (el) el.style.display = 'none';
+
                   if (activeLesson.media?.provider === 'youtube' && ytPlayerRef.current) {
                     ytPlayerRef.current.seekTo(0);
                     ytPlayerRef.current.playVideo();
@@ -1320,7 +1424,9 @@ function CourseDetailContent({ course }) {
               <button 
                 className="cd-button cd-button--primary"
                 onClick={() => {
-                  setShowResumePrompt(false);
+                  const el = document.getElementById('native-resume-prompt');
+                  if (el) el.style.display = 'none';
+
                   if (activeLesson.media?.provider === 'youtube' && ytPlayerRef.current) {
                     ytPlayerRef.current.seekTo(resumeTime);
                     ytPlayerRef.current.playVideo();
