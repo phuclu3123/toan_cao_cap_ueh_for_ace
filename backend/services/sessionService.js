@@ -31,8 +31,8 @@ const parseCookies = (cookieHeader = '') => Object.fromEntries(
 
 const cookieOptions = () => ({
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+  secure: process.env.NODE_ENV !== 'development',
+  sameSite: process.env.NODE_ENV !== 'development' ? 'none' : 'lax',
   maxAge: SESSION_TTL_MS,
   path: '/'
 });
@@ -127,8 +127,8 @@ export const revokeSession = async (req, res) => {
 
   res.clearCookie(SESSION_COOKIE_NAME, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    secure: process.env.NODE_ENV !== 'development',
+    sameSite: process.env.NODE_ENV !== 'development' ? 'none' : 'lax',
     path: '/'
   });
 
