@@ -1,7 +1,5 @@
 import path from 'path';
 import User from '../models/User.js';
-import { checkMongoDBConnected } from '../config/db.js';
-import { readJSONFile, writeJSONFile, dataDir } from '../utils/jsonHelper.js';
 import { sendOtpEmail } from '../services/emailService.js';
 import { hashPassword, verifyPassword } from '../utils/passwordHelper.js';
 import { listActiveEnrollments } from '../services/enrollmentService.js';
@@ -17,7 +15,6 @@ export const signup = async (req, res) => {
   try {
     const hashedPassword = hashPassword(password);
 
-    if (checkMongoDBConnected()) {
       const userExists = await User.findOne({ username: new RegExp(`^${username}$`, 'i') });
       if (userExists) {
         return res.status(400).json({ success: false, message: 'Tên đăng nhập hoặc Email này đã tồn tại!' });
@@ -45,41 +42,6 @@ export const signup = async (req, res) => {
           role: newUser.role
         }
       });
-    } else {
-      const filePath = path.join(dataDir, 'users.json');
-      const users = readJSONFile(filePath, []);
-
-      const userExists = users.some(u => u.username && u.username.toLowerCase() === username.toLowerCase());
-      if (userExists) {
-        return res.status(400).json({ success: false, message: 'Tên đăng nhập hoặc Email này đã tồn tại!' });
-      }
-
-      const newUser = {
-        id: 'u-' + Date.now(),
-        username,
-        password: hashedPassword,
-        name,
-        role: 'Student',
-        createdAt: new Date().toISOString()
-      };
-
-      if (writeJSONFile(filePath, users)) {
-        const sessionToken = await issueSession(res, newUser);
-        return res.json({
-          success: true,
-          message: 'Đăng ký tài khoản thành công!',
-          token: sessionToken,
-          user: {
-            id: newUser.id,
-            username: newUser.username,
-            name: newUser.name,
-            role: newUser.role
-          }
-        });
-      } else {
-        return res.status(500).json({ success: false, message: 'Lỗi hệ thống khi lưu tài khoản.' });
-      }
-    }
   } catch (error) {
     console.error("Lỗi đăng ký:", error);
     return res.status(500).json({ success: false, message: 'Lỗi hệ thống khi đăng ký.' });
@@ -94,15 +56,7 @@ export const login = async (req, res) => {
   }
 
   try {
-    let user = null;
-    if (checkMongoDBConnected()) {
-      user = await User.findOne({ username: new RegExp(`^${username}$`, 'i') });
-    } else {
-      const filePath = path.join(dataDir, 'users.json');
-      const users = readJSONFile(filePath, []);
-      user = users.find(u => u.username && u.username.toLowerCase() === username.toLowerCase());
-    }
-
+    let user = await User.findOne({ username: new RegExp(`^${username}$`, 'i') });
     if (!user || !verifyPassword(password, user.password)) {
       return res.status(401).json({ success: false, message: 'Tên đăng nhập hoặc mật khẩu chưa chính xác!' });
     }
@@ -152,108 +106,55 @@ export const syncFirebaseAuth = async (req, res) => {
   }
 
   try {
-    if (checkMongoDBConnected()) {
-      let user = await User.findOne({ uid });
+    let user = await User.findOne({ uid });
 
-      if (!user) {
-        if (email) {
-          user = await User.findOne({ username: new RegExp(`^${email}$`, 'i') });
-        }
-
-        if (user) {
-          user.uid = uid;
-          if (phoneNumber && !user.phoneNumber) {
-            user.phoneNumber = phoneNumber;
-          }
-          await user.save();
-        } else {
-          const userId = 'u-' + Date.now();
-          user = new User({
-            id: userId,
-            uid: uid,
-            username: email || phoneNumber || uid,
-            name: name || (email ? email.split('@')[0] : 'Người dùng OTP'),
-            phoneNumber: phoneNumber || null,
-            role: 'Student'
-          });
-          try {
-            await user.save();
-          } catch (err) {
-            if (err.code === 11000) {
-              // Race condition: Another request created the user just now
-              user = await User.findOne({ uid });
-            } else {
-              throw err;
-            }
-          }
-        }
-      } else {
-        let updated = false;
-        if (name && (!user.name || user.name === 'Người dùng OTP' || user.name === user.username)) {
-          user.name = name;
-          updated = true;
-        }
-        if (phoneNumber && user.phoneNumber !== phoneNumber) {
-          user.phoneNumber = phoneNumber;
-          updated = true;
-        }
-        if (email && user.username !== email) {
-          user.username = email;
-          updated = true;
-        }
-      if (updated) {
-          await user.save();
-        }
+    if (!user) {
+      if (email) {
+        user = await User.findOne({ username: new RegExp(`^${email}$`, 'i') });
       }
 
-      const sessionToken = await issueSession(res, user);
-
-      return res.json({
-        success: true,
-        message: 'Đồng bộ tài khoản thành công!',
-        token: sessionToken,
-        user: {
-          id: user.id || user._id.toString(),
-          uid: user.uid,
-          username: user.username,
-          name: user.name,
-          role: user.role,
-          phoneNumber: user.phoneNumber
+      if (user) {
+        user.uid = uid;
+        if (phoneNumber && !user.phoneNumber) {
+          user.phoneNumber = phoneNumber;
         }
-      });
-    } else {
-      const filePath = path.join(dataDir, 'users.json');
-      const users = readJSONFile(filePath, []);
-
-      let user = users.find(u => u.uid === uid);
-
-      if (!user) {
-        if (email) {
-          user = users.find(u => u.username && u.username.toLowerCase() === email.toLowerCase());
-        }
-
-        if (user) {
-          user.uid = uid;
-          if (phoneNumber && !user.phoneNumber) {
-            user.phoneNumber = phoneNumber;
-          }
-          user.updatedAt = new Date().toISOString();
-        } else {
-          user = {
-            id: 'u-' + Date.now(),
-            uid: uid,
-            username: email || phoneNumber || uid,
-            name: name || (email ? email.split('@')[0] : 'Người dùng OTP'),
-            phoneNumber: phoneNumber || null,
-            role: 'Student',
-            createdAt: new Date().toISOString()
-          };
-          users.push(user);
-        }
-
-        writeJSONFile(filePath, users);
+        await user.save();
       } else {
-        let updated = false;
+        const userId = 'u-' + Date.now();
+        user = new User({
+          id: userId,
+          uid: uid,
+          username: email || phoneNumber || uid,
+          name: name || (email ? email.split('@')[0] : 'Người dùng OTP'),
+          phoneNumber: phoneNumber || null,
+          role: 'Student'
+        });
+        try {
+          await user.save();
+        } catch (err) {
+          if (err.code === 11000) {
+            // Race condition: Another request created the user just now
+            user = await User.findOne({ uid });
+          } else {
+            throw err;
+          }
+        }
+      }
+    } else {
+      let updated = false;
+      if (name && (!user.name || user.name === 'Người dùng OTP' || user.name === user.username)) {
+        user.name = name;
+        updated = true;
+      }
+      if (phoneNumber && user.phoneNumber !== phoneNumber) {
+        user.phoneNumber = phoneNumber;
+        updated = true;
+      }
+      if (email && user.username !== email) {
+        user.username = email;
+        updated = true;
+      }
+      if (updated) {
         if (name && user.name !== name) {
           user.name = name;
           updated = true;
@@ -303,28 +204,13 @@ export const forgotPassword = async (req, res) => {
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
     const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
 
-    if (checkMongoDBConnected()) {
-      user = await User.findOne({ username: new RegExp(`^${email}$`, 'i') });
-      if (!user) {
-        return res.status(404).json({ success: false, message: 'Không tìm thấy tài khoản nào liên kết với email này!' });
-      }
-      user.otpCode = otpCode;
-      user.otpExpiresAt = otpExpiresAt;
-      await user.save();
-    } else {
-      const filePath = path.join(dataDir, 'users.json');
-      const users = readJSONFile(filePath, []);
-
-      const userIndex = users.findIndex(u => u.username && u.username.toLowerCase() === email.toLowerCase());
-      if (userIndex === -1) {
-        return res.status(404).json({ success: false, message: 'Không tìm thấy tài khoản nào liên kết với email này!' });
-      }
-
-      user = users[userIndex];
-      user.otpCode = otpCode;
-      user.otpExpiresAt = otpExpiresAt;
-      writeJSONFile(filePath, users);
+    user = await User.findOne({ username: new RegExp(`^${email}$`, 'i') });
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy tài khoản nào liên kết với email này!' });
     }
+    user.otpCode = otpCode;
+    user.otpExpiresAt = otpExpiresAt;
+    await user.save();
 
     const emailResult = await sendOtpEmail(email, user.name, otpCode, otpExpiresAt);
 
@@ -360,67 +246,30 @@ export const resetPassword = async (req, res) => {
   try {
     const hashedPassword = hashPassword(newPassword);
 
-    if (checkMongoDBConnected()) {
-      const user = await User.findOne({ username: new RegExp(`^${email}$`, 'i') });
-      if (!user) {
-        return res.status(404).json({ success: false, message: 'Không tìm thấy tài khoản liên kết với email này!' });
-      }
-
-      const isValidOtp = user.otpCode && (user.otpCode === otpCode || otpCode === '123456');
-      if (!isValidOtp) {
-        return res.status(400).json({ success: false, message: 'Mã xác thực OTP không chính xác!' });
-      }
-
-      const isExpired = new Date() > new Date(user.otpExpiresAt);
-      if (isExpired) {
-        return res.status(400).json({ success: false, message: 'Mã xác thực OTP đã hết hạn! Vui lòng gửi lại mã mới.' });
-      }
-
-      user.password = hashedPassword;
-      user.otpCode = undefined;
-      user.otpExpiresAt = undefined;
-      await user.save();
-
-      return res.json({
-        success: true,
-        message: 'Đổi mật khẩu tài khoản thành công! Bạn có thể sử dụng mật khẩu mới để đăng nhập ngay.'
-      });
-    } else {
-      const filePath = path.join(dataDir, 'users.json');
-      const users = readJSONFile(filePath, []);
-
-      const userIndex = users.findIndex(u => u.username && u.username.toLowerCase() === email.toLowerCase());
-
-      if (userIndex === -1) {
-        return res.status(404).json({ success: false, message: 'Không tìm thấy tài khoản liên kết với email này!' });
-      }
-
-      const user = users[userIndex];
-
-      const isValidOtp = user.otpCode && (user.otpCode === otpCode || otpCode === '123456');
-      if (!isValidOtp) {
-        return res.status(400).json({ success: false, message: 'Mã xác thực OTP không chính xác!' });
-      }
-
-      const isExpired = new Date() > new Date(user.otpExpiresAt);
-      if (isExpired) {
-        return res.status(400).json({ success: false, message: 'Mã xác thực OTP đã hết hạn! Vui lòng gửi lại mã mới.' });
-      }
-
-      user.password = hashedPassword;
-      delete user.otpCode;
-      delete user.otpExpiresAt;
-      user.updatedAt = new Date().toISOString();
-
-      if (writeJSONFile(filePath, users)) {
-        return res.json({
-          success: true,
-          message: 'Đổi mật khẩu tài khoản thành công! Bạn có thể sử dụng mật khẩu mới để đăng nhập ngay.'
-        });
-      } else {
-        return res.status(500).json({ success: false, message: 'Lỗi hệ thống khi cập nhật mật khẩu mới.' });
-      }
+    const user = await User.findOne({ username: new RegExp(`^${email}$`, 'i') });
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy tài khoản liên kết với email này!' });
     }
+
+    const isValidOtp = user.otpCode && (user.otpCode === otpCode || otpCode === '123456');
+    if (!isValidOtp) {
+      return res.status(400).json({ success: false, message: 'Mã xác thực OTP không chính xác!' });
+    }
+
+    const isExpired = new Date() > new Date(user.otpExpiresAt);
+    if (isExpired) {
+      return res.status(400).json({ success: false, message: 'Mã xác thực OTP đã hết hạn! Vui lòng gửi lại mã mới.' });
+    }
+
+    user.password = hashedPassword;
+    user.otpCode = undefined;
+    user.otpExpiresAt = undefined;
+    await user.save();
+
+    return res.json({
+      success: true,
+      message: 'Đổi mật khẩu tài khoản thành công! Bạn có thể sử dụng mật khẩu mới để đăng nhập ngay.'
+    });
   } catch (error) {
     console.error("Lỗi đặt lại mật khẩu:", error);
     return res.status(500).json({ success: false, message: 'Lỗi hệ thống khi cập nhật mật khẩu mới.' });
@@ -435,49 +284,22 @@ export const updateProfile = async (req, res) => {
   }
 
   try {
-    if (checkMongoDBConnected()) {
-      const user = await User.findOne({ username: new RegExp(`^${username}$`, 'i') });
-      if (!user) {
-        return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng!' });
-      }
-      if (name !== undefined) user.name = name;
-      if (phoneNumber !== undefined) user.phoneNumber = phoneNumber;
-      if (avatar !== undefined) user.avatar = avatar;
-      if (school !== undefined) user.school = school;
-      if (bio !== undefined) user.bio = bio;
-      await user.save();
-
-      return res.json({
-        success: true,
-        message: 'Cập nhật thông tin cá nhân thành công!',
-        user
-      });
-    } else {
-      const filePath = path.join(dataDir, 'users.json');
-      const users = readJSONFile(filePath, []);
-
-      const userIndex = users.findIndex(u => u.username && u.username.toLowerCase() === username.toLowerCase());
-      if (userIndex === -1) {
-        return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng!' });
-      }
-
-      if (name !== undefined) users[userIndex].name = name;
-      if (phoneNumber !== undefined) users[userIndex].phoneNumber = phoneNumber;
-      if (avatar !== undefined) users[userIndex].avatar = avatar;
-      if (school !== undefined) users[userIndex].school = school;
-      if (bio !== undefined) users[userIndex].bio = bio;
-      users[userIndex].updatedAt = new Date().toISOString();
-
-      if (writeJSONFile(filePath, users)) {
-        return res.json({
-          success: true,
-          message: 'Cập nhật thông tin cá nhân thành công!',
-          user: users[userIndex]
-        });
-      } else {
-        return res.status(500).json({ success: false, message: 'Lỗi lưu thông tin cá nhân.' });
-      }
+    const user = await User.findOne({ username: new RegExp(`^${username}$`, 'i') });
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng!' });
     }
+    if (name !== undefined) user.name = name;
+    if (phoneNumber !== undefined) user.phoneNumber = phoneNumber;
+    if (avatar !== undefined) user.avatar = avatar;
+    if (school !== undefined) user.school = school;
+    if (bio !== undefined) user.bio = bio;
+    await user.save();
+
+    return res.json({
+      success: true,
+      message: 'Cập nhật thông tin cá nhân thành công!',
+      user
+    });
   } catch (error) {
     console.error("Lỗi cập nhật profile:", error);
     return res.status(500).json({ success: false, message: 'Lỗi hệ thống khi cập nhật profile.' });

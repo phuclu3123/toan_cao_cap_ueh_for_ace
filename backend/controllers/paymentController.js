@@ -1,11 +1,6 @@
 import path from 'path';
 import crypto from 'crypto';
 import Payment from '../models/Payment.js';
-import { checkMongoDBConnected } from '../config/db.js';
-import { readJSONFile, writeJSONFile, dataDir } from '../utils/jsonHelper.js';
-
-const paymentsFilePath = path.join(dataDir, 'payments.json');
-
 export const createPayOSSignature = (data, checksumKey) => {
   const signedContent = Object.keys(data || {})
     .sort()
@@ -59,37 +54,7 @@ export const normalizePaymentResponse = (payment) => ({
   updatedAt: payment.updatedAt
 });
 
-export const saveLocalPaymentFromWebhook = (body, paymentUpdate) => {
-  const payments = readJSONFile(paymentsFilePath, []);
-  const existingIndex = payments.findIndex(payment => Number(payment.orderCode) === paymentUpdate.orderCode);
-  const now = new Date().toISOString();
 
-  if (existingIndex >= 0) {
-    payments[existingIndex] = {
-      ...payments[existingIndex],
-      ...paymentUpdate,
-      webhookData: body,
-      updatedAt: now
-    };
-  } else {
-    payments.push({
-      orderCode: paymentUpdate.orderCode,
-      amount: paymentUpdate.amount || 0,
-      description: paymentUpdate.description || '',
-      status: paymentUpdate.status || 'PENDING',
-      paymentLinkId: paymentUpdate.paymentLinkId || null,
-      checkoutUrl: null,
-      qrCode: null,
-      reference: paymentUpdate.reference || null,
-      paidAt: paymentUpdate.paidAt || null,
-      createdAt: now,
-      updatedAt: now,
-      webhookData: body
-    });
-  }
-
-  writeJSONFile(paymentsFilePath, payments);
-};
 
 export const createPayment = async (req, res) => {
   const { orderCode, amount, description, buyerName } = req.body;
@@ -147,18 +112,14 @@ export const createPayment = async (req, res) => {
         qrCode: result.data.qrCode
       };
 
-      if (checkMongoDBConnected()) {
-        await Payment.findOneAndUpdate(
-          { orderCode: Number(orderCode) },
-          { 
-            $set: paymentData,
-            $setOnInsert: { reference: null, paidAt: null }
-          },
-          { upsert: true, new: true }
-        );
-      } else {
-        saveLocalPaymentFromWebhook({}, paymentData);
-      }
+      await Payment.findOneAndUpdate(
+        { orderCode: Number(orderCode) },
+        { 
+          $set: paymentData,
+          $setOnInsert: { reference: null, paidAt: null }
+        },
+        { upsert: true, new: true }
+      );
     }
 
     return res.status(response.status).json(result);
@@ -199,21 +160,17 @@ export const handleWebhook = async (req, res) => {
       webhookData: body
     };
 
-    if (checkMongoDBConnected()) {
-      await Payment.findOneAndUpdate(
-        { orderCode },
-        {
-          $set: paymentUpdate,
-          $setOnInsert: {
-            checkoutUrl: null,
-            qrCode: null
-          }
-        },
-        { upsert: true, new: true }
-      );
-    } else {
-      saveLocalPaymentFromWebhook(body, paymentUpdate);
-    }
+    await Payment.findOneAndUpdate(
+      { orderCode },
+      {
+        $set: paymentUpdate,
+        $setOnInsert: {
+          checkoutUrl: null,
+          qrCode: null
+        }
+      },
+      { upsert: true, new: true }
+    );
 
     return res.json({ success: true });
   } catch (error) {
@@ -275,15 +232,9 @@ export const getPaymentStatus = async (req, res) => {
   }
 
   try {
-    let payment = null;
-    if (checkMongoDBConnected()) {
-      payment = await Payment.findOne({ orderCode })
-        .select('-_id orderCode amount description status paymentLinkId checkoutUrl qrCode reference paidAt createdAt updatedAt')
-        .lean();
-    } else {
-      const payments = readJSONFile(paymentsFilePath, []);
-      payment = payments.find(item => Number(item.orderCode) === orderCode);
-    }
+    let payment = await Payment.findOne({ orderCode })
+      .select('-_id orderCode amount description status paymentLinkId checkoutUrl qrCode reference paidAt createdAt updatedAt')
+      .lean();
 
     if (!payment) {
       return res.status(404).json({ success: false, message: 'Payment not found' });
@@ -314,11 +265,7 @@ export const getPaymentStatus = async (req, res) => {
                 paidAt: result.data.transactions?.[0]?.transactionDateTime || null
               };
 
-              if (checkMongoDBConnected()) {
-                await Payment.updateOne({ orderCode }, { $set: { status: payosStatus } });
-              } else {
-                saveLocalPaymentFromWebhook({}, paymentUpdate);
-              }
+              await Payment.updateOne({ orderCode }, { $set: { status: payosStatus } });
             }
           }
         } catch (apiErr) {

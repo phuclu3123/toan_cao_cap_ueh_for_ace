@@ -3,11 +3,9 @@ import {
   createPayment, 
   handleWebhook, 
   confirmWebhook, 
-  getPaymentStatus, 
-  saveLocalPaymentFromWebhook 
+  getPaymentStatus 
 } from '../controllers/paymentController.js';
 import Payment from '../models/Payment.js';
-import { checkMongoDBConnected } from '../config/db.js';
 
 const router = express.Router();
 
@@ -30,11 +28,7 @@ router.get('/payment/success', async (req, res) => {
   const orderCode = Number(req.query.orderCode);
   if (Number.isFinite(orderCode)) {
     try {
-      if (checkMongoDBConnected()) {
-        await Payment.updateOne({ orderCode }, { $set: { status: 'PAID' } });
-      } else {
-        saveLocalPaymentFromWebhook({}, { orderCode, status: 'PAID' });
-      }
+      await Payment.updateOne({ orderCode }, { $set: { status: 'PAID' } });
       console.log(`Cập nhật trạng thái PAID cho đơn hàng ${orderCode} qua link redirect`);
     } catch (err) {
       console.error('Lỗi cập nhật status khi redirect success:', err);
@@ -199,11 +193,7 @@ router.get('/payment/cancel', async (req, res) => {
   const orderCode = Number(req.query.orderCode);
   if (Number.isFinite(orderCode)) {
     try {
-      if (checkMongoDBConnected()) {
-        await Payment.updateOne({ orderCode }, { $set: { status: 'CANCELLED' } });
-      } else {
-        saveLocalPaymentFromWebhook({}, { orderCode, status: 'CANCELLED' });
-      }
+      await Payment.updateOne({ orderCode }, { $set: { status: 'CANCELLED' } });
       console.log(`Cập nhật trạng thái CANCELLED cho đơn hàng ${orderCode} qua link redirect`);
     } catch (err) {
       console.error('Lỗi cập nhật status khi redirect cancel:', err);

@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { connectDB, checkMongoDBConnected } from './config/db.js';
+import { connectDB } from './config/db.js';
 import { runAutoMigration } from './services/autoMigration.js';
 
 import authRoutes from './routes/authRoutes.js';
@@ -9,6 +9,7 @@ import resourceRoutes from './routes/resourceRoutes.js';
 import contactRoutes from './routes/contactRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
 import blogEngagementRoutes from './routes/blogEngagementRoutes.js';
+import enrollmentRoutes from './routes/enrollmentRoutes.js';
 
 dotenv.config();
 
@@ -27,6 +28,7 @@ app.use('/api', authRoutes);
 app.use('/api', resourceRoutes);
 app.use('/api', contactRoutes);
 app.use('/api', blogEngagementRoutes);
+app.use('/api', enrollmentRoutes);
 app.use('/', paymentRoutes);
 
 // Health check endpoint
@@ -34,7 +36,7 @@ app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'ok', 
     uptime: process.uptime(),
-    database: checkMongoDBConnected() ? 'MongoDB Atlas (Online)' : 'Local JSON (Offline Fallback)'
+    database: 'MongoDB Atlas (Online)'
   });
 });
 

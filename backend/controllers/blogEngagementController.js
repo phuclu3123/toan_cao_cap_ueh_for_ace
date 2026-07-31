@@ -1,9 +1,4 @@
-import path from 'path';
 import BlogEngagement from '../models/BlogEngagement.js';
-import { checkMongoDBConnected } from '../config/db.js';
-import { dataDir, readJSONFile, writeJSONFile } from '../utils/jsonHelper.js';
-
-const engagementFilePath = path.join(dataDir, 'blog-engagement.json');
 const reactionTypes = new Set(['clear', 'useful', 'insightful', 'love']);
 
 const emptyReactions = () => ({
@@ -58,18 +53,7 @@ const serializeEngagement = (engagement, clientId = '') => {
   };
 };
 
-const getLocalCollection = () => readJSONFile(engagementFilePath, []);
 
-const saveLocalCollection = (collection) => writeJSONFile(engagementFilePath, collection);
-
-const findOrCreateLocal = (collection, slug) => {
-  let engagement = collection.find((item) => item.slug === slug);
-  if (!engagement) {
-    engagement = createEmptyEngagement(slug);
-    collection.push(engagement);
-  }
-  return engagement;
-};
 
 export const getBlogEngagement = async (req, res) => {
   const slug = cleanSingleLine(req.params.slug, 180);
@@ -80,16 +64,9 @@ export const getBlogEngagement = async (req, res) => {
   }
 
   try {
-    if (checkMongoDBConnected()) {
-      const engagement =
-        (await BlogEngagement.findOne({ slug })) ||
-        (await BlogEngagement.create(createEmptyEngagement(slug)));
-      return res.json({ success: true, engagement: serializeEngagement(engagement, clientId) });
-    }
-
-    const collection = getLocalCollection();
-    const engagement = findOrCreateLocal(collection, slug);
-    saveLocalCollection(collection);
+    const engagement =
+      (await BlogEngagement.findOne({ slug })) ||
+      (await BlogEngagement.create(createEmptyEngagement(slug)));
     return res.json({ success: true, engagement: serializeEngagement(engagement, clientId) });
   } catch (error) {
     console.error('Lỗi tải tương tác bài viết:', error);
@@ -135,21 +112,13 @@ export const updateBlogReaction = async (req, res) => {
   };
 
   try {
-    if (checkMongoDBConnected()) {
-      const engagement =
-        (await BlogEngagement.findOne({ slug })) ||
-        new BlogEngagement(createEmptyEngagement(slug));
-      applyReaction(engagement);
-      engagement.markModified('reactions');
-      engagement.markModified('reactionVotes');
-      await engagement.save();
-      return res.json({ success: true, engagement: serializeEngagement(engagement, clientId) });
-    }
-
-    const collection = getLocalCollection();
-    const engagement = findOrCreateLocal(collection, slug);
+    const engagement =
+      (await BlogEngagement.findOne({ slug })) ||
+      new BlogEngagement(createEmptyEngagement(slug));
     applyReaction(engagement);
-    if (!saveLocalCollection(collection)) throw new Error('Không thể ghi tệp tương tác.');
+    engagement.markModified('reactions');
+    engagement.markModified('reactionVotes');
+    await engagement.save();
     return res.json({ success: true, engagement: serializeEngagement(engagement, clientId) });
   } catch (error) {
     console.error('Lỗi cập nhật cảm xúc:', error);
@@ -181,22 +150,11 @@ export const createBlogComment = async (req, res) => {
   };
 
   try {
-    if (checkMongoDBConnected()) {
-      const engagement =
-        (await BlogEngagement.findOne({ slug })) ||
-        new BlogEngagement(createEmptyEngagement(slug));
-      engagement.comments.push(comment);
-      await engagement.save();
-      return res.status(201).json({
-        success: true,
-        engagement: serializeEngagement(engagement, clientId),
-      });
-    }
-
-    const collection = getLocalCollection();
-    const engagement = findOrCreateLocal(collection, slug);
+    const engagement =
+      (await BlogEngagement.findOne({ slug })) ||
+      new BlogEngagement(createEmptyEngagement(slug));
     engagement.comments.push(comment);
-    if (!saveLocalCollection(collection)) throw new Error('Không thể ghi tệp bình luận.');
+    await engagement.save();
     return res.status(201).json({
       success: true,
       engagement: serializeEngagement(engagement, clientId),
@@ -228,22 +186,12 @@ export const toggleCommentLike = async (req, res) => {
   };
 
   try {
-    if (checkMongoDBConnected()) {
-      const engagement = await BlogEngagement.findOne({ slug });
-      if (!engagement || !applyLike(engagement)) {
-        return res.status(404).json({ success: false, message: 'Không tìm thấy bình luận.' });
-      }
-      engagement.markModified('comments');
-      await engagement.save();
-      return res.json({ success: true, engagement: serializeEngagement(engagement, clientId) });
-    }
-
-    const collection = getLocalCollection();
-    const engagement = collection.find((item) => item.slug === slug);
+    const engagement = await BlogEngagement.findOne({ slug });
     if (!engagement || !applyLike(engagement)) {
       return res.status(404).json({ success: false, message: 'Không tìm thấy bình luận.' });
     }
-    if (!saveLocalCollection(collection)) throw new Error('Không thể ghi lượt thích.');
+    engagement.markModified('comments');
+    await engagement.save();
     return res.json({ success: true, engagement: serializeEngagement(engagement, clientId) });
   } catch (error) {
     console.error('Lỗi thích bình luận:', error);

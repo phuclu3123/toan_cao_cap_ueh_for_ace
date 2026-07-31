@@ -1,8 +1,5 @@
-import path from 'path';
 import Message from '../models/Message.js';
 import Subscriber from '../models/Subscriber.js';
-import { checkMongoDBConnected } from '../config/db.js';
-import { readJSONFile, writeJSONFile, dataDir } from '../utils/jsonHelper.js';
 
 export const subscribe = async (req, res) => {
   const { email } = req.body;
@@ -12,29 +9,13 @@ export const subscribe = async (req, res) => {
   }
 
   try {
-    if (checkMongoDBConnected()) {
-      const existing = await Subscriber.findOne({ email });
-      if (existing) {
-        return res.status(400).json({ success: false, message: 'Email này đã đăng ký nhận tin từ trước!' });
-      }
-      const newSub = new Subscriber({ email });
-      await newSub.save();
-      return res.json({ success: true, message: 'Đăng ký nhận bài viết mới thành công! Cảm ơn bạn.' });
-    } else {
-      const filePath = path.join(dataDir, 'subscribers.json');
-      const subscribers = readJSONFile(filePath);
-      
-      if (subscribers.includes(email)) {
-        return res.status(400).json({ success: false, message: 'Email này đã đăng ký nhận tin từ trước!' });
-      }
-
-      subscribers.push(email);
-      if (writeJSONFile(filePath, subscribers)) {
-        return res.json({ success: true, message: 'Đăng ký nhận bài viết mới thành công! Cảm ơn bạn.' });
-      } else {
-        return res.status(500).json({ success: false, message: 'Lỗi hệ thống khi lưu đăng ký.' });
-      }
+    const existing = await Subscriber.findOne({ email });
+    if (existing) {
+      return res.status(400).json({ success: false, message: 'Email này đã đăng ký nhận tin từ trước!' });
     }
+    const newSub = new Subscriber({ email });
+    await newSub.save();
+    return res.json({ success: true, message: 'Đăng ký nhận bài viết mới thành công! Cảm ơn bạn.' });
   } catch (error) {
     console.error("Lỗi đăng ký email:", error);
     return res.status(500).json({ success: false, message: 'Lỗi hệ thống khi lưu đăng ký.' });
@@ -49,36 +30,15 @@ export const submitContact = async (req, res) => {
   }
 
   try {
-    if (checkMongoDBConnected()) {
-      const newMessage = new Message({
-        id: Date.now().toString(),
-        name,
-        email,
-        subject: subject || 'Liên hệ từ website',
-        message
-      });
-      await newMessage.save();
-      return res.json({ success: true, message: 'Tin nhắn của bạn đã được gửi đi thành công! Chúng tôi sẽ phản hồi sớm.' });
-    } else {
-      const filePath = path.join(dataDir, 'messages.json');
-      const messages = readJSONFile(filePath);
-
-      const newMessage = {
-        id: Date.now().toString(),
-        name,
-        email,
-        subject: subject || 'Liên hệ từ website',
-        message,
-        createdAt: new Date().toISOString()
-      };
-
-      messages.push(newMessage);
-      if (writeJSONFile(filePath, messages)) {
-        return res.json({ success: true, message: 'Tin nhắn của bạn đã được gửi đi thành công! Chúng tôi sẽ phản hồi sớm.' });
-      } else {
-        return res.status(500).json({ success: false, message: 'Lỗi hệ thống khi lưu tin nhắn.' });
-      }
-    }
+    const newMessage = new Message({
+      id: Date.now().toString(),
+      name,
+      email,
+      subject: subject || 'Liên hệ từ website',
+      message
+    });
+    await newMessage.save();
+    return res.json({ success: true, message: 'Tin nhắn của bạn đã được gửi đi thành công! Chúng tôi sẽ phản hồi sớm.' });
   } catch (error) {
     console.error("Lỗi gửi tin nhắn liên hệ:", error);
     return res.status(500).json({ success: false, message: 'Lỗi hệ thống khi lưu tin nhắn.' });

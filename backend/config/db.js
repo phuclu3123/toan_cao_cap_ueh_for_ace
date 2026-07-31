@@ -19,33 +19,24 @@ if (mongoDnsServers.length > 0) {
   }
 }
 
-let isMongoDBConnected = false;
-
-export const checkMongoDBConnected = () => isMongoDBConnected;
-
 export const connectDB = async (onConnectedCallback) => {
   const mongoURI = process.env.MONGODB_DIRECT_URI || process.env.MONGO_DIRECT_URI || process.env.MONGODB_URI || process.env.MONGO_URI;
 
-  if (mongoURI) {
-    console.log('Đang kết nối trực tiếp đến MongoDB Atlas qua internet...');
-    try {
-      await mongoose.connect(mongoURI, { dbName: 'UEH_TCC' });
-      isMongoDBConnected = true;
-      console.log('======================================================');
-      console.log('>>> KẾT NỐI THÀNH CÔNG ĐẾN MONGODB ATLAS (ONLINE) <<<');
-      console.log('======================================================');
-      if (onConnectedCallback) {
-        await onConnectedCallback();
-      }
-    } catch (err) {
-      console.error('!!! Lỗi kết nối MongoDB Atlas:', err.message);
-      if (mongoURI.startsWith('mongodb+srv://') && /querySrv|ENOTFOUND|ETIMEOUT|ECONNREFUSED/i.test(err.message)) {
-        console.error('Goi y: URI mongodb+srv can DNS SRV. Neu Node khong resolve duoc, hay dung MONGODB_DIRECT_URI/MONGO_DIRECT_URI dang mongodb:// seedlist hoac cau hinh MONGODB_DNS_SERVERS.');
-      }
-      console.log('>>> Server hoạt động ở chế độ OFFLINE FALLBACK (đọc/ghi file JSON cục bộ) <<<');
+  if (!mongoURI) {
+    throw new Error('Mongoose configuration error: Missing MongoDB URI.');
+  }
+
+  console.log('Đang kết nối trực tiếp đến MongoDB Atlas qua internet...');
+  try {
+    await mongoose.connect(mongoURI, { dbName: 'UEH_TCC' });
+    console.log('======================================================');
+    console.log('>>> KẾT NỐI THÀNH CÔNG ĐẾN MONGODB ATLAS (ONLINE) <<<');
+    console.log('======================================================');
+    if (onConnectedCallback) {
+      await onConnectedCallback();
     }
-  } else {
-    console.log('Không tìm thấy cấu hình MONGODB_DIRECT_URI, MONGO_DIRECT_URI, MONGODB_URI hoặc MONGO_URI.');
-    console.log('>>> Server hoạt động ở chế độ OFFLINE FALLBACK (đọc/ghi file JSON cục bộ) <<<');
+  } catch (err) {
+    console.error('!!! Lỗi kết nối MongoDB Atlas:', err.message);
+    throw err;
   }
 };
