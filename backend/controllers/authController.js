@@ -5,6 +5,7 @@ import { readJSONFile, writeJSONFile, dataDir } from '../utils/jsonHelper.js';
 import { sendOtpEmail } from '../services/emailService.js';
 import { hashPassword, verifyPassword } from '../utils/passwordHelper.js';
 import { listActiveEnrollments } from '../services/enrollmentService.js';
+import { issueSession } from '../services/sessionService.js';
 
 export const signup = async (req, res) => {
   const { username, password, name } = req.body;
@@ -31,10 +32,12 @@ export const signup = async (req, res) => {
         role: 'Student'
       });
       await newUser.save();
+      const sessionToken = await issueSession(res, newUser);
 
       return res.json({
         success: true,
         message: 'Đăng ký tài khoản thành công!',
+        token: sessionToken,
         user: {
           id: userId,
           username: newUser.username,
@@ -60,11 +63,12 @@ export const signup = async (req, res) => {
         createdAt: new Date().toISOString()
       };
 
-      users.push(newUser);
       if (writeJSONFile(filePath, users)) {
+        const sessionToken = await issueSession(res, newUser);
         return res.json({
           success: true,
           message: 'Đăng ký tài khoản thành công!',
+          token: sessionToken,
           user: {
             id: newUser.id,
             username: newUser.username,
@@ -102,10 +106,12 @@ export const login = async (req, res) => {
     if (!user || !verifyPassword(password, user.password)) {
       return res.status(401).json({ success: false, message: 'Tên đăng nhập hoặc mật khẩu chưa chính xác!' });
     }
+    const sessionToken = await issueSession(res, user);
 
     return res.json({
       success: true,
       message: 'Đăng nhập thành công!',
+      token: sessionToken,
       user: {
         id: user.id || user._id.toString(),
         username: user.username,
@@ -195,14 +201,17 @@ export const syncFirebaseAuth = async (req, res) => {
           user.username = email;
           updated = true;
         }
-        if (updated) {
+      if (updated) {
           await user.save();
         }
       }
 
+      const sessionToken = await issueSession(res, user);
+
       return res.json({
         success: true,
         message: 'Đồng bộ tài khoản thành công!',
+        token: sessionToken,
         user: {
           id: user.id || user._id.toString(),
           uid: user.uid,

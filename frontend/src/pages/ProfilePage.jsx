@@ -79,12 +79,12 @@ export default function ProfilePage() {
       try {
         const payload = await readApiJson(await apiFetch('/api/auth/me'));
         if (active) applySession(payload);
-      } catch {
+      } catch (error) {
         if (active) {
           setUser(null);
           setEnrollments([]);
           
-          if (localStorage.getItem('ueh_tcc_user')) {
+          if (error.status === 401 && localStorage.getItem('ueh_tcc_user')) {
             localStorage.removeItem('ueh_tcc_user');
             localStorage.removeItem('ueh_tcc_token');
             window.dispatchEvent(new Event('ueh-tcc-session-changed'));
