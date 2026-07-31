@@ -4,6 +4,7 @@ import { checkMongoDBConnected } from '../config/db.js';
 import { readJSONFile, writeJSONFile, dataDir } from '../utils/jsonHelper.js';
 import { sendOtpEmail } from '../services/emailService.js';
 import { hashPassword, verifyPassword } from '../utils/passwordHelper.js';
+import { listActiveEnrollments } from '../services/enrollmentService.js';
 
 export const signup = async (req, res) => {
   const { username, password, name } = req.body;
@@ -115,6 +116,25 @@ export const login = async (req, res) => {
   } catch (error) {
     console.error("Lỗi đăng nhập:", error);
     return res.status(500).json({ success: false, message: 'Lỗi hệ thống khi đăng nhập.' });
+  }
+};
+
+export const getMe = async (req, res) => {
+  try {
+    const user = req.authUser;
+    if (!user) {
+      return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+
+    const enrollments = await listActiveEnrollments(user);
+
+    return res.status(200).json({
+      success: true,
+      user,
+      enrollments
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: 'Lỗi hệ thống khi lấy thông tin.' });
   }
 };
 
