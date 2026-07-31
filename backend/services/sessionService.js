@@ -80,11 +80,17 @@ export const issueSession = async (res, user) => {
   }
 
   res.cookie(SESSION_COOKIE_NAME, token, cookieOptions());
+  return token;
 };
 
 export const resolveSessionUser = async (req) => {
   const cookies = parseCookies(req.headers.cookie);
-  const token = cookies[SESSION_COOKIE_NAME];
+  let token = cookies[SESSION_COOKIE_NAME];
+  
+  if (!token && req.headers.authorization?.startsWith('Bearer ')) {
+    token = req.headers.authorization.split(' ')[1];
+  }
+
   if (!token) return null;
 
   const tokenHash = hashToken(token);

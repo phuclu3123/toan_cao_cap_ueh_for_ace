@@ -8,6 +8,13 @@ const resolveApiUrl = (path) => {
 
 export const apiFetch = (path, options = {}) => {
   const headers = new Headers(options.headers || {});
+  
+  if (!headers.has('Authorization')) {
+    const token = localStorage.getItem('ueh_tcc_token');
+    if (token) {
+      headers.set('Authorization', `Bearer ${token}`);
+    }
+  }
 
   return fetch(resolveApiUrl(path), {
     ...options,

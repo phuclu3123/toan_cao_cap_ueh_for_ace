@@ -59,6 +59,9 @@ async function syncUserWithBackend(firebaseUser) {
     })
   });
   const data = await readApiJson(response);
+  if (data.token) {
+    localStorage.setItem('ueh_tcc_token', data.token);
+  }
   if (!data.success || !data.user) {
     throw new Error(data.message || 'Không thể đồng bộ phiên đăng nhập.');
   }
@@ -115,6 +118,7 @@ export default function Navbar() {
       localStorage.setItem('ueh_tcc_user', JSON.stringify(user));
     } else {
       localStorage.removeItem('ueh_tcc_user');
+      localStorage.removeItem('ueh_tcc_token');
     }
   }, []);
   const [sessionReady, setSessionReady] = useState(false);
@@ -254,6 +258,7 @@ export default function Navbar() {
           setLoggedInUser(null);
         }
         localStorage.removeItem('ueh_tcc_user');
+        localStorage.removeItem('ueh_tcc_token');
       } finally {
         if (!cancelled) setSessionReady(true);
       }
@@ -348,6 +353,7 @@ export default function Navbar() {
       });
       const data = await response.json();
       if (response.ok && data.success) {
+        if (data.token) localStorage.setItem('ueh_tcc_token', data.token);
         hasBackendSessionRef.current = true;
         setLoggedInUser(toClientUser(data.user));
         window.dispatchEvent(new Event('ueh-tcc-session-changed'));
@@ -392,6 +398,7 @@ export default function Navbar() {
       });
       const data = await response.json();
       if (response.ok && data.success) {
+        if (data.token) localStorage.setItem('ueh_tcc_token', data.token);
         hasBackendSessionRef.current = true;
         setLoggedInUser(toClientUser(data.user));
         window.dispatchEvent(new Event('ueh-tcc-session-changed'));
@@ -511,6 +518,7 @@ export default function Navbar() {
               photoURL: null,
               phoneNumber: null
             };
+            if (data.token) localStorage.setItem('ueh_tcc_token', data.token);
             const dbUser = await syncUserWithBackend(mockFirebaseUser);
             
             hasBackendSessionRef.current = true;
@@ -745,11 +753,12 @@ export default function Navbar() {
       try {
         await firebaseSignOut(auth);
       } catch {
-        // Local session cleanup must continue even if Firebase sign-out fails.
+        // ignore
       }
     }
-    setLoggedInUser(null);
     localStorage.removeItem('ueh_tcc_user');
+    localStorage.removeItem('ueh_tcc_token');
+    setLoggedInUser(null);
     window.dispatchEvent(new Event('ueh-tcc-session-changed'));
   };
 
