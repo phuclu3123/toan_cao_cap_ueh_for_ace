@@ -83,6 +83,12 @@ export default function ProfilePage() {
         if (active) {
           setUser(null);
           setEnrollments([]);
+          
+          if (localStorage.getItem('ueh_tcc_user')) {
+            localStorage.removeItem('ueh_tcc_user');
+            localStorage.removeItem('ueh_tcc_token');
+            window.dispatchEvent(new Event('ueh-tcc-session-changed'));
+          }
         }
       } finally {
         if (active) setSessionLoading(false);
