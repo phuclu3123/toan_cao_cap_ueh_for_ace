@@ -2838,9 +2838,12 @@ body:not(.dark-mode) .video-modal-container:not(.dark-player-box) .btn-resume-re
   position: fixed;
   bottom: 20px;
   right: 20px;
-  width: 400px !important;
-  max-width: calc(100vw - 40px);
+  width: 400px;
+  min-width: 250px;
+  max-width: 90vw;
   height: auto;
+  min-height: 200px;
+  max-height: 90vh;
   z-index: 100100;
   border-radius: 12px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.5);

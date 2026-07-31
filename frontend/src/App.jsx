@@ -17,6 +17,8 @@ import AppBootLifecycle from './components/layout/AppBootLifecycle';
 import MotionOrchestrator from './components/layout/MotionOrchestrator';
 import PageTransition from './components/layout/PageTransition';
 import BrandLoader from './components/ui/BrandLoader';
+import { GlobalPlayerProvider } from './contexts/GlobalPlayerContext';
+import GlobalPlayer from './components/GlobalPlayer';
 const Home = safeLazy(() => import('./pages/Home'));
 const GiftPage = safeLazy(() => import('./pages/GiftPage'));
 const ResourcesPage = safeLazy(() => import('./pages/ResourcesPage'));
@@ -116,6 +118,7 @@ function Layout() {
       <main id="main-content" className="main-content" tabIndex="-1">
         <PageTransition />
       </main>
+      <GlobalPlayer />
       {showHeaderFooter && <ContactLauncher />}
       {showHeaderFooter && <Footer />}
     </div>
@@ -310,7 +313,9 @@ export default function App() {
     <LanguageContext.Provider value={{ language, setLanguage, toggleLanguage }}>
       <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
         <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || '889879979247-ui1p4bgdv0vah7sfddhfmpejtqtr2npv.apps.googleusercontent.com'}>
-          <RouterProvider router={router} />
+          <GlobalPlayerProvider>
+            <RouterProvider router={router} />
+          </GlobalPlayerProvider>
         </GoogleOAuthProvider>
       </ThemeContext.Provider>
     </LanguageContext.Provider>
