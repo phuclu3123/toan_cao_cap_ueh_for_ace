@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useGlobalPlayer } from '../contexts/GlobalPlayerContext';
 import { auth } from '../firebase';
@@ -6,8 +6,6 @@ import {
   Maximize2, Minimize2, Pause, Play, ShieldCheck, SkipForward, X,
   CheckCircle, RotateCcw, RotateCw, Settings, Volume2, VolumeX, FileText, LockKeyhole, ArrowRight
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import CourseEnrollmentModal from './modals/CourseEnrollmentModal';
 
 const getProgressKey = (courseId, lessonId) => {
   let userId = 'guest';
@@ -17,7 +15,7 @@ const getProgressKey = (courseId, lessonId) => {
       const user = JSON.parse(savedUser);
       if (user && user.uid) userId = user.uid;
     }
-  } catch (e) {}
+  } catch { /* Browser storage can be unavailable in privacy mode. */ }
   if (userId === 'guest') userId = auth?.currentUser?.uid || 'guest';
   return `course_playback_progress_${userId}_${lessonId}`;
 };
@@ -35,8 +33,7 @@ const saveProgress = (courseId, lessonId, time) => {
   if (!Number.isFinite(time) || time < 5) return;
   try {
     localStorage.setItem(getProgressKey(courseId, lessonId), String(Math.floor(time)));
-  } catch {
-  }
+  } catch { /* Progress persistence is best-effort. */ }
 };
 
 const loadYouTubeAPI = () => {
@@ -55,7 +52,7 @@ const loadYouTubeAPI = () => {
 export default function GlobalPlayer() {
   const {
     isOpen, isMinimized, courseId, course, activeLesson, allLessons, courseTone, customPos,
-    loadingNext, playerNotice, accessDeniedStatus, playLesson, closePlayer, toggleMinimize, playNextLesson, setCustomPos, setAccessDeniedStatus
+    loadingNext, accessDeniedStatus, closePlayer, toggleMinimize, playNextLesson, setCustomPos, setAccessDeniedStatus
   } = useGlobalPlayer();
 
   const [isPlaying, setIsPlaying] = useState(false);
@@ -73,7 +70,6 @@ export default function GlobalPlayer() {
   const [resumeTime, setResumeTime] = useState(0);
   const [showResumePrompt, setShowResumePrompt] = useState(false);
   const [showTabPauseToast, setShowTabPauseToast] = useState(false);
-  const [showEnrollment, setShowEnrollment] = useState(false);
 
   const controlsTimeoutRef = useRef(null);
   const playerFrameRef = useRef(null);
@@ -201,7 +197,7 @@ export default function GlobalPlayer() {
           const time = ytPlayerRef.current.getCurrentTime();
           if (time) saveProgress(courseId, activeLesson.media?.videoId || activeLesson.id, time);
         }
-      } catch (e) {}
+      } catch { /* The player may already be disposed. */ }
     } else if (nativeVideoRef.current) {
       saveProgress(courseId, activeLesson.media?.videoId || activeLesson.id, nativeVideoRef.current.currentTime);
     }
@@ -251,17 +247,16 @@ export default function GlobalPlayer() {
 
   useEffect(() => {
     if (isOpen && activeLesson?.type === 'video' && activeLesson.media?.provider === 'youtube') {
-      let player;
       if (!ytMountRef.current) return;
-      ytMountRef.current.innerHTML = ''; 
+      ytMountRef.current.innerHTML = '';
       const container = document.createElement('div');
       container.style.width = '100%';
       container.style.height = '100%';
       ytMountRef.current.appendChild(container);
-      
+
       const savedTime = getSavedProgress(courseId, activeLesson.media.videoId);
       loadYouTubeAPI().then((YT) => {
-        player = new YT.Player(container, {
+        new YT.Player(container, {
           videoId: activeLesson.media.videoId,
           playerVars: { autoplay: savedTime > 5 ? 0 : 1, controls: 0, disablekb: 1, fs: 0, modestbranding: 1, rel: 0, playsinline: 1 },
           events: {
@@ -273,7 +268,7 @@ export default function GlobalPlayer() {
               } else {
                 event.target.playVideo();
               }
-              
+
               ytSaveIntervalRef.current = setInterval(() => {
                 const time = event.target.getCurrentTime();
                 const dur = event.target.getDuration();
@@ -300,7 +295,7 @@ export default function GlobalPlayer() {
               const time = ytPlayerRef.current.getCurrentTime();
               if (time) saveProgress(courseId, activeLesson.media?.videoId || activeLesson.id, time);
             }
-          } catch (e) {}
+          } catch { /* The player may already be disposed. */ }
           ytPlayerRef.current.destroy();
           ytPlayerRef.current = null;
         }
@@ -316,7 +311,7 @@ export default function GlobalPlayer() {
 
       let isNative = nativeVideoRef.current != null;
       let isYT = activeLesson.media?.provider === 'youtube' && ytPlayerRef.current;
-      
+
       if (!isNative && !isYT) return;
 
       const seekBy = (seconds) => {
@@ -367,6 +362,8 @@ export default function GlobalPlayer() {
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
+  // Keyboard bindings are recreated with the active lesson/player state.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, activeLesson, hasNextLesson]);
 
   const handlePlayerPointerDown = (e) => {
@@ -374,7 +371,7 @@ export default function GlobalPlayer() {
     if (e.target.closest('button') || e.target.closest('.video-overlay-controls') || e.target.closest('.video-canvas-click-overlay')) return;
     // Don't drag if clicking on resize handle (usually bottom right edge)
     if (e.clientX > e.currentTarget.getBoundingClientRect().right - 20 && e.clientY > e.currentTarget.getBoundingClientRect().bottom - 20) return;
-    
+
     if (window.getComputedStyle(playerDialogRef.current).position !== 'fixed') {
         const rect = playerDialogRef.current.getBoundingClientRect();
         playerDialogRef.current.style.position = 'fixed';
@@ -385,7 +382,7 @@ export default function GlobalPlayer() {
 
     const currentLeft = parseInt(playerDialogRef.current.style.left) || 0;
     const currentTop = parseInt(playerDialogRef.current.style.top) || 0;
-    
+
     playerDragState.current = {
       isDragging: true,
       startX: e.clientX,
@@ -397,16 +394,16 @@ export default function GlobalPlayer() {
     const handlePointerMove = (moveEvent) => {
       moveEvent.preventDefault();
       if (!playerDragState.current.isDragging) return;
-      
+
       const dx = moveEvent.clientX - playerDragState.current.startX;
       const dy = moveEvent.clientY - playerDragState.current.startY;
-      
+
       let newX = playerDragState.current.initialLeft + dx;
       let newY = playerDragState.current.initialTop + dy;
-      
+
       newX = Math.max(10, Math.min(window.innerWidth - playerDialogRef.current.offsetWidth - 10, newX));
       newY = Math.max(10, Math.min(window.innerHeight - playerDialogRef.current.offsetHeight - 10, newY));
-      
+
       playerDialogRef.current.style.left = `${newX}px`;
       playerDialogRef.current.style.top = `${newY}px`;
       playerDialogRef.current.style.bottom = 'auto';
@@ -417,7 +414,7 @@ export default function GlobalPlayer() {
       playerDragState.current.isDragging = false;
       window.removeEventListener('pointermove', handlePointerMove);
       window.removeEventListener('pointerup', handlePointerUp);
-      
+
       const finalX = parseInt(playerDialogRef.current.style.left);
       const finalY = parseInt(playerDialogRef.current.style.top);
       if (!isNaN(finalX) && !isNaN(finalY)) {
@@ -578,7 +575,7 @@ export default function GlobalPlayer() {
                       <button type="button" onClick={() => { togglePlayPause(); triggerScreenPulseAnim(); }} title="Phát / Tạm dừng" style={{background: 'none', border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center'}}>
                         {isPlaying ? <Pause size={24} fill="currentColor" /> : <Play size={24} fill="currentColor" />}
                       </button>
-                      
+
                       <button type="button" onClick={handleNextLessonWrap} title="Bài tiếp theo" disabled={!hasNextLesson} style={{background: 'none', border: 'none', color: '#fff', cursor: hasNextLesson ? 'pointer' : 'not-allowed', opacity: hasNextLesson ? 1 : 0.4, display: 'flex', alignItems: 'center', marginLeft: -4}}>
                         <SkipForward size={24} fill="currentColor" />
                       </button>
@@ -589,7 +586,7 @@ export default function GlobalPlayer() {
                       <button type="button" onClick={handleForward5} title="Tua tới 5s" style={{background: 'none', border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center'}}>
                         <RotateCw size={20} />
                       </button>
-                      
+
                       <div style={{display: 'flex', alignItems: 'center', gap: 8}}>
                         <button type="button" onClick={toggleMute} style={{background: 'none', border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center'}}>
                           {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
@@ -640,9 +637,9 @@ export default function GlobalPlayer() {
               <ShieldCheck size={16} />
               Nội dung được cấp sau khi máy chủ kiểm tra quyền học.
             </span>
-            <button 
-              type="button" 
-              className="cd-button cd-button--primary" 
+            <button
+              type="button"
+              className="cd-button cd-button--primary"
               onClick={handleNextLessonWrap}
               disabled={!hasNextLesson || loadingNext}
               style={!hasNextLesson ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
@@ -709,7 +706,7 @@ export default function GlobalPlayer() {
               Bạn đang xem tới <strong>{Math.floor(resumeTime / 60)} phút {Math.floor(resumeTime % 60)} giây</strong>.
             </p>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
-              <button 
+              <button
                 className="cd-button cd-button--secondary"
                 onClick={() => {
                   setShowResumePrompt(false);
@@ -721,7 +718,7 @@ export default function GlobalPlayer() {
               >
                 Xem lại từ đầu
               </button>
-              <button 
+              <button
                 className="cd-button cd-button--primary"
                 onClick={() => {
                   setShowResumePrompt(false);
@@ -737,11 +734,11 @@ export default function GlobalPlayer() {
           </div>
         </div>
       )}
-      
+
       {showTabPauseToast && (
         <div style={{
           position: 'fixed', top: '20px', left: '50%', transform: 'translateX(-50%)',
-          background: 'rgba(0,0,0,0.8)', color: 'white', padding: '10px 20px', 
+          background: 'rgba(0,0,0,0.8)', color: 'white', padding: '10px 20px',
           borderRadius: '8px', zIndex: 100103, fontWeight: 'bold'
         }}>
           Video đã tự động tạm dừng vì bạn chuyển tab!

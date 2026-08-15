@@ -1,17 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useParams } from 'react-router-dom';
-import { auth } from '../firebase';
 import {
-  ArrowLeft, ArrowRight, BookOpen, Check, CheckCircle2, ChevronDown, Clock, Clock3, Eye, FileText, FolderOpen, GripVertical, GraduationCap, Library, Loader2, LockKeyhole, Maximize2, Minimize2, Pause, Play, ShieldCheck, SkipForward, Users, Video, X,
-  CheckCircle, Flag, Lightbulb, RotateCcw, RotateCw, Settings, Volume2, VolumeX
+  ArrowLeft, ArrowRight, BookOpen, Check, CheckCircle2, ChevronDown, Clock, Clock3, Eye, FileText, FolderOpen, GripVertical, GraduationCap, Library, Loader2, LockKeyhole, Maximize2, Minimize2, Play, ShieldCheck, Users, Video
 } from 'lucide-react';
 import CourseEnrollmentModal from '../components/modals/CourseEnrollmentModal';
 import { useGlobalPlayer } from '../contexts/GlobalPlayerContext';
 import { getCourseById } from '../data/coursesData';
 import { apiFetch } from '../utils/apiClient';
 import NotFoundPage from './NotFoundPage';
-import { isAdminAccount, getStudentIdentifier } from '../utils/securityGuard';
 import '../assets/styles/Courses.css';
 
 const COURSE_TONES = Object.freeze({
@@ -158,9 +155,6 @@ function CourseDetailContent({ course }) {
     }
   };
 
-  const openEnrollment = () => {
-    setShowEnrollment(true);
-  };
 
   const handleEnrollmentSuccess = (_courseId, entitlement) => {
     if (!entitlement?.allowed) return;
@@ -171,7 +165,7 @@ function CourseDetailContent({ course }) {
 
   const handleTimerPointerDown = (e) => {
     if (e.target.closest('.btn-timer-collapse')) return;
-    
+
     if (window.getComputedStyle(timerRef.current).position !== 'fixed') {
         const rect = timerRef.current.getBoundingClientRect();
         timerRef.current.style.position = 'fixed';
@@ -182,7 +176,7 @@ function CourseDetailContent({ course }) {
 
     const currentLeft = parseInt(timerRef.current.style.left) || 10;
     const currentTop = parseInt(timerRef.current.style.top) || 10;
-    
+
     dragState.current = {
       isDragging: true,
       startX: e.clientX,
@@ -194,16 +188,16 @@ function CourseDetailContent({ course }) {
     const handlePointerMove = (moveEvent) => {
       moveEvent.preventDefault();
       if (!dragState.current.isDragging) return;
-      
+
       const dx = moveEvent.clientX - dragState.current.startX;
       const dy = moveEvent.clientY - dragState.current.startY;
-      
+
       let newX = dragState.current.initialLeft + dx;
       let newY = dragState.current.initialTop + dy;
-      
+
       newX = Math.max(10, Math.min(window.innerWidth - timerRef.current.offsetWidth - 10, newX));
       newY = Math.max(10, Math.min(window.innerHeight - timerRef.current.offsetHeight - 10, newY));
-      
+
       timerRef.current.style.left = `${newX}px`;
       timerRef.current.style.top = `${newY}px`;
     };
@@ -212,7 +206,7 @@ function CourseDetailContent({ course }) {
       dragState.current.isDragging = false;
       window.removeEventListener('pointermove', handlePointerMove);
       window.removeEventListener('pointerup', handlePointerUp);
-      
+
       const finalX = parseInt(timerRef.current.style.left);
       const finalY = parseInt(timerRef.current.style.top);
       if (!isNaN(finalX) && !isNaN(finalY)) {
@@ -240,10 +234,10 @@ function CourseDetailContent({ course }) {
     const progressPercent = allLessons.length > 0 ? Math.round((0 / allLessons.length) * 100) : 0;
 
     return (
-      <div 
+      <div
         ref={timerRef}
-        className={classNameProp} 
-        style={{ touchAction: 'none', ...styleProp }} 
+        className={classNameProp}
+        style={{ touchAction: 'none', ...styleProp }}
         onPointerDown={handleTimerPointerDown}
       >
         <div className="timer-drag-handle" title="Kéo thả để di chuyển vị trí">
@@ -514,14 +508,14 @@ function CourseDetailContent({ course }) {
         </div>
       </main>
 
-            
 
-      
 
-      
-      
-      
-      
+
+
+
+
+
+
 \n      <CourseEnrollmentModal
         isOpen={showEnrollment}
         onClose={() => setShowEnrollment(false)}

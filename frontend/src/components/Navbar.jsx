@@ -1,15 +1,14 @@
 import { useCallback, useState, useEffect, useContext, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { 
+import {
   Menu, X, User, LogIn, PlusCircle, Loader2,
-  Sun, Moon, Globe, Search, ChevronDown, ChevronRight, BookOpen, LogOut 
+  Sun, Moon, Globe, Search, ChevronDown, ChevronRight, BookOpen, LogOut, Bookmark, MessageSquare
 } from 'lucide-react';
+import NotificationDropdown from './community/NotificationDropdown';
 import { apiFetch, readApiJson, toClientUser } from '../utils/apiClient';
 import '../assets/styles/Navbar.css';
-import { 
-  auth, 
-  googleProvider, 
-  githubProvider,
+import {
+  auth,
   isFirebaseConfigured,
   RecaptchaVerifier,
   signInWithPhoneNumber,
@@ -17,7 +16,7 @@ import {
   onAuthStateChanged,
   getRedirectResult
 } from '../firebase';
-import { GoogleAuthProvider, GithubAuthProvider, signInWithCredential } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
 import { useGoogleOneTapLogin } from '@react-oauth/google';
 import { LanguageContext, ThemeContext } from '../App';
 import { translations } from '../utils/translations';
@@ -81,21 +80,21 @@ export default function Navbar() {
   const { language, setLanguage: changeLanguage } = useContext(LanguageContext);
   const { theme, toggleTheme } = useContext(ThemeContext);
   const t = translations[language];
-  
+
   // Login / Signup / Phone OTP / Forgot Password Modal States
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [authMode, setAuthMode] = useState('login'); // 'login' | 'signup' | 'forgot' | 'phone'
-  
+
   // Email/Password inputs
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  
+
   // Signup inputs
   const [signupName, setSignupName] = useState('');
   const [signupUsername, setSignupUsername] = useState('');
   const [signupPassword, setSignupPassword] = useState('');
   const [signupConfirmPassword, setSignupConfirmPassword] = useState('');
-  
+
   // Forgot Password input
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotLoading, setForgotLoading] = useState(false);
@@ -103,7 +102,7 @@ export default function Navbar() {
   const [forgotOtp, setForgotOtp] = useState('');
   const [forgotNewPassword, setForgotNewPassword] = useState('');
   const [forgotConfirmNewPassword, setForgotConfirmNewPassword] = useState('');
-  
+
   // Phone OTP inputs
   const [phoneInput, setPhoneInput] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
@@ -138,7 +137,7 @@ export default function Navbar() {
   const [uploadExternalUrl, setUploadExternalUrl] = useState('');
   const [uploadStatus, setUploadStatus] = useState('idle');
   const [uploadMsg, setUploadMsg] = useState('');
-  
+
   const location = useLocation();
   const navigate = useNavigate();
   const uploadProfName = PROFESSOR_NAMES[uploadProf] || 'Giảng viên UEH';
@@ -252,7 +251,7 @@ export default function Navbar() {
             setLoggedInUser(null);
           }
         }
-      } catch (err) {
+      } catch {
         if (!cancelled) {
           hasBackendSessionRef.current = false;
           setLoggedInUser(null);
@@ -270,7 +269,7 @@ export default function Navbar() {
       cancelled = true;
       window.removeEventListener('ueh-tcc-session-changed', bootstrapSession);
     };
-  }, []);
+  }, [setLoggedInUser]);
 
   // Listen for real Firebase sessions and exchange their verified ID token for
   // a backend session cookie.
@@ -312,7 +311,7 @@ export default function Navbar() {
       });
       return () => unsubscribe();
     }
-  }, [sessionReady]);
+  }, [sessionReady, setLoggedInUser]);
 
   const isActivePath = (path) => location.pathname === path;
 
@@ -429,7 +428,7 @@ export default function Navbar() {
       } else {
         throw new Error('Không nhận được token xác thực từ Google.');
       }
-      
+
       const userCredential = await signInWithCredential(auth, credential);
       const dbUser = await syncUserWithBackend(userCredential.user);
       hasBackendSessionRef.current = true;
@@ -446,7 +445,7 @@ export default function Navbar() {
     } finally {
       setIsAuthenticating(false);
     }
-  }, []);
+  }, [setLoggedInUser]);
 
   // Google One Tap UI (appears in top right)
   useGoogleOneTapLogin({
@@ -466,7 +465,7 @@ export default function Navbar() {
         const paramString = rawHash.includes('?') ? rawHash.split('?')[1] : rawHash.replace(/^#\/?/, '');
         const params = new URLSearchParams(paramString);
         const accessToken = params.get('access_token') || new URLSearchParams(rawHash.substring(1)).get('access_token');
-        
+
         if (accessToken) {
           setIsAuthenticating(true);
           navigate('/', { replace: true });
@@ -478,7 +477,7 @@ export default function Navbar() {
       const queryParams = new URLSearchParams(window.location.search);
       let githubCode = queryParams.get('code');
       let githubState = queryParams.get('state');
-      
+
       // Fallback if GitHub appended it after the hash (e.g. /#/?code=...)
       if (!githubCode && window.location.hash.includes('code=')) {
         const hashQuery = window.location.hash.split('?')[1];
@@ -488,7 +487,7 @@ export default function Navbar() {
           githubState = hashParams.get('state');
         }
       }
-      
+
       if (githubCode && processedCodeRef.current !== githubCode) {
         processedCodeRef.current = githubCode;
         setIsAuthenticating(true);
@@ -501,7 +500,7 @@ export default function Navbar() {
           setIsAuthenticating(false);
           return;
         }
-        
+
         try {
           const response = await apiFetch('/api/auth/github/token', {
             method: 'POST',
@@ -520,7 +519,7 @@ export default function Navbar() {
             };
             if (data.token) localStorage.setItem('ueh_tcc_token', data.token);
             const dbUser = await syncUserWithBackend(mockFirebaseUser);
-            
+
             hasBackendSessionRef.current = true;
             setLoggedInUser(dbUser);
             window.dispatchEvent(new Event('ueh-tcc-session-changed'));
@@ -539,9 +538,9 @@ export default function Navbar() {
         }
       }
     };
-    
+
     handleOAuthReturn();
-  }, [navigate, handleGoogleAuthSuccess]);
+  }, [navigate, handleGoogleAuthSuccess, setLoggedInUser]);
 
   const handleGoogleLogin = async () => {
     setAuthError('');
@@ -556,7 +555,6 @@ export default function Navbar() {
     const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID || 'Ov23livA8dLXS0qzY0kt';
     const state = createOAuthState();
     sessionStorage.setItem(GITHUB_OAUTH_STATE_KEY, state);
-    const redirectUri = window.location.origin;
     const url = `https://github.com/login/oauth/authorize?client_id=${encodeURIComponent(clientId)}&scope=user%3Aemail&state=${encodeURIComponent(state)}`;
     window.location.href = url;
   };
@@ -861,6 +859,7 @@ export default function Navbar() {
             <div className="nav-links">
               <Link to="/" className={`nav-link-item ${isActivePath('/') ? 'active' : ''}`} aria-current={isActivePath('/') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.home}</Link>
               <Link to="/courses" className={`nav-link-item ${isActivePath('/courses') ? 'active' : ''}`} aria-current={isActivePath('/courses') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.courses}</Link>
+              <Link to="/community" className={`nav-link-item ${isActivePath('/community') ? 'active' : ''}`} aria-current={isActivePath('/community') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.community || 'Hỏi đáp TCC'}</Link>
               <Link to="/resources?category=all" className={`nav-link-item ${location.pathname === '/resources' ? 'active' : ''}`} aria-current={location.pathname === '/resources' ? 'page' : undefined} onClick={handleNavClick}>{t.nav.library}</Link>
               <Link to="/exams" className={`nav-link-item ${isActivePath('/exams') ? 'active' : ''}`} aria-current={isActivePath('/exams') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.exams}</Link>
               <Link to="/blog" className={`nav-link-item ${isActivePath('/blog') ? 'active' : ''}`} aria-current={isActivePath('/blog') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.blog}</Link>
@@ -869,18 +868,20 @@ export default function Navbar() {
 
             {/* Theme & Language Controls */}
             <div className="nav-controls">
-              <button 
+              <NotificationDropdown />
+
+              <button
                 type="button"
-                className="control-btn" 
+                className="control-btn"
                 onClick={() => setShowSearch(true)}
                 aria-label="Mở tìm kiếm"
               >
                 <Search size={18} />
               </button>
 
-              <button 
+              <button
                 type="button"
-                className="control-btn theme-toggle-btn" 
+                className="control-btn theme-toggle-btn"
                 onClick={toggleTheme}
                 aria-label={theme === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}
               >
@@ -888,8 +889,8 @@ export default function Navbar() {
               </button>
 
               <div className="lang-selector-container">
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   className="control-btn lang-btn"
                   onClick={() => setShowLangMenu(!showLangMenu)}
                   aria-label="Chọn ngôn ngữ"
@@ -922,8 +923,8 @@ export default function Navbar() {
             <div className="auth-action">
               {loggedInUser ? (
                 <div className="user-profile-menu-container">
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className="user-profile-pill-btn"
                     onClick={() => setShowUserDropdown(!showUserDropdown)}
                     aria-haspopup="menu"
@@ -954,9 +955,9 @@ export default function Navbar() {
 
                       <div className="user-dropdown-divider" />
 
-                      <Link 
+                      <Link
                         to="/account?tab=courses"
-                        className="user-dropdown-item" 
+                        className="user-dropdown-item"
                         onClick={() => setShowUserDropdown(false)}
                       >
                         <div className="user-dropdown-item-left">
@@ -968,9 +969,9 @@ export default function Navbar() {
                         <ChevronRight size={14} color="#94a3b8" />
                       </Link>
 
-                      <Link 
+                      <Link
                         to="/account?tab=profile"
-                        className="user-dropdown-item" 
+                        className="user-dropdown-item"
                         onClick={() => setShowUserDropdown(false)}
                       >
                         <div className="user-dropdown-item-left">
@@ -982,10 +983,38 @@ export default function Navbar() {
                         <ChevronRight size={14} color="#94a3b8" />
                       </Link>
 
+                      <Link
+                        to="/community/saved"
+                        className="user-dropdown-item"
+                        onClick={() => setShowUserDropdown(false)}
+                      >
+                        <div className="user-dropdown-item-left">
+                          <div className="dropdown-item-icon-circle gold">
+                            <Bookmark size={16} />
+                          </div>
+                          <span>Bài toán đã lưu</span>
+                        </div>
+                        <ChevronRight size={14} color="#94a3b8" />
+                      </Link>
+
+                      <Link
+                        to="/community/user/me"
+                        className="user-dropdown-item"
+                        onClick={() => setShowUserDropdown(false)}
+                      >
+                        <div className="user-dropdown-item-left">
+                          <div className="dropdown-item-icon-circle green">
+                            <MessageSquare size={16} />
+                          </div>
+                          <span>Hồ sơ diễn đàn AoPS</span>
+                        </div>
+                        <ChevronRight size={14} color="#94a3b8" />
+                      </Link>
+
                       {loggedInUser.role === 'Admin' && (
-                        <button 
-                          type="button" 
-                          className="user-dropdown-item" 
+                        <button
+                          type="button"
+                          className="user-dropdown-item"
                           onClick={() => { setShowUserDropdown(false); setShowUploadModal(true); }}
                         >
                           <div className="user-dropdown-item-left">
@@ -1000,9 +1029,9 @@ export default function Navbar() {
 
                       <div className="user-dropdown-divider" />
 
-                      <button 
-                        type="button" 
-                        className="user-dropdown-item" 
+                      <button
+                        type="button"
+                        className="user-dropdown-item"
                         onClick={() => { setShowUserDropdown(false); handleLogout(); }}
                       >
                         <div className="user-dropdown-item-left">
@@ -1056,14 +1085,15 @@ export default function Navbar() {
             <div className="mobile-links">
               <Link to="/" className={`mobile-link-item ${isActivePath('/') ? 'active' : ''}`} aria-current={isActivePath('/') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.home}</Link>
               <Link to="/courses" className={`mobile-link-item ${isActivePath('/courses') ? 'active' : ''}`} aria-current={isActivePath('/courses') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.courses}</Link>
+              <Link to="/community" className={`mobile-link-item ${isActivePath('/community') ? 'active' : ''}`} aria-current={isActivePath('/community') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.community || 'Hỏi đáp TCC'}</Link>
               <Link to="/resources?category=all" className={`mobile-link-item ${location.pathname === '/resources' ? 'active' : ''}`} aria-current={location.pathname === '/resources' ? 'page' : undefined} onClick={handleNavClick}>{t.nav.library}</Link>
               <Link to="/exams" className={`mobile-link-item ${isActivePath('/exams') ? 'active' : ''}`} aria-current={isActivePath('/exams') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.exams}</Link>
               <Link to="/blog" className={`mobile-link-item ${isActivePath('/blog') ? 'active' : ''}`} aria-current={isActivePath('/blog') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.blog}</Link>
               <Link to="/20-10" className={`mobile-link-item rose-link ${location.pathname === '/20-10' ? 'active' : ''}`} aria-current={location.pathname === '/20-10' ? 'page' : undefined} onClick={handleNavClick}>{t.nav.gift}</Link>
-              
+
               {/* Mobile theme & language controls */}
               <div className="mobile-controls-row">
-                <button 
+                <button
                   type="button"
                   className="mobile-control-btn"
                   onClick={() => setShowSearch(true)}
@@ -1071,7 +1101,7 @@ export default function Navbar() {
                   <Search size={18} />
                   <span>Tìm kiếm</span>
                 </button>
-                <button 
+                <button
                   type="button"
                   className="mobile-control-btn"
                   onClick={toggleTheme}
@@ -1086,7 +1116,7 @@ export default function Navbar() {
                   <button type="button" className={`mobile-lang-btn ${language === 'zh' ? 'active' : ''}`} onClick={() => { changeLanguage('zh'); setIsOpen(false); }}>ZH</button>
                 </div>
               </div>
-              
+
               <div className="mobile-drawer-auth">
                 {loggedInUser ? (
                   <div className="mobile-user-profile">
@@ -1095,8 +1125,8 @@ export default function Navbar() {
                       <span>{loggedInUser.name} ({loggedInUser.role})</span>
                     </div>
                     {loggedInUser.role === 'Admin' && (
-                      <button 
-                        className="btn btn-secondary w-full mb-2 text-teal" 
+                      <button
+                        className="btn btn-secondary w-full mb-2 text-teal"
                         onClick={() => { setIsOpen(false); setShowUploadModal(true); }}
                       >
                         <PlusCircle size={15} />
@@ -1118,7 +1148,7 @@ export default function Navbar() {
       </header>
 
       {/* Subcomponents Modals */}
-      <SearchModal 
+      <SearchModal
         showSearch={showSearch}
         setShowSearch={setShowSearch}
         searchQuery={searchQuery}
@@ -1126,7 +1156,7 @@ export default function Navbar() {
         handleGlobalSearch={handleGlobalSearch}
       />
 
-      <UploadModal 
+      <UploadModal
         showUploadModal={showUploadModal}
         setShowUploadModal={setShowUploadModal}
         loggedInUser={loggedInUser}
@@ -1150,7 +1180,7 @@ export default function Navbar() {
         handleUploadSubmit={handleUploadSubmit}
       />
 
-      <AuthModal 
+      <AuthModal
         showLoginModal={showLoginModal}
         setShowLoginModal={setShowLoginModal}
         authMode={authMode}

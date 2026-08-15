@@ -19,6 +19,9 @@ import PageTransition from './components/layout/PageTransition';
 import BrandLoader from './components/ui/BrandLoader';
 import { GlobalPlayerProvider } from './contexts/GlobalPlayerContext';
 import GlobalPlayer from './components/GlobalPlayer';
+import { AuthProvider } from './contexts/AuthContext';
+import { NotificationProvider } from './contexts/NotificationContext';
+import { CommunityProvider } from './contexts/CommunityContext';
 const Home = safeLazy(() => import('./pages/Home'));
 const GiftPage = safeLazy(() => import('./pages/GiftPage'));
 const ResourcesPage = safeLazy(() => import('./pages/ResourcesPage'));
@@ -28,6 +31,9 @@ const BlogPage = safeLazy(() => import('./pages/BlogPage'));
 const PayOSApiPage = safeLazy(() => import('./pages/PayOSApiPage'));
 const AboutPage = safeLazy(() => import('./pages/AboutPage'));
 const NotFoundPage = safeLazy(() => import('./pages/NotFoundPage'));
+const CommunityPage = safeLazy(() => import('./pages/CommunityPage'));
+const CommunityDetailPage = safeLazy(() => import('./pages/CommunityDetailPage'));
+const CommunityProfilePage = safeLazy(() => import('./pages/CommunityProfilePage'));
 import { safeLocalStorage } from './utils/safeStorage';
 import './App.css';
 import './assets/styles/experience.css';
@@ -75,7 +81,7 @@ function GlobalErrorBoundary() {
       <p style={{ marginTop: '16px', color: '#64748b', fontSize: '0.9rem' }}>
         Hệ thống đang tự động đồng bộ phiên bản mới nhất. Vui lòng đợi trong giây lát...
       </p>
-      <button 
+      <button
         onClick={() => window.location.reload()}
         className="btn btn-primary"
         style={{ marginTop: '16px', padding: '10px 20px', borderRadius: '10px' }}
@@ -106,22 +112,24 @@ function Layout() {
     const legacyTarget = legacyHash.slice(1);
     navigate(legacyTarget, { replace: true });
   }, [navigate]);
-  
+
   const showHeaderFooter = !isGiftPage && !isExamPage;
 
   return (
-    <div className="app-container">
-      <AppBootLifecycle />
-      <ScrollManager />
-      <MotionOrchestrator />
-      {showHeaderFooter && <Navbar />}
-      <main id="main-content" className="main-content" tabIndex="-1">
-        <PageTransition />
-      </main>
-      <GlobalPlayer />
-      {showHeaderFooter && <ContactLauncher />}
-      {showHeaderFooter && <Footer />}
-    </div>
+    <CommunityProvider>
+      <div className="app-container">
+        <AppBootLifecycle />
+        <ScrollManager />
+        <MotionOrchestrator />
+        {showHeaderFooter && <Navbar />}
+        <main id="main-content" className="main-content" tabIndex="-1">
+          <PageTransition />
+        </main>
+        <GlobalPlayer />
+        {showHeaderFooter && <ContactLauncher />}
+        {showHeaderFooter && <Footer />}
+      </div>
+    </CommunityProvider>
   );
 }
 
@@ -162,6 +170,38 @@ const router = createBrowserRouter([
         element: (
           <Suspense fallback={<BrandLoader label="Đang tải khóa học E-Learning" />}>
             <CourseDetail />
+          </Suspense>
+        )
+      },
+      {
+        path: 'community',
+        element: (
+          <Suspense fallback={<BrandLoader label="Đang tải Diễn đàn Toán học UEH..." />}>
+            <CommunityPage />
+          </Suspense>
+        )
+      },
+      {
+        path: 'community/:id',
+        element: (
+          <Suspense fallback={<BrandLoader label="Đang tải bài toán & lời giải..." />}>
+            <CommunityDetailPage />
+          </Suspense>
+        )
+      },
+      {
+        path: 'community/user/:id',
+        element: (
+          <Suspense fallback={<BrandLoader label="Đang tải hồ sơ thành viên..." />}>
+            <CommunityProfilePage />
+          </Suspense>
+        )
+      },
+      {
+        path: 'community/saved',
+        element: (
+          <Suspense fallback={<BrandLoader label="Đang tải bài toán đã lưu..." />}>
+            <CommunityProfilePage defaultTab="saved" />
           </Suspense>
         )
       },
@@ -312,11 +352,15 @@ export default function App() {
   return (
     <LanguageContext.Provider value={{ language, setLanguage, toggleLanguage }}>
       <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
-        <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || '889879979247-ui1p4bgdv0vah7sfddhfmpejtqtr2npv.apps.googleusercontent.com'}>
-          <GlobalPlayerProvider>
-            <RouterProvider router={router} />
-          </GlobalPlayerProvider>
-        </GoogleOAuthProvider>
+        <AuthProvider>
+          <NotificationProvider>
+            <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || '889879979247-ui1p4bgdv0vah7sfddhfmpejtqtr2npv.apps.googleusercontent.com'}>
+              <GlobalPlayerProvider>
+                <RouterProvider router={router} />
+              </GlobalPlayerProvider>
+            </GoogleOAuthProvider>
+          </NotificationProvider>
+        </AuthProvider>
       </ThemeContext.Provider>
     </LanguageContext.Provider>
   );

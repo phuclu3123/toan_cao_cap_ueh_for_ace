@@ -12,6 +12,7 @@ export const translations = {
       logout: "Thoát",
       upload: "Đăng tài liệu",
       courses: "Khóa học",
+      community: "Hỏi đáp TCC",
       blog: "Blog"
     },
     hero: {
@@ -364,6 +365,7 @@ export const translations = {
       logout: "Log Out",
       upload: "Upload Doc",
       courses: "Courses",
+      community: "Q&A Community",
       blog: "Blog"
     },
     hero: {
@@ -718,6 +720,7 @@ export const translations = {
       logout: "ログアウト",
       upload: "資料投稿",
       courses: "コース",
+      community: "数学Q&A",
       blog: "ブログ"
     },
     hero: {
@@ -1072,6 +1075,7 @@ export const translations = {
       logout: "退出",
       upload: "发布资料",
       courses: "课程",
+      community: "问答社区",
       blog: "博客"
     },
     hero: {
