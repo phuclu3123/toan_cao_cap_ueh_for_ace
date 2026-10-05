@@ -7,6 +7,7 @@ import {
 import NotificationDropdown from './community/NotificationDropdown';
 import { apiFetch, readApiJson, toClientUser } from '../utils/apiClient';
 import { syncFirebaseUserWithBackend } from '../services/authService';
+import { beginGithubOAuth, GITHUB_OAUTH_STATE_KEY } from '../services/oauthService';
 import { getInitials } from '../utils/userInitials';
 import '../assets/styles/Navbar.css';
 import {
@@ -16,12 +17,11 @@ import {
   RecaptchaVerifier,
   signInWithPhoneNumber,
   signOut as firebaseSignOut,
-  signInWithPopup,
+  signInWithRedirect,
   onIdTokenChanged,
-  getRedirectResult
+  getRedirectResult,
+  FIREBASE_REDIRECT_PROVIDER_KEY
 } from '../firebase';
-import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
-import { useGoogleOneTapLogin } from '@react-oauth/google';
 import { LanguageContext, ThemeContext } from '../App';
 import { translations } from '../utils/translations';
 
@@ -34,16 +34,6 @@ const PROFESSOR_NAMES = {
   ndt: 'Thầy Nguyễn Đình Tuấn',
   ntv: 'Thầy Ngô Trấn Vũ',
   ntvv: 'Thầy Nguyễn Thanh Vân'
-};
-
-const GITHUB_OAUTH_STATE_KEY = 'ueh_tcc_github_oauth_state';
-
-const createOAuthState = () => {
-  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-    return crypto.randomUUID();
-  }
-  const bytes = crypto.getRandomValues(new Uint8Array(24));
-  return Array.from(bytes, (value) => value.toString(16).padStart(2, '0')).join('');
 };
 
 export default function Navbar() {
@@ -255,9 +245,12 @@ export default function Navbar() {
   }, [setLoggedInUser]);
 
   // Listen for real Firebase sessions and exchange their verified ID token for
-  // a backend session cookie.
+  // a backend session cookie. Google uses a top-level redirect instead of One
+  // Tap/a browser popup so the account chooser has the normal full-page UX.
   useEffect(() => {
     if (sessionReady && isFirebaseConfigured && auth) {
+      let cancelled = false;
+      const redirectProvider = sessionStorage.getItem(FIREBASE_REDIRECT_PROVIDER_KEY) || 'Google';
       // Check for redirect result (e.g. from GitHub login)
       getRedirectResult(auth).then(async (result) => {
         if (result) {
@@ -266,18 +259,30 @@ export default function Navbar() {
             hasBackendSessionRef.current = true;
             setLoggedInUser(dbUser);
             window.dispatchEvent(new Event('ueh-tcc-session-changed'));
-            setAuthSuccessMsg('Đăng nhập thành công!');
+            sessionStorage.removeItem(FIREBASE_REDIRECT_PROVIDER_KEY);
+            setAuthError('');
+            setAuthSuccessMsg(`Đăng nhập ${redirectProvider} thành công!`);
+            setShowLoginModal(false);
+            navigate('/', { replace: true });
           } catch(err) {
+            if (cancelled) return;
+            sessionStorage.removeItem(FIREBASE_REDIRECT_PROVIDER_KEY);
             console.error("Lỗi đồng bộ Firebase user với Backend:", err);
+            setAuthSuccessMsg('');
+            setAuthError(`Lỗi đăng nhập ${redirectProvider}: ${err.message || 'Không thể hoàn tất đăng nhập. Vui lòng thử lại.'}`);
+            setShowLoginModal(true);
           }
         }
       }).catch((error) => {
+        if (cancelled) return;
+        sessionStorage.removeItem(FIREBASE_REDIRECT_PROVIDER_KEY);
         console.error("Redirect auth error:", error);
-        if (error.code === 'auth/account-exists-with-different-credential') {
-          alert('Lỗi: Email này đã được đăng ký bằng Google trước đó!\\n\\nĐể dùng cả GitHub và Google chung 1 email, bạn phải vào Firebase Console -> Authentication -> Settings -> Chọn "Link accounts that use the same email".');
-        } else {
-          alert('Lỗi đăng nhập: ' + error.message);
-        }
+        const message = error.code === 'auth/account-exists-with-different-credential'
+          ? 'Email này đã liên kết với một phương thức đăng nhập khác. Vui lòng dùng phương thức đã đăng ký trước đó.'
+          : (error.message || 'Không thể hoàn tất đăng nhập. Vui lòng thử lại.');
+        setAuthSuccessMsg('');
+        setAuthError(`Lỗi đăng nhập ${redirectProvider}: ${message}`);
+        setShowLoginModal(true);
       });
 
       const unsubscribe = onIdTokenChanged(auth, async (firebaseUser) => {
@@ -292,9 +297,12 @@ export default function Navbar() {
           }
         }
       });
-      return () => unsubscribe();
+      return () => {
+        cancelled = true;
+        unsubscribe();
+      };
     }
-  }, [sessionReady, setLoggedInUser]);
+  }, [navigate, sessionReady, setLoggedInUser]);
 
   const isActivePath = (path) => location.pathname === path;
 
@@ -395,42 +403,6 @@ export default function Navbar() {
     }
   };
 
-  const handleGoogleAuthSuccess = useCallback(async (response) => {
-    setAuthError('');
-    setAuthSuccessMsg('Đang xác thực Google...');
-    try {
-      if (!response.credential) {
-        throw new Error('Không nhận được token xác thực từ Google.');
-      }
-
-      // One Tap returns a signed Google ID token. Avoid accepting bearer tokens
-      // copied from a URL fragment because that flow has no state/PKCE binding.
-      const credential = GoogleAuthProvider.credential(response.credential);
-      const userCredential = await signInWithCredential(auth, credential);
-      const dbUser = await syncFirebaseUserWithBackend(userCredential.user);
-      hasBackendSessionRef.current = true;
-      setLoggedInUser(dbUser);
-      window.dispatchEvent(new Event('ueh-tcc-session-changed'));
-      setAuthSuccessMsg('Đăng nhập Google thành công!');
-      setTimeout(() => {
-        setShowLoginModal(false);
-        setAuthSuccessMsg('');
-      }, 200);
-    } catch (error) {
-      console.error("Lỗi xác thực Google:", error);
-      setAuthError(`Lỗi đăng nhập Google: ${error.message}`);
-    } finally {
-      setIsAuthenticating(false);
-    }
-  }, [setLoggedInUser]);
-
-  // Google One Tap UI (appears in top right)
-  useGoogleOneTapLogin({
-    onSuccess: handleGoogleAuthSuccess,
-    onError: () => console.log('Google One Tap Failed or Closed'),
-    disabled: !!loggedInUser || !isFirebaseConfigured || !showLoginModal
-  });
-
   const processedCodeRef = useRef(null);
 
   // Handle manual OAuth redirect return
@@ -440,6 +412,21 @@ export default function Navbar() {
       const queryParams = new URLSearchParams(window.location.search);
       let githubCode = queryParams.get('code');
       let githubState = queryParams.get('state');
+      const githubError = queryParams.get('error');
+      const githubErrorDescription = queryParams.get('error_description');
+
+      if (githubError) {
+        sessionStorage.removeItem(GITHUB_OAUTH_STATE_KEY);
+        window.history.replaceState({}, document.title, window.location.pathname);
+        setAuthSuccessMsg('');
+        setAuthError(
+          githubError === 'access_denied'
+            ? 'Bạn đã hủy đăng nhập GitHub.'
+            : `Không thể đăng nhập GitHub: ${githubErrorDescription || githubError}`
+        );
+        setShowLoginModal(true);
+        return;
+      }
 
       // Fallback if GitHub appended it after the hash (e.g. /#/?code=...)
       if (!githubCode && window.location.hash.includes('code=')) {
@@ -460,6 +447,7 @@ export default function Navbar() {
 
         if (!expectedState || !githubState || expectedState !== githubState) {
           setAuthError('Phiên đăng nhập GitHub không hợp lệ hoặc đã hết hạn. Vui lòng thử lại.');
+          setShowLoginModal(true);
           setIsAuthenticating(false);
           return;
         }
@@ -476,16 +464,19 @@ export default function Navbar() {
             hasBackendSessionRef.current = true;
             setLoggedInUser(dbUser);
             window.dispatchEvent(new Event('ueh-tcc-session-changed'));
+            setAuthError('');
             setAuthSuccessMsg('Đăng nhập GitHub thành công!');
+            setShowLoginModal(false);
+            navigate('/', { replace: true });
           } else {
             const errorMsg = data.message || 'Lỗi lấy token từ GitHub.';
-            setAuthError(errorMsg);
-            alert(`Lỗi đăng nhập GitHub: ${errorMsg}`);
+            setAuthError(`Lỗi đăng nhập GitHub: ${errorMsg}`);
+            setShowLoginModal(true);
           }
         } catch (error) {
           console.error("Lỗi xác thực GitHub code:", error);
           setAuthError(`Lỗi đăng nhập GitHub: ${error.message}`);
-          alert(`Lỗi đăng nhập GitHub: ${error.message}`);
+          setShowLoginModal(true);
         } finally {
           setIsAuthenticating(false);
         }
@@ -493,7 +484,7 @@ export default function Navbar() {
     };
 
     handleOAuthReturn();
-  }, [navigate, handleGoogleAuthSuccess, setLoggedInUser]);
+  }, [navigate, setLoggedInUser]);
 
   const handleGoogleLogin = async () => {
     setAuthError('');
@@ -502,15 +493,13 @@ export default function Navbar() {
       if (!isFirebaseConfigured || !auth || !googleProvider) {
         throw new Error('Hệ thống Firebase chưa được cấu hình.');
       }
-      const result = await signInWithPopup(auth, googleProvider);
-      const dbUser = await syncFirebaseUserWithBackend(result.user);
-      hasBackendSessionRef.current = true;
-      setLoggedInUser(dbUser);
-      window.dispatchEvent(new Event('ueh-tcc-session-changed'));
-      setAuthSuccessMsg('Đăng nhập Google thành công!');
+      sessionStorage.setItem(FIREBASE_REDIRECT_PROVIDER_KEY, 'Google');
+      setAuthSuccessMsg('Đang chuyển đến Google...');
       setShowLoginModal(false);
+      await signInWithRedirect(auth, googleProvider);
     } catch (error) {
       setAuthError(`Lỗi đăng nhập Google: ${error.message}`);
+      setShowLoginModal(true);
     } finally {
       setIsAuthenticating(false);
     }
@@ -518,15 +507,15 @@ export default function Navbar() {
 
   const handleGithubLogin = async () => {
     setAuthError('');
-    const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID;
-    if (!clientId) {
-      setAuthError('Đăng nhập GitHub chưa được cấu hình.');
-      return;
+    setAuthSuccessMsg('Đang chuyển đến GitHub...');
+    setIsAuthenticating(true);
+    try {
+      await beginGithubOAuth();
+    } catch (error) {
+      setAuthSuccessMsg('');
+      setAuthError(error.message || 'Không thể bắt đầu đăng nhập GitHub.');
+      setIsAuthenticating(false);
     }
-    const state = createOAuthState();
-    sessionStorage.setItem(GITHUB_OAUTH_STATE_KEY, state);
-    const url = `https://github.com/login/oauth/authorize?client_id=${encodeURIComponent(clientId)}&scope=user%3Aemail&state=${encodeURIComponent(state)}`;
-    window.location.href = url;
   };
 
   const handleForgotPasswordSubmit = async (e) => {

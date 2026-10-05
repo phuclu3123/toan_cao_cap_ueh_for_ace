@@ -717,6 +717,28 @@ const githubRequest = async (url, options = {}) => {
   return data;
 };
 
+// OAuth client IDs identify a public application and are intentionally safe to
+// return to the browser. Keep every client secret on the server: the browser
+// only needs this value to begin GitHub's authorization-code redirect.
+export const getPublicAuthProviders = () => {
+  const githubClientId = String(process.env.GITHUB_CLIENT_ID || '').trim();
+
+  return {
+    github: {
+      enabled: Boolean(githubClientId),
+      clientId: githubClientId || null
+    }
+  };
+};
+
+export const getAuthProviders = (_req, res) => {
+  res.set('Cache-Control', 'no-store');
+  return res.json({
+    success: true,
+    providers: getPublicAuthProviders()
+  });
+};
+
 export const exchangeGithubToken = async (req, res) => {
   const code = typeof req.body?.code === 'string' ? req.body.code.trim() : '';
   if (!code || code.length > 512) {

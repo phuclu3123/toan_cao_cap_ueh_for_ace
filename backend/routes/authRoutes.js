@@ -1,5 +1,5 @@
 import express from 'express';
-import { signup, login, syncFirebaseAuth, forgotPassword, resetPassword, updateProfile, exchangeGithubToken, getMe } from '../controllers/authController.js';
+import { signup, login, syncFirebaseAuth, forgotPassword, resetPassword, updateProfile, exchangeGithubToken, getAuthProviders, getMe } from '../controllers/authController.js';
 import { getCurrentSession, logoutSession } from '../controllers/sessionController.js';
 import { requireAuth } from '../middleware/requireAuth.js';
 import {
@@ -31,6 +31,7 @@ router.get('/auth/session', requireAuth, getCurrentSession);
 router.post('/auth/logout', sessionWriteRateLimit, logoutSession);
 router.post('/signup', authenticationRateLimit, signup);
 router.post('/login', authenticationRateLimit, login);
+router.get('/auth/providers', getAuthProviders);
 router.post('/auth/sync', firebaseSyncRateLimit, syncFirebaseAuth);
 router.post('/auth/forgot-password', passwordResetRateLimit, forgotPassword);
 router.post('/auth/reset-password', passwordResetRateLimit, resetPassword);

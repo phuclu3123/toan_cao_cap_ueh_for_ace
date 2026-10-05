@@ -3,7 +3,6 @@ import {
   getAuth, 
   GoogleAuthProvider, 
   FacebookAuthProvider,
-  GithubAuthProvider,
   RecaptchaVerifier, 
   signInWithPhoneNumber,
   signInWithEmailAndPassword,
@@ -12,10 +11,11 @@ import {
   signOut,
   onAuthStateChanged,
   onIdTokenChanged,
-  signInWithPopup,
   signInWithRedirect,
   getRedirectResult
 } from 'firebase/auth';
+
+export const FIREBASE_REDIRECT_PROVIDER_KEY = 'ueh_tcc_firebase_redirect_provider';
 
 // Firebase configuration using Vite environment variables
 const firebaseConfig = {
@@ -38,7 +38,6 @@ let app;
 let auth;
 let googleProvider;
 let facebookProvider;
-let githubProvider;
 
 if (isFirebaseConfigured) {
   try {
@@ -49,8 +48,6 @@ if (isFirebaseConfigured) {
     
     facebookProvider = new FacebookAuthProvider();
     facebookProvider.setCustomParameters({ display: 'popup' });
-    
-    githubProvider = new GithubAuthProvider();
   } catch (error) {
     console.error("Lỗi khởi tạo Firebase:", error);
   }
@@ -72,7 +69,6 @@ export {
   auth, 
   googleProvider, 
   facebookProvider,
-  githubProvider,
   isFirebaseConfigured,
   RecaptchaVerifier,
   signInWithPhoneNumber,
@@ -82,7 +78,6 @@ export {
   signOut,
   onAuthStateChanged,
   onIdTokenChanged,
-  signInWithPopup,
   signInWithRedirect,
   getRedirectResult
 };

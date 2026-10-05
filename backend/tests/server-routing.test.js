@@ -51,6 +51,18 @@ test('unknown API endpoints return a structured 404 response', async () => {
   assert.equal(payload.code, 'API_NOT_FOUND');
 });
 
+test('OAuth provider metadata exposes no server secret', async () => {
+  const response = await fetch(`${baseUrl}/api/auth/providers`);
+  const payload = await response.json();
+
+  assert.equal(response.status, 200);
+  assert.equal(payload.success, true);
+  assert.equal(typeof payload.providers.github.enabled, 'boolean');
+  assert.equal(Object.hasOwn(payload.providers.github, 'clientId'), true);
+  assert.equal(Object.hasOwn(payload.providers.github, 'clientSecret'), false);
+  assert.match(response.headers.get('cache-control') || '', /no-store/i);
+});
+
 test('order creation requires an authenticated server session', async () => {
   const response = await fetch(`${baseUrl}/api/orders`, {
     method: 'POST',

@@ -12,9 +12,15 @@ import {
   User,
   X
 } from 'lucide-react';
-import { auth, googleProvider, githubProvider, signInWithPopup, isFirebaseConfigured } from '../../firebase';
+import {
+  auth,
+  googleProvider,
+  signInWithRedirect,
+  isFirebaseConfigured,
+  FIREBASE_REDIRECT_PROVIDER_KEY
+} from '../../firebase';
 import { apiFetch, toClientUser } from '../../utils/apiClient';
-import { syncFirebaseUserWithBackend } from '../../services/authService';
+import { beginGithubOAuth } from '../../services/oauthService';
 import '../../assets/styles/AuthModal.css';
 
 const focusableSelector = [
@@ -222,16 +228,12 @@ export default function AuthModal({
       if (!isFirebaseConfigured || !auth) {
         throw new Error('Hệ thống Firebase chưa được kích hoạt.');
       }
-      const res = await signInWithPopup(auth, googleProvider);
-      if (res && res.user) {
-        const syncedUser = await syncFirebaseUserWithBackend(res.user);
-        localStorage.setItem('ueh_tcc_user', JSON.stringify(syncedUser));
-        window.dispatchEvent(new Event('ueh-tcc-session-changed'));
-        setAuthSuccessMsg('Đăng nhập Google thành công!');
-        setTimeout(() => closeModal(), 200);
-      }
+      sessionStorage.setItem(FIREBASE_REDIRECT_PROVIDER_KEY, 'Google');
+      closeModal();
+      await signInWithRedirect(auth, googleProvider);
     } catch (err) {
       setAuthError('Lỗi đăng nhập Google: ' + err.message);
+      setShowLoginModal(true);
     }
   });
 
@@ -239,19 +241,11 @@ export default function AuthModal({
     setAuthError('');
     setAuthSuccessMsg('Đang mở đăng nhập GitHub...');
     try {
-      if (!isFirebaseConfigured || !auth) {
-        throw new Error('Hệ thống Firebase chưa được kích hoạt.');
-      }
-      const res = await signInWithPopup(auth, githubProvider);
-      if (res && res.user) {
-        const syncedUser = await syncFirebaseUserWithBackend(res.user);
-        localStorage.setItem('ueh_tcc_user', JSON.stringify(syncedUser));
-        window.dispatchEvent(new Event('ueh-tcc-session-changed'));
-        setAuthSuccessMsg('Đăng nhập GitHub thành công!');
-        setTimeout(() => closeModal(), 200);
-      }
+      closeModal();
+      await beginGithubOAuth();
     } catch (err) {
       setAuthError('Lỗi đăng nhập GitHub: ' + err.message);
+      setShowLoginModal(true);
     }
   });
 
@@ -585,9 +579,9 @@ export default function AuthModal({
                     type="password"
                     value={signupPassword}
                     onChange={(event) => setSignupPassword(event.target.value)}
-                    placeholder="Tối thiểu 6 ký tự"
+                    placeholder="Tối thiểu 10 ký tự"
                     autoComplete="new-password"
-                    minLength={6}
+                    minLength={10}
                     required
                   />
                 </span>
@@ -603,7 +597,7 @@ export default function AuthModal({
                     onChange={(event) => setSignupConfirmPassword(event.target.value)}
                     placeholder="Xác nhận mật khẩu"
                     autoComplete="new-password"
-                    minLength={6}
+                    minLength={10}
                     required
                   />
                 </span>
@@ -689,9 +683,9 @@ export default function AuthModal({
                     type="password"
                     value={forgotNewPassword}
                     onChange={(event) => setForgotNewPassword(event.target.value)}
-                    placeholder="Tối thiểu 6 ký tự"
+                    placeholder="Tối thiểu 10 ký tự"
                     autoComplete="new-password"
-                    minLength={6}
+                    minLength={10}
                     required
                   />
                 </span>
@@ -707,7 +701,7 @@ export default function AuthModal({
                     onChange={(event) => setForgotConfirmNewPassword(event.target.value)}
                     placeholder="Nhập lại mật khẩu"
                     autoComplete="new-password"
-                    minLength={6}
+                    minLength={10}
                     required
                   />
                 </span>

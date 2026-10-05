@@ -11,6 +11,7 @@ import {
   needsPasswordRehash,
   verifyPassword
 } from '../utils/passwordHelper.js';
+import { getPublicAuthProviders } from '../controllers/authController.js';
 
 test('session cookies are HttpOnly and production-safe', () => {
   const previousNodeEnv = process.env.NODE_ENV;
@@ -90,4 +91,28 @@ test('Firebase sessions rotate and cannot outlive the verified ID token', async 
   assert.match(tokenSource, /expiresAt: payload\.exp \* 1000/);
   assert.match(authSource, /rotateSession\(req, res, user/);
   assert.match(authSource, /ttlMs: identity\.expiresAt - Date\.now\(\)/);
+});
+
+test('the public OAuth configuration never exposes the GitHub client secret', () => {
+  const previousClientId = process.env.GITHUB_CLIENT_ID;
+  const previousClientSecret = process.env.GITHUB_CLIENT_SECRET;
+
+  try {
+    process.env.GITHUB_CLIENT_ID = 'public-github-client-id';
+    process.env.GITHUB_CLIENT_SECRET = 'server-only-github-client-secret';
+
+    const providers = getPublicAuthProviders();
+    assert.deepEqual(providers, {
+      github: {
+        enabled: true,
+        clientId: 'public-github-client-id'
+      }
+    });
+    assert.equal(JSON.stringify(providers).includes(process.env.GITHUB_CLIENT_SECRET), false);
+  } finally {
+    if (previousClientId === undefined) delete process.env.GITHUB_CLIENT_ID;
+    else process.env.GITHUB_CLIENT_ID = previousClientId;
+    if (previousClientSecret === undefined) delete process.env.GITHUB_CLIENT_SECRET;
+    else process.env.GITHUB_CLIENT_SECRET = previousClientSecret;
+  }
 });

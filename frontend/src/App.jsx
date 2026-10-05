@@ -8,7 +8,6 @@ import {
   useParams,
   useRouteError
 } from 'react-router-dom';
-import { GoogleOAuthProvider } from '@react-oauth/google';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ContactLauncher from './components/layout/ContactLauncher';
@@ -354,11 +353,9 @@ export default function App() {
       <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
         <AuthProvider>
           <NotificationProvider>
-            <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || '889879979247-ui1p4bgdv0vah7sfddhfmpejtqtr2npv.apps.googleusercontent.com'}>
-              <GlobalPlayerProvider>
-                <RouterProvider router={router} />
-              </GlobalPlayerProvider>
-            </GoogleOAuthProvider>
+            <GlobalPlayerProvider>
+              <RouterProvider router={router} />
+            </GlobalPlayerProvider>
           </NotificationProvider>
         </AuthProvider>
       </ThemeContext.Provider>

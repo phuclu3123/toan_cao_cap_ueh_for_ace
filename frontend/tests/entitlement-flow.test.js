@@ -40,7 +40,11 @@ test('checkout uses a server-priced idempotent PayOS order', () => {
 
 test('authenticated API calls always include the session cookie', () => {
   const apiClient = readSource('utils/apiClient.js');
+  const config = readSource('config.js');
+
   assert.match(apiClient, /credentials:\s*'include'/);
+  assert.match(config, /window\.location\.hostname === 'toancaocapueh\.id\.vn'/);
+  assert.match(config, /API_BASE_URL = isCanonicalProductionHost \? '' : configuredApiBaseUrl/);
 });
 
 test('premium playback sources and paid text are redacted from the frontend catalog', () => {
@@ -69,13 +73,19 @@ test('free SQL enrollment is required after the public sample lesson', () => {
 test('Firebase sync sends a verified ID token and has no fabricated users', () => {
   const navbar = readSource('components/Navbar.jsx');
   const authService = readSource('services/authService.js');
+  const authModal = readSource('components/modals/AuthModal.jsx');
+  const oauthService = readSource('services/oauthService.js');
 
   assert.match(navbar, /syncFirebaseUserWithBackend/);
   assert.match(navbar, /onIdTokenChanged/);
+  assert.match(navbar, /signInWithRedirect\(auth, googleProvider\)/);
+  assert.match(navbar, /beginGithubOAuth/);
+  assert.doesNotMatch(navbar, /useGoogleOneTapLogin|signInWithPopup|response_type=token/);
+  assert.doesNotMatch(authModal, /signInWithPopup|githubProvider/);
+  assert.match(oauthService, /apiFetch\('\/api\/auth\/providers'\)/);
+  assert.match(oauthService, /sessionStorage\.setItem\(GITHUB_OAUTH_STATE_KEY, state\)/);
   assert.match(authService, /firebaseUser\.getIdToken\(\)/);
   assert.match(authService, /JSON\.stringify\(\{ idToken \}\)/);
-  assert.match(navbar, /import\.meta\.env\.VITE_GITHUB_CLIENT_ID/);
-  assert.doesNotMatch(navbar, /VITE_GITHUB_CLIENT_ID\s*\|\|/);
   assert.doesNotMatch(navbar, /google-user-|github-user-|mockFirebaseUser/);
   assert.doesNotMatch(authService, /google-user-|github-user-|mockFirebaseUser/);
 });
