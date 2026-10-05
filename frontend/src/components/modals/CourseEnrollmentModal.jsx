@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import QRCode from 'qrcode';
 import {
   ArrowRight,
   BookOpen,
@@ -51,8 +52,16 @@ const formatPrice = (amount) => `${amount.toLocaleString('vi-VN')}đ`;
 
 const getQrImageUrl = (qrCode) => {
   if (!qrCode) return '';
-  if (/^(https?:\/\/|data:image)/i.test(qrCode)) return qrCode;
-  return `https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=${encodeURIComponent(qrCode)}`;
+  if (/^data:image\/(?:png|jpe?g|webp);base64,/i.test(qrCode)) return qrCode;
+  try {
+    const url = new URL(qrCode);
+    if (url.protocol === 'https:' && (url.hostname === 'payos.vn' || url.hostname.endsWith('.payos.vn'))) {
+      return url.toString();
+    }
+  } catch {
+    // Raw VietQR payloads are intentionally not sent to a third-party QR service.
+  }
+  return '';
 };
 
 export default function CourseEnrollmentModal({
@@ -83,21 +92,60 @@ function CourseEnrollmentModalContent({ onClose, course, onEnrollSuccess }) {
   const [submitting, setSubmitting] = useState(false);
   const [checking, setChecking] = useState(false);
   const [imageFailed, setImageFailed] = useState(false);
+  const [generatedQr, setGeneratedQr] = useState({ payload: '', imageUrl: '' });
+  const [pollDelayMs, setPollDelayMs] = useState(3000);
 
   const dialogRef = useRef(null);
   const closeButtonRef = useRef(null);
   const completionRef = useRef(false);
   const idempotencyKeyRef = useRef(createIdempotencyKey());
+  const statusRequestRef = useRef(false);
 
   const isFree = course.isFree;
   const listedPrice = parseNumericPrice(course.discountPrice || course.originalPrice);
-  const displayPrice = formatPrice(listedPrice);
-  const qrImageUrl = getQrImageUrl(order?.qrCode);
+  const serverAmount = Number(order?.amount);
+  const displayPrice = formatPrice(
+    Number.isSafeInteger(serverAmount) && serverAmount >= 0 ? serverAmount : listedPrice
+  );
+  const trustedQrImageUrl = getQrImageUrl(order?.qrCode);
+  const generatedQrImageUrl = generatedQr.payload === order?.qrCode
+    ? generatedQr.imageUrl
+    : '';
+  const qrImageUrl = trustedQrImageUrl || generatedQrImageUrl;
   const orderCode = order?.orderCode;
 
   const closeAndReset = useCallback(() => {
     onClose();
   }, [onClose]);
+
+  useEffect(() => {
+    const rawQrPayload = order?.qrCode;
+    let cancelled = false;
+
+    if (
+      trustedQrImageUrl
+      || typeof rawQrPayload !== 'string'
+      || rawQrPayload.length < 16
+      || rawQrPayload.length > 8_000
+    ) {
+      return undefined;
+    }
+
+    QRCode.toDataURL(rawQrPayload, {
+      errorCorrectionLevel: 'M',
+      margin: 1,
+      width: 320,
+      color: { dark: '#0d2d25', light: '#ffffff' }
+    }).then((dataUrl) => {
+      if (!cancelled) setGeneratedQr({ payload: rawQrPayload, imageUrl: dataUrl });
+    }).catch(() => {
+      if (!cancelled) setGeneratedQr({ payload: rawQrPayload, imageUrl: '' });
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [order?.qrCode, trustedQrImageUrl]);
 
   useEffect(() => {
     const previousFocus = document.activeElement;
@@ -185,13 +233,17 @@ function CourseEnrollmentModalContent({ onClose, course, onEnrollSuccess }) {
   }, [course.id]);
 
   const loadOrderStatus = useCallback(async () => {
-    if (!orderCode || completionRef.current) return;
+    if (!orderCode || completionRef.current || statusRequestRef.current) return;
+    statusRequestRef.current = true;
     setChecking(true);
 
     try {
       const response = await apiFetch(`/api/orders/${orderCode}`);
       const payload = await readApiJson(response);
       const payment = payload.data || {};
+      setOrder((current) => ({ ...(current || {}), ...payment }));
+      setPollDelayMs(3000);
+      setError('');
 
       if (payment.entitlement?.allowed) {
         completeEnrollment(payment.entitlement);
@@ -216,8 +268,19 @@ function CourseEnrollmentModalContent({ onClose, course, onEnrollSuccess }) {
       if (pollError.status === 401) {
         setError('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại để tiếp tục đối soát.');
         setStatus('AUTH_REQUIRED');
+      } else if (pollError.status === 403 || pollError.status === 404) {
+        setError(pollError.message || 'Không thể đối soát đơn thanh toán này.');
+        setStatus('POLL_ERROR');
+      } else if (pollError.status === 429) {
+        const retryDelay = Math.min(60_000, Math.max(5_000, (pollError.retryAfterSeconds || 10) * 1000));
+        setPollDelayMs(retryDelay);
+        setError(`PayOS đang được kiểm tra quá nhanh. Hệ thống sẽ thử lại sau ${Math.ceil(retryDelay / 1000)} giây.`);
+      } else {
+        setPollDelayMs((current) => Math.min(30_000, Math.max(5_000, current * 2)));
+        setError('Kết nối đối soát đang gián đoạn. Hệ thống sẽ tự thử lại.');
       }
     } finally {
+      statusRequestRef.current = false;
       setChecking(false);
     }
   }, [completeEnrollment, orderCode, verifyCourseEntitlement]);
@@ -227,16 +290,16 @@ function CourseEnrollmentModalContent({ onClose, course, onEnrollSuccess }) {
       !orderCode
       || step !== 'payment'
       || completionRef.current
-      || ['CANCELLED', 'FAILED', 'AUTH_REQUIRED'].includes(status)
+      || ['CANCELLED', 'FAILED', 'AUTH_REQUIRED', 'POLL_ERROR'].includes(status)
     ) return undefined;
 
     const initialCheck = window.setTimeout(loadOrderStatus, 0);
-    const interval = window.setInterval(loadOrderStatus, 3000);
+    const interval = window.setInterval(loadOrderStatus, pollDelayMs);
     return () => {
       window.clearTimeout(initialCheck);
       window.clearInterval(interval);
     };
-  }, [loadOrderStatus, orderCode, status, step]);
+  }, [loadOrderStatus, orderCode, pollDelayMs, status, step]);
 
   const createOrder = async (event) => {
     event.preventDefault();
@@ -310,6 +373,7 @@ function CourseEnrollmentModalContent({ onClose, course, onEnrollSuccess }) {
     setStatus('IDLE');
     setError('');
     setChecking(false);
+    setPollDelayMs(3000);
     setStep('details');
   };
 

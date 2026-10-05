@@ -1,492 +1,776 @@
-import fs from 'fs';
+import crypto from 'crypto';
+import fs from 'node:fs/promises';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import mongoose from 'mongoose';
 import User from '../models/User.js';
 import { sendOtpEmail } from '../services/emailService.js';
-import { hashPassword, verifyPassword } from '../utils/passwordHelper.js';
+import { verifyFirebaseIdToken } from '../services/firebaseTokenService.js';
 import { listActiveEnrollments } from '../services/enrollmentService.js';
-import { issueSession, updateMemorySessionUser, publicUser } from '../services/sessionService.js';
+import {
+  issueSession,
+  publicUser,
+  rotateSession,
+  revokeUserSessions,
+  updateMemorySessionUser
+} from '../services/sessionService.js';
+import {
+  hashPassword,
+  needsPasswordRehash,
+  verifyPassword
+} from '../utils/passwordHelper.js';
+import {
+  isOwnerIdentifier,
+  normalizeIdentifier,
+  roleForIdentifier
+} from '../utils/roles.js';
 
-const LOCAL_USERS_FILE = path.join(process.cwd(), 'data', 'users.json');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const LOCAL_USERS_FILE = path.join(__dirname, '../data/users.json');
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PASSWORD_MIN_LENGTH = 10;
+const PASSWORD_MAX_LENGTH = 128;
+const OTP_TTL_MS = 10 * 60 * 1000;
+const OTP_MAX_ATTEMPTS = 5;
+const DEVELOPMENT_OTP_PEPPER = crypto.randomBytes(32).toString('hex');
+const getOtpPepper = () => (
+  process.env.OTP_SECRET
+  || process.env.SESSION_SECRET
+  || process.env.JWT_SECRET
+  || (process.env.NODE_ENV !== 'production' ? DEVELOPMENT_OTP_PEPPER : '')
+);
+const GENERIC_RESET_MESSAGE = 'Nếu email tồn tại trong hệ thống, mã xác thực sẽ được gửi trong ít phút.';
+const DUMMY_PASSWORD_HASH = await hashPassword('not-a-real-user-password');
 
-const DEFAULT_USERS = [
-  {
-    id: 'user-phuc',
-    username: 'luphuc321@gmail.com',
-    password: 'adminPassword123!',
-    name: 'Lữ Võ Hoàng Phúc',
-    role: 'Admin',
-    phoneNumber: '0901234567'
-  },
-  {
-    id: 'user-phuc-519',
-    username: 'luphuc519@gmail.com',
-    password: 'adminPassword123!',
-    name: 'Lữ Võ Hoàng Phúc',
-    role: 'Admin',
-    phoneNumber: '0901234567'
-  },
-  {
-    id: 'user-admin',
-    username: 'admin',
-    password: 'adminPassword123!',
-    name: 'Quản trị viên UEH',
-    role: 'Admin'
+const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const httpError = (statusCode, code, message) => {
+  const error = new Error(message);
+  error.statusCode = statusCode;
+  error.code = code;
+  return error;
+};
+
+const normalizeEmail = (value) => normalizeIdentifier(value);
+
+const isValidEmail = (value) => (
+  value.length <= 254 && EMAIL_PATTERN.test(value)
+);
+
+const validatePassword = (password) => {
+  if (typeof password !== 'string') {
+    throw httpError(400, 'INVALID_PASSWORD', 'Mật khẩu không hợp lệ.');
   }
-];
-
-const getLocalUsers = () => {
-  try {
-    if (fs.existsSync(LOCAL_USERS_FILE)) {
-      const data = JSON.parse(fs.readFileSync(LOCAL_USERS_FILE, 'utf-8'));
-      if (Array.isArray(data) && data.length > 0) return data;
-    }
-  } catch {}
-  return [...DEFAULT_USERS];
+  if (password.length < PASSWORD_MIN_LENGTH || password.length > PASSWORD_MAX_LENGTH) {
+    throw httpError(
+      400,
+      'WEAK_PASSWORD',
+      `Mật khẩu phải dài từ ${PASSWORD_MIN_LENGTH} đến ${PASSWORD_MAX_LENGTH} ký tự.`
+    );
+  }
 };
 
-const saveLocalUsers = (users) => {
-  try {
-    const dir = path.dirname(LOCAL_USERS_FILE);
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(LOCAL_USERS_FILE, JSON.stringify(users, null, 2), 'utf-8');
-  } catch {}
+const normalizeName = (value) => {
+  if (typeof value !== 'string') return '';
+  return value.trim().replace(/\s+/g, ' ').slice(0, 120);
 };
 
-const findUser = async (filter) => {
-  if (mongoose.connection.readyState === 1) {
+let localUserMutationQueue = Promise.resolve();
+
+const withLocalUserMutation = (task) => {
+  const run = localUserMutationQueue.then(task, task);
+  localUserMutationQueue = run.catch(() => {});
+  return run;
+};
+
+const readLocalUsers = async () => {
+  if (process.env.NODE_ENV === 'production') {
+    throw httpError(503, 'USER_STORE_UNAVAILABLE', 'MongoDB is required for production authentication.');
+  }
+  try {
+    const users = JSON.parse(await fs.readFile(LOCAL_USERS_FILE, 'utf8'));
+    if (!Array.isArray(users)) throw new TypeError('Local user store must contain an array');
+    return users;
+  } catch (error) {
+    if (error?.code === 'ENOENT') return [];
+    throw httpError(503, 'USER_STORE_UNAVAILABLE', `Local user store is unavailable: ${error.message}`);
+  }
+};
+
+const saveLocalUsers = async (users) => {
+  const directory = path.dirname(LOCAL_USERS_FILE);
+  const temporaryFile = `${LOCAL_USERS_FILE}.${process.pid}.${crypto.randomUUID()}.tmp`;
+  try {
+    await fs.mkdir(directory, { recursive: true });
+    await fs.writeFile(temporaryFile, `${JSON.stringify(users, null, 2)}\n`, {
+      encoding: 'utf8',
+      mode: 0o600
+    });
+    await fs.rename(temporaryFile, LOCAL_USERS_FILE);
+  } catch (error) {
     try {
-      const doc = await User.findOne(filter);
-      if (doc) return doc;
+      await fs.rm(temporaryFile, { force: true });
     } catch {}
+    throw httpError(503, 'USER_STORE_UNAVAILABLE', `Could not persist local users: ${error.message}`);
   }
-  const users = getLocalUsers();
-  if (filter.uid) {
-    const u = users.find(x => x.uid === filter.uid);
-    if (u) return u;
+};
+
+const secretSelection = '+password +otpHash +otpExpiresAt +otpAttempts';
+
+const findUserByIdentifier = async (identifier, { includeSecrets = false } = {}) => {
+  const normalized = normalizeIdentifier(identifier);
+  if (!normalized) return null;
+
+  if (mongoose.connection.readyState === 1) {
+    const exactIdentifier = new RegExp(`^${escapeRegex(normalized)}$`, 'i');
+    let query = User.findOne({ username: exactIdentifier });
+    if (includeSecrets) query = query.select(secretSelection);
+    return query;
   }
-  if (filter.username) {
-    const regex = filter.username instanceof RegExp ? filter.username : new RegExp(`^${filter.username}$`, 'i');
-    const u = users.find(x => regex.test(x.username));
-    if (u) return u;
+
+  return (await readLocalUsers()).find(
+    (user) => normalizeIdentifier(user.username || user.email) === normalized
+  ) || null;
+};
+
+const findUserByUid = async (uid, { includeSecrets = false } = {}) => {
+  if (typeof uid !== 'string' || !uid.trim()) return null;
+  const normalizedUid = uid.trim();
+
+  if (mongoose.connection.readyState === 1) {
+    let query = User.findOne({ uid: normalizedUid });
+    if (includeSecrets) query = query.select(secretSelection);
+    return query;
   }
-  if (filter.id) {
-    const u = users.find(x => x.id === filter.id);
-    if (u) return u;
+
+  return (await readLocalUsers()).find((user) => user.uid === normalizedUid) || null;
+};
+
+const findAuthenticatedUser = async (identity) => {
+  const id = typeof identity?.id === 'string' ? identity.id : '';
+  const uid = typeof identity?.uid === 'string' ? identity.uid : '';
+  const username = normalizeIdentifier(identity?.username || identity?.email);
+
+  if (mongoose.connection.readyState === 1) {
+    const candidates = [];
+    if (id) candidates.push({ id });
+    if (uid) candidates.push({ uid });
+    if (username) candidates.push({ username: new RegExp(`^${escapeRegex(username)}$`, 'i') });
+    return candidates.length ? User.findOne({ $or: candidates }) : null;
   }
-  return null;
+
+  return (await readLocalUsers()).find((user) => (
+    (id && user.id === id)
+    || (uid && user.uid === uid)
+    || (username && normalizeIdentifier(user.username || user.email) === username)
+  )) || null;
+};
+
+const createUser = async (userData) => {
+  if (mongoose.connection.readyState === 1) {
+    return User.create(userData);
+  }
+
+  return withLocalUserMutation(async () => {
+    const users = await readLocalUsers();
+    const username = normalizeIdentifier(userData.username);
+    if (users.some((user) => normalizeIdentifier(user.username || user.email) === username)) {
+      throw httpError(409, 'ACCOUNT_EXISTS', 'Tài khoản này đã tồn tại.');
+    }
+    if (userData.uid && users.some((user) => user.uid === userData.uid)) {
+      throw httpError(409, 'ACCOUNT_EXISTS', 'Tài khoản này đã tồn tại.');
+    }
+
+    const storedUser = { ...userData };
+    users.push(storedUser);
+    await saveLocalUsers(users);
+    return storedUser;
+  });
+};
+
+const persistUser = async (user) => {
+  if (typeof user?.save === 'function') {
+    return user.save();
+  }
+
+  return withLocalUserMutation(async () => {
+    const users = await readLocalUsers();
+    const index = users.findIndex((candidate) => (
+      (user.id && candidate.id === user.id)
+      || (user.uid && candidate.uid === user.uid)
+      || normalizeIdentifier(candidate.username || candidate.email) === normalizeIdentifier(user.username || user.email)
+    ));
+    if (index < 0) {
+      throw httpError(404, 'USER_NOT_FOUND', 'Không tìm thấy người dùng.');
+    }
+    users[index] = { ...user };
+    await saveLocalUsers(users);
+    return users[index];
+  });
+};
+
+const rehashPasswordIfCurrent = async (user, password) => {
+  const originalPasswordHash = user?.password;
+  if (typeof originalPasswordHash !== 'string' || !originalPasswordHash) return null;
+
+  // scrypt deliberately runs before the short compare-and-set write. If a
+  // reset changes the password meanwhile, the original hash no longer
+  // matches and this login cannot overwrite the newer password.
+  const upgradedPasswordHash = await hashPassword(password);
+
+  if (mongoose.connection.readyState === 1) {
+    return User.findOneAndUpdate(
+      { _id: user._id, password: originalPasswordHash },
+      { $set: { password: upgradedPasswordHash } },
+      { new: true, runValidators: true }
+    ).select(secretSelection);
+  }
+
+  return withLocalUserMutation(async () => {
+    const users = await readLocalUsers();
+    const index = users.findIndex((candidate) => (
+      (user.id && candidate.id === user.id)
+      || (user.uid && candidate.uid === user.uid)
+      || normalizeIdentifier(candidate.username || candidate.email)
+        === normalizeIdentifier(user.username || user.email)
+    ));
+    if (index < 0 || users[index].password !== originalPasswordHash) return null;
+
+    users[index] = { ...users[index], password: upgradedPasswordHash };
+    await saveLocalUsers(users);
+    return users[index];
+  });
+};
+
+const sendAuthError = (res, error, fallbackMessage) => {
+  const isDuplicate = error?.code === 11000;
+  const statusCode = isDuplicate ? 409 : (error?.statusCode || 500);
+  const code = isDuplicate ? 'ACCOUNT_EXISTS' : (error?.code || 'AUTH_OPERATION_FAILED');
+  if (statusCode >= 500) console.error(`[Auth] ${code}:`, error?.message || error);
+  return res.status(statusCode).json({
+    success: false,
+    code,
+    message: statusCode >= 500 ? fallbackMessage : error.message
+  });
+};
+
+const upsertExternalUser = async ({ uid, email, name, phoneNumber }) => {
+  const sameStoredUser = (left, right) => {
+    const leftId = left?._id?.toString() || left?.id;
+    const rightId = right?._id?.toString() || right?.id;
+    return Boolean(leftId && rightId && leftId === rightId);
+  };
+
+  const linkIdentity = async (user) => {
+    if (user.uid && user.uid !== uid) {
+      throw httpError(409, 'ACCOUNT_LINK_CONFLICT', 'Email này đã liên kết với tài khoản khác.');
+    }
+    user.uid = uid;
+    if (email) user.username = normalizeEmail(email);
+    if (name) user.name = normalizeName(name);
+    if (phoneNumber) user.phoneNumber = String(phoneNumber).trim().slice(0, 32);
+    user.role = roleForIdentifier(user.username);
+    return persistUser(user);
+  };
+
+  const findMatchingUsers = async () => {
+    const [uidUser, emailUser] = await Promise.all([
+      findUserByUid(uid),
+      email ? findUserByIdentifier(email) : Promise.resolve(null)
+    ]);
+    if (uidUser && emailUser && !sameStoredUser(uidUser, emailUser)) {
+      throw httpError(409, 'ACCOUNT_LINK_CONFLICT', 'Danh tính đăng nhập đang liên kết với hai tài khoản khác nhau.');
+    }
+    return uidUser || emailUser;
+  };
+
+  const existingUser = await findMatchingUsers();
+  if (existingUser) {
+    return linkIdentity(existingUser);
+  }
+
+  const username = normalizeEmail(email)
+    || `firebase-${crypto.createHash('sha256').update(uid).digest('hex').slice(0, 24)}@users.invalid`;
+  try {
+    return await createUser({
+      id: `u-${crypto.randomUUID()}`,
+      uid,
+      username,
+      name: normalizeName(name) || 'Người dùng',
+      phoneNumber: phoneNumber ? String(phoneNumber).trim().slice(0, 32) : '',
+      role: roleForIdentifier(username)
+    });
+  } catch (error) {
+    // Two OAuth callbacks can race (redirect result + auth-state listener).
+    // The unique indexes choose the winner; the loser reloads and links to it.
+    if (error?.code !== 11000) throw error;
+    const concurrentUser = await findMatchingUsers();
+    if (!concurrentUser) throw error;
+    return linkIdentity(concurrentUser);
+  }
+};
+
+const otpDigest = (email, otpCode) => crypto
+  .createHmac('sha256', getOtpPepper() || 'missing-production-otp-secret')
+  .update(`${email}\0${otpCode}`)
+  .digest('hex');
+
+const otpMatches = (email, otpCode, storedDigest) => {
+  if (!/^[a-f0-9]{64}$/i.test(storedDigest || '')) return false;
+  const expected = Buffer.from(storedDigest, 'hex');
+  const actual = Buffer.from(otpDigest(email, otpCode), 'hex');
+  return crypto.timingSafeEqual(actual, expected);
+};
+
+const clearOtp = (user) => {
+  user.otpHash = undefined;
+  user.otpExpiresAt = undefined;
+  user.otpAttempts = 0;
+  delete user.otpCode;
+};
+
+const invalidOtpError = () => httpError(
+  400,
+  'INVALID_OR_EXPIRED_OTP',
+  'Mã xác thực không đúng hoặc đã hết hạn.'
+);
+
+const consumePasswordReset = async ({ email, otpCode, newPassword }) => {
+  const now = new Date();
+
+  if (mongoose.connection.readyState === 1) {
+    const user = await findUserByIdentifier(email, { includeSecrets: true });
+    const expiresAt = user?.otpExpiresAt ? new Date(user.otpExpiresAt) : null;
+    const expired = !expiresAt || Number.isNaN(expiresAt.getTime()) || expiresAt <= now;
+    const attempts = Number(user?.otpAttempts || 0);
+    const validOtp = Boolean(user)
+      && !expired
+      && attempts < OTP_MAX_ATTEMPTS
+      && otpMatches(email, otpCode, user.otpHash);
+
+    if (!validOtp) {
+      if (user) {
+        if (expired || attempts >= OTP_MAX_ATTEMPTS) {
+          await User.updateOne(
+            { _id: user._id, otpHash: user.otpHash },
+            {
+              $set: { otpAttempts: 0 },
+              $unset: { otpHash: 1, otpExpiresAt: 1, otpCode: 1 }
+            }
+          );
+        } else {
+          const attempted = await User.findOneAndUpdate(
+            {
+              _id: user._id,
+              otpHash: user.otpHash,
+              otpExpiresAt: { $gt: now },
+              otpAttempts: { $lt: OTP_MAX_ATTEMPTS }
+            },
+            { $inc: { otpAttempts: 1 } },
+            { new: true, select: secretSelection }
+          );
+          if (Number(attempted?.otpAttempts || 0) >= OTP_MAX_ATTEMPTS) {
+            await User.updateOne(
+              { _id: user._id, otpHash: user.otpHash, otpAttempts: { $gte: OTP_MAX_ATTEMPTS } },
+              {
+                $set: { otpAttempts: 0 },
+                $unset: { otpHash: 1, otpExpiresAt: 1, otpCode: 1 }
+              }
+            );
+          }
+        }
+      }
+      throw invalidOtpError();
+    }
+
+    // The OTP hash is part of the filter, so only one concurrent request can
+    // consume it. Later requests fail after the first update unsets the hash.
+    const passwordHash = await hashPassword(newPassword);
+    const updatedUser = await User.findOneAndUpdate(
+      {
+        _id: user._id,
+        otpHash: user.otpHash,
+        otpExpiresAt: { $gt: now },
+        otpAttempts: { $lt: OTP_MAX_ATTEMPTS }
+      },
+      {
+        $set: { password: passwordHash, otpAttempts: 0 },
+        $inc: { sessionVersion: 1 },
+        $unset: { otpHash: 1, otpExpiresAt: 1, otpCode: 1 }
+      },
+      { new: true, runValidators: true }
+    );
+    if (!updatedUser) throw invalidOtpError();
+    return updatedUser;
+  }
+
+  return withLocalUserMutation(async () => {
+    const users = await readLocalUsers();
+    const index = users.findIndex(
+      (candidate) => normalizeIdentifier(candidate.username || candidate.email) === email
+    );
+    const user = index >= 0 ? users[index] : null;
+    const expiresAt = user?.otpExpiresAt ? new Date(user.otpExpiresAt) : null;
+    const expired = !expiresAt || Number.isNaN(expiresAt.getTime()) || expiresAt <= now;
+    const attempts = Number(user?.otpAttempts || 0);
+    const validOtp = Boolean(user)
+      && !expired
+      && attempts < OTP_MAX_ATTEMPTS
+      && otpMatches(email, otpCode, user.otpHash);
+
+    if (!validOtp) {
+      if (user) {
+        user.otpAttempts = attempts + 1;
+        if (expired || user.otpAttempts >= OTP_MAX_ATTEMPTS) clearOtp(user);
+        users[index] = user;
+        await saveLocalUsers(users);
+      }
+      throw invalidOtpError();
+    }
+
+    user.password = await hashPassword(newPassword);
+    user.sessionVersion = Math.max(0, Number(user.sessionVersion) || 0) + 1;
+    clearOtp(user);
+    users[index] = user;
+    await saveLocalUsers(users);
+    return user;
+  });
 };
 
 export const signup = async (req, res) => {
-  const { username, password, name } = req.body;
-
-  if (!username || !password || !name) {
-    return res.status(400).json({ success: false, message: 'Vui lòng điền đầy đủ thông tin đăng ký!' });
-  }
+  const username = normalizeEmail(req.body?.username);
+  const password = req.body?.password;
+  const name = normalizeName(req.body?.name);
 
   try {
-    const hashedPassword = hashPassword(password);
-    const userExists = await findUser({ username: new RegExp(`^${username}$`, 'i') });
-    if (userExists) {
-      return res.status(400).json({ success: false, message: 'Tên đăng nhập hoặc Email này đã tồn tại!' });
+    if (!isValidEmail(username) || !name) {
+      throw httpError(400, 'INVALID_SIGNUP_DATA', 'Vui lòng nhập tên và địa chỉ email hợp lệ.');
+    }
+    validatePassword(password);
+    if (isOwnerIdentifier(username)) {
+      throw httpError(403, 'PROTECTED_ACCOUNT', 'Tài khoản quản trị phải được xác minh qua nhà cung cấp đăng nhập.');
+    }
+    if (await findUserByIdentifier(username)) {
+      throw httpError(409, 'ACCOUNT_EXISTS', 'Tài khoản này đã tồn tại.');
     }
 
-    const userId = 'u-' + Date.now();
-    const userData = {
-      id: userId,
+    const user = await createUser({
+      id: `u-${crypto.randomUUID()}`,
       username,
-      password: hashedPassword,
+      password: await hashPassword(password),
       name,
       role: 'Student'
-    };
+    });
+    await issueSession(res, user);
 
-    if (mongoose.connection.readyState === 1) {
-      try {
-        const newUser = new User(userData);
-        await newUser.save();
-      } catch {}
-    }
-
-    const localUsers = getLocalUsers();
-    localUsers.push(userData);
-    saveLocalUsers(localUsers);
-
-    const sessionToken = await issueSession(res, userData);
-
-    return res.json({
+    return res.status(201).json({
       success: true,
       message: 'Đăng ký tài khoản thành công!',
-      token: sessionToken,
-      user: {
-        id: userId,
-        username: userData.username,
-        name: userData.name,
-        role: userData.role
-      }
+      user: publicUser(user)
     });
   } catch (error) {
-    console.error("Lỗi đăng ký:", error);
-    return res.status(500).json({ success: false, message: 'Lỗi hệ thống khi đăng ký.' });
+    return sendAuthError(res, error, 'Không thể đăng ký tài khoản lúc này.');
   }
 };
 
 export const login = async (req, res) => {
-  const { username, password } = req.body;
+  const username = normalizeIdentifier(req.body?.username);
+  const password = req.body?.password;
 
-  if (!username || !password) {
-    return res.status(400).json({ success: false, message: 'Tên đăng nhập và mật khẩu không được bỏ trống!' });
+  if (!username || username.length > 254 || typeof password !== 'string' || password.length > PASSWORD_MAX_LENGTH) {
+    return res.status(400).json({
+      success: false,
+      code: 'INVALID_CREDENTIALS',
+      message: 'Tên đăng nhập hoặc mật khẩu không hợp lệ.'
+    });
   }
 
   try {
-    let user = await findUser({ username: new RegExp(`^${username}$`, 'i') });
-    if (!user || !verifyPassword(password, user.password)) {
-      return res.status(401).json({ success: false, message: 'Tên đăng nhập hoặc mật khẩu chưa chính xác!' });
+    let user = await findUserByIdentifier(username, { includeSecrets: true });
+    let passwordValid = await verifyPassword(password, user?.password || DUMMY_PASSWORD_HASH);
+    if (!user || !passwordValid) {
+      return res.status(401).json({
+        success: false,
+        code: 'INVALID_CREDENTIALS',
+        message: 'Tên đăng nhập hoặc mật khẩu chưa chính xác.'
+      });
     }
-    const sessionToken = await issueSession(res, user);
 
+    if (needsPasswordRehash(user.password)) {
+      const rehashedUser = await rehashPasswordIfCurrent(user, password);
+      if (rehashedUser) {
+        user = rehashedUser;
+      } else {
+        // Another login or password reset won the race. Re-read and verify the
+        // current hash; never persist the stale user object we verified above.
+        user = await findUserByIdentifier(username, { includeSecrets: true });
+        passwordValid = await verifyPassword(password, user?.password || DUMMY_PASSWORD_HASH);
+        if (!user || !passwordValid) {
+          return res.status(401).json({
+            success: false,
+            code: 'INVALID_CREDENTIALS',
+            message: 'Tên đăng nhập hoặc mật khẩu chưa chính xác.'
+          });
+        }
+      }
+    }
+
+    await issueSession(res, user);
     return res.json({
       success: true,
       message: 'Đăng nhập thành công!',
-      token: sessionToken,
-      user: {
-        id: user.id || user._id?.toString(),
-        username: user.username,
-        name: user.name,
-        role: user.role
-      }
+      user: publicUser(user)
     });
   } catch (error) {
-    console.error("Lỗi đăng nhập:", error);
-    return res.status(500).json({ success: false, message: 'Lỗi hệ thống khi đăng nhập.' });
+    return sendAuthError(res, error, 'Không thể đăng nhập lúc này.');
   }
 };
 
 export const getMe = async (req, res) => {
   try {
-    const user = req.authUser;
-    if (!user) {
-      return res.status(401).json({ success: false, message: 'Unauthorized' });
-    }
-
-    const enrollments = await listActiveEnrollments(user);
-
-    return res.status(200).json({
-      success: true,
-      user,
-      enrollments
-    });
+    const enrollments = await listActiveEnrollments(req.authUser);
+    return res.status(200).json({ success: true, user: req.authUser, enrollments });
   } catch (error) {
-    return res.status(500).json({ success: false, message: 'Lỗi hệ thống khi lấy thông tin.' });
+    return sendAuthError(res, error, 'Không thể tải thông tin tài khoản.');
   }
 };
 
 export const syncFirebaseAuth = async (req, res) => {
-  const { uid, email, name, phoneNumber } = req.body;
-
-  if (!uid) {
-    return res.status(400).json({ success: false, message: 'Thiếu mã định danh UID từ Firebase!' });
-  }
-
   try {
-    let user = await findUser({ uid });
-
-    if (!user) {
-      if (email) {
-        user = await findUser({ username: new RegExp(`^${email}$`, 'i') });
-      }
-
-      if (user) {
-        user.uid = uid;
-        if (phoneNumber && !user.phoneNumber) {
-          user.phoneNumber = phoneNumber;
-        }
-        if (typeof user.save === 'function') {
-          try { await user.save(); } catch {}
-        }
-        const localUsers = getLocalUsers();
-        const idx = localUsers.findIndex(u => u.id === user.id || u.username === user.username);
-        if (idx !== -1) {
-          localUsers[idx] = { ...localUsers[idx], uid, phoneNumber: user.phoneNumber || localUsers[idx].phoneNumber };
-          saveLocalUsers(localUsers);
-        }
-      } else {
-        const userId = 'u-' + Date.now();
-        const userData = {
-          id: userId,
-          uid: uid,
-          username: email || phoneNumber || uid,
-          name: name || (email ? email.split('@')[0] : 'Người dùng OTP'),
-          phoneNumber: phoneNumber || null,
-          role: 'Student'
-        };
-
-        if (mongoose.connection.readyState === 1) {
-          try {
-            const newUser = new User(userData);
-            await newUser.save();
-          } catch {}
-        }
-
-        const localUsers = getLocalUsers();
-        localUsers.push(userData);
-        saveLocalUsers(localUsers);
-        user = userData;
-      }
-    } else {
-      let updated = false;
-      if (name && (!user.name || user.name === 'Người dùng OTP' || user.name === user.username)) {
-        user.name = name;
-        updated = true;
-      }
-      if (phoneNumber && user.phoneNumber !== phoneNumber) {
-        user.phoneNumber = phoneNumber;
-        updated = true;
-      }
-      if (email && user.username !== email) {
-        user.username = email;
-        updated = true;
-      }
-      if (updated) {
-        if (typeof user.save === 'function') {
-          try { await user.save(); } catch {}
-        }
-        const localUsers = getLocalUsers();
-        const idx = localUsers.findIndex(u => u.id === user.id || u.username === user.username || u.uid === user.uid);
-        if (idx !== -1) {
-          localUsers[idx] = { ...localUsers[idx], ...user, updatedAt: new Date().toISOString() };
-          saveLocalUsers(localUsers);
-        }
-      }
-    }
-
+    const identity = await verifyFirebaseIdToken(req.body?.idToken);
+    const user = await upsertExternalUser(identity);
+    await rotateSession(req, res, user, {
+      // A manually verified Firebase token cannot reveal later account
+      // revocation. Bound the backend cookie to this signed token's lifetime;
+      // the client refresh listener rotates it with each new ID token.
+      ttlMs: identity.expiresAt - Date.now()
+    });
     return res.json({
       success: true,
       message: 'Đồng bộ tài khoản thành công!',
-      user: {
-        id: user.id || user._id?.toString(),
-        uid: user.uid,
-        username: user.username,
-        name: user.name,
-        role: user.role,
-        phoneNumber: user.phoneNumber
-      }
+      user: publicUser(user)
     });
   } catch (error) {
-    console.error("Lỗi đồng bộ Firebase:", error);
-    return res.status(500).json({ success: false, message: 'Lỗi hệ thống khi đồng bộ tài khoản.' });
+    return sendAuthError(res, error, 'Không thể xác thực tài khoản Firebase lúc này.');
   }
 };
 
 export const forgotPassword = async (req, res) => {
-  const { email } = req.body;
-
-  if (!email || !email.includes('@')) {
-    return res.status(400).json({ success: false, message: 'Đầu vào email không hợp lệ!' });
+  const email = normalizeEmail(req.body?.email);
+  if (!isValidEmail(email)) {
+    return res.status(400).json({
+      success: false,
+      code: 'INVALID_EMAIL',
+      message: 'Địa chỉ email không hợp lệ.'
+    });
   }
 
+  let user;
   try {
-    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
-
-    const user = await findUser({ username: new RegExp(`^${email}$`, 'i') });
-    if (!user) {
-      return res.status(404).json({ success: false, message: 'Không tìm thấy tài khoản nào liên kết với email này!' });
+    if (!getOtpPepper()) {
+      throw httpError(503, 'PASSWORD_RESET_UNAVAILABLE', 'Khôi phục mật khẩu chưa được cấu hình.');
     }
-    user.otpCode = otpCode;
+    user = await findUserByIdentifier(email, { includeSecrets: true });
+    if (!user) return res.json({ success: true, message: GENERIC_RESET_MESSAGE });
+
+    const otpCode = crypto.randomInt(100_000, 1_000_000).toString();
+    const otpExpiresAt = new Date(Date.now() + OTP_TTL_MS);
+    user.otpHash = otpDigest(email, otpCode);
     user.otpExpiresAt = otpExpiresAt;
-    if (typeof user.save === 'function') {
-      try { await user.save(); } catch {}
-    }
-    const localUsers = getLocalUsers();
-    const idx = localUsers.findIndex(u => u.username?.toLowerCase() === email.toLowerCase());
-    if (idx !== -1) {
-      localUsers[idx].otpCode = otpCode;
-      localUsers[idx].otpExpiresAt = otpExpiresAt;
-      saveLocalUsers(localUsers);
-    }
+    user.otpAttempts = 0;
+    delete user.otpCode;
+    await persistUser(user);
 
-    const emailResult = await sendOtpEmail(email, user.name, otpCode, otpExpiresAt);
-
-    let returnMsg = `Mã xác thực OTP đã được gửi đến email ${email}. Vui lòng kiểm tra hộp thư (cả hộp thư rác).`;
-    
-    if (emailResult.isMock) {
-      console.log(`[AUTH] OTP is generated for ${email} in Mock Mode.`);
-      returnMsg = `Mã xác thực OTP đã được tạo cho email ${email}. Vì hệ thống đang ở chế độ thử nghiệm (Mock Mode), mã OTP không được gửi đi nhưng bạn có thể xem trong terminal log.`;
+    try {
+      const emailResult = await sendOtpEmail(email, user.name, otpCode, otpExpiresAt.toISOString());
+      return res.json({
+        success: true,
+        message: GENERIC_RESET_MESSAGE,
+        ...(process.env.NODE_ENV !== 'production' && emailResult?.isMock ? { isMock: true } : {})
+      });
+    } catch (error) {
+      clearOtp(user);
+      await persistUser(user).catch(() => {});
+      throw httpError(503, 'EMAIL_DELIVERY_UNAVAILABLE', 'Dịch vụ gửi email đang tạm gián đoạn.');
     }
-
-    return res.json({
-      success: true,
-      message: returnMsg,
-      isMock: emailResult.isMock || false
-    });
   } catch (error) {
-    console.error("Lỗi khi gửi email khôi phục mật khẩu:", error);
-    return res.status(500).json({
-      success: false,
-      message: 'Gặp lỗi trong quá trình xử lý yêu cầu gửi mã OTP.'
-    });
+    return sendAuthError(res, error, 'Không thể xử lý yêu cầu khôi phục mật khẩu lúc này.');
   }
 };
 
 export const resetPassword = async (req, res) => {
-  const { email, otpCode, newPassword } = req.body;
-
-  if (!email || !otpCode || !newPassword) {
-    return res.status(400).json({ success: false, message: 'Vui lòng cung cấp đầy đủ thông tin: email, mã OTP và mật khẩu mới!' });
-  }
+  const email = normalizeEmail(req.body?.email);
+  const otpCode = typeof req.body?.otpCode === 'string' ? req.body.otpCode.trim() : '';
+  const newPassword = req.body?.newPassword;
 
   try {
-    const hashedPassword = hashPassword(newPassword);
-
-    const user = await findUser({ username: new RegExp(`^${email}$`, 'i') });
-    if (!user) {
-      return res.status(404).json({ success: false, message: 'Không tìm thấy tài khoản liên kết với email này!' });
+    if (!getOtpPepper()) {
+      throw httpError(503, 'PASSWORD_RESET_UNAVAILABLE', 'Khôi phục mật khẩu chưa được cấu hình.');
     }
-
-    const isValidOtp = user.otpCode && (user.otpCode === otpCode || otpCode === '123456');
-    if (!isValidOtp) {
-      return res.status(400).json({ success: false, message: 'Mã xác thực OTP không chính xác!' });
+    if (!isValidEmail(email) || !/^\d{6}$/.test(otpCode)) {
+      throw httpError(400, 'INVALID_RESET_REQUEST', 'Email hoặc mã xác thực không hợp lệ.');
     }
+    validatePassword(newPassword);
 
-    const isExpired = new Date() > new Date(user.otpExpiresAt);
-    if (isExpired) {
-      return res.status(400).json({ success: false, message: 'Mã xác thực OTP đã hết hạn! Vui lòng gửi lại mã mới.' });
-    }
-
-    user.password = hashedPassword;
-    user.otpCode = undefined;
-    user.otpExpiresAt = undefined;
-    if (typeof user.save === 'function') {
-      try { await user.save(); } catch {}
-    }
-    const localUsers = getLocalUsers();
-    const idx = localUsers.findIndex(u => u.username?.toLowerCase() === email.toLowerCase());
-    if (idx !== -1) {
-      localUsers[idx].password = hashedPassword;
-      delete localUsers[idx].otpCode;
-      delete localUsers[idx].otpExpiresAt;
-      saveLocalUsers(localUsers);
+    const user = await consumePasswordReset({
+      email,
+      otpCode,
+      newPassword
+    });
+    // The password update increments sessionVersion atomically, so every old
+    // cookie is already invalid even if physical cleanup briefly fails.
+    try {
+      await revokeUserSessions(user);
+    } catch (error) {
+      console.error('[Auth] Old session cleanup deferred:', error?.message || error);
     }
 
     return res.json({
       success: true,
-      message: 'Đổi mật khẩu tài khoản thành công! Bạn có thể sử dụng mật khẩu mới để đăng nhập ngay.'
+      message: 'Đổi mật khẩu thành công. Vui lòng đăng nhập lại.'
     });
   } catch (error) {
-    console.error("Lỗi đặt lại mật khẩu:", error);
-    return res.status(500).json({ success: false, message: 'Lỗi hệ thống khi cập nhật mật khẩu mới.' });
+    return sendAuthError(res, error, 'Không thể cập nhật mật khẩu lúc này.');
   }
 };
 
-export const updateProfile = async (req, res) => {
-  const { name, phoneNumber, avatar, school, bio } = req.body;
-  const username = req.body.username || req.authUser?.username || req.authUser?.email;
-
-  if (!username) {
-    return res.status(400).json({ success: false, message: 'Username/Email không hợp lệ!' });
+const validateProfilePatch = (body = {}) => {
+  const patch = {};
+  if (body.name !== undefined) {
+    const name = normalizeName(body.name);
+    if (!name) throw httpError(400, 'INVALID_PROFILE', 'Tên hiển thị không hợp lệ.');
+    patch.name = name;
   }
+  if (body.phoneNumber !== undefined) {
+    if (typeof body.phoneNumber !== 'string' || body.phoneNumber.trim().length > 32) {
+      throw httpError(400, 'INVALID_PROFILE', 'Số điện thoại không hợp lệ.');
+    }
+    patch.phoneNumber = body.phoneNumber.trim();
+  }
+  if (body.school !== undefined) {
+    if (typeof body.school !== 'string' || body.school.trim().length > 160) {
+      throw httpError(400, 'INVALID_PROFILE', 'Tên trường không hợp lệ.');
+    }
+    patch.school = body.school.trim();
+  }
+  if (body.bio !== undefined) {
+    if (typeof body.bio !== 'string' || body.bio.trim().length > 2_000) {
+      throw httpError(400, 'INVALID_PROFILE', 'Giới thiệu cá nhân không hợp lệ.');
+    }
+    patch.bio = body.bio.trim();
+  }
+  if (body.avatar !== undefined) {
+    if (typeof body.avatar !== 'string' || body.avatar.length > 2_500_000) {
+      throw httpError(400, 'INVALID_PROFILE', 'Ảnh đại diện không hợp lệ hoặc quá lớn.');
+    }
+    const isRasterDataUrl = /^data:image\/(?:png|jpe?g|webp|gif);base64,[a-z0-9+/=]+$/i.test(body.avatar);
+    let isWebUrl = false;
+    if (body.avatar) {
+      try {
+        const parsed = new URL(body.avatar);
+        isWebUrl = parsed.protocol === 'https:' || parsed.protocol === 'http:';
+      } catch {}
+    }
+    if (body.avatar && !isRasterDataUrl && !isWebUrl) {
+      throw httpError(400, 'INVALID_PROFILE', 'Định dạng ảnh đại diện không được hỗ trợ.');
+    }
+    patch.avatar = body.avatar;
+  }
+  return patch;
+};
 
+export const updateProfile = async (req, res) => {
   try {
-    let user = await findUser({ username: new RegExp(`^${username}$`, 'i') });
-    if (!user) {
-      return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng!' });
-    }
-    if (name !== undefined) user.name = name;
-    if (phoneNumber !== undefined) user.phoneNumber = phoneNumber;
-    if (avatar !== undefined) user.avatar = avatar;
-    if (school !== undefined) user.school = school;
-    if (bio !== undefined) user.bio = bio;
-    if (typeof user.save === 'function') {
-      try { await user.save(); } catch {}
-    }
-    const localUsers = getLocalUsers();
-    const idx = localUsers.findIndex(
-      (u) =>
-        u.username?.toLowerCase() === username.toLowerCase() ||
-        (user.id && u.id === user.id) ||
-        (user._id && u.id === user._id.toString())
-    );
-    if (idx !== -1) {
-      localUsers[idx] = { ...localUsers[idx], ...user };
-      saveLocalUsers(localUsers);
-    } else {
-      localUsers.push(user);
-      saveLocalUsers(localUsers);
-    }
+    const user = await findAuthenticatedUser(req.authUser);
+    if (!user) throw httpError(404, 'USER_NOT_FOUND', 'Không tìm thấy người dùng.');
 
-    updateMemorySessionUser(username, user);
-
-    const safeUser = publicUser(user);
+    const patch = validateProfilePatch(req.body);
+    Object.assign(user, patch);
+    const updatedUser = await persistUser(user);
+    updateMemorySessionUser(req.authUser.username, updatedUser);
 
     return res.json({
       success: true,
       message: 'Cập nhật thông tin cá nhân thành công!',
-      user: safeUser
+      user: publicUser(updatedUser)
     });
   } catch (error) {
-    console.error("Lỗi cập nhật profile:", error);
-    return res.status(500).json({ success: false, message: 'Lỗi hệ thống khi cập nhật profile.' });
+    return sendAuthError(res, error, 'Không thể cập nhật hồ sơ lúc này.');
   }
 };
 
+const githubRequest = async (url, options = {}) => {
+  const response = await fetch(url, {
+    ...options,
+    headers: {
+      Accept: 'application/vnd.github+json',
+      'User-Agent': 'UEH-TCC-Web',
+      ...options.headers
+    },
+    signal: AbortSignal.timeout(10_000)
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw httpError(502, 'GITHUB_AUTH_FAILED', 'GitHub không thể xác thực yêu cầu đăng nhập.');
+  }
+  return data;
+};
+
 export const exchangeGithubToken = async (req, res) => {
-  const { code } = req.body;
-  if (!code) return res.status(400).json({ success: false, message: 'Thiếu Authorization Code từ GitHub.' });
+  const code = typeof req.body?.code === 'string' ? req.body.code.trim() : '';
+  if (!code || code.length > 512) {
+    return res.status(400).json({ success: false, code: 'INVALID_OAUTH_CODE', message: 'Mã GitHub không hợp lệ.' });
+  }
 
   try {
-    const clientId = process.env.GITHUB_CLIENT_ID || 'Ov23livA8dLXS0qzY0kt';
-    const clientSecret = process.env.GITHUB_CLIENT_SECRET || '11a209ae560df3bc01e719e950fd38c213feb290';
+    const clientId = process.env.GITHUB_CLIENT_ID;
+    const clientSecret = process.env.GITHUB_CLIENT_SECRET;
+    if (!clientId || !clientSecret) {
+      throw httpError(503, 'GITHUB_AUTH_UNAVAILABLE', 'Đăng nhập GitHub chưa được cấu hình.');
+    }
 
-    const response = await fetch('https://github.com/login/oauth/access_token', {
+    const tokenData = await githubRequest('https://github.com/login/oauth/access_token', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify({
-        client_id: clientId,
-        client_secret: clientSecret,
-        code
-      })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ client_id: clientId, client_secret: clientSecret, code })
     });
-
-    const data = await response.json();
-    if (data.error) {
-      return res.status(400).json({ success: false, message: data.error_description || data.error });
+    if (!tokenData.access_token) {
+      throw httpError(401, 'GITHUB_AUTH_FAILED', 'Mã GitHub không hợp lệ hoặc đã được sử dụng.');
     }
 
-    // Fetch user details from GitHub
-    let githubEmail = null;
-    let githubName = null;
-    try {
-      const userRes = await fetch('https://api.github.com/user', {
-        headers: { Authorization: `Bearer ${data.access_token}` }
-      });
-      const userData = await userRes.json();
-      githubName = userData.name || userData.login;
-      
-      const emailsRes = await fetch('https://api.github.com/user/emails', {
-        headers: { Authorization: `Bearer ${data.access_token}` }
-      });
-      const emailsData = await emailsRes.json();
-      if (Array.isArray(emailsData)) {
-        const primaryEmailObj = emailsData.find(e => e.primary) || emailsData[0];
-        if (primaryEmailObj) {
-          githubEmail = primaryEmailObj.email;
-        }
-      }
-    } catch (e) {
-      console.error("Lỗi lấy thông tin GitHub user:", e);
+    const authorization = { Authorization: `Bearer ${tokenData.access_token}` };
+    const [githubUser, githubEmails] = await Promise.all([
+      githubRequest('https://api.github.com/user', { headers: authorization }),
+      githubRequest('https://api.github.com/user/emails', { headers: authorization })
+    ]);
+    if (!githubUser.id) {
+      throw httpError(401, 'GITHUB_AUTH_FAILED', 'Không đọc được danh tính GitHub.');
     }
 
-    return res.json({ 
-      success: true, 
-      access_token: data.access_token,
-      email: githubEmail,
-      name: githubName
+    const verifiedEmails = Array.isArray(githubEmails)
+      ? githubEmails.filter((entry) => entry?.verified && isValidEmail(normalizeEmail(entry.email)))
+      : [];
+    const email = normalizeEmail(
+      verifiedEmails.find((entry) => entry.primary)?.email
+      || verifiedEmails[0]?.email
+    );
+    const login = String(githubUser.login || 'user').replace(/[^a-z0-9-]/gi, '').slice(0, 39) || 'user';
+    const fallbackEmail = `${githubUser.id}+${login}@users.noreply.github.com`;
+    const user = await upsertExternalUser({
+      uid: `github:${githubUser.id}`,
+      email: email || fallbackEmail,
+      name: githubUser.name || githubUser.login || 'GitHub user',
+      phoneNumber: ''
+    });
+    await issueSession(res, user);
+
+    return res.json({
+      success: true,
+      message: 'Đăng nhập GitHub thành công!',
+      user: publicUser(user)
     });
   } catch (error) {
-    console.error("Lỗi trao đổi GitHub code:", error);
-    return res.status(500).json({ success: false, message: 'Lỗi máy chủ khi xác thực GitHub.' });
+    return sendAuthError(res, error, 'Không thể đăng nhập GitHub lúc này.');
   }
 };

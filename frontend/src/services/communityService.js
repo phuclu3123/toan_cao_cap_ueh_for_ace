@@ -670,7 +670,67 @@ class CommunityService {
     }
   }
 
-  getPosts(options = {}) {
+  upsertCachedPost(post) {
+    const normalized = normalizePost(post);
+    const posts = this.getPostsFromStorage();
+    const index = posts.findIndex((item) => item.id === normalized.id);
+    if (index >= 0) posts[index] = normalized;
+    else posts.unshift(normalized);
+    this.savePostsToStorage(posts);
+    return normalized;
+  }
+
+  removeCachedPost(postId) {
+    this.savePostsToStorage(this.getPostsFromStorage().filter((post) => post.id !== postId));
+  }
+
+  async getPosts(options = {}) {
+    if (options.status === 'saved') return this.getLocalPosts(options);
+
+    const params = new URLSearchParams();
+    const search = options.search || options.query || '';
+    for (const [key, value] of Object.entries({
+      subject: options.subject,
+      difficulty: options.difficulty,
+      status: options.status,
+      sort: options.sort,
+      tag: options.tag,
+      search,
+      page: options.page,
+      limit: options.limit
+    })) {
+      if (value !== undefined && value !== null && value !== '') {
+        params.set(key, String(value));
+      }
+    }
+
+    try {
+      const data = await readApiJson(await apiFetch(`/api/community/posts?${params.toString()}`));
+      const hiddenIds = new Set(this.getHiddenPostIds());
+      const posts = (data.posts || [])
+        .map(normalizePost)
+        .filter((post) => !hiddenIds.has(post.id));
+
+      const stored = this.getPostsFromStorage();
+      const receivedIds = new Set(posts.map((post) => post.id));
+      this.savePostsToStorage([
+        ...posts,
+        ...stored.filter((post) => !receivedIds.has(post.id))
+      ]);
+
+      return {
+        posts,
+        total: Number(data.total) || 0,
+        totalPages: Number(data.totalPages) || 1,
+        currentPage: Number(data.currentPage) || 1
+      };
+    } catch (error) {
+      console.warn('Không thể tải diễn đàn từ backend, dùng bộ nhớ cục bộ:', error.message);
+      return this.getLocalPosts(options);
+    }
+  }
+
+  getLocalPosts(options = {}) {
     const {
       subject = 'all',
       difficulty = 'all',
@@ -790,275 +850,99 @@ class CommunityService {
     throw new Error('Không tìm thấy bài viết');
   }
 
-  createPost(postData) {
+  async createPost(postData) {
     const review = reviewCommunityPost(postData);
     if (!review.passes) {
       throw new Error(review.violations.join(' '));
     }
 
-    const subjectObj = SUBJECT_CATEGORIES.find(s => s.id === postData.subject) || SUBJECT_CATEGORIES[1];
-    const diffObj = DIFFICULTY_LEVELS.find(d => d.id === postData.difficulty) || DIFFICULTY_LEVELS[1];
-
-    const newPost = {
-      id: `post-${Date.now()}`,
-      type: postData.type || 'question',
-      title: postData.title.trim(),
-      content: postData.content.trim(),
-      subject: postData.subject || 'calc2',
-      subjectLabel: subjectObj.label,
-      difficulty: postData.difficulty || 'standard',
-      difficultyLabel: diffObj.label,
-      tags: postData.tags || [],
-      image: postData.image || null,
-      altText: postData.altText || null,
-      author: applyAdminIdentity(postData.author || AUTH_ADMIN),
-      createdAt: new Date().toISOString(),
-      updatedAt: null,
-      views: 1,
-      upvotes: 0,
-      upvotedBy: [],
-      status: 'unanswered',
-      isAccepted: false,
-      acceptedAnswerId: null,
-      instructorVerified: false,
-      answers: []
-    };
-
+    const payload = await readApiJson(await apiFetch('/api/community/posts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: postData.type || 'question',
+        title: postData.title,
+        content: postData.content,
+        subject: postData.subject || 'calc2',
+        difficulty: postData.difficulty || 'standard',
+        tags: postData.tags || [],
+        image: postData.image || null,
+        altText: postData.altText || null
+      })
+    }));
+    const newPost = normalizePost(payload.post);
     const posts = this.getPostsFromStorage();
     posts.unshift(newPost);
     this.savePostsToStorage(posts);
-
-    return normalizePost(newPost);
+    return newPost;
   }
 
   async updatePost(postId, updateData) {
-    try {
-      const res = await apiFetch(`/api/community/posts/${postId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updateData)
-      });
-      if (res.ok) {
-        const data = await readApiJson(res);
-        if (data.success && data.post) {
-          const posts = this.getPostsFromStorage();
-          const idx = posts.findIndex(p => p.id === postId);
-          if (idx !== -1) {
-            posts[idx] = { ...posts[idx], ...data.post };
-            this.savePostsToStorage(posts);
-          }
-          return normalizePost(data.post);
-        }
-      }
-    } catch {
-      // Local fallback
-    }
-
-    const posts = this.getPostsFromStorage();
-    const index = posts.findIndex(p => p.id === postId);
-    if (index === -1) throw new Error('Không tìm thấy bài viết');
-
-    posts[index] = {
-      ...posts[index],
-      ...updateData,
-      updatedAt: new Date().toISOString()
-    };
-    this.savePostsToStorage(posts);
-    return normalizePost(posts[index]);
+    const data = await readApiJson(await apiFetch(`/api/community/posts/${postId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updateData)
+    }));
+    return this.upsertCachedPost(data.post);
   }
 
   async deletePost(postId) {
-    try {
-      await apiFetch(`/api/community/posts/${postId}`, {
-        method: 'DELETE'
-      });
-    } catch {
-      // Local fallback
-    }
-
-    const posts = this.getPostsFromStorage();
-    const filtered = posts.filter(p => p.id !== postId);
-    this.savePostsToStorage(filtered);
+    await readApiJson(await apiFetch(`/api/community/posts/${postId}`, {
+      method: 'DELETE'
+    }));
+    this.removeCachedPost(postId);
     return true;
   }
 
   toggleUpvote(postId, userId = 'current-user') {
-    const posts = this.getPostsFromStorage();
-    const index = posts.findIndex(p => p.id === postId);
-    if (index === -1) throw new Error('Không tìm thấy bài viết');
-
-    const post = posts[index];
-    const upvotedBy = post.upvotedBy || [];
-    const hasUpvoted = upvotedBy.includes(userId);
-
-    if (hasUpvoted) {
-      post.upvotedBy = upvotedBy.filter(id => id !== userId);
-      post.upvotes = Math.max(0, (post.upvotes || 1) - 1);
-    } else {
-      post.upvotedBy = [...upvotedBy, userId];
-      post.upvotes = (post.upvotes || 0) + 1;
-    }
-
-    posts[index] = post;
-    this.savePostsToStorage(posts);
-    return { upvotes: post.upvotes, hasUpvoted: !hasUpvoted };
+    return this.votePost(postId, userId, 'up');
   }
 
-  addAnswer(postId, content, author = null) {
+  async addAnswer(postId, answerData) {
+    const content = typeof answerData === 'string' ? answerData : answerData?.content;
     if (!content || !content.trim()) throw new Error('Nội dung không được để trống');
 
-    const newAnswer = {
-      id: `ans-${Date.now()}`,
-      postId,
-      author: applyAdminIdentity(author || AUTH_ADMIN),
-      content: content.trim(),
-      createdAt: new Date().toISOString(),
-      upvotes: 0,
-      upvotedBy: [],
-      isAccepted: false,
-      instructorVerified: false,
-      isFirstSolver: false,
-      comments: []
+    const payload = await readApiJson(await apiFetch(`/api/community/posts/${postId}/answers`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: content.trim() })
+    }));
+    const post = this.upsertCachedPost(payload.post);
+    return {
+      answer: payload.answer,
+      post,
+      isFirstAnswer: Boolean(payload.answer?.isFirstSolver)
     };
-
-    const posts = this.getPostsFromStorage();
-    const index = posts.findIndex(p => p.id === postId);
-    if (index === -1) throw new Error('Không tìm thấy bài toán');
-
-    if (!posts[index].answers) posts[index].answers = [];
-    if (posts[index].answers.length === 0) {
-      newAnswer.isFirstSolver = true;
-    }
-
-    posts[index].answers.push(newAnswer);
-    this.savePostsToStorage(posts);
-
-    return { answer: newAnswer, post: normalizePost(posts[index]) };
   }
 
   async editAnswer(postId, answerId, updatedContent) {
-    try {
-      await apiFetch(`/api/community/posts/${postId}/answers/${answerId}`, {
-        method: 'PUT',
-        body: JSON.stringify({ content: updatedContent })
-      });
-    } catch {
-      // Fallback local storage
-    }
-
-    const posts = this.getPostsFromStorage();
-    const pIdx = posts.findIndex(p => p.id === postId);
-    if (pIdx === -1) throw new Error('Không tìm thấy bài toán');
-
-    const post = posts[pIdx];
-    const aIdx = (post.answers || []).findIndex(a => a.id === answerId);
-    if (aIdx === -1) throw new Error('Không tìm thấy câu trả lời');
-
-    post.answers[aIdx].content = updatedContent;
-    post.answers[aIdx].updatedAt = new Date().toISOString();
-    posts[pIdx] = post;
-    this.savePostsToStorage(posts);
-
-    return { answer: post.answers[aIdx], post: normalizePost(post) };
+    const payload = await readApiJson(await apiFetch(`/api/community/posts/${postId}/answers/${answerId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: updatedContent })
+    }));
+    return { answer: payload.answer, post: this.upsertCachedPost(payload.post) };
   }
 
   async deleteAnswer(postId, answerId) {
-    try {
-      await apiFetch(`/api/community/posts/${postId}/answers/${answerId}`, {
-        method: 'DELETE'
-      });
-    } catch {
-      // Fallback local storage
-    }
-
-    const posts = this.getPostsFromStorage();
-    const pIdx = posts.findIndex(p => p.id === postId);
-    if (pIdx === -1) throw new Error('Không tìm thấy bài toán');
-
-    const post = posts[pIdx];
-    post.answers = (post.answers || []).filter(a => a.id !== answerId);
-    if (post.acceptedAnswerId === answerId) {
-      post.acceptedAnswerId = null;
-      post.isAccepted = false;
-      post.status = post.answers.length > 0 ? 'answered' : 'unanswered';
-    }
-    posts[pIdx] = post;
-    this.savePostsToStorage(posts);
-
-    return { post: normalizePost(post) };
+    const payload = await readApiJson(await apiFetch(`/api/community/posts/${postId}/answers/${answerId}`, {
+      method: 'DELETE'
+    }));
+    return { post: this.upsertCachedPost(payload.post) };
   }
 
-  voteAnswer(postId, answerId, userId = 'guest', voteType = 'up') {
-    const posts = this.getPostsFromStorage();
-    const pIdx = posts.findIndex(p => p.id === postId);
-    if (pIdx === -1) throw new Error('Không tìm thấy bài viết');
-
-    const post = posts[pIdx];
-    const aIdx = (post.answers || []).findIndex(a => a.id === answerId);
-    if (aIdx === -1) throw new Error('Không tìm thấy câu trả lời');
-
-    const answer = post.answers[aIdx];
-    const upvotedBy = answer.upvotedBy || [];
-    const downvotedBy = answer.downvotedBy || [];
-
-    const hasUpvoted = upvotedBy.includes(userId);
-    const hasDownvoted = downvotedBy.includes(userId);
-
-    let nextUpvotes = answer.upvotes || 0;
-    let nextUpvotedBy = [...upvotedBy];
-    let nextDownvotedBy = [...downvotedBy];
-    let userVote = 0; // 1 = upvoted, -1 = downvoted, 0 = none
-
-    if (voteType === 'up') {
-      if (hasUpvoted) {
-        // Toggle off upvote
-        nextUpvotedBy = nextUpvotedBy.filter(id => id !== userId);
-        nextUpvotes = Math.max(0, nextUpvotes - 1);
-        userVote = 0;
-      } else {
-        // Add upvote, remove downvote if present
-        if (hasDownvoted) {
-          nextDownvotedBy = nextDownvotedBy.filter(id => id !== userId);
-          nextUpvotes += 1;
-        }
-        nextUpvotedBy.push(userId);
-        nextUpvotes += 1;
-        userVote = 1;
+  async voteAnswer(postId, answerId, userId = 'guest', voteType = 'up') {
+    void userId;
+    const payload = await readApiJson(await apiFetch(
+      `/api/community/posts/${postId}/answers/${answerId}/vote`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ voteType })
       }
-    } else if (voteType === 'down') {
-      if (hasDownvoted) {
-        // Toggle off downvote
-        nextDownvotedBy = nextDownvotedBy.filter(id => id !== userId);
-        nextUpvotes += 1;
-        userVote = 0;
-      } else {
-        // Add downvote, remove upvote if present
-        if (hasUpvoted) {
-          nextUpvotedBy = nextUpvotedBy.filter(id => id !== userId);
-          nextUpvotes = Math.max(0, nextUpvotes - 1);
-        }
-        nextDownvotedBy.push(userId);
-        nextUpvotes = Math.max(0, nextUpvotes - 1);
-        userVote = -1;
-      }
-    }
-
-    answer.upvotes = nextUpvotes;
-    answer.upvotedBy = nextUpvotedBy;
-    answer.downvotedBy = nextDownvotedBy;
-
-    post.answers[aIdx] = answer;
-    posts[pIdx] = post;
-    this.savePostsToStorage(posts);
-
-    return {
-      upvotes: answer.upvotes,
-      upvotedBy: nextUpvotedBy,
-      downvotedBy: nextDownvotedBy,
-      userVote,
-      hasUpvoted: userVote === 1,
-      hasDownvoted: userVote === -1
-    };
+    ));
+    if (payload.post) this.upsertCachedPost(payload.post);
+    return payload;
   }
 
   toggleUpvoteAnswer(postId, answerId, userId = 'guest') {
@@ -1069,135 +953,57 @@ class CommunityService {
     return this.voteAnswer(postId, answerId, userId, 'down');
   }
 
-  acceptAnswer(postId, answerId, isInstructor = false) {
-    const posts = this.getPostsFromStorage();
-    const pIdx = posts.findIndex(p => p.id === postId);
-    if (pIdx === -1) throw new Error('Không tìm thấy bài toán');
+  async acceptAnswer(postId, answerId, isInstructor = false) {
+    void isInstructor;
+    const payload = await readApiJson(await apiFetch(
+      `/api/community/posts/${postId}/answers/${answerId}/accept`,
+      { method: 'POST' }
+    ));
+    const post = this.upsertCachedPost(payload.post);
+    const answer = (post.answers || []).find((item) => item.id === answerId);
+    return {
+      post,
+      isAccepted: Boolean(answer?.isAccepted),
+      answerAuthorId: answer?.author?.id || null
+    };
+  }
 
-    const post = posts[pIdx];
-    post.answers = (post.answers || []).map(ans => {
-      if (ans.id === answerId) {
-        const nextAccepted = !ans.isAccepted;
-        return {
-          ...ans,
-          isAccepted: nextAccepted,
-          instructorVerified: isInstructor ? nextAccepted : ans.instructorVerified
-        };
-      }
-      return { ...ans, isAccepted: false };
-    });
-
-    const acceptedAnswer = post.answers.find(a => a.isAccepted);
-    post.isAccepted = Boolean(acceptedAnswer);
-    post.acceptedAnswerId = acceptedAnswer ? acceptedAnswer.id : null;
-    post.status = acceptedAnswer ? 'solved' : 'unanswered';
-
-    posts[pIdx] = post;
-    this.savePostsToStorage(posts);
-
-    return { post: normalizePost(post) };
+  toggleAcceptAnswer(postId, answerId, isInstructor = false) {
+    return this.acceptAnswer(postId, answerId, isInstructor);
   }
 
   async addCommentToAnswer(postId, answerId, commentData) {
-    const newComment = {
-      id: `cmt-${Date.now()}`,
-      content: commentData.content,
-      author: applyAdminIdentity(commentData.author || AUTH_ADMIN),
-      createdAt: new Date().toISOString()
-    };
-
-    try {
-      const apiRes = await apiFetch(`/api/community/posts/${postId}/answers/${answerId}/comments`, {
+    const data = await readApiJson(await apiFetch(
+      `/api/community/posts/${postId}/answers/${answerId}/comments`,
+      {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: commentData.content, author: commentData.author })
-      });
-      const data = await readApiJson(apiRes);
-      if (data && data.success && data.comment) {
-        newComment.id = data.comment.id || data.comment._id || newComment.id;
+        body: JSON.stringify({ content: commentData.content })
       }
-    } catch {
-      // Local fallback
-    }
-
-    const posts = this.getPostsFromStorage();
-    const pIdx = posts.findIndex(p => p.id === postId);
-    if (pIdx !== -1) {
-      const post = posts[pIdx];
-      const aIdx = (post.answers || []).findIndex(a => a.id === answerId);
-      if (aIdx !== -1) {
-        if (!post.answers[aIdx].comments) post.answers[aIdx].comments = [];
-        post.answers[aIdx].comments.push(newComment);
-        posts[pIdx] = post;
-        this.savePostsToStorage(posts);
-      }
-    }
-
-    return { comment: newComment };
+    ));
+    if (data.post) this.upsertCachedPost(data.post);
+    return { comment: data.comment, post: data.post ? normalizePost(data.post) : undefined };
   }
 
   async editComment(postId, answerId, commentId, updatedContent) {
-    try {
-      await apiFetch(`/api/community/posts/${postId}/answers/${answerId}/comments/${commentId}`, {
+    const data = await readApiJson(await apiFetch(
+      `/api/community/posts/${postId}/answers/${answerId}/comments/${commentId}`,
+      {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: updatedContent })
-      });
-    } catch {
-      // Local fallback
-    }
-
-    const posts = this.getPostsFromStorage();
-    const pIdx = posts.findIndex(p => p.id === postId);
-    if (pIdx === -1) throw new Error('Không tìm thấy bài toán');
-
-    const post = posts[pIdx];
-    const aIdx = (post.answers || []).findIndex(a => a.id === answerId);
-    if (aIdx === -1) throw new Error('Không tìm thấy câu trả lời');
-
-    const cIdx = (post.answers[aIdx].comments || []).findIndex(c => c.id === commentId);
-    if (cIdx === -1) throw new Error('Không tìm thấy bình luận');
-
-    post.answers[aIdx].comments[cIdx].content = updatedContent;
-    post.answers[aIdx].comments[cIdx].updatedAt = new Date().toISOString();
-
-    posts[pIdx] = post;
-    this.savePostsToStorage(posts);
-
-    return { comment: post.answers[aIdx].comments[cIdx] };
+      }
+    ));
+    if (data.post) this.upsertCachedPost(data.post);
+    return { comment: data.comment, post: data.post ? normalizePost(data.post) : undefined };
   }
 
   async deleteComment(postId, answerId, commentId) {
-    try {
-      await apiFetch(`/api/community/posts/${postId}/answers/${answerId}/comments/${commentId}`, {
-        method: 'DELETE'
-      });
-    } catch {
-      // Local fallback
-    }
-
-    const posts = this.getPostsFromStorage();
-    const pIdx = posts.findIndex(p => p.id === postId);
-    if (pIdx === -1) throw new Error('Không tìm thấy bài toán');
-
-    const post = posts[pIdx];
-    const aIdx = (post.answers || []).findIndex(a => a.id === answerId);
-    if (aIdx === -1) throw new Error('Không tìm thấy câu trả lời');
-
-    post.answers[aIdx].comments = (post.answers[aIdx].comments || []).filter(c => c.id !== commentId);
-    posts[pIdx] = post;
-    this.savePostsToStorage(posts);
-
-    return true;
-  }
-
-  deleteAnswer(postId, answerId) {
-    const posts = this.getPostsFromStorage();
-    const pIdx = posts.findIndex(p => p.id === postId);
-    if (pIdx === -1) throw new Error('Không tìm thấy bài toán');
-
-    posts[pIdx].answers = (posts[pIdx].answers || []).filter(a => a.id !== answerId);
-    this.savePostsToStorage(posts);
+    const data = await readApiJson(await apiFetch(
+      `/api/community/posts/${postId}/answers/${answerId}/comments/${commentId}`,
+      { method: 'DELETE' }
+    ));
+    if (data.post) this.upsertCachedPost(data.post);
     return true;
   }
 
@@ -1222,72 +1028,15 @@ class CommunityService {
     return this.getCommunityStats();
   }
 
-  votePost(postId, userId = 'guest', voteType = 'up') {
-    const posts = this.getPostsFromStorage();
-    const pIdx = posts.findIndex(p => p.id === postId);
-    if (pIdx === -1) throw new Error('Không tìm thấy bài viết');
-
-    const post = posts[pIdx];
-    const upvotedBy = post.upvotedBy || [];
-    const downvotedBy = post.downvotedBy || [];
-
-    const hasUpvoted = upvotedBy.includes(userId);
-    const hasDownvoted = downvotedBy.includes(userId);
-
-    let nextUpvotes = post.upvotes || 0;
-    let nextUpvotedBy = [...upvotedBy];
-    let nextDownvotedBy = [...downvotedBy];
-    let userVote = 0; // 1 = upvoted, -1 = downvoted, 0 = none
-
-    if (voteType === 'up') {
-      if (hasUpvoted) {
-        // Toggle off upvote
-        nextUpvotedBy = nextUpvotedBy.filter(id => id !== userId);
-        nextUpvotes = Math.max(0, nextUpvotes - 1);
-        userVote = 0;
-      } else {
-        // Add upvote, remove downvote if present
-        if (hasDownvoted) {
-          nextDownvotedBy = nextDownvotedBy.filter(id => id !== userId);
-          nextUpvotes += 1;
-        }
-        nextUpvotedBy.push(userId);
-        nextUpvotes += 1;
-        userVote = 1;
-      }
-    } else if (voteType === 'down') {
-      if (hasDownvoted) {
-        // Toggle off downvote
-        nextDownvotedBy = nextDownvotedBy.filter(id => id !== userId);
-        nextUpvotes += 1;
-        userVote = 0;
-      } else {
-        // Add downvote, remove upvote if present
-        if (hasUpvoted) {
-          nextUpvotedBy = nextUpvotedBy.filter(id => id !== userId);
-          nextUpvotes = Math.max(0, nextUpvotes - 1);
-        }
-        nextDownvotedBy.push(userId);
-        nextUpvotes = Math.max(0, nextUpvotes - 1);
-        userVote = -1;
-      }
-    }
-
-    post.upvotes = nextUpvotes;
-    post.upvotedBy = nextUpvotedBy;
-    post.downvotedBy = nextDownvotedBy;
-
-    posts[pIdx] = post;
-    this.savePostsToStorage(posts);
-
-    return {
-      upvotes: post.upvotes,
-      upvotedBy: nextUpvotedBy,
-      downvotedBy: nextDownvotedBy,
-      userVote,
-      hasUpvoted: userVote === 1,
-      hasDownvoted: userVote === -1
-    };
+  async votePost(postId, userId = 'guest', voteType = 'up') {
+    void userId;
+    const payload = await readApiJson(await apiFetch(`/api/community/posts/${postId}/upvote`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ voteType })
+    }));
+    if (payload.post) this.upsertCachedPost(payload.post);
+    return payload;
   }
 
   toggleUpvotePost(postId, userId = 'guest') {

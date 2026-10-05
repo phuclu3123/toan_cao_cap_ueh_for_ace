@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import { replaceEmoticons } from '../utils/emoticonMapper';
+import { sanitizeHtml, sanitizeUrl } from '../utils/htmlSanitizer';
 
 const FLAG_MAP = {
   '🇻🇳': 'vn', '🇺🇸': 'us', '🇬🇧': 'gb', '🇫🇷': 'fr', '🇩🇪': 'de',
@@ -11,6 +12,13 @@ const FLAG_MAP = {
   '🇱🇦': 'la', '🇰🇭': 'kh', '🇨🇭': 'ch', '🇸🇪': 'se', '🇳🇱': 'nl',
   '🇦🇷': 'ar', '🇵🇹': 'pt', '🇲🇽': 'mx', '🇪🇺': 'eu'
 };
+
+const renderMath = (math, displayMode) => katex.renderToString(math, {
+  displayMode,
+  trust: false,
+  throwOnError: true,
+  strict: 'error'
+});
 
 function replaceFlagEmojisWithImages(str) {
   if (!str) return '';
@@ -45,20 +53,20 @@ function renderHtmlWithMath(htmlStr) {
   // Replace $$...$$ with KaTeX display HTML
   let processed = htmlStr.replace(/\$\$([\s\S]*?)\$\$/g, (_, math) => {
     try {
-      return katex.renderToString(math.trim(), { displayMode: true, throwOnError: false });
+      return renderMath(math.trim(), true);
     } catch {
       return `$$${math}$$`;
     }
   });
   // Replace $...$ with KaTeX inline HTML
-  processed = processed.replace(/\$([^\$\n\r]+?)\$/g, (_, math) => {
+  processed = processed.replace(/\$([^$\n\r]+?)\$/g, (_, math) => {
     try {
-      return katex.renderToString(math.trim(), { displayMode: false, throwOnError: false });
+      return renderMath(math.trim(), false);
     } catch {
       return `$${math}$`;
     }
   });
-  return processed;
+  return sanitizeHtml(processed);
 }
 
 export default function MathRenderer({ text, className = '', inline = false }) {
@@ -118,10 +126,7 @@ export default function MathRenderer({ text, className = '', inline = false }) {
         // If it's a math code block, render KaTeX directly
         if (language === 'math' || language === 'latex' || language === 'katex') {
           try {
-            const html = katex.renderToString(codeContent.trim(), {
-              displayMode: true,
-              throwOnError: false
-            });
+            const html = renderMath(codeContent.trim(), true);
             return <div key={index} className="math-block" dangerouslySetInnerHTML={{ __html: html }} />;
           } catch {
             return <pre key={index} className="ai-code-block"><code>{codeContent}</code></pre>;
@@ -152,10 +157,7 @@ export default function MathRenderer({ text, className = '', inline = false }) {
       if (part.startsWith('$$') && part.endsWith('$$') && part.length >= 4) {
         const math = part.slice(2, -2).trim();
         try {
-          const html = katex.renderToString(math, {
-            displayMode: true,
-            throwOnError: false
-          });
+          const html = renderMath(math, true);
           return <div key={index} className="math-block" dangerouslySetInnerHTML={{ __html: html }} />;
         } catch {
           return <code key={index} className="math-render-error">{part}</code>;
@@ -169,7 +171,7 @@ export default function MathRenderer({ text, className = '', inline = false }) {
           const [, alt, src] = match;
           return (
             <figure key={index} className="article-diagram-figure">
-              <img src={src} alt={alt || 'Hình minh họa'} className="article-diagram-img" loading="lazy" />
+              <img src={sanitizeUrl(src, { allowImageData: true })} alt={alt || 'Hình minh họa'} className="article-diagram-img" loading="lazy" />
               {alt && <figcaption className="article-diagram-caption">{alt}</figcaption>}
             </figure>
           );
@@ -179,7 +181,7 @@ export default function MathRenderer({ text, className = '', inline = false }) {
       // 4. Regular text containing headers, lists, quotes, tables, and inline math
       return <span key={index}>{renderMarkdownParagraphs(part)}</span>;
     });
-  }, [text, inline]);
+  }, [text, inline, className]);
 
   if (inline) {
     return <span className={`math-rendered-inline ${className}`}>{renderedContent}</span>;
@@ -326,10 +328,7 @@ function renderInlineFormatting(str) {
     if (part.startsWith('$') && part.endsWith('$') && part.length >= 2) {
       const math = part.slice(1, -1).trim();
       try {
-        const html = katex.renderToString(math, {
-          displayMode: false,
-          throwOnError: false
-        });
+        const html = renderMath(math, false);
         return <span key={mIdx} className="math-inline" dangerouslySetInnerHTML={{ __html: html }} />;
       } catch {
         return <code key={mIdx} className="math-render-error">{part}</code>;

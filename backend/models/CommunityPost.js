@@ -27,11 +27,13 @@ const AnswerSchema = new mongoose.Schema({
   },
   upvotes: { type: Number, default: 0 },
   upvotedBy: [{ type: String }],
+  downvotedBy: [{ type: String }],
   isAccepted: { type: Boolean, default: false },
   instructorVerified: { type: Boolean, default: false },
   isFirstSolver: { type: Boolean, default: false },
   comments: [CommentSchema],
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date }
 });
 
 const CommunityPostSchema = new mongoose.Schema({
@@ -59,12 +61,13 @@ const CommunityPostSchema = new mongoose.Schema({
   views: { type: Number, default: 0 },
   upvotes: { type: Number, default: 0 },
   upvotedBy: [{ type: String }],
+  downvotedBy: [{ type: String }],
   savedBy: [{ type: String }],
-  status: { type: String, default: 'unanswered', enum: ['unanswered', 'solved', 'closed'] },
+  status: { type: String, default: 'unanswered', enum: ['unanswered', 'answered', 'solved', 'closed'] },
   isAccepted: { type: Boolean, default: false },
   acceptedAnswerId: { type: String },
   instructorVerified: { type: Boolean, default: false },
   answers: [AnswerSchema]
-}, { timestamps: true });
+}, { timestamps: true, optimisticConcurrency: true });
 
 export default mongoose.model('CommunityPost', CommunityPostSchema);

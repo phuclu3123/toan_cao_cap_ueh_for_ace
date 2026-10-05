@@ -1,4 +1,6 @@
-import assert from 'node:assert';
+import assert from 'node:assert/strict';
+import test from 'node:test';
+
 import {
   addCommentToAnswer,
   updateComment,
@@ -6,49 +8,85 @@ import {
   SEED_COMMUNITY_POSTS
 } from '../controllers/communityController.js';
 
-function createMockRes() {
-  return {
-    statusCode: 200,
-    data: null,
-    status(code) {
-      this.statusCode = code;
-      return this;
-    },
-    json(payload) {
-      this.data = payload;
-      return this;
-    }
-  };
-}
+const createMockRes = () => ({
+  statusCode: 200,
+  payload: null,
+  status(code) {
+    this.statusCode = code;
+    return this;
+  },
+  json(payload) {
+    this.payload = payload;
+    return this;
+  }
+});
 
-async function runCommentTests() {
-  console.log('Testing Comment CRUD Endpoints...');
+const owner = {
+  id: 'comment-test-user',
+  username: 'comment-owner@example.com',
+  name: 'Comment Owner',
+  role: 'Student'
+};
 
+test('comment CRUD uses the authenticated actor, exact ids, and ownership checks', async () => {
   const samplePost = SEED_COMMUNITY_POSTS[0];
   const postId = samplePost.id;
   const answerId = samplePost.answers[0].id;
 
-  // 1. Add Comment
-  const addReq = {
+  const addRes = createMockRes();
+  await addCommentToAnswer({
     params: { id: postId, answerId },
+    authUser: owner,
     body: {
       content: 'Bài giải rất chuẩn xác và rõ ràng!',
-      author: { id: 'user-phuc-test', name: 'Lữ Võ Hoàng Phúc (Test)' }
+      author: { id: 'spoofed-admin', isAdmin: true }
     }
-  };
-  const addRes = createMockRes();
-  await addCommentToAnswer(addReq, addRes);
+  }, addRes);
 
-  assert.strictEqual(addRes.statusCode, 201, 'Should return 201 Created on adding comment');
-  assert.ok(addRes.data.success, 'Response should indicate success');
-  assert.ok(addRes.data.comment, 'Response should contain comment object');
-  assert.strictEqual(addRes.data.comment.content, 'Bài giải rất chuẩn xác và rõ ràng!');
-  console.log('✓ 1. Add comment passed:', addRes.data.comment.id);
+  assert.equal(addRes.statusCode, 201);
+  assert.equal(addRes.payload.success, true);
+  assert.equal(addRes.payload.comment.author.id, owner.id);
+  assert.notEqual(addRes.payload.comment.author.id, 'spoofed-admin');
+  const commentId = addRes.payload.comment.id;
 
-  console.log('All Comment CRUD unit tests verified successfully!');
-}
+  const wrongUserRes = createMockRes();
+  await updateComment({
+    params: { id: postId, answerId, commentId },
+    authUser: { id: 'different-user', username: 'different@example.com', role: 'Student' },
+    body: { content: 'Không được phép sửa bình luận này.' }
+  }, wrongUserRes);
+  assert.equal(wrongUserRes.statusCode, 403);
 
-runCommentTests().catch(err => {
-  console.error('Test failed:', err);
-  process.exit(1);
+  const updateRes = createMockRes();
+  await updateComment({
+    params: { id: postId, answerId, commentId },
+    authUser: owner,
+    body: { content: 'Nội dung đã cập nhật.' }
+  }, updateRes);
+  assert.equal(updateRes.statusCode, 200);
+  assert.equal(updateRes.payload.comment.content, 'Nội dung đã cập nhật.');
+
+  const missingAnswerRes = createMockRes();
+  await addCommentToAnswer({
+    params: { id: postId, answerId: 'missing-answer' },
+    authUser: owner,
+    body: { content: 'Không được gắn nhầm vào lời giải đầu tiên.' }
+  }, missingAnswerRes);
+  assert.equal(missingAnswerRes.statusCode, 404);
+
+  const deleteRes = createMockRes();
+  await deleteComment({
+    params: { id: postId, answerId, commentId },
+    authUser: owner,
+    body: {}
+  }, deleteRes);
+  assert.equal(deleteRes.statusCode, 200);
+
+  const secondDeleteRes = createMockRes();
+  await deleteComment({
+    params: { id: postId, answerId, commentId },
+    authUser: owner,
+    body: {}
+  }, secondDeleteRes);
+  assert.equal(secondDeleteRes.statusCode, 404);
 });

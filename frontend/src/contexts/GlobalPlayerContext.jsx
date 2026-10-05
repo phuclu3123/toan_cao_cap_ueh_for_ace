@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useMemo } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { apiFetch } from '../utils/apiClient';
 
 const GlobalPlayerContext = createContext();
@@ -18,6 +18,31 @@ export function GlobalPlayerProvider({ children }) {
   const [loadingNext, setLoadingNext] = useState(false);
   const [playerNotice, setPlayerNotice] = useState('');
   const [accessDeniedStatus, setAccessDeniedStatus] = useState(null); // { isDenied: bool, reason: str }
+  const nextLessonRequestIdRef = useRef(0);
+
+  useEffect(() => {
+    const clearSessionBoundContent = () => {
+      nextLessonRequestIdRef.current += 1;
+      setLoadingNext(false);
+      setPlayerNotice('');
+      setAccessDeniedStatus(null);
+      setPlayerState((current) => ({
+        ...current,
+        isOpen: false,
+        isMinimized: false,
+        courseId: null,
+        activeLesson: null,
+        allLessons: [],
+        course: null,
+        customPos: null
+      }));
+    };
+
+    window.addEventListener('ueh-tcc-session-changed', clearSessionBoundContent);
+    return () => {
+      window.removeEventListener('ueh-tcc-session-changed', clearSessionBoundContent);
+    };
+  }, []);
 
   const playLesson = useCallback((course, activeLesson, allLessons, courseTone = 'emerald') => {
     setPlayerState(prev => ({
@@ -56,68 +81,66 @@ export function GlobalPlayerProvider({ children }) {
 
   // Fetch content for next lesson
   const playNextLesson = useCallback(async () => {
-    setPlayerState(prev => {
-      if (!prev.activeLesson || !prev.allLessons.length) return prev;
-      const currentIndex = prev.allLessons.findIndex(l => l.id === prev.activeLesson.id);
+    const { activeLesson, allLessons, courseId } = playerState;
+    if (!activeLesson || !allLessons.length || !courseId) return;
 
-      if (currentIndex >= 0 && currentIndex < prev.allLessons.length - 1) {
-        const nextLesson = prev.allLessons[currentIndex + 1];
+    const currentIndex = allLessons.findIndex((lesson) => lesson.id === activeLesson.id);
+    if (currentIndex < 0 || currentIndex >= allLessons.length - 1) return;
 
-        // Let's handle the fetch asynchronously
-        setTimeout(async () => {
-          setLoadingNext(true);
-          setPlayerNotice('');
+    const nextLesson = allLessons[currentIndex + 1];
+    const requestId = nextLessonRequestIdRef.current + 1;
+    nextLessonRequestIdRef.current = requestId;
+    setLoadingNext(true);
+    setPlayerNotice('');
 
-          if (nextLesson.type === 'video' && nextLesson.videoUrl) {
-            const ytMatch = nextLesson.videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
-            let media = ytMatch ? { provider: 'youtube', videoId: ytMatch[1] } : { url: nextLesson.videoUrl };
+    try {
+      const response = await apiFetch(`/api/courses/${encodeURIComponent(courseId)}/lessons/${encodeURIComponent(nextLesson.id)}/content`);
+      const payload = await response.json().catch(() => ({}));
 
-            setPlayerState(p => ({
-              ...p,
-              activeLesson: { ...nextLesson, media }
-            }));
-            setLoadingNext(false);
-            return;
-          }
-
-          try {
-            const response = await apiFetch(`/api/courses/${encodeURIComponent(prev.courseId)}/lessons/${encodeURIComponent(nextLesson.id)}/content`);
-            const payload = await response.json().catch(() => ({}));
-
-            if (response.status === 401 || response.status === 403) {
-               setAccessDeniedStatus({
-                 isDenied: true,
-                 reason: response.status === 401 ? 'AUTH_REQUIRED' : 'ENROLLMENT_REQUIRED'
-               });
-               setLoadingNext(false);
-               return;
-            }
-
-            const content = payload.data;
-            if (!response.ok || !content || content.type !== nextLesson.type) {
-              throw new Error(payload.message || 'Nội dung bài học chưa sẵn sàng.');
-            }
-
-            setPlayerState(p => ({
-              ...p,
-              activeLesson: {
-                ...nextLesson,
-                ...(content.media ? { media: content.media } : {}),
-                ...(content.type === 'text' ? { content: content.content } : {})
-              }
-            }));
-          } catch (error) {
-            setPlayerNotice(error.message || 'Không thể mở bài học lúc này.');
-          } finally {
-            setLoadingNext(false);
-          }
-        }, 0);
-
-        return prev; // keep previous state while loading, or we can show a loading indicator on player
+      if (response.status === 401 || response.status === 403) {
+        if (requestId === nextLessonRequestIdRef.current) {
+          setAccessDeniedStatus({
+            isDenied: true,
+            reason: response.status === 401 ? 'AUTH_REQUIRED' : 'ENROLLMENT_REQUIRED'
+          });
+        }
+        return;
       }
-      return prev;
-    });
-  }, []);
+
+      const content = payload.data;
+      if (
+        !response.ok
+        || !content
+        || content.courseId !== courseId
+        || content.lessonId !== nextLesson.id
+        || content.type !== nextLesson.type
+        || (nextLesson.type === 'video' && !content.media)
+      ) {
+        throw new Error(payload.message || 'Nội dung bài học chưa sẵn sàng.');
+      }
+
+      if (requestId !== nextLessonRequestIdRef.current) return;
+      setPlayerState((current) => {
+        if (current.courseId !== courseId || current.activeLesson?.id !== activeLesson.id) {
+          return current;
+        }
+        return {
+          ...current,
+          activeLesson: {
+            ...nextLesson,
+            ...(content.media ? { media: content.media } : {}),
+            ...(content.type === 'text' ? { content: content.content } : {})
+          }
+        };
+      });
+    } catch (error) {
+      if (requestId === nextLessonRequestIdRef.current && error.name !== 'AbortError') {
+        setPlayerNotice(error.message || 'Không thể mở bài học lúc này.');
+      }
+    } finally {
+      if (requestId === nextLessonRequestIdRef.current) setLoadingNext(false);
+    }
+  }, [playerState]);
 
   const value = useMemo(() => ({
     ...playerState,

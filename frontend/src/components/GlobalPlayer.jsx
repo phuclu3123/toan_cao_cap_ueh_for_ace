@@ -36,17 +36,33 @@ const saveProgress = (courseId, lessonId, time) => {
   } catch { /* Progress persistence is best-effort. */ }
 };
 
+let youtubeApiPromise;
+
 const loadYouTubeAPI = () => {
-  return new Promise((resolve) => {
-    if (window.YT && window.YT.Player) {
-      resolve(window.YT);
-      return;
-    }
-    window.onYouTubeIframeAPIReady = () => resolve(window.YT);
-    const script = document.createElement('script');
-    script.src = 'https://www.youtube.com/iframe_api';
-    document.body.appendChild(script);
-  });
+  if (!youtubeApiPromise) {
+    youtubeApiPromise = new Promise((resolve, reject) => {
+      if (window.YT && window.YT.Player) {
+        resolve(window.YT);
+        return;
+      }
+      const previousReadyHandler = window.onYouTubeIframeAPIReady;
+      window.onYouTubeIframeAPIReady = () => {
+        previousReadyHandler?.();
+        resolve(window.YT);
+      };
+      let script = document.querySelector('script[src="https://www.youtube.com/iframe_api"]');
+      if (!script) {
+        script = document.createElement('script');
+        script.src = 'https://www.youtube.com/iframe_api';
+        document.body.appendChild(script);
+      }
+      script.addEventListener('error', () => {
+        youtubeApiPromise = undefined;
+        reject(new Error('Không thể tải trình phát YouTube.'));
+      }, { once: true });
+    });
+  }
+  return youtubeApiPromise;
 };
 
 export default function GlobalPlayer() {
@@ -248,6 +264,7 @@ export default function GlobalPlayer() {
   useEffect(() => {
     if (isOpen && activeLesson?.type === 'video' && activeLesson.media?.provider === 'youtube') {
       if (!ytMountRef.current) return;
+      let disposed = false;
       ytMountRef.current.innerHTML = '';
       const container = document.createElement('div');
       container.style.width = '100%';
@@ -256,6 +273,7 @@ export default function GlobalPlayer() {
 
       const savedTime = getSavedProgress(courseId, activeLesson.media.videoId);
       loadYouTubeAPI().then((YT) => {
+        if (disposed || !container.isConnected) return;
         new YT.Player(container, {
           videoId: activeLesson.media.videoId,
           playerVars: { autoplay: savedTime > 5 ? 0 : 1, controls: 0, disablekb: 1, fs: 0, modestbranding: 1, rel: 0, playsinline: 1 },
@@ -286,8 +304,11 @@ export default function GlobalPlayer() {
             }
           }
         });
+      }).catch(() => {
+        if (!disposed) setIsPlaying(false);
       });
       return () => {
+        disposed = true;
         if (ytSaveIntervalRef.current) clearInterval(ytSaveIntervalRef.current);
         if (ytPlayerRef.current) {
           try {
@@ -503,7 +524,7 @@ export default function GlobalPlayer() {
                 ) : (
                   <video
                     ref={nativeVideoRef}
-                    src={activeLesson.media?.url || activeLesson.videoUrl}
+                    src={activeLesson.media?.url || ''}
                     onTimeUpdate={handleTimeUpdate}
                     onLoadedMetadata={handleLoadedMetadata}
                     onLoadedData={handleNativeLoaded}
@@ -689,7 +710,7 @@ export default function GlobalPlayer() {
               closePlayer();
               // In global player, we can't easily trigger the enrollment modal if they are not on course page.
               // We could navigate them to the course page.
-              window.location.href = `/course/${course.slug}`;
+              window.location.href = `/course/${encodeURIComponent(course.id)}`;
             }}>
               Xem thông tin khóa học
               <ArrowRight size={17} />

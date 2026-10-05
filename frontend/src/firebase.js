@@ -11,6 +11,7 @@ import {
   sendPasswordResetEmail,
   signOut,
   onAuthStateChanged,
+  onIdTokenChanged,
   signInWithPopup,
   signInWithRedirect,
   getRedirectResult
@@ -80,8 +81,8 @@ export {
   sendPasswordResetEmail,
   signOut,
   onAuthStateChanged,
+  onIdTokenChanged,
   signInWithPopup,
   signInWithRedirect,
   getRedirectResult
 };
-

@@ -2,15 +2,12 @@ import { useState, useId } from 'react';
 import { createPortal } from 'react-dom';
 import {
   X,
-  Sparkles,
   Palette,
   Check,
   AlignLeft,
   AlignRight,
   Maximize2,
-  Bookmark,
   Layers,
-  HelpCircle,
   Eye,
   Plus
 } from 'lucide-react';
@@ -18,7 +15,7 @@ import MathRenderer from '../MathRenderer';
 import '../../assets/styles/community.css';
 
 // Preset color combinations tailored for high-end academic & editorial math publishing
-export const CALLOUT_COLOR_PRESETS = [
+const CALLOUT_COLOR_PRESETS = [
   {
     id: 'green',
     name: 'Xanh UEH (Mặc định)',

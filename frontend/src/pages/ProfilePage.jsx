@@ -81,7 +81,6 @@ export default function ProfilePage() {
           
           if (error.status === 401 && localStorage.getItem('ueh_tcc_user')) {
             localStorage.removeItem('ueh_tcc_user');
-            localStorage.removeItem('ueh_tcc_token');
             window.dispatchEvent(new Event('ueh-tcc-session-changed'));
           }
         }
@@ -177,7 +176,9 @@ export default function ProfilePage() {
         try {
           const parsed = JSON.parse(stored);
           localStorage.setItem('ueh_tcc_user', JSON.stringify({ ...parsed, avatar: croppedBase64 }));
-        } catch {}
+        } catch {
+          // Ignore malformed legacy profile cache.
+        }
       }
 
       window.dispatchEvent(new Event('ueh-tcc-session-changed'));
@@ -232,12 +233,21 @@ export default function ProfilePage() {
   };
 
   const handleLogout = async () => {
-    await apiFetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
-    if (isFirebaseConfigured && auth) {
-      await firebaseSignOut(auth).catch(() => {});
+    setStatusMsg({ type: '', text: '' });
+    try {
+      if (isFirebaseConfigured && auth) {
+        await firebaseSignOut(auth);
+      }
+      await readApiJson(await apiFetch('/api/auth/logout', { method: 'POST' }));
+      localStorage.removeItem('ueh_tcc_user');
+      window.dispatchEvent(new Event('ueh-tcc-session-changed'));
+      window.location.href = '/';
+    } catch (error) {
+      setStatusMsg({
+        type: 'error',
+        text: error.message || 'Không thể thu hồi phiên đăng nhập. Vui lòng thử lại.'
+      });
     }
-    window.dispatchEvent(new Event('ueh-tcc-session-changed'));
-    window.location.href = '/';
   };
 
   if (sessionLoading) {

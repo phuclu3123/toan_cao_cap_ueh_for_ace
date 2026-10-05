@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { communityService } from '../services/communityService';
 import { useAuth } from './AuthContext';
@@ -27,6 +27,7 @@ export function CommunityProvider({ children }) {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const refreshRequestIdRef = useRef(0);
 
   const [savedPostIds, setSavedPostIds] = useState(() => communityService.getSavedPostIds());
   const [visitedPostIds, setVisitedPostIds] = useState(() => communityService.getVisitedPostIds());
@@ -94,6 +95,8 @@ export function CommunityProvider({ children }) {
 
   // Load posts whenever search params or hidden list change
   const refreshPosts = useCallback(async () => {
+    const requestId = refreshRequestIdRef.current + 1;
+    refreshRequestIdRef.current = requestId;
     setLoading(true);
     setError(null);
     try {
@@ -108,17 +111,21 @@ export function CommunityProvider({ children }) {
         limit: 8
       });
 
-      setPosts(res.posts);
-      setTotalPosts(res.total);
-      setTotalPages(res.totalPages);
-      setStats(communityService.getCommunityStats());
-      setLeaderboard(communityService.getLeaderboard());
-      setTrendingTags(communityService.getTrendingTags());
+      if (requestId === refreshRequestIdRef.current) {
+        setPosts(res.posts);
+        setTotalPosts(res.total);
+        setTotalPages(res.totalPages);
+        setStats(communityService.getCommunityStats());
+        setLeaderboard(communityService.getLeaderboard());
+        setTrendingTags(communityService.getTrendingTags());
+      }
     } catch (err) {
       console.error('Lỗi khi tải bài viết community:', err);
-      setError(err.message || 'Không thể tải danh sách bài viết');
+      if (requestId === refreshRequestIdRef.current) {
+        setError(err.message || 'Không thể tải danh sách bài viết');
+      }
     } finally {
-      setLoading(false);
+      if (requestId === refreshRequestIdRef.current) setLoading(false);
     }
   }, [activeSubject, activeDifficulty, activeStatus, activeSort, searchQuery, activeTag, currentPage]);
 

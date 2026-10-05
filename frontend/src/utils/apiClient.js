@@ -8,13 +8,6 @@ const resolveApiUrl = (path) => {
 
 export const apiFetch = (path, options = {}) => {
   const headers = new Headers(options.headers || {});
-  
-  if (!headers.has('Authorization')) {
-    const token = localStorage.getItem('ueh_tcc_token');
-    if (token) {
-      headers.set('Authorization', `Bearer ${token}`);
-    }
-  }
 
   return fetch(resolveApiUrl(path), {
     ...options,
@@ -30,6 +23,10 @@ export const readApiJson = async (response) => {
     const error = new Error(data.message || data.desc || 'Yêu cầu không thể hoàn tất.');
     error.status = response.status;
     error.data = data;
+    const retryAfter = Number.parseInt(response.headers.get('Retry-After') || '', 10);
+    if (Number.isFinite(retryAfter) && retryAfter > 0) {
+      error.retryAfterSeconds = retryAfter;
+    }
     throw error;
   }
 

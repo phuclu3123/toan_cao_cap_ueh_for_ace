@@ -1,5 +1,10 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { auth, onAuthStateChanged, isFirebaseConfigured } from '../firebase';
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import {
+  auth,
+  onAuthStateChanged,
+  isFirebaseConfigured,
+  signOut as firebaseSignOut
+} from '../firebase';
 import { apiFetch, readApiJson, toClientUser } from '../utils/apiClient';
 import { safeLocalStorage } from '../utils/safeStorage';
 import { getTierByPoints, getTierProgress } from '../services/reputationService';
@@ -9,14 +14,8 @@ const AuthContext = createContext(null);
 const USER_POINTS_KEY = 'ueh_tcc_user_points';
 
 export function AuthProvider({ children }) {
-  const [currentUser, setCurrentUser] = useState(() => {
-    try {
-      const stored = safeLocalStorage.getItem('ueh_tcc_cached_user');
-      return stored ? JSON.parse(stored) : null;
-    } catch {
-      return null;
-    }
-  });
+  const [currentUser, setCurrentUser] = useState(null);
+  const authRequestIdRef = useRef(0);
 
   const [loading, setLoading] = useState(true);
   const [reputationPoints, setReputationPoints] = useState(() => {
@@ -37,65 +36,65 @@ export function AuthProvider({ children }) {
   }, []);
 
   const syncUserFromBackend = useCallback(async () => {
+    const requestId = authRequestIdRef.current + 1;
+    authRequestIdRef.current = requestId;
     try {
-      const token = safeLocalStorage.getItem('ueh_tcc_token');
-      if (!token) return null;
-
-      const res = await apiFetch('/api/auth/me');
-      if (res.ok) {
-        const payload = await readApiJson(res);
-        if (payload.user) {
-          const clientUser = toClientUser(payload.user);
+      const payload = await readApiJson(await apiFetch('/api/auth/me'));
+      if (payload.user) {
+        const clientUser = toClientUser(payload.user);
+        if (requestId === authRequestIdRef.current) {
           setCurrentUser(clientUser);
           safeLocalStorage.setItem('ueh_tcc_cached_user', JSON.stringify(clientUser));
-          return clientUser;
         }
+        return clientUser;
       }
     } catch (err) {
       console.warn('Không thể đồng bộ thông tin người dùng từ backend:', err);
+      if (requestId === authRequestIdRef.current && err.status === 401) {
+        setCurrentUser(null);
+        safeLocalStorage.removeItem('ueh_tcc_cached_user');
+      }
+    } finally {
+      if (requestId === authRequestIdRef.current) setLoading(false);
     }
     return null;
   }, []);
 
-  /* eslint-disable react-hooks/set-state-in-effect */
+  const logout = useCallback(async () => {
+    if (isFirebaseConfigured && auth) {
+      await firebaseSignOut(auth);
+    }
+    const response = await apiFetch('/api/auth/logout', { method: 'POST' });
+    await readApiJson(response);
+
+    authRequestIdRef.current += 1;
+    setCurrentUser(null);
+    safeLocalStorage.removeItem('ueh_tcc_user');
+    safeLocalStorage.removeItem('ueh_tcc_cached_user');
+    window.dispatchEvent(new Event('ueh-tcc-session-changed'));
+  }, []);
+
   useEffect(() => {
     let unsubscribe = () => {};
 
+    const refreshSession = async () => {
+      await syncUserFromBackend();
+    };
+
+    refreshSession();
+    window.addEventListener('ueh-tcc-session-changed', refreshSession);
+
     if (isFirebaseConfigured && auth) {
-      unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-        if (firebaseUser) {
-          const u = {
-            uid: firebaseUser.uid,
-            id: firebaseUser.uid,
-            email: firebaseUser.email,
-            name: firebaseUser.displayName || 'Sinh viên UEH',
-            displayName: firebaseUser.displayName || 'Sinh viên UEH',
-            photoURL: firebaseUser.photoURL || '',
-            avatar: firebaseUser.photoURL || '',
-            cohort: 'K50 UEH',
-            isInstructor: firebaseUser.email?.includes('phuclu') || false
-          };
-          setCurrentUser(u);
-          safeLocalStorage.setItem('ueh_tcc_cached_user', JSON.stringify(u));
-          syncUserFromBackend().catch(() => {});
-        } else {
-          // If no firebase session, check local token
-          syncUserFromBackend().then(synced => {
-            if (!synced) {
-              setCurrentUser(null);
-              safeLocalStorage.removeItem('ueh_tcc_cached_user');
-            }
-          });
-        }
-        setLoading(false);
+      unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+        if (!firebaseUser) refreshSession();
       });
-    } else {
-      syncUserFromBackend().finally(() => setLoading(false));
     }
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+      window.removeEventListener('ueh-tcc-session-changed', refreshSession);
+    };
   }, [syncUserFromBackend]);
-  /* eslint-enable react-hooks/set-state-in-effect */
 
   const value = {
     currentUser,
@@ -106,7 +105,8 @@ export function AuthProvider({ children }) {
     tier,
     tierProgress,
     addReputationPoints,
-    syncUserFromBackend
+    syncUserFromBackend,
+    logout
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

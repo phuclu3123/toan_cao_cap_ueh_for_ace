@@ -4,24 +4,15 @@ import {
   ChevronUp,
   ChevronDown,
   Bookmark,
-  Share2,
-  Clock,
-  CheckCircle2,
   Plus,
-  ArrowLeft,
-  MessageSquare,
   Sparkles,
-  ShieldAlert,
   ListOrdered,
-  Check,
-  BookOpen,
   X
 } from 'lucide-react';
 import { communityService, DIFFICULTY_LEVELS } from '../services/communityService';
 import { useAuth } from '../contexts/AuthContext';
 import { useCommunity } from '../contexts/CommunityContext';
 import CommunityNavSidebar from '../components/community/CommunityNavSidebar';
-import CommunitySidebar from '../components/community/CommunitySidebar';
 import MathRenderer from '../components/MathRenderer';
 import AnswerCard from '../components/community/AnswerCard';
 import AnswerComposer from '../components/community/AnswerComposer';
@@ -62,10 +53,8 @@ export default function CommunityDetailPage() {
   const {
     savedPostIds,
     toggleSavePost,
-    handleVotePost,
     handleUpvotePost,
     handleDownvotePost,
-    handleVoteAnswer,
     handleUpvoteAnswer,
     handleDownvoteAnswer,
     handleDeletePost,
@@ -74,7 +63,6 @@ export default function CommunityDetailPage() {
     handleAcceptAnswer,
     reportPost,
     leaderboard,
-    trendingTags,
     handleCreatePost,
     openCreateModal,
     isCreateModalOpen,
@@ -152,9 +140,7 @@ export default function CommunityDetailPage() {
   const isAdmin = Boolean(
     currentUser && (
       currentUser.role === 'Admin' ||
-      currentUser.isInstructor ||
-      (currentUser.email && ['luphuc321@gmail.com', 'luphuc519@gmail.com', 'luphuc08092006@gmail.com'].includes(currentUser.email.toLowerCase())) ||
-      (currentUser.username && ['luphuc321@gmail.com', 'luphuc519@gmail.com', 'luphuc08092006@gmail.com'].includes(currentUser.username.toLowerCase()))
+      currentUser.isAdmin === true
     )
   );
 
@@ -364,7 +350,6 @@ export default function CommunityDetailPage() {
     );
   }
 
-  const isSolved = post.status === 'solved' || post.isAccepted;
   const diffConfig = DIFFICULTY_LEVELS.find(d => d.id === post.difficulty) || DIFFICULTY_LEVELS[1];
 
   // Sort answers

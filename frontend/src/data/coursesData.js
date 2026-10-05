@@ -280,8 +280,7 @@ export const coursesData = [
             subtitle: 'Video chữa đề chi tiết',
             type: 'video',
             duration: '45:00',
-            isLocked: false,
-            videoUrl: 'https://youtu.be/WDSHTnrv8JI'
+            isLocked: false
           }
         ]
       }
@@ -342,5 +341,5 @@ export const coursesData = [
 ];
 
 export const getCourseById = (id) => {
-  return coursesData.find((course) => course.id === id) || coursesData[0];
+  return coursesData.find((course) => course.id === id) || null;
 };

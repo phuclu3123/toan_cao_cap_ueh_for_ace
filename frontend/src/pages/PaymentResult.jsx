@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
   AlertCircle,
@@ -17,9 +17,11 @@ export default function PaymentResult() {
   const [payment, setPayment] = useState(null);
   const [viewState, setViewState] = useState(orderCode ? 'checking' : 'invalid');
   const [message, setMessage] = useState('');
+  const checkInFlightRef = useRef(false);
 
   const checkPayment = useCallback(async () => {
-    if (!orderCode) return;
+    if (!orderCode || checkInFlightRef.current) return;
+    checkInFlightRef.current = true;
 
     try {
       const payload = await readApiJson(await apiFetch(`/api/orders/${encodeURIComponent(orderCode)}`));
@@ -47,6 +49,8 @@ export default function PaymentResult() {
         setViewState('error');
         setMessage(error.message);
       }
+    } finally {
+      checkInFlightRef.current = false;
     }
   }, [orderCode]);
 

@@ -15,7 +15,7 @@ import {
 import '../../assets/styles/community.css';
 
 // Flag dataset with official flag images (bypasses Windows text fallback)
-export const COUNTRY_FLAGS = [
+const COUNTRY_FLAGS = [
   { code: '🇻🇳', name: 'Việt Nam', iso: 'vn' },
   { code: '🇺🇸', name: 'Hoa Kỳ (Mỹ)', iso: 'us' },
   { code: '🇬🇧', name: 'Vương quốc Anh', iso: 'gb' },
@@ -47,10 +47,10 @@ export const COUNTRY_FLAGS = [
   { code: '🇪🇺', name: 'Liên minh Châu Âu', iso: 'eu' }
 ];
 
-export const OTHER_FLAGS = ['🚩', '🏁', '🏴', '🏳️', '🏳️‍🌈', '🏳️‍⚧️', '🏴‍☠️'];
+const OTHER_FLAGS = ['🚩', '🏁', '🏴', '🏳️', '🏳️‍🌈', '🏳️‍⚧️', '🏴‍☠️'];
 
 // 100% Comprehensive Facebook / Apple style Emoji Dataset
-export const FULL_FB_EMOJI_SECTIONS = [
+const FULL_FB_EMOJI_SECTIONS = [
   {
     id: 'people',
     name: 'Mặt cười và hình người',

@@ -4,8 +4,6 @@ import { safeLocalStorage } from '../utils/safeStorage';
 const NotificationContext = createContext(null);
 const STORAGE_KEY = 'ueh_tcc_notifications_v2';
 
-const SEED_NOTIFICATIONS = [];
-
 export function NotificationProvider({ children }) {
   const [notifications, setNotifications] = useState(() => {
     try {

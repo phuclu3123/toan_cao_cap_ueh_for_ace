@@ -6,15 +6,18 @@ import {
 } from 'lucide-react';
 import NotificationDropdown from './community/NotificationDropdown';
 import { apiFetch, readApiJson, toClientUser } from '../utils/apiClient';
+import { syncFirebaseUserWithBackend } from '../services/authService';
 import { getInitials } from '../utils/userInitials';
 import '../assets/styles/Navbar.css';
 import {
   auth,
+  googleProvider,
   isFirebaseConfigured,
   RecaptchaVerifier,
   signInWithPhoneNumber,
   signOut as firebaseSignOut,
-  onAuthStateChanged,
+  signInWithPopup,
+  onIdTokenChanged,
   getRedirectResult
 } from '../firebase';
 import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
@@ -42,31 +45,6 @@ const createOAuthState = () => {
   const bytes = crypto.getRandomValues(new Uint8Array(24));
   return Array.from(bytes, (value) => value.toString(16).padStart(2, '0')).join('');
 };
-
-async function syncUserWithBackend(firebaseUser) {
-  if (!firebaseUser || !firebaseUser.uid) {
-    throw new Error('Dữ liệu người dùng không hợp lệ.');
-  }
-
-  const response = await apiFetch('/api/auth/sync', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      uid: firebaseUser.uid,
-      email: firebaseUser.email,
-      name: firebaseUser.displayName,
-      phoneNumber: firebaseUser.phoneNumber
-    })
-  });
-  const data = await readApiJson(response);
-  if (data.token) {
-    localStorage.setItem('ueh_tcc_token', data.token);
-  }
-  if (!data.success || !data.user) {
-    throw new Error(data.message || 'Không thể đồng bộ phiên đăng nhập.');
-  }
-  return toClientUser(data.user);
-}
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -118,7 +96,6 @@ export default function Navbar() {
       localStorage.setItem('ueh_tcc_user', JSON.stringify(user));
     } else {
       localStorage.removeItem('ueh_tcc_user');
-      localStorage.removeItem('ueh_tcc_token');
     }
   }, []);
   const [sessionReady, setSessionReady] = useState(false);
@@ -258,24 +235,12 @@ export default function Navbar() {
           setLoggedInUser(null);
         }
         localStorage.removeItem('ueh_tcc_user');
-        localStorage.removeItem('ueh_tcc_token');
-      } catch (err) {
-        if (err.status === 401) {
-          if (!cancelled) {
-            hasBackendSessionRef.current = false;
-            setLoggedInUser(null);
-          }
-          localStorage.removeItem('ueh_tcc_user');
-          localStorage.removeItem('ueh_tcc_token');
-        } else {
-          const savedUser = localStorage.getItem('ueh_tcc_user');
-          if (savedUser && !cancelled) {
-            try {
-              setLoggedInUser(JSON.parse(savedUser));
-              hasBackendSessionRef.current = true;
-            } catch {}
-          }
+      } catch {
+        if (!cancelled) {
+          hasBackendSessionRef.current = false;
+          setLoggedInUser(null);
         }
+        localStorage.removeItem('ueh_tcc_user');
       } finally {
         if (!cancelled) setSessionReady(true);
       }
@@ -297,7 +262,7 @@ export default function Navbar() {
       getRedirectResult(auth).then(async (result) => {
         if (result) {
           try {
-            const dbUser = await syncUserWithBackend(result.user);
+            const dbUser = await syncFirebaseUserWithBackend(result.user);
             hasBackendSessionRef.current = true;
             setLoggedInUser(dbUser);
             window.dispatchEvent(new Event('ueh-tcc-session-changed'));
@@ -315,10 +280,10 @@ export default function Navbar() {
         }
       });
 
-      const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-        if (firebaseUser && !hasBackendSessionRef.current) {
+      const unsubscribe = onIdTokenChanged(auth, async (firebaseUser) => {
+        if (firebaseUser) {
           try {
-            const dbUser = await syncUserWithBackend(firebaseUser);
+            const dbUser = await syncFirebaseUserWithBackend(firebaseUser);
             hasBackendSessionRef.current = true;
             setLoggedInUser(dbUser);
             window.dispatchEvent(new Event('ueh-tcc-session-changed'));
@@ -370,7 +335,6 @@ export default function Navbar() {
       });
       const data = await response.json();
       if (response.ok && data.success) {
-        if (data.token) localStorage.setItem('ueh_tcc_token', data.token);
         hasBackendSessionRef.current = true;
         setLoggedInUser(toClientUser(data.user));
         window.dispatchEvent(new Event('ueh-tcc-session-changed'));
@@ -394,8 +358,8 @@ export default function Navbar() {
       setAuthError('Vui lòng điền đầy đủ thông tin!');
       return;
     }
-    if (signupPassword.length < 6) {
-      setAuthError('Mật khẩu phải chứa ít nhất 6 ký tự!');
+    if (signupPassword.length < 10) {
+      setAuthError('Mật khẩu phải chứa ít nhất 10 ký tự!');
       return;
     }
     if (signupPassword !== signupConfirmPassword) {
@@ -415,7 +379,6 @@ export default function Navbar() {
       });
       const data = await response.json();
       if (response.ok && data.success) {
-        if (data.token) localStorage.setItem('ueh_tcc_token', data.token);
         hasBackendSessionRef.current = true;
         setLoggedInUser(toClientUser(data.user));
         window.dispatchEvent(new Event('ueh-tcc-session-changed'));
@@ -436,19 +399,15 @@ export default function Navbar() {
     setAuthError('');
     setAuthSuccessMsg('Đang xác thực Google...');
     try {
-      let credential;
-      if (response.credential) {
-        // One Tap returns JWT credential directly
-        credential = GoogleAuthProvider.credential(response.credential);
-      } else if (response.access_token) {
-        // useGoogleLogin returns access token
-        credential = GoogleAuthProvider.credential(null, response.access_token);
-      } else {
+      if (!response.credential) {
         throw new Error('Không nhận được token xác thực từ Google.');
       }
 
+      // One Tap returns a signed Google ID token. Avoid accepting bearer tokens
+      // copied from a URL fragment because that flow has no state/PKCE binding.
+      const credential = GoogleAuthProvider.credential(response.credential);
       const userCredential = await signInWithCredential(auth, credential);
-      const dbUser = await syncUserWithBackend(userCredential.user);
+      const dbUser = await syncFirebaseUserWithBackend(userCredential.user);
       hasBackendSessionRef.current = true;
       setLoggedInUser(dbUser);
       window.dispatchEvent(new Event('ueh-tcc-session-changed'));
@@ -477,21 +436,7 @@ export default function Navbar() {
   // Handle manual OAuth redirect return
   useEffect(() => {
     const handleOAuthReturn = async () => {
-      // 1. Google (access_token in hash)
-      if (window.location.hash.includes('access_token=')) {
-        const rawHash = window.location.hash;
-        const paramString = rawHash.includes('?') ? rawHash.split('?')[1] : rawHash.replace(/^#\/?/, '');
-        const params = new URLSearchParams(paramString);
-        const accessToken = params.get('access_token') || new URLSearchParams(rawHash.substring(1)).get('access_token');
-
-        if (accessToken) {
-          setIsAuthenticating(true);
-          navigate('/', { replace: true });
-          handleGoogleAuthSuccess({ access_token: accessToken });
-        }
-      }
-
-      // 2. GitHub (code in query string or hash)
+      // GitHub OAuth code return (bound to the browser session with state).
       const queryParams = new URLSearchParams(window.location.search);
       let githubCode = queryParams.get('code');
       let githubState = queryParams.get('state');
@@ -525,19 +470,9 @@ export default function Navbar() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ code: githubCode })
           });
-          const data = await response.json();
-          if (data.success && data.access_token) {
-            // Bypass Firebase entirely if using manual OAuth
-            const mockFirebaseUser = {
-              uid: 'github-' + data.access_token.substring(0, 16),
-              email: data.email || `github_${Date.now()}@ueh.edu.vn`,
-              displayName: data.name || 'GitHub User',
-              photoURL: null,
-              phoneNumber: null
-            };
-            if (data.token) localStorage.setItem('ueh_tcc_token', data.token);
-            const dbUser = await syncUserWithBackend(mockFirebaseUser);
-
+          const data = await readApiJson(response);
+          if (data.success && data.user) {
+            const dbUser = toClientUser(data.user);
             hasBackendSessionRef.current = true;
             setLoggedInUser(dbUser);
             window.dispatchEvent(new Event('ueh-tcc-session-changed'));
@@ -562,15 +497,32 @@ export default function Navbar() {
 
   const handleGoogleLogin = async () => {
     setAuthError('');
-    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '889879979247-ui1p4bgdv0vah7sfddhfmpejtqtr2npv.apps.googleusercontent.com';
-    const redirectUri = window.location.origin;
-    const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=email%20profile`;
-    window.location.href = url;
+    setIsAuthenticating(true);
+    try {
+      if (!isFirebaseConfigured || !auth || !googleProvider) {
+        throw new Error('Hệ thống Firebase chưa được cấu hình.');
+      }
+      const result = await signInWithPopup(auth, googleProvider);
+      const dbUser = await syncFirebaseUserWithBackend(result.user);
+      hasBackendSessionRef.current = true;
+      setLoggedInUser(dbUser);
+      window.dispatchEvent(new Event('ueh-tcc-session-changed'));
+      setAuthSuccessMsg('Đăng nhập Google thành công!');
+      setShowLoginModal(false);
+    } catch (error) {
+      setAuthError(`Lỗi đăng nhập Google: ${error.message}`);
+    } finally {
+      setIsAuthenticating(false);
+    }
   };
 
   const handleGithubLogin = async () => {
     setAuthError('');
-    const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID || 'Ov23livA8dLXS0qzY0kt';
+    const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID;
+    if (!clientId) {
+      setAuthError('Đăng nhập GitHub chưa được cấu hình.');
+      return;
+    }
     const state = createOAuthState();
     sessionStorage.setItem(GITHUB_OAUTH_STATE_KEY, state);
     const url = `https://github.com/login/oauth/authorize?client_id=${encodeURIComponent(clientId)}&scope=user%3Aemail&state=${encodeURIComponent(state)}`;
@@ -637,8 +589,8 @@ export default function Navbar() {
       setAuthError('Vui lòng nhập đầy đủ thông tin!');
       return;
     }
-    if (forgotNewPassword.length < 6) {
-      setAuthError('Mật khẩu mới phải có ít nhất 6 ký tự!');
+    if (forgotNewPassword.length < 10) {
+      setAuthError('Mật khẩu mới phải có ít nhất 10 ký tự!');
       return;
     }
     if (forgotNewPassword !== forgotConfirmNewPassword) {
@@ -746,7 +698,7 @@ export default function Navbar() {
     setOtpLoading(true);
     try {
       const result = await confirmationResult.confirm(verificationCode);
-      const dbUser = await syncUserWithBackend(result.user);
+      const dbUser = await syncFirebaseUserWithBackend(result.user);
       hasBackendSessionRef.current = true;
       setLoggedInUser(dbUser);
       window.dispatchEvent(new Event('ueh-tcc-session-changed'));
@@ -763,17 +715,19 @@ export default function Navbar() {
   };
 
   const handleLogout = async () => {
-    await apiFetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
-    hasBackendSessionRef.current = false;
-    if (isFirebaseConfigured && auth) {
-      try {
+    try {
+      if (isFirebaseConfigured && auth) {
         await firebaseSignOut(auth);
-      } catch {
-        // ignore
       }
+      const response = await apiFetch('/api/auth/logout', { method: 'POST' });
+      await readApiJson(response);
+    } catch (error) {
+      setAuthError(error.message || 'Không thể thu hồi phiên đăng nhập. Vui lòng thử lại.');
+      setShowLoginModal(true);
+      return;
     }
+    hasBackendSessionRef.current = false;
     localStorage.removeItem('ueh_tcc_user');
-    localStorage.removeItem('ueh_tcc_token');
     setLoggedInUser(null);
     window.dispatchEvent(new Event('ueh-tcc-session-changed'));
   };
@@ -842,7 +796,7 @@ export default function Navbar() {
       }
     } catch {
       setUploadStatus('error');
-      setUploadMsg('Lỗi kết nối server Backend! Hãy chắc chắn server port 3001 đã khởi động.');
+      setUploadMsg('Lỗi kết nối server Backend! Hãy chắc chắn server port 5000 đã khởi động.');
     }
   };
 

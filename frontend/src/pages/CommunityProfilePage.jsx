@@ -144,7 +144,9 @@ export default function CommunityProfilePage({ defaultTab = 'posts' }) {
       try {
         const raw = localStorage.getItem('ueh_tcc_user');
         if (raw) localUser = JSON.parse(raw);
-      } catch {}
+      } catch {
+        // Ignore malformed legacy profile cache.
+      }
       const authUser = currentUser || localUser;
       const username = authUser?.username || authUser?.email;
 
@@ -162,7 +164,9 @@ export default function CommunityProfilePage({ defaultTab = 'posts' }) {
         try {
           const parsed = JSON.parse(stored);
           localStorage.setItem('ueh_tcc_user', JSON.stringify({ ...parsed, avatar: croppedBase64, photoURL: croppedBase64 }));
-        } catch {}
+        } catch {
+          // Ignore malformed legacy profile cache.
+        }
       }
 
       setProfile(prev => ({ ...prev, avatar: croppedBase64 }));
@@ -191,7 +195,9 @@ export default function CommunityProfilePage({ defaultTab = 'posts' }) {
         try {
           const raw = localStorage.getItem('ueh_tcc_user');
           if (raw) localUser = JSON.parse(raw);
-        } catch {}
+        } catch {
+          // Ignore malformed legacy profile cache.
+        }
 
         const authUser = currentUser || localUser;
 

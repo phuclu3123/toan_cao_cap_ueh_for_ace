@@ -33,7 +33,7 @@ const blogEngagementSchema = new mongoose.Schema(
     reactionVotes: { type: [reactionVoteSchema], default: [] },
     comments: { type: [commentSchema], default: [] },
   },
-  { timestamps: true },
+  { timestamps: true, optimisticConcurrency: true },
 );
 
 export default mongoose.model('BlogEngagement', blogEngagementSchema);

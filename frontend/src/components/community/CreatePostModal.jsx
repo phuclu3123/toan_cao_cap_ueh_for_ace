@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import {
   X,
@@ -51,8 +51,6 @@ export default function CreatePostModal({
   const [activeMobileTab, setActiveMobileTab] = useState('editor');
   const [hasDraftLoaded, setHasDraftLoaded] = useState(false);
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
-
-  const textareaRef = useRef(null);
 
   const publishReview = useMemo(
     () => reviewCommunityPost({ type, title, content }),
@@ -128,27 +126,6 @@ export default function CreatePostModal({
   const handleClearDraft = () => {
     safeLocalStorage.removeItem(DRAFT_KEY);
     resetForm();
-  };
-
-  const handleInsertMath = (latex) => {
-    const textarea = textareaRef.current;
-    if (!textarea) {
-      setContent(prev => prev + ` $${latex}$ `);
-      return;
-    }
-
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const textBefore = content.substring(0, start);
-    const textAfter = content.substring(end);
-    const insertion = ` $${latex}$ `;
-
-    setContent(textBefore + insertion + textAfter);
-
-    setTimeout(() => {
-      textarea.focus();
-      textarea.setSelectionRange(start + insertion.length, start + insertion.length);
-    }, 50);
   };
 
   const handleAddTag = (e) => {

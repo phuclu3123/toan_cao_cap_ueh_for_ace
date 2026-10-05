@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import {
   BookOpen,
-  Eye,
   FileText,
   ImagePlus,
   Send,
-  Sparkles,
   LogIn,
   X
 } from 'lucide-react';

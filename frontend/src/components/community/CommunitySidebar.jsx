@@ -9,11 +9,9 @@ import {
   Crown,
   Medal,
   Check,
-  HelpCircle,
   ShieldCheck
 } from 'lucide-react';
 import MathRenderer from '../MathRenderer';
-import UserRankBadge from './UserRankBadge';
 import '../../assets/styles/community.css';
 
 const HOT_QUESTIONS = [

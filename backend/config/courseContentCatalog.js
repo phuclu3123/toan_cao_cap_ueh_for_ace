@@ -102,7 +102,15 @@ const courseContentCatalog = Object.freeze({
   })
 });
 
-export const findCourseLessonContent = (courseId, lessonId) => (
-  courseContentCatalog[courseId]?.[lessonId] || null
-);
+export const findCourseLessonContent = (courseId, lessonId) => {
+  if (
+    typeof courseId !== 'string'
+    || typeof lessonId !== 'string'
+    || !Object.hasOwn(courseContentCatalog, courseId)
+  ) {
+    return null;
+  }
 
+  const lessons = courseContentCatalog[courseId];
+  return Object.hasOwn(lessons, lessonId) ? lessons[lessonId] : null;
+};

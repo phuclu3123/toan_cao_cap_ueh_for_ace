@@ -29,6 +29,7 @@ export default function AvatarCropModal({
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [isProcessing, setIsProcessing] = useState(false);
+  const [imageVersion, setImageVersion] = useState(0);
 
   const fileInputRef = useRef(null);
   const canvasRef = useRef(null);
@@ -45,7 +46,7 @@ export default function AvatarCropModal({
       setPosition({ x: 0, y: 0 });
       setZoom(1);
       setRotation(0);
-      drawCanvas();
+      setImageVersion((version) => version + 1);
     };
     img.src = imageSrc;
   }, [imageSrc]);
@@ -113,7 +114,7 @@ export default function AvatarCropModal({
 
   useEffect(() => {
     drawCanvas();
-  }, [drawCanvas]);
+  }, [drawCanvas, imageVersion]);
 
   // Drag handlers (Mouse & Touch)
   const handleMouseDown = (e) => {

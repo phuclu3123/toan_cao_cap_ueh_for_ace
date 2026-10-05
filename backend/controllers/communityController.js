@@ -1,6 +1,8 @@
+import { randomUUID } from 'node:crypto';
 import mongoose from 'mongoose';
 import CommunityPost from '../models/CommunityPost.js';
 import User from '../models/User.js';
+import { hasOwnerRole } from '../utils/roles.js';
 
 // Authentic Accounts of Lữ Võ Hoàng Phúc
 const AUTH_ADMIN = {
@@ -542,6 +544,152 @@ $$f(x, y, z) = x^2 + 2y^2 + 3z^2 \\quad \\text{với điều kiện} \\quad x^2 
   }
 ];
 
+const memoryCommunityPosts = SEED_COMMUNITY_POSTS.map((post) => structuredClone(post));
+const COMMUNITY_SUBJECTS = new Set([
+  'all', 'algebra', 'calc1', 'calc2', 'econ_models', 'prob_stats', 'exam_prep', 'method_tips'
+]);
+const COMMUNITY_DIFFICULTIES = new Set(['standard', 'medium', 'hard', 'olympiad']);
+
+const cleanText = (value, maxLength) => (
+  typeof value === 'string' ? value.trim().slice(0, maxLength) : ''
+);
+
+const hasUnsafeMarkup = (value) => (
+  /<\s*(?:script|iframe|object|embed|style|link|meta)\b|\bon\w+\s*=|javascript\s*:/i.test(value)
+);
+
+const normalizeTags = (tags) => (
+  Array.isArray(tags)
+    ? [...new Set(tags.map((tag) => cleanText(tag, 40)).filter(Boolean))].slice(0, 8)
+    : []
+);
+
+const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const positiveInteger = (value, fallback, maximum) => {
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed) || parsed < 1) return fallback;
+  return Math.min(parsed, maximum);
+};
+
+const actorFromUser = (user) => ({
+  id: user.uid || user.id || user.username,
+  name: cleanText(user.name, 120) || 'Sinh viên UEH',
+  email: cleanText(user.username || user.email, 254).toLowerCase(),
+  cohort: cleanText(user.school, 120) || 'UEH',
+  avatar: cleanText(user.avatar || user.photoURL, 1000),
+  points: 0,
+  isAdmin: hasOwnerRole(user),
+  isInstructor: hasOwnerRole(user)
+});
+
+const identityValues = (identity) => new Set(
+  [identity?.id, identity?.uid, identity?.username, identity?.email]
+    .map((value) => cleanText(value, 254).toLowerCase())
+    .filter(Boolean)
+);
+
+const isOwnerOf = (user, author) => {
+  if (!user || !author) return false;
+  const userValues = identityValues(user);
+  return [...identityValues(author)].some((value) => userValues.has(value));
+};
+
+const canManage = (user, author) => hasOwnerRole(user) || isOwnerOf(user, author);
+const findMemoryPost = (id) => memoryCommunityPosts.find((post) => post.id === id);
+const findAnswer = (post, answerId) => (post?.answers || []).find((answer) => answer.id === answerId);
+const findComment = (answer, commentId) => (
+  (answer?.comments || []).find(
+    (comment) => comment.id === commentId || comment._id?.toString() === commentId
+  )
+);
+
+const cloneForResponse = (value) => (
+  value?.toObject ? value.toObject() : structuredClone(value)
+);
+
+const cloneForMemory = (value) => JSON.parse(JSON.stringify(
+  value?.toObject ? value.toObject() : value
+));
+
+const communityStoreError = (cause) => {
+  const error = new Error('Community data store is unavailable', { cause });
+  error.statusCode = 503;
+  error.code = 'COMMUNITY_STORE_UNAVAILABLE';
+  return error;
+};
+
+const loadPostForMutation = async (id) => {
+  if (mongoose.connection.readyState === 1) {
+    try {
+      const databasePost = await CommunityPost.findOne({ id });
+      if (databasePost) return { post: databasePost, persistent: true };
+      const memoryPost = findMemoryPost(id);
+      if (memoryPost) {
+        try {
+          const createdPost = await CommunityPost.create(cloneForMemory(memoryPost));
+          return { post: createdPost, persistent: true };
+        } catch (error) {
+          if (error?.code === 11000) {
+            const concurrentlyCreatedPost = await CommunityPost.findOne({ id });
+            if (concurrentlyCreatedPost) return { post: concurrentlyCreatedPost, persistent: true };
+          }
+          throw error;
+        }
+      }
+      return null;
+    } catch (error) {
+      throw communityStoreError(error);
+    }
+  }
+  if (process.env.NODE_ENV === 'production') {
+    throw communityStoreError();
+  }
+  const memoryPost = findMemoryPost(id);
+  return memoryPost ? { post: memoryPost, persistent: false } : null;
+};
+
+const saveLoadedPost = async ({ post, persistent }) => {
+  if (persistent) await post.save();
+  const snapshot = cloneForMemory(post);
+  const memoryIndex = memoryCommunityPosts.findIndex((item) => item.id === snapshot.id);
+  if (memoryIndex >= 0) memoryCommunityPosts[memoryIndex] = snapshot;
+  else memoryCommunityPosts.unshift(snapshot);
+  return post;
+};
+
+const requireControllerUser = (req, res) => {
+  if (req.authUser) return req.authUser;
+  res.status(401).json({
+    success: false,
+    code: 'AUTH_REQUIRED',
+    message: 'Vui lòng đăng nhập để tiếp tục.'
+  });
+  return null;
+};
+
+const forbidden = (res) => res.status(403).json({
+  success: false,
+  message: 'Bạn không có quyền thay đổi nội dung này.'
+});
+
+const sendCommunityError = (res, error) => {
+  if (error?.name === 'VersionError') {
+    return res.status(409).json({
+      success: false,
+      code: 'CONTENT_CONFLICT',
+      message: 'Nội dung vừa được người khác cập nhật. Vui lòng tải lại và thử lại.'
+    });
+  }
+  console.error('[Community] Request failed:', error);
+  const statusCode = error?.statusCode || 500;
+  return res.status(statusCode).json({
+    success: false,
+    code: error?.code || 'COMMUNITY_OPERATION_FAILED',
+    message: statusCode >= 500 ? 'Không thể hoàn tất yêu cầu lúc này.' : error.message
+  });
+};
+
 export const LEADERBOARD_CONTRIBUTORS = [
   AUTH_ADMIN,
   AUTH_USER_519,
@@ -554,7 +702,7 @@ export const seedDatabaseIfEmpty = async () => {
   try {
     const count = await CommunityPost.countDocuments();
     if (count === 0) {
-      console.log('Seeding 10 official UEH curriculum questions into MongoDB...');
+      console.log(`Seeding ${SEED_COMMUNITY_POSTS.length} official UEH curriculum questions into MongoDB...`);
       await CommunityPost.insertMany(SEED_COMMUNITY_POSTS);
     }
   } catch (err) {
@@ -591,14 +739,20 @@ export const getPosts = async (req, res) => {
     } else if (status === 'unsolved') {
       query.isAccepted = false;
     }
-    if (tag) {
-      query.tags = { $regex: tag.replace('#', ''), $options: 'i' };
+    if (sort === 'unanswered') {
+      query.answers = { $size: 0 };
     }
-    if (search) {
+    const normalizedTag = cleanText(tag, 80).replace(/^#/, '');
+    const normalizedSearch = cleanText(search, 200);
+    if (normalizedTag) {
+      query.tags = { $regex: escapeRegExp(normalizedTag), $options: 'i' };
+    }
+    if (normalizedSearch) {
+      const safeSearch = escapeRegExp(normalizedSearch);
       query.$or = [
-        { title: { $regex: search, $options: 'i' } },
-        { content: { $regex: search, $options: 'i' } },
-        { tags: { $regex: search, $options: 'i' } }
+        { title: { $regex: safeSearch, $options: 'i' } },
+        { content: { $regex: safeSearch, $options: 'i' } },
+        { tags: { $regex: safeSearch, $options: 'i' } }
       ];
     }
 
@@ -611,31 +765,58 @@ export const getPosts = async (req, res) => {
       sortOption = { createdAt: 1 };
     }
 
-    const pageNum = Math.max(1, parseInt(page, 10));
-    const limitNum = Math.max(1, Math.min(50, parseInt(limit, 10)));
+    const pageNum = positiveInteger(page, 1, 1_000_000);
+    const limitNum = positiveInteger(limit, 10, 50);
     const skip = (pageNum - 1) * limitNum;
 
-    // Check DB
     let total = 0;
     let posts = [];
-    try {
-      total = await CommunityPost.countDocuments(query);
-      posts = await CommunityPost.find(query)
-        .sort(sortOption)
-        .skip(skip)
-        .limit(limitNum)
-        .lean();
-    } catch {
-      // Fallback in-memory query
-      let filtered = [...SEED_COMMUNITY_POSTS];
+    let databaseSucceeded = false;
+    if (mongoose.connection.readyState === 1) {
+      try {
+        total = await CommunityPost.countDocuments(query);
+        posts = await CommunityPost.find(query)
+          .sort(sortOption)
+          .skip(skip)
+          .limit(limitNum)
+          .lean();
+        databaseSucceeded = true;
+      } catch (error) {
+        console.warn('[Community] Post query failed, using memory fallback:', error.message);
+      }
+    }
+
+    if (!databaseSucceeded) {
+      let filtered = [...memoryCommunityPosts];
       if (subject && subject !== 'all') filtered = filtered.filter(p => p.subject === subject);
       if (difficulty && difficulty !== 'all') filtered = filtered.filter(p => p.difficulty === difficulty);
       if (status === 'solved') filtered = filtered.filter(p => p.isAccepted || p.status === 'solved');
       if (status === 'unsolved') filtered = filtered.filter(p => !p.isAccepted && p.status !== 'solved');
-      if (tag) filtered = filtered.filter(p => (p.tags || []).some(t => t.toLowerCase().includes(tag.toLowerCase())));
-      if (search) {
-        const q = search.toLowerCase();
-        filtered = filtered.filter(p => p.title.toLowerCase().includes(q) || p.content.toLowerCase().includes(q));
+      if (normalizedTag) {
+        const tagQuery = normalizedTag.toLowerCase();
+        filtered = filtered.filter((post) => (
+          (post.tags || []).some((postTag) => postTag.replace(/^#/, '').toLowerCase().includes(tagQuery))
+        ));
+      }
+      if (normalizedSearch) {
+        const q = normalizedSearch.toLowerCase();
+        filtered = filtered.filter((post) => (
+          post.title.toLowerCase().includes(q)
+          || post.content.toLowerCase().includes(q)
+          || (post.tags || []).some((postTag) => postTag.toLowerCase().includes(q))
+        ));
+      }
+      if (sort === 'popular') {
+        filtered.sort((a, b) => (b.upvotes || 0) - (a.upvotes || 0) || new Date(b.createdAt) - new Date(a.createdAt));
+      } else if (sort === 'mostViewed') {
+        filtered.sort((a, b) => (b.views || 0) - (a.views || 0) || new Date(b.createdAt) - new Date(a.createdAt));
+      } else if (sort === 'oldest') {
+        filtered.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+      } else if (sort === 'unanswered') {
+        filtered = filtered.filter((post) => (post.answers || []).length === 0);
+        filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      } else {
+        filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       }
       total = filtered.length;
       posts = filtered.slice(skip, skip + limitNum);
@@ -651,7 +832,7 @@ export const getPosts = async (req, res) => {
       currentPage: pageNum
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return sendCommunityError(res, error);
   }
 };
 
@@ -660,32 +841,29 @@ export const getPosts = async (req, res) => {
  */
 export const getPostById = async (req, res) => {
   try {
-    const { id } = req.params;
+    const id = cleanText(req.params?.id, 160);
+    if (!id) {
+      return res.status(400).json({ success: false, message: 'Thiếu mã bài toán.' });
+    }
     let post = null;
-    try {
-      post = await CommunityPost.findOneAndUpdate(
-        { id },
-        { $inc: { views: 1 } },
-        { returnDocument: 'after' }
-      ).lean();
-
-      if (!post) {
-        const seed = SEED_COMMUNITY_POSTS.find(p => p.id === id);
-        if (seed) {
-          try {
-            const created = await CommunityPost.create(seed);
-            post = created.toObject();
-          } catch {
-            post = seed;
-          }
-        }
+    if (mongoose.connection.readyState === 1) {
+      try {
+        post = await CommunityPost.findOneAndUpdate(
+          { id },
+          { $inc: { views: 1 } },
+          { new: true }
+        ).lean();
+      } catch (error) {
+        console.warn('[Community] Failed to increment database view:', error.message);
       }
-    } catch {
-      post = SEED_COMMUNITY_POSTS.find(p => p.id === id);
     }
 
     if (!post) {
-      post = SEED_COMMUNITY_POSTS.find(p => p.id === id);
+      const memoryPost = findMemoryPost(id);
+      if (memoryPost) {
+        memoryPost.views = Math.max(0, Number(memoryPost.views) || 0) + 1;
+        post = cloneForResponse(memoryPost);
+      }
     }
 
     if (!post) {
@@ -694,7 +872,7 @@ export const getPostById = async (req, res) => {
 
     res.json({ success: true, post });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return sendCommunityError(res, error);
   }
 };
 
@@ -703,28 +881,44 @@ export const getPostById = async (req, res) => {
  */
 export const createPost = async (req, res) => {
   try {
-    const { title, content, subject, difficulty, tags, image, altText, author } = req.body;
-    if (!author || (!author.id && !author.uid && !author.email)) {
-      return res.status(401).json({ success: false, message: 'Vui lòng đăng nhập để đăng bài toán mới.' });
+    const user = requireControllerUser(req, res);
+    if (!user) return;
+
+    const title = cleanText(req.body?.title, 220);
+    const content = cleanText(req.body?.content, 20_000);
+    const subject = cleanText(req.body?.subject, 40) || 'all';
+    const difficulty = cleanText(req.body?.difficulty, 40) || 'standard';
+    const image = cleanText(req.body?.image, 2_000_000);
+    const altText = cleanText(req.body?.altText, 300);
+
+    if (title.length < 8 || content.length < 20) {
+      return res.status(400).json({
+        success: false,
+        message: 'Tiêu đề phải có ít nhất 8 ký tự và nội dung ít nhất 20 ký tự.'
+      });
     }
-    if (!title || !content) {
-      return res.status(400).json({ success: false, message: 'Tiêu đề và nội dung là bắt buộc.' });
+    if (hasUnsafeMarkup(title) || hasUnsafeMarkup(content)) {
+      return res.status(400).json({ success: false, message: 'Nội dung chứa mã nhúng không an toàn.' });
+    }
+    if (!COMMUNITY_SUBJECTS.has(subject) || !COMMUNITY_DIFFICULTIES.has(difficulty)) {
+      return res.status(400).json({ success: false, message: 'Chuyên mục hoặc độ khó không hợp lệ.' });
     }
 
     const newPost = {
-      id: `post-${Date.now()}`,
+      id: `post-${randomUUID()}`,
       type: 'question',
-      title: title.trim(),
-      content: content.trim(),
-      subject: subject || 'all',
-      difficulty: difficulty || 'standard',
-      tags: tags || [],
+      title,
+      content,
+      subject,
+      difficulty,
+      tags: normalizeTags(req.body?.tags),
       image: image || null,
       altText: altText || null,
-      author: author,
+      author: actorFromUser(user),
       views: 1,
       upvotes: 0,
       upvotedBy: [],
+      downvotedBy: [],
       savedBy: [],
       status: 'unanswered',
       isAccepted: false,
@@ -732,15 +926,25 @@ export const createPost = async (req, res) => {
       createdAt: new Date().toISOString()
     };
 
-    try {
-      await CommunityPost.create(newPost);
-    } catch (dbErr) {
-      console.warn('Saved in-memory only:', dbErr.message);
+    let persisted = false;
+    if (mongoose.connection.readyState === 1) {
+      try {
+        await CommunityPost.create(newPost);
+        persisted = true;
+      } catch (error) {
+        if (error?.name === 'ValidationError') {
+          return res.status(400).json({ success: false, message: 'Dữ liệu bài toán không hợp lệ.' });
+        }
+        throw communityStoreError(error);
+      }
+    } else if (process.env.NODE_ENV === 'production') {
+      throw communityStoreError();
     }
+    memoryCommunityPosts.unshift(structuredClone(newPost));
 
-    res.status(201).json({ success: true, post: newPost });
+    res.status(201).json({ success: true, persisted, post: newPost });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return sendCommunityError(res, error);
   }
 };
 
@@ -749,35 +953,51 @@ export const createPost = async (req, res) => {
  */
 export const updatePost = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { title, content, subject, difficulty, tags } = req.body;
+    const user = requireControllerUser(req, res);
+    if (!user) return;
+    const id = cleanText(req.params?.id, 160);
+    const loaded = await loadPostForMutation(id);
+    if (!loaded) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy bài toán.' });
+    }
+    if (!canManage(user, loaded.post.author)) return forbidden(res);
 
-    let post = await CommunityPost.findOne({ id });
-    if (post) {
-      if (title) post.title = title.trim();
-      if (content) post.content = content.trim();
-      if (subject) post.subject = subject;
-      if (difficulty) post.difficulty = difficulty;
-      if (tags) post.tags = tags;
-      post.updatedAt = new Date();
-      await post.save();
-      return res.json({ success: true, post });
+    const updates = {};
+    if (Object.hasOwn(req.body || {}, 'title')) {
+      updates.title = cleanText(req.body.title, 220);
+      if (updates.title.length < 8 || hasUnsafeMarkup(updates.title)) {
+        return res.status(400).json({ success: false, message: 'Tiêu đề không hợp lệ.' });
+      }
+    }
+    if (Object.hasOwn(req.body || {}, 'content')) {
+      updates.content = cleanText(req.body.content, 20_000);
+      if (updates.content.length < 20 || hasUnsafeMarkup(updates.content)) {
+        return res.status(400).json({ success: false, message: 'Nội dung không hợp lệ.' });
+      }
+    }
+    if (Object.hasOwn(req.body || {}, 'subject')) {
+      updates.subject = cleanText(req.body.subject, 40);
+      if (!COMMUNITY_SUBJECTS.has(updates.subject)) {
+        return res.status(400).json({ success: false, message: 'Chuyên mục không hợp lệ.' });
+      }
+    }
+    if (Object.hasOwn(req.body || {}, 'difficulty')) {
+      updates.difficulty = cleanText(req.body.difficulty, 40);
+      if (!COMMUNITY_DIFFICULTIES.has(updates.difficulty)) {
+        return res.status(400).json({ success: false, message: 'Độ khó không hợp lệ.' });
+      }
+    }
+    if (Object.hasOwn(req.body || {}, 'tags')) updates.tags = normalizeTags(req.body.tags);
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ success: false, message: 'Không có thay đổi hợp lệ.' });
     }
 
-    // In-memory fallback
-    const memPost = SEED_COMMUNITY_POSTS.find(p => p.id === id);
-    if (memPost) {
-      if (title) memPost.title = title.trim();
-      if (content) memPost.content = content.trim();
-      if (subject) memPost.subject = subject;
-      if (difficulty) memPost.difficulty = difficulty;
-      if (tags) memPost.tags = tags;
-      return res.json({ success: true, post: memPost });
-    }
-
-    return res.status(404).json({ success: false, message: 'Không tìm thấy bài toán.' });
+    Object.assign(loaded.post, updates);
+    loaded.post.updatedAt = new Date();
+    await saveLoadedPost(loaded);
+    return res.json({ success: true, persisted: loaded.persistent, post: cloneForResponse(loaded.post) });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return sendCommunityError(res, error);
   }
 };
 
@@ -786,18 +1006,22 @@ export const updatePost = async (req, res) => {
  */
 export const deletePost = async (req, res) => {
   try {
-    const { id } = req.params;
-
-    await CommunityPost.deleteOne({ id });
-
-    const idx = SEED_COMMUNITY_POSTS.findIndex(p => p.id === id);
-    if (idx !== -1) {
-      SEED_COMMUNITY_POSTS.splice(idx, 1);
+    const user = requireControllerUser(req, res);
+    if (!user) return;
+    const id = cleanText(req.params?.id, 160);
+    const loaded = await loadPostForMutation(id);
+    if (!loaded) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy bài toán.' });
     }
+    if (!canManage(user, loaded.post.author)) return forbidden(res);
 
-    res.json({ success: true, message: 'Đã xóa bài toán thành công.' });
+    if (loaded.persistent) await CommunityPost.deleteOne({ id });
+    const index = memoryCommunityPosts.findIndex((post) => post.id === id);
+    if (index >= 0) memoryCommunityPosts.splice(index, 1);
+
+    return res.json({ success: true, persisted: loaded.persistent, message: 'Đã xóa bài toán thành công.' });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return sendCommunityError(res, error);
   }
 };
 
@@ -806,33 +1030,57 @@ export const deletePost = async (req, res) => {
  */
 export const toggleUpvotePost = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { userId } = req.body;
+    const user = requireControllerUser(req, res);
+    if (!user) return;
+    const id = cleanText(req.params?.id, 160);
+    const userId = actorFromUser(user).id;
     if (!userId) {
-      return res.status(400).json({ success: false, message: 'User ID is required' });
+      return res.status(400).json({ success: false, message: 'Tài khoản chưa có mã định danh.' });
     }
 
-    const post = await CommunityPost.findOne({ id });
-    if (!post) {
-      return res.status(404).json({ success: false, message: 'Post not found' });
+    const loaded = await loadPostForMutation(id);
+    if (!loaded) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy bài toán.' });
     }
+    const post = loaded.post;
+    post.upvotedBy ||= [];
+    post.downvotedBy ||= [];
+    const voteType = req.body?.voteType === 'down' ? 'down' : 'up';
+    const hadUpvoted = post.upvotedBy.includes(userId);
+    const hadDownvoted = post.downvotedBy.includes(userId);
+    let score = Number(post.upvotes) || 0;
 
-    const index = post.upvotedBy.indexOf(userId);
-    let hasUpvoted = false;
-    if (index > -1) {
-      post.upvotedBy.splice(index, 1);
-      post.upvotes = Math.max(0, post.upvotes - 1);
-      hasUpvoted = false;
-    } else {
+    if (hadUpvoted) score -= 1;
+    if (hadDownvoted) score += 1;
+    post.upvotedBy = post.upvotedBy.filter((idValue) => idValue !== userId);
+    post.downvotedBy = post.downvotedBy.filter((idValue) => idValue !== userId);
+
+    let userVote = 0;
+    if (voteType === 'up' && !hadUpvoted) {
       post.upvotedBy.push(userId);
-      post.upvotes += 1;
-      hasUpvoted = true;
+      score += 1;
+      userVote = 1;
+    } else if (voteType === 'down' && !hadDownvoted) {
+      post.downvotedBy.push(userId);
+      score -= 1;
+      userVote = -1;
     }
+    post.upvotes = score;
 
-    await post.save();
-    res.json({ success: true, upvotes: post.upvotes, hasUpvoted });
+    await saveLoadedPost(loaded);
+    return res.json({
+      success: true,
+      persisted: loaded.persistent,
+      upvotes: post.upvotes,
+      upvotedBy: post.upvotedBy,
+      downvotedBy: post.downvotedBy,
+      userVote,
+      hasUpvoted: userVote === 1,
+      hasDownvoted: userVote === -1,
+      post: cloneForResponse(post)
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return sendCommunityError(res, error);
   }
 };
 
@@ -841,18 +1089,21 @@ export const toggleUpvotePost = async (req, res) => {
  */
 export const addAnswer = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { content, author } = req.body;
-    if (!content) {
-      return res.status(400).json({ success: false, message: 'Nội dung câu trả lời là bắt buộc.' });
+    const user = requireControllerUser(req, res);
+    if (!user) return;
+    const id = cleanText(req.params?.id, 160);
+    const content = cleanText(req.body?.content, 20_000);
+    if (content.length < 3 || hasUnsafeMarkup(content)) {
+      return res.status(400).json({ success: false, message: 'Nội dung câu trả lời không hợp lệ.' });
     }
 
     const newAnswer = {
-      id: `ans-${Date.now()}`,
-      content: content.trim(),
-      author: author || AUTH_ADMIN,
+      id: `ans-${randomUUID()}`,
+      content,
+      author: actorFromUser(user),
       upvotes: 0,
       upvotedBy: [],
+      downvotedBy: [],
       isAccepted: false,
       instructorVerified: false,
       isFirstSolver: false,
@@ -860,18 +1111,89 @@ export const addAnswer = async (req, res) => {
       createdAt: new Date()
     };
 
-    let post = await CommunityPost.findOne({ id });
-    if (post) {
-      if (post.answers.length === 0) {
-        newAnswer.isFirstSolver = true;
-      }
-      post.answers.push(newAnswer);
-      await post.save();
+    const loaded = await loadPostForMutation(id);
+    if (!loaded) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy bài toán.' });
+    }
+    const post = loaded.post;
+    post.answers ||= [];
+    if (post.answers.length === 0) newAnswer.isFirstSolver = true;
+    post.answers.push(newAnswer);
+    if (!post.isAccepted) post.status = 'answered';
+    await saveLoadedPost(loaded);
+
+    return res.status(201).json({
+      success: true,
+      persisted: loaded.persistent,
+      answer: newAnswer,
+      post: cloneForResponse(post)
+    });
+  } catch (error) {
+    return sendCommunityError(res, error);
+  }
+};
+
+/**
+ * POST /api/community/posts/:id/answers/:answerId/vote - Toggle one user's vote
+ */
+export const voteAnswer = async (req, res) => {
+  try {
+    const user = requireControllerUser(req, res);
+    if (!user) return;
+    const id = cleanText(req.params?.id, 160);
+    const answerId = cleanText(req.params?.answerId, 160);
+    const userId = actorFromUser(user).id;
+    const voteType = req.body?.voteType === 'down' ? 'down' : 'up';
+    if (!userId) {
+      return res.status(400).json({ success: false, message: 'Tài khoản chưa có mã định danh.' });
     }
 
-    res.status(201).json({ success: true, answer: newAnswer, post });
+    const loaded = await loadPostForMutation(id);
+    if (!loaded) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy bài toán.' });
+    }
+    const answer = findAnswer(loaded.post, answerId);
+    if (!answer) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy câu trả lời.' });
+    }
+
+    answer.upvotedBy ||= [];
+    answer.downvotedBy ||= [];
+    const hadUpvoted = answer.upvotedBy.includes(userId);
+    const hadDownvoted = answer.downvotedBy.includes(userId);
+    let score = Number(answer.upvotes) || 0;
+
+    if (hadUpvoted) score -= 1;
+    if (hadDownvoted) score += 1;
+    answer.upvotedBy = answer.upvotedBy.filter((idValue) => idValue !== userId);
+    answer.downvotedBy = answer.downvotedBy.filter((idValue) => idValue !== userId);
+
+    let userVote = 0;
+    if (voteType === 'up' && !hadUpvoted) {
+      answer.upvotedBy.push(userId);
+      score += 1;
+      userVote = 1;
+    } else if (voteType === 'down' && !hadDownvoted) {
+      answer.downvotedBy.push(userId);
+      score -= 1;
+      userVote = -1;
+    }
+    answer.upvotes = score;
+
+    await saveLoadedPost(loaded);
+    return res.json({
+      success: true,
+      persisted: loaded.persistent,
+      upvotes: answer.upvotes,
+      upvotedBy: answer.upvotedBy,
+      downvotedBy: answer.downvotedBy,
+      userVote,
+      hasUpvoted: userVote === 1,
+      hasDownvoted: userVote === -1,
+      post: cloneForResponse(loaded.post)
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return sendCommunityError(res, error);
   }
 };
 
@@ -880,33 +1202,37 @@ export const addAnswer = async (req, res) => {
  */
 export const acceptAnswer = async (req, res) => {
   try {
-    const { id, answerId } = req.params;
-    const post = await CommunityPost.findOne({ id });
-    if (!post) {
+    const user = requireControllerUser(req, res);
+    if (!user) return;
+    const id = cleanText(req.params?.id, 160);
+    const answerId = cleanText(req.params?.answerId, 160);
+    const loaded = await loadPostForMutation(id);
+    if (!loaded) {
       return res.status(404).json({ success: false, message: 'Bài toán không tồn tại' });
     }
+    const post = loaded.post;
+    if (!canManage(user, post.author)) return forbidden(res);
 
-    post.answers.forEach(a => {
-      if (a.id === answerId) {
-        a.isAccepted = !a.isAccepted;
-        if (a.isAccepted) {
-          post.isAccepted = true;
-          post.status = 'solved';
-          post.acceptedAnswerId = a.id;
-        } else {
-          post.isAccepted = false;
-          post.status = 'unanswered';
-          post.acceptedAnswerId = null;
-        }
-      } else {
-        a.isAccepted = false;
-      }
+    const selectedAnswer = findAnswer(post, answerId);
+    if (!selectedAnswer) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy câu trả lời.' });
+    }
+    const shouldAccept = !selectedAnswer.isAccepted;
+
+    post.answers.forEach((answer) => {
+      answer.isAccepted = shouldAccept && answer.id === answerId;
     });
+    if (shouldAccept) {
+      selectedAnswer.instructorVerified = hasOwnerRole(user) || selectedAnswer.instructorVerified;
+    }
+    post.isAccepted = shouldAccept;
+    post.status = shouldAccept ? 'solved' : (post.answers.length > 0 ? 'answered' : 'unanswered');
+    post.acceptedAnswerId = shouldAccept ? answerId : null;
 
-    await post.save();
-    res.json({ success: true, post });
+    await saveLoadedPost(loaded);
+    return res.json({ success: true, persisted: loaded.persistent, post: cloneForResponse(post) });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return sendCommunityError(res, error);
   }
 };
 
@@ -915,45 +1241,37 @@ export const acceptAnswer = async (req, res) => {
  */
 export const updateAnswer = async (req, res) => {
   try {
-    const { id, answerId } = req.params;
-    const { content } = req.body;
-    if (!content || !content.trim()) {
-      return res.status(400).json({ success: false, message: 'Nội dung lời giải là bắt buộc.' });
+    const user = requireControllerUser(req, res);
+    if (!user) return;
+    const id = cleanText(req.params?.id, 160);
+    const answerId = cleanText(req.params?.answerId, 160);
+    const content = cleanText(req.body?.content, 20_000);
+    if (content.length < 3 || hasUnsafeMarkup(content)) {
+      return res.status(400).json({ success: false, message: 'Nội dung lời giải không hợp lệ.' });
     }
 
-    let updatedAnswer = null;
-    let post = await CommunityPost.findOne({ id });
-    if (post) {
-      let answer = post.answers.id(answerId) || (post.answers || []).find(a => a.id === answerId);
-      if (!answer && post.answers.length > 0) {
-        answer = post.answers[0];
-      }
-      if (answer) {
-        answer.content = content.trim();
-        answer.updatedAt = new Date();
-        updatedAnswer = answer;
-        await post.save();
-      }
+    const loaded = await loadPostForMutation(id);
+    if (!loaded) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy bài toán.' });
     }
-
-    // Also update in-memory fallback
-    const memPost = INITIAL_COMMUNITY_POSTS.find(p => p.id === id);
-    if (memPost) {
-      const memAns = (memPost.answers || []).find(a => a.id === answerId) || (memPost.answers || [])[0];
-      if (memAns) {
-        memAns.content = content.trim();
-        memAns.updatedAt = new Date().toISOString();
-        if (!updatedAnswer) updatedAnswer = memAns;
-      }
-    }
-
-    if (!updatedAnswer) {
+    const answer = findAnswer(loaded.post, answerId);
+    if (!answer) {
       return res.status(404).json({ success: false, message: 'Không tìm thấy lời giải để cập nhật.' });
     }
+    if (!canManage(user, answer.author)) return forbidden(res);
 
-    res.json({ success: true, answer: updatedAnswer, post });
+    answer.content = content;
+    answer.updatedAt = new Date();
+    await saveLoadedPost(loaded);
+
+    return res.json({
+      success: true,
+      persisted: loaded.persistent,
+      answer: cloneForResponse(answer),
+      post: cloneForResponse(loaded.post)
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return sendCommunityError(res, error);
   }
 };
 
@@ -962,31 +1280,38 @@ export const updateAnswer = async (req, res) => {
  */
 export const deleteAnswer = async (req, res) => {
   try {
-    const { id, answerId } = req.params;
-    let post = await CommunityPost.findOne({ id });
-    if (post) {
-      post.answers = (post.answers || []).filter(a => a.id !== answerId);
-      if (post.acceptedAnswerId === answerId) {
-        post.acceptedAnswerId = null;
-        post.isAccepted = false;
-        post.status = post.answers.length > 0 ? 'answered' : 'unanswered';
-      }
-      await post.save();
+    const user = requireControllerUser(req, res);
+    if (!user) return;
+    const id = cleanText(req.params?.id, 160);
+    const answerId = cleanText(req.params?.answerId, 160);
+    const loaded = await loadPostForMutation(id);
+    if (!loaded) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy bài toán.' });
     }
-
-    const memPost = INITIAL_COMMUNITY_POSTS.find(p => p.id === id);
-    if (memPost) {
-      memPost.answers = (memPost.answers || []).filter(a => a.id !== answerId);
-      if (memPost.acceptedAnswerId === answerId) {
-        memPost.acceptedAnswerId = null;
-        memPost.isAccepted = false;
-        memPost.status = memPost.answers.length > 0 ? 'answered' : 'unanswered';
-      }
+    const answer = findAnswer(loaded.post, answerId);
+    if (!answer) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy lời giải.' });
     }
+    if (!canManage(user, answer.author)) return forbidden(res);
 
-    res.json({ success: true, message: 'Đã xóa lời giải thành công.' });
+    loaded.post.answers = loaded.post.answers.filter((item) => item.id !== answerId);
+    if (loaded.post.acceptedAnswerId === answerId) {
+      loaded.post.acceptedAnswerId = null;
+      loaded.post.isAccepted = false;
+    }
+    loaded.post.status = loaded.post.isAccepted
+      ? 'solved'
+      : (loaded.post.answers.length > 0 ? 'answered' : 'unanswered');
+    await saveLoadedPost(loaded);
+
+    return res.json({
+      success: true,
+      persisted: loaded.persistent,
+      message: 'Đã xóa lời giải thành công.',
+      post: cloneForResponse(loaded.post)
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return sendCommunityError(res, error);
   }
 };
 
@@ -995,61 +1320,42 @@ export const deleteAnswer = async (req, res) => {
  */
 export const addCommentToAnswer = async (req, res) => {
   try {
-    const { id, answerId } = req.params;
-    const { content, author } = req.body;
-    if (!author || (!author.id && !author.uid && !author.email)) {
-      return res.status(401).json({ success: false, message: 'Vui lòng đăng nhập để gửi bình luận.' });
-    }
-    if (!content || !content.trim()) {
-      return res.status(400).json({ success: false, message: 'Nội dung bình luận là bắt buộc.' });
+    const user = requireControllerUser(req, res);
+    if (!user) return;
+    const id = cleanText(req.params?.id, 160);
+    const answerId = cleanText(req.params?.answerId, 160);
+    const content = cleanText(req.body?.content, 3000);
+    if (!content || hasUnsafeMarkup(content)) {
+      return res.status(400).json({ success: false, message: 'Nội dung bình luận không hợp lệ.' });
     }
 
     const newComment = {
-      id: `cmt-${Date.now()}`,
-      content: content.trim(),
-      author: author,
+      id: `cmt-${randomUUID()}`,
+      content,
+      author: actorFromUser(user),
       createdAt: new Date()
     };
 
-    try {
-      let post = await CommunityPost.findOne({ id }).maxTimeMS(2000);
-      if (!post) {
-        const seed = SEED_COMMUNITY_POSTS.find(p => p.id === id);
-        if (seed) {
-          try {
-            post = await CommunityPost.create(seed);
-          } catch {
-            post = null;
-          }
-        }
-      }
-
-      if (post) {
-        let answer = post.answers.id(answerId) || (post.answers || []).find(a => a.id === answerId);
-        if (!answer && post.answers.length > 0) {
-          answer = post.answers[0];
-        }
-        if (answer) {
-          if (!answer.comments) answer.comments = [];
-          answer.comments.push(newComment);
-          await post.save();
-        }
-      }
-    } catch {
-      // In-memory fallback
-      const memPost = SEED_COMMUNITY_POSTS.find(p => p.id === id);
-      if (memPost) {
-        const memAns = (memPost.answers || []).find(a => a.id === answerId) || (memPost.answers || [])[0];
-        if (memAns) {
-          if (!memAns.comments) memAns.comments = [];
-          memAns.comments.push(newComment);
-        }
-      }
+    const loaded = await loadPostForMutation(id);
+    if (!loaded) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy bài toán.' });
     }
+    const answer = findAnswer(loaded.post, answerId);
+    if (!answer) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy lời giải.' });
+    }
+    answer.comments ||= [];
+    answer.comments.push(newComment);
+    await saveLoadedPost(loaded);
 
-    res.status(201).json({ success: true, comment: newComment });
+    return res.status(201).json({
+      success: true,
+      persisted: loaded.persistent,
+      comment: newComment,
+      post: cloneForResponse(loaded.post)
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return sendCommunityError(res, error);
   }
 };
 
@@ -1058,61 +1364,42 @@ export const addCommentToAnswer = async (req, res) => {
  */
 export const updateComment = async (req, res) => {
   try {
-    const { id, answerId, commentId } = req.params;
-    const { content } = req.body;
-    if (!content || !content.trim()) {
-      return res.status(400).json({ success: false, message: 'Nội dung bình luận không được để trống.' });
+    const user = requireControllerUser(req, res);
+    if (!user) return;
+    const id = cleanText(req.params?.id, 160);
+    const answerId = cleanText(req.params?.answerId, 160);
+    const commentId = cleanText(req.params?.commentId, 160);
+    const content = cleanText(req.body?.content, 3000);
+    if (!content || hasUnsafeMarkup(content)) {
+      return res.status(400).json({ success: false, message: 'Nội dung bình luận không hợp lệ.' });
     }
 
-    let updatedComment = null;
-
-    try {
-      let post = await CommunityPost.findOne({ id }).maxTimeMS(2000);
-      if (post) {
-        let answer = post.answers.id(answerId) || (post.answers || []).find(a => a.id === answerId);
-        if (!answer && post.answers.length > 0) {
-          answer = post.answers[0];
-        }
-        if (answer) {
-          const comment = (answer.comments || []).find(c => c.id === commentId || c._id?.toString() === commentId);
-          if (comment) {
-            comment.content = content.trim();
-            comment.updatedAt = new Date();
-            await post.save();
-            updatedComment = comment;
-          }
-        }
-      }
-    } catch {
-      // In-memory fallback
+    const loaded = await loadPostForMutation(id);
+    if (!loaded) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy bài toán.' });
     }
-
-    if (!updatedComment) {
-      const memPost = SEED_COMMUNITY_POSTS.find(p => p.id === id);
-      if (memPost) {
-        const memAns = (memPost.answers || []).find(a => a.id === answerId) || (memPost.answers || [])[0];
-        if (memAns) {
-          const comment = (memAns.comments || []).find(c => c.id === commentId);
-          if (comment) {
-            comment.content = content.trim();
-            comment.updatedAt = new Date();
-            updatedComment = comment;
-          }
-        }
-      }
+    const answer = findAnswer(loaded.post, answerId);
+    if (!answer) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy lời giải.' });
     }
-
-    if (!updatedComment) {
-      updatedComment = {
-        id: commentId,
-        content: content.trim(),
-        updatedAt: new Date()
-      };
+    const comment = findComment(answer, commentId);
+    if (!comment) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy bình luận.' });
     }
+    if (!canManage(user, comment.author)) return forbidden(res);
 
-    res.json({ success: true, comment: updatedComment });
+    comment.content = content;
+    comment.updatedAt = new Date();
+    await saveLoadedPost(loaded);
+
+    return res.json({
+      success: true,
+      persisted: loaded.persistent,
+      comment: cloneForResponse(comment),
+      post: cloneForResponse(loaded.post)
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return sendCommunityError(res, error);
   }
 };
 
@@ -1121,35 +1408,39 @@ export const updateComment = async (req, res) => {
  */
 export const deleteComment = async (req, res) => {
   try {
-    const { id, answerId, commentId } = req.params;
+    const user = requireControllerUser(req, res);
+    if (!user) return;
+    const id = cleanText(req.params?.id, 160);
+    const answerId = cleanText(req.params?.answerId, 160);
+    const commentId = cleanText(req.params?.commentId, 160);
 
-    try {
-      let post = await CommunityPost.findOne({ id }).maxTimeMS(2000);
-      if (post) {
-        let answer = post.answers.id(answerId) || (post.answers || []).find(a => a.id === answerId);
-        if (!answer && post.answers.length > 0) {
-          answer = post.answers[0];
-        }
-        if (answer) {
-          answer.comments = (answer.comments || []).filter(c => c.id !== commentId && c._id?.toString() !== commentId);
-          await post.save();
-        }
-      }
-    } catch {
-      // In-memory fallback
+    const loaded = await loadPostForMutation(id);
+    if (!loaded) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy bài toán.' });
     }
-
-    const memPost = SEED_COMMUNITY_POSTS.find(p => p.id === id);
-    if (memPost) {
-      const memAns = (memPost.answers || []).find(a => a.id === answerId) || (memPost.answers || [])[0];
-      if (memAns) {
-        memAns.comments = (memAns.comments || []).filter(c => c.id !== commentId);
-      }
+    const answer = findAnswer(loaded.post, answerId);
+    if (!answer) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy lời giải.' });
     }
+    const comment = findComment(answer, commentId);
+    if (!comment) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy bình luận.' });
+    }
+    if (!canManage(user, comment.author)) return forbidden(res);
 
-    res.json({ success: true, message: 'Đã xóa bình luận thành công' });
+    answer.comments = answer.comments.filter(
+      (item) => item.id !== commentId && item._id?.toString() !== commentId
+    );
+    await saveLoadedPost(loaded);
+
+    return res.json({
+      success: true,
+      persisted: loaded.persistent,
+      message: 'Đã xóa bình luận thành công',
+      post: cloneForResponse(loaded.post)
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return sendCommunityError(res, error);
   }
 };
 
@@ -1187,7 +1478,7 @@ export const getLeaderboard = async (req, res) => {
       leaderboard: list
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return sendCommunityError(res, error);
   }
 };
 
@@ -1196,17 +1487,40 @@ export const getLeaderboard = async (req, res) => {
  */
 export const getStats = async (req, res) => {
   try {
-    let totalPosts = 10;
-    let solvedCount = 9;
-    let openCount = 1;
-    let totalAnswers = 10;
-    try {
-      totalPosts = await CommunityPost.countDocuments();
-      solvedCount = await CommunityPost.countDocuments({ isAccepted: true });
-      openCount = totalPosts - solvedCount;
-    } catch {
-      // Fallback
+    let totalPosts;
+    let solvedCount;
+    let totalAnswers;
+
+    if (mongoose.connection.readyState === 1) {
+      try {
+        const [postCount, acceptedCount, answerTotals] = await Promise.all([
+          CommunityPost.countDocuments(),
+          CommunityPost.countDocuments({ isAccepted: true }),
+          CommunityPost.aggregate([
+            { $project: { answerCount: { $size: { $ifNull: ['$answers', []] } } } },
+            { $group: { _id: null, total: { $sum: '$answerCount' } } }
+          ])
+        ]);
+        totalPosts = postCount;
+        solvedCount = acceptedCount;
+        totalAnswers = answerTotals[0]?.total || 0;
+      } catch (error) {
+        console.warn('[Community] Stats query failed, using memory fallback:', error.message);
+      }
     }
+
+    if (totalPosts === undefined) {
+      totalPosts = memoryCommunityPosts.length;
+      solvedCount = memoryCommunityPosts.filter(
+        (post) => post.isAccepted || post.status === 'solved'
+      ).length;
+      totalAnswers = memoryCommunityPosts.reduce(
+        (sum, post) => sum + (post.answers || []).length,
+        0
+      );
+    }
+
+    const openCount = totalPosts - solvedCount;
 
     const solvedPercentage = totalPosts > 0 ? Math.round((solvedCount / totalPosts) * 100) : 0;
 
@@ -1221,6 +1535,6 @@ export const getStats = async (req, res) => {
       }
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return sendCommunityError(res, error);
   }
 };

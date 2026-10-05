@@ -45,6 +45,8 @@ function CourseDetailContent({ course }) {
   const [totalStudySeconds, setTotalStudySeconds] = useState(0);
   const timerRef = useRef(null);
   const dragState = useRef({ isDragging: false, startX: 0, startY: 0, initialLeft: 0, initialTop: 0 });
+  const accessRequestIdRef = useRef(0);
+  const lessonRequestIdRef = useRef(0);
 
   const allLessons = useMemo(
     () => course.chapters.flatMap((chapter) => chapter.lessons || []),
@@ -55,20 +57,26 @@ function CourseDetailContent({ course }) {
   const courseTone = COURSE_TONES[course.id] || 'emerald';
 
   const refreshCourseAccess = useCallback(async () => {
+    const requestId = accessRequestIdRef.current + 1;
+    accessRequestIdRef.current = requestId;
     setAccessLoading(true);
     try {
       const response = await apiFetch(`/api/courses/${encodeURIComponent(course.id)}/access`);
       const payload = await response.json().catch(() => ({}));
       const access = response.ok ? payload.data : null;
-      setIsAdmin(access?.reason === 'OWNER');
-      setIsEnrolled(Boolean(access?.allowed));
-      setAccessStatus(response.ok ? null : response.status);
+      if (requestId === accessRequestIdRef.current) {
+        setIsAdmin(access?.reason === 'OWNER');
+        setIsEnrolled(Boolean(access?.allowed));
+        setAccessStatus(response.ok ? null : response.status);
+      }
     } catch {
-      setIsAdmin(false);
-      setIsEnrolled(false);
-      setAccessStatus(null);
+      if (requestId === accessRequestIdRef.current) {
+        setIsAdmin(false);
+        setIsEnrolled(false);
+        setAccessStatus(null);
+      }
     } finally {
-      setAccessLoading(false);
+      if (requestId === accessRequestIdRef.current) setAccessLoading(false);
     }
   }, [course.id]);
 
@@ -79,6 +87,7 @@ function CourseDetailContent({ course }) {
 
   useEffect(() => {
     const handleSessionChanged = () => {
+      lessonRequestIdRef.current += 1;
       setLoadingLessonId(null);
       setNotice('');
       setShowEnrollment(false);
@@ -92,6 +101,8 @@ function CourseDetailContent({ course }) {
   }, [refreshCourseAccess]);
 
   const openLesson = async (lesson) => {
+    const requestId = lessonRequestIdRef.current + 1;
+    lessonRequestIdRef.current = requestId;
     setLoadingLessonId(null);
     setNotice('');
 
@@ -105,18 +116,11 @@ function CourseDetailContent({ course }) {
 
     setLoadingLessonId(lesson.id);
 
-    // BYPASS: If lesson already has a videoUrl (like YouTube), play it directly
-    if (lesson.type === 'video' && lesson.videoUrl) {
-      const ytMatch = lesson.videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
-      let media = ytMatch ? { provider: 'youtube', videoId: ytMatch[1] } : { url: lesson.videoUrl };
-      playLesson(course, { ...lesson, media }, allLessons, courseTone);
-      setLoadingLessonId(null);
-      return;
-    }
-
     try {
       const response = await apiFetch(`/api/courses/${encodeURIComponent(course.id)}/lessons/${encodeURIComponent(lesson.id)}/content`);
       const payload = await response.json().catch(() => ({}));
+
+      if (requestId !== lessonRequestIdRef.current) return;
 
       if (response.status === 401 || response.status === 403) {
         setIsAdmin(false);
@@ -147,11 +151,11 @@ function CourseDetailContent({ course }) {
         ...(content.type === 'text' ? { content: content.content } : {})
       }, allLessons, courseTone);
     } catch (error) {
-      if (error.name !== 'AbortError') {
+      if (requestId === lessonRequestIdRef.current && error.name !== 'AbortError') {
         setNotice(error.message || 'Không thể mở bài học lúc này. Vui lòng thử lại.');
       }
     } finally {
-      setLoadingLessonId(null);
+      if (requestId === lessonRequestIdRef.current) setLoadingLessonId(null);
     }
   };
 

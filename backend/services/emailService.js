@@ -1,9 +1,19 @@
 import nodemailer from 'nodemailer';
 
+const escapeHtml = (value) => String(value ?? '')
+  .replaceAll('&', '&amp;')
+  .replaceAll('<', '&lt;')
+  .replaceAll('>', '&gt;')
+  .replaceAll('"', '&quot;')
+  .replaceAll("'", '&#39;');
+
 export const sendOtpEmail = async (email, name, otpCode, otpExpiresAt) => {
   const resendApiKey = process.env.RESEND_API_KEY;
   const user = process.env.EMAIL_USER;
   const pass = process.env.EMAIL_PASS;
+  const safeName = escapeHtml(name || 'bạn');
+  const allowMockEmail = process.env.NODE_ENV !== 'production'
+    && process.env.ALLOW_MOCK_EMAIL === 'true';
 
   const emailHtml = `
 <!DOCTYPE html>
@@ -30,7 +40,7 @@ export const sendOtpEmail = async (email, name, otpCode, otpExpiresAt) => {
           <tr>
             <td style="padding: 10px 40px 30px 40px;">
               <p style="font-size: 16px; line-height: 24px; margin: 0 0 20px 0; color: #1e293b;">
-                Xin chào <strong>${name || 'bạn'}</strong>,
+                Xin chào <strong>${safeName}</strong>,
               </p>
               <p style="font-size: 16px; line-height: 24px; margin: 0 0 30px 0; color: #334155;">
                 Chúng tôi vừa nhận được yêu cầu khôi phục mật khẩu cho tài khoản liên kết với email này. Vui lòng sử dụng mã bảo mật (OTP) dưới đây để tiếp tục:
@@ -97,17 +107,16 @@ export const sendOtpEmail = async (email, name, otpCode, otpExpiresAt) => {
           to: [email],
           subject: '[UEH TCC] Mã OTP khôi phục mật khẩu tài khoản của bạn',
           html: emailHtml
-        })
+        }),
+        signal: AbortSignal.timeout(10_000)
       });
 
-      const resData = await response.json();
+      const resData = await response.json().catch(() => ({}));
       if (response.ok) {
         console.log(`[RESEND API SUCCESS] Gửi OTP thành công tới ${email}. Resend ID: ${resData.id}`);
         return { success: true, isMock: false, resendId: resData.id };
       } else {
-        console.warn('[RESEND API SANDBOX RESTRICTION]', resData.message || resData);
-        // Fallback gracefully so user can continue OTP step without scary errors
-        return { success: true, isMock: true, fallbackReason: 'Resend Sandbox restriction' };
+        console.warn('[Email] Resend rejected the OTP email:', resData.message || response.status);
       }
     } catch (err) {
       console.error('[RESEND API FETCH ERROR]', err.message);
@@ -118,7 +127,7 @@ export const sendOtpEmail = async (email, name, otpCode, otpExpiresAt) => {
   if (user && pass) {
     try {
       const host = process.env.EMAIL_HOST || 'smtp.gmail.com';
-      const port = parseInt(process.env.EMAIL_PORT) || 587;
+      const port = Number.parseInt(process.env.EMAIL_PORT || '587', 10);
       const secure = process.env.EMAIL_SECURE === 'true' || port === 465;
 
       const transporter = nodemailer.createTransport({
@@ -146,13 +155,15 @@ export const sendOtpEmail = async (email, name, otpCode, otpExpiresAt) => {
     }
   }
 
-  // Fallback Mock Mode
-  console.log(`\n======================================================`);
-  console.log(`[SMTP MOCK MODE] GỬI MÃ OTP QUÊN MẬT KHẨU`);
-  console.log(`Email nhận: ${email}`);
-  console.log(`Mã OTP 6 chữ số: ${otpCode}`);
-  console.log(`Thời hạn: Hết hạn sau 10 phút (${new Date(otpExpiresAt).toLocaleTimeString()})`);
-  console.log(`======================================================\n`);
+  if (!allowMockEmail) {
+    const error = new Error('OTP email delivery is unavailable');
+    error.code = 'EMAIL_DELIVERY_UNAVAILABLE';
+    throw error;
+  }
+
+  // Explicit local-development fallback only.
+  console.warn('[Email] Mock email mode is enabled for local development.');
+  console.warn(`[Email] OTP for ${email}: ${otpCode} (expires ${otpExpiresAt})`);
 
   return { 
     success: true, 

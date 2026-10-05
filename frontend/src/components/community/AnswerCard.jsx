@@ -3,19 +3,13 @@ import { Link } from 'react-router-dom';
 import {
   ChevronUp,
   ChevronDown,
-  CheckCircle2,
   ShieldCheck,
   Check,
   Bookmark,
-  Share2,
-  CornerDownRight,
-  MessageSquare,
-  Award,
   Sparkles,
   BookOpenCheck,
   Lightbulb,
   Heart,
-  ChevronRight,
   Maximize2,
   Minimize2,
   Trash2,
@@ -25,7 +19,6 @@ import MathRenderer from '../MathRenderer';
 import ConfirmDialog from '../ui/ConfirmDialog';
 import WYSIWYGMathEditor from './WYSIWYGMathEditor';
 import { formatRelativeTime } from '../../services/communityService';
-import { getInitials } from '../../utils/userInitials';
 import '../../assets/styles/community.css';
 
 /**
@@ -47,8 +40,7 @@ export default function AnswerCard({
   onQuote,
   onEditAnswer,
   onDeleteAnswer,
-  onOpenCheatsheet,
-  onReport
+  onOpenCheatsheet
 }) {
   const [showCommentForm, setShowCommentForm] = useState(false);
   const [commentText, setCommentText] = useState('');

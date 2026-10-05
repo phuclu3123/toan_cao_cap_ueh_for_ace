@@ -44,14 +44,10 @@ const norm = (value) => String(value || '').trim().toLowerCase();
 export function isAdminIdentity(identity) {
   if (!identity) return false;
 
+  if (identity.role === 'Admin' || identity.isAdmin === true) return true;
+
   const id = norm(identity.id || identity.uid);
   if (id && ADMIN_MEMBER_IDS.includes(id)) return true;
-
-  const email = norm(identity.email);
-  if (email && ADMIN_EMAILS.includes(email)) return true;
-
-  const name = norm(identity.name || identity.displayName);
-  if (name && ADMIN_NAMES.includes(name)) return true;
 
   return false;
 }
@@ -63,19 +59,7 @@ export function isAdminIdentity(identity) {
 export function applyAdminIdentity(member) {
   if (!member || !isAdminIdentity(member)) return member;
 
-  let savedAvatar = member.avatar;
-  if (savedAvatar === '/images/tccvang.jpg') savedAvatar = '';
-  try {
-    const raw = localStorage.getItem('ueh_tcc_user');
-    if (raw) {
-      const u = JSON.parse(raw);
-      if (u && (u.avatar || u.photoURL)) {
-        if (isAdminIdentity(u) || member.email === u.username || member.email === u.email) {
-          savedAvatar = u.avatar || u.photoURL;
-        }
-      }
-    }
-  } catch {}
+  const savedAvatar = member.avatar === '/images/tccvang.jpg' ? '' : member.avatar;
 
   return {
     ...member,

@@ -51,7 +51,7 @@ export function replaceEmoticons(text) {
   if (!text || typeof text !== 'string') return text || '';
 
   // Split by LaTeX math, HTML tags and code blocks
-  const tokenRegex = /(\$\$[\s\S]*?\$\$|\$[^\$\n\r]+?\$|```[\s\S]*?```|`[^`]+`|<[^>]+>)/g;
+  const tokenRegex = /(\$\$[\s\S]*?\$\$|\$[^$\n\r]+?\$|```[\s\S]*?```|`[^`]+`|<[^>]+>)/g;
   const parts = text.split(tokenRegex);
 
   for (let i = 0; i < parts.length; i += 2) {

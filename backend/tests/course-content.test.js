@@ -88,3 +88,14 @@ test('the verified owner role has course content access', async () => {
   assert.equal(access.allowed, true);
   assert.equal(access.reason, 'OWNER');
 });
+
+test('enrollment database outages are normalized to a retryable 503', async () => {
+  await assert.rejects(
+    () => getCourseAccess({
+      id: 'student-without-db',
+      username: 'student@example.com',
+      role: 'Student'
+    }, 'thuc-chien-k51'),
+    (error) => error.statusCode === 503 && error.code === 'ENROLLMENT_STORE_UNAVAILABLE'
+  );
+});

@@ -21,6 +21,12 @@ const enrollmentSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 enrollmentSchema.index({ userId: 1, courseId: 1 }, { unique: true });
+enrollmentSchema.index(
+  { paymentOrderCode: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { paymentOrderCode: { $type: 'number' } }
+  }
+);
 
 export default mongoose.model('Enrollment', enrollmentSchema);
-

@@ -1,4 +1,5 @@
 import { safeLocalStorage } from './safeStorage';
+import { API_BASE_URL } from '../config';
 
 const VIEWS_STORAGE_KEY = 'ueh_tcc_doc_views';
 
@@ -43,8 +44,10 @@ export const incrementViewCount = (id) => {
 
   // Send async beacon to backend if API is available
   try {
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-    fetch(`${apiUrl}/api/resources/view/${id}`, { method: 'POST' }).catch(() => {});
+    fetch(`${API_BASE_URL}/api/resources/view/${encodeURIComponent(id)}`, {
+      method: 'POST',
+      credentials: 'include'
+    }).catch(() => {});
   } catch {
     // Ignore network error in fallback mode
   }

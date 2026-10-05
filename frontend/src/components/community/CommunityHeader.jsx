@@ -6,10 +6,7 @@ import {
   Search,
   X,
   Sigma,
-  Activity,
-  CheckCircle2,
-  Sparkles,
-  HelpCircle
+  CheckCircle2
 } from 'lucide-react';
 import '../../assets/styles/community.css';
 

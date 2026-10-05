@@ -8,9 +8,7 @@ import {
   Sun,
   LogIn,
   LogOut,
-  User,
   ArrowLeft,
-  Sparkles,
   Plus
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -26,12 +24,26 @@ export default function CommunityTopBar({ onOpenCreate, onOpenCheatsheet, onOpen
   const { theme, toggleTheme } = useContext(ThemeContext);
   const [searchQuery, setSearchQuery] = useState('');
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const navigate = useNavigate();
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       navigate(`/community?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
+  const handleLogout = async () => {
+    if (isLoggingOut) return;
+
+    setIsLoggingOut(true);
+    try {
+      await logout();
+    } catch (error) {
+      window.alert(error.message || 'Không thể thu hồi phiên đăng nhập. Vui lòng thử lại.');
+    } finally {
+      setIsLoggingOut(false);
     }
   };
 
@@ -124,7 +136,8 @@ export default function CommunityTopBar({ onOpenCreate, onOpenCheatsheet, onOpen
               <button
                 type="button"
                 className="se-topbar-logout-btn"
-                onClick={logout}
+                onClick={handleLogout}
+                disabled={isLoggingOut}
                 title="Đăng xuất"
               >
                 <LogOut size={14} />

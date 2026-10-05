@@ -1,6 +1,7 @@
 import { resolveSessionUser } from '../services/sessionService.js';
 
 export const requireAuth = async (req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store');
   try {
     const user = await resolveSessionUser(req);
     if (!user) {

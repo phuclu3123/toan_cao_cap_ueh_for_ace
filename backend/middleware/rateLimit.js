@@ -20,15 +20,24 @@ export const createRateLimit = ({
   namespace,
   windowMs,
   max,
+  keyGenerator,
   message = 'Bạn đã gửi quá nhiều yêu cầu. Vui lòng thử lại sau.'
 }) => {
-  if (!namespace || !Number.isFinite(windowMs) || !Number.isFinite(max)) {
+  if (
+    !namespace
+    || !Number.isFinite(windowMs)
+    || windowMs <= 0
+    || !Number.isInteger(max)
+    || max <= 0
+    || (keyGenerator !== undefined && typeof keyGenerator !== 'function')
+  ) {
     throw new TypeError('Rate limiter requires namespace, windowMs, and max');
   }
 
   return (req, res, next) => {
     const now = Date.now();
-    const key = `${namespace}:${normalizeIp(req)}`;
+    const discriminator = keyGenerator?.(req) || normalizeIp(req);
+    const key = `${namespace}:${String(discriminator)}`;
     let bucket = buckets.get(key);
 
     if (!bucket || bucket.resetAt <= now) {
@@ -69,6 +78,12 @@ export const firebaseSyncRateLimit = createRateLimit({
   namespace: 'firebase-sync',
   windowMs: 10 * 60 * 1000,
   max: 40
+});
+
+export const sessionWriteRateLimit = createRateLimit({
+  namespace: 'session-write',
+  windowMs: 15 * 60 * 1000,
+  max: 60
 });
 
 export const paymentWriteRateLimit = createRateLimit({

@@ -25,7 +25,10 @@ const courseCatalog = Object.freeze({
   })
 });
 
-export const getCourseOffering = (courseId) => courseCatalog[courseId] || null;
+export const getCourseOffering = (courseId) => (
+  typeof courseId === 'string' && Object.hasOwn(courseCatalog, courseId)
+    ? courseCatalog[courseId]
+    : null
+);
 
 export const listCourseOfferings = () => Object.values(courseCatalog);
-

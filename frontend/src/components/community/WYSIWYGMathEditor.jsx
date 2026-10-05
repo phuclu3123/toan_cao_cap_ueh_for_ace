@@ -24,6 +24,7 @@ import {
   Image as ImageIcon
 } from 'lucide-react';
 import MathRenderer from '../MathRenderer';
+import { sanitizeHtml } from '../../utils/htmlSanitizer';
 import FacebookEmojiPicker from './FacebookEmojiPicker';
 import CalloutBoxModal from './CalloutBoxModal';
 import { FACEBOOK_EMOTICON_MAP } from '../../utils/emoticonMapper';
@@ -103,7 +104,9 @@ export default function WYSIWYGMathEditor({
       if (sel && sel.rangeCount > 0 && editorRef.current && editorRef.current.contains(sel.anchorNode)) {
         savedSelectionRange.current = sel.getRangeAt(0).cloneRange();
       }
-    } catch {}
+    } catch {
+      // Selection APIs can fail when focus moves outside the editor.
+    }
   };
 
   const handleOpenCalloutModal = (e) => {
@@ -115,8 +118,9 @@ export default function WYSIWYGMathEditor({
   // Sync external value to contentEditable only when it differs and not currently typing
   useEffect(() => {
     if (editorRef.current && !isInternalChange.current) {
-      if (editorRef.current.innerHTML !== value) {
-        editorRef.current.innerHTML = value || '';
+      const safeValue = sanitizeHtml(value || '');
+      if (editorRef.current.innerHTML !== safeValue) {
+        editorRef.current.innerHTML = safeValue;
       }
     }
     isInternalChange.current = false;
@@ -181,12 +185,14 @@ export default function WYSIWYGMathEditor({
     try {
       sel.removeAllRanges();
       sel.addRange(range);
-    } catch {}
+    } catch {
+      // Fall through to inserting at the prepared range.
+    }
 
     // Bulletproof DOM insertion
     try {
       const temp = document.createElement('div');
-      temp.innerHTML = htmlSnippet;
+      temp.innerHTML = sanitizeHtml(htmlSnippet);
       const frag = document.createDocumentFragment();
       let node;
       let lastChild = null;
@@ -205,9 +211,11 @@ export default function WYSIWYGMathEditor({
         sel.addRange(afterRange);
         savedSelectionRange.current = afterRange;
       }
-    } catch (e) {
+    } catch {
       // Direct innerHTML append fallback
-      editorRef.current.innerHTML = (editorRef.current.innerHTML || '') + htmlSnippet;
+      editorRef.current.innerHTML = sanitizeHtml(
+        (editorRef.current.innerHTML || '') + htmlSnippet
+      );
     }
 
     isInternalChange.current = true;
@@ -264,6 +272,20 @@ export default function WYSIWYGMathEditor({
         }
         return;
       }
+    }
+
+    const pastedHtml = e.clipboardData.getData('text/html');
+    if (pastedHtml) {
+      e.preventDefault();
+      insertHtmlAtCursor(sanitizeHtml(pastedHtml));
+      return;
+    }
+
+    const pastedText = e.clipboardData.getData('text/plain');
+    if (pastedText) {
+      e.preventDefault();
+      document.execCommand('insertText', false, pastedText);
+      handleInput();
     }
   };
 
@@ -727,4 +749,3 @@ export default function WYSIWYGMathEditor({
     </div>
   );
 }
-

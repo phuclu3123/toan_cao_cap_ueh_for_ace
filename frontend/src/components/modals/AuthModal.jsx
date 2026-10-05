@@ -13,7 +13,8 @@ import {
   X
 } from 'lucide-react';
 import { auth, googleProvider, githubProvider, signInWithPopup, isFirebaseConfigured } from '../../firebase';
-import { apiFetch, readApiJson, toClientUser } from '../../utils/apiClient';
+import { apiFetch, toClientUser } from '../../utils/apiClient';
+import { syncFirebaseUserWithBackend } from '../../services/authService';
 import '../../assets/styles/AuthModal.css';
 
 const focusableSelector = [
@@ -98,7 +99,7 @@ export default function AuthModal({
   const [internalPhoneInput, setInternalPhoneInput] = useState('');
   const [internalVerificationCode, setInternalVerificationCode] = useState('');
   const [internalIsOtpSent, setInternalIsOtpSent] = useState(false);
-  const [internalOtpLoading, setInternalOtpLoading] = useState(false);
+  const [internalOtpLoading] = useState(false);
 
   // Resolved Props
   const authMode = propAuthMode !== undefined ? propAuthMode : internalAuthMode;
@@ -164,7 +165,6 @@ export default function AuthModal({
       });
       const data = await response.json();
       if (response.ok && data.success) {
-        if (data.token) localStorage.setItem('ueh_tcc_token', data.token);
         if (data.user) localStorage.setItem('ueh_tcc_user', JSON.stringify(toClientUser(data.user)));
         window.dispatchEvent(new Event('ueh-tcc-session-changed'));
         closeModal();
@@ -184,8 +184,8 @@ export default function AuthModal({
       setAuthError('Vui lòng điền đầy đủ thông tin!');
       return;
     }
-    if (signupPassword.length < 6) {
-      setAuthError('Mật khẩu phải chứa ít nhất 6 ký tự!');
+    if (signupPassword.length < 10) {
+      setAuthError('Mật khẩu phải chứa ít nhất 10 ký tự!');
       return;
     }
     if (signupPassword !== signupConfirmPassword) {
@@ -204,7 +204,6 @@ export default function AuthModal({
       });
       const data = await response.json();
       if (response.ok && data.success) {
-        if (data.token) localStorage.setItem('ueh_tcc_token', data.token);
         if (data.user) localStorage.setItem('ueh_tcc_user', JSON.stringify(toClientUser(data.user)));
         window.dispatchEvent(new Event('ueh-tcc-session-changed'));
         closeModal();
@@ -225,19 +224,8 @@ export default function AuthModal({
       }
       const res = await signInWithPopup(auth, googleProvider);
       if (res && res.user) {
-        const syncRes = await apiFetch('/api/auth/sync', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            uid: res.user.uid,
-            email: res.user.email,
-            name: res.user.displayName,
-            phoneNumber: res.user.phoneNumber
-          })
-        });
-        const syncData = await readApiJson(syncRes);
-        if (syncData.token) localStorage.setItem('ueh_tcc_token', syncData.token);
-        if (syncData.user) localStorage.setItem('ueh_tcc_user', JSON.stringify(toClientUser(syncData.user)));
+        const syncedUser = await syncFirebaseUserWithBackend(res.user);
+        localStorage.setItem('ueh_tcc_user', JSON.stringify(syncedUser));
         window.dispatchEvent(new Event('ueh-tcc-session-changed'));
         setAuthSuccessMsg('Đăng nhập Google thành công!');
         setTimeout(() => closeModal(), 200);
@@ -256,19 +244,8 @@ export default function AuthModal({
       }
       const res = await signInWithPopup(auth, githubProvider);
       if (res && res.user) {
-        const syncRes = await apiFetch('/api/auth/sync', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            uid: res.user.uid,
-            email: res.user.email,
-            name: res.user.displayName,
-            phoneNumber: res.user.phoneNumber
-          })
-        });
-        const syncData = await readApiJson(syncRes);
-        if (syncData.token) localStorage.setItem('ueh_tcc_token', syncData.token);
-        if (syncData.user) localStorage.setItem('ueh_tcc_user', JSON.stringify(toClientUser(syncData.user)));
+        const syncedUser = await syncFirebaseUserWithBackend(res.user);
+        localStorage.setItem('ueh_tcc_user', JSON.stringify(syncedUser));
         window.dispatchEvent(new Event('ueh-tcc-session-changed'));
         setAuthSuccessMsg('Đăng nhập GitHub thành công!');
         setTimeout(() => closeModal(), 200);
@@ -315,8 +292,8 @@ export default function AuthModal({
       setAuthError('Mã OTP phải có đúng 6 chữ số!');
       return;
     }
-    if (!forgotNewPassword || forgotNewPassword.length < 6) {
-      setAuthError('Mật khẩu mới phải có ít nhất 6 ký tự!');
+    if (!forgotNewPassword || forgotNewPassword.length < 10) {
+      setAuthError('Mật khẩu mới phải có ít nhất 10 ký tự!');
       return;
     }
     if (forgotNewPassword !== forgotConfirmNewPassword) {

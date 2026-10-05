@@ -46,11 +46,15 @@ test('authenticated API calls always include the session cookie', () => {
 test('premium playback sources and paid text are redacted from the frontend catalog', () => {
   const catalog = readSource('data/coursesData.js');
   const courseDetail = readSource('pages/CourseDetail.jsx');
+  const globalPlayer = readSource('components/GlobalPlayer.jsx');
+  const playerContext = readSource('contexts/GlobalPlayerContext.jsx');
 
   assert.doesNotMatch(catalog, /videoUrl|commondatastorage|youtu\.be|78djtj2N9QI|WDSHTnrv8JI/);
   assert.doesNotMatch(catalog, /Bộ tài liệu đính kèm gồm/);
   assert.match(courseDetail, /\/api\/courses\/\$\{encodeURIComponent\(course\.id\)\}\/lessons\//);
-  assert.match(courseDetail, /activeLesson\?\.media\?\.provider === 'youtube'/);
+  assert.match(globalPlayer, /activeLesson\.media\?\.provider === 'youtube'/);
+  assert.doesNotMatch(globalPlayer, /activeLesson\.videoUrl/);
+  assert.doesNotMatch(playerContext, /nextLesson\.videoUrl/);
 });
 
 test('free SQL enrollment is required after the public sample lesson', () => {
@@ -64,8 +68,30 @@ test('free SQL enrollment is required after the public sample lesson', () => {
 
 test('Firebase sync sends a verified ID token and has no fabricated users', () => {
   const navbar = readSource('components/Navbar.jsx');
+  const authService = readSource('services/authService.js');
 
-  assert.match(navbar, /firebaseUser\.getIdToken\(\)/);
-  assert.match(navbar, /JSON\.stringify\(\{ idToken \}\)/);
+  assert.match(navbar, /syncFirebaseUserWithBackend/);
+  assert.match(navbar, /onIdTokenChanged/);
+  assert.match(authService, /firebaseUser\.getIdToken\(\)/);
+  assert.match(authService, /JSON\.stringify\(\{ idToken \}\)/);
+  assert.match(navbar, /import\.meta\.env\.VITE_GITHUB_CLIENT_ID/);
+  assert.doesNotMatch(navbar, /VITE_GITHUB_CLIENT_ID\s*\|\|/);
   assert.doesNotMatch(navbar, /google-user-|github-user-|mockFirebaseUser/);
+  assert.doesNotMatch(authService, /google-user-|github-user-|mockFirebaseUser/);
+});
+
+test('PayOS raw VietQR payloads are rendered locally and polling refreshes the order', () => {
+  const checkout = readSource('components/modals/CourseEnrollmentModal.jsx');
+
+  assert.match(checkout, /QRCode\.toDataURL\(rawQrPayload/);
+  assert.match(checkout, /setOrder\(\(current\) => \(\{ \.\.\.\(current \|\| \{\}\), \.\.\.payment \}\)\)/);
+  assert.doesNotMatch(checkout, /api\.qrserver\.com/);
+});
+
+test('premium player content is cleared whenever the authenticated session changes', () => {
+  const playerContext = readSource('contexts/GlobalPlayerContext.jsx');
+
+  assert.match(playerContext, /ueh-tcc-session-changed/);
+  assert.match(playerContext, /activeLesson:\s*null/);
+  assert.match(playerContext, /nextLessonRequestIdRef\.current \+= 1/);
 });

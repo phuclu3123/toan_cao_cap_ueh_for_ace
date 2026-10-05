@@ -4,9 +4,7 @@ import {
   Italic,
   Underline,
   Strikethrough,
-  AlignLeft,
   AlignCenter,
-  AlignRight,
   Type,
   Heading,
   List,
@@ -14,7 +12,6 @@ import {
   Quote,
   Code,
   BookOpen,
-  Sparkles,
   ChevronDown,
   Smile,
   Layers

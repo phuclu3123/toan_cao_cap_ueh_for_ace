@@ -2,14 +2,10 @@ import { Link } from 'react-router-dom';
 import {
   Heart,
   CheckCircle2,
-  Bookmark,
-  Sparkles,
-  Share2,
-  MessageSquare
+  Bookmark
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import MathRenderer from '../MathRenderer';
-import UserRankBadge from './UserRankBadge';
 import PostActionsMenu from './PostActionsMenu';
 import { formatRelativeTime, DIFFICULTY_LEVELS } from '../../services/communityService';
 import { getInitials } from '../../utils/userInitials';
@@ -84,7 +80,6 @@ export default function PostCard({
   onReport
 }) {
   const { currentUser } = useAuth();
-  const isQuestion = post.type === 'question';
   const isSolved = Boolean(post.isSolved || post.isAccepted);
   const diffConfig = DIFFICULTY_LEVELS.find((d) => d.id === post.difficulty) || DIFFICULTY_LEVELS[1];
   const answersCount = post.answersCount ?? (post.answers || []).length ?? 0;
@@ -93,9 +88,7 @@ export default function PostCard({
   const isAdmin = Boolean(
     currentUser && (
       currentUser.role === 'Admin' ||
-      currentUser.isInstructor ||
-      (currentUser.email && ['luphuc321@gmail.com', 'luphuc519@gmail.com', 'luphuc08092006@gmail.com'].includes(currentUser.email.toLowerCase())) ||
-      (currentUser.username && ['luphuc321@gmail.com', 'luphuc519@gmail.com', 'luphuc08092006@gmail.com'].includes(currentUser.username.toLowerCase()))
+      currentUser.isAdmin === true
     )
   );
 

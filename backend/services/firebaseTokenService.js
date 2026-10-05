@@ -35,7 +35,14 @@ const getFirebaseCertificates = async () => {
     return certificateCache;
   }
 
-  const response = await fetch(FIREBASE_CERTS_URL);
+  let response;
+  try {
+    response = await fetch(FIREBASE_CERTS_URL, {
+      signal: AbortSignal.timeout(10_000)
+    });
+  } catch (error) {
+    throw serviceUnavailable(`Unable to load Firebase signing certificates: ${error.message}`);
+  }
   if (!response.ok) {
     throw serviceUnavailable(`Unable to load Firebase signing certificates (${response.status})`);
   }
@@ -50,7 +57,7 @@ const getFirebaseCertificates = async () => {
 };
 
 export const verifyFirebaseIdToken = async (idToken) => {
-  if (typeof idToken !== 'string' || !idToken.trim()) {
+  if (typeof idToken !== 'string' || !idToken.trim() || idToken.length > 16_384) {
     throw invalidToken('Firebase ID token is required');
   }
 
@@ -127,6 +134,7 @@ export const verifyFirebaseIdToken = async (idToken) => {
     uid: payload.sub,
     email: payload.email || '',
     name: payload.name || '',
-    phoneNumber: payload.phone_number || ''
+    phoneNumber: payload.phone_number || '',
+    expiresAt: payload.exp * 1000
   };
 };
