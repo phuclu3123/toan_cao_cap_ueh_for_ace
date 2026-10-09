@@ -154,6 +154,7 @@ export const verifyFirebaseIdToken = async (idToken) => {
   return {
     uid: payload.sub,
     email: payload.email || '',
+    emailVerified: Boolean(payload.email && payload.email_verified === true),
     name: payload.name || '',
     phoneNumber: payload.phone_number || '',
     expiresAt: payload.exp * 1000

@@ -29,6 +29,8 @@ test('health endpoint reports the real database state', async () => {
   assert.match(payload.status, /^(ok|degraded)$/);
   assert.equal(typeof payload.database.configured, 'boolean');
   assert.match(payload.database.status, /^(disconnected|connected|connecting|disconnecting|unknown)$/);
+  assert.match(payload.passwordReset.status, /^(ready|unavailable)$/);
+  assert.deepEqual(Object.keys(payload.passwordReset), ['status']);
 });
 
 test('course content routes are mounted on the HTTP application', async () => {

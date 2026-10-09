@@ -4,6 +4,10 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { connectDB, getDatabaseStatus } from './config/db.js';
+import {
+  getPasswordResetReadiness,
+  reportPasswordResetReadiness
+} from './config/passwordResetConfig.js';
 import { runAutoMigration } from './services/autoMigration.js';
 
 import authRoutes from './routes/authRoutes.js';
@@ -104,11 +108,15 @@ app.use('/', paymentRoutes);
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   const database = getDatabaseStatus();
+  const passwordReset = getPasswordResetReadiness();
   res.json({
     status: database.status === 'connected' ? 'ok' : 'degraded',
     environment: process.env.NODE_ENV || 'development',
     uptime: Math.round(process.uptime()),
-    database
+    database,
+    passwordReset: {
+      status: passwordReset.status
+    }
   });
 });
 
@@ -140,6 +148,7 @@ app.use((err, req, res, next) => {
 // when MongoDB becomes active a few seconds later.
 export const startServer = async () => {
   try {
+    reportPasswordResetReadiness();
     await connectDB(runAutoMigration);
     const server = app.listen(PORT, () => {
       console.log(`🚀 Backend Server is running on port ${PORT}`);

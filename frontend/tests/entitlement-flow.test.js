@@ -71,6 +71,7 @@ test('free SQL enrollment is required after the public sample lesson', () => {
 });
 
 test('Firebase sync sends a verified ID token and has no fabricated users', () => {
+  const app = readSource('App.jsx');
   const navbar = readSource('components/Navbar.jsx');
   const authService = readSource('services/authService.js');
   const authModal = readSource('components/modals/AuthModal.jsx');
@@ -87,9 +88,17 @@ test('Firebase sync sends a verified ID token and has no fabricated users', () =
   );
   assert.match(navbar, /pendingRedirectProvider/);
   assert.match(navbar, /sessionStorage\.removeItem\(FIREBASE_REDIRECT_PROVIDER_KEY\)/);
-  assert.match(navbar, /setAuthError\(`Lỗi đăng nhập \$\{pendingRedirectProvider\}/);
+  assert.match(navbar, /setAuthError\(`Lỗi đăng nhập \$\{entry\.provider\}/);
   assert.match(navbar, /beginGithubOAuth/);
-  assert.doesNotMatch(navbar, /useGoogleOneTapLogin|signInWithPopup|response_type=token/);
+  assert.match(app, /GoogleOAuthProvider clientId=\{googleOneTapClientId\}/);
+  assert.match(app, /import\.meta\.env\.VITE_GOOGLE_CLIENT_ID/);
+  assert.doesNotMatch(app, /\.apps\.googleusercontent\.com/);
+  assert.match(navbar, /useGoogleOneTapLogin/);
+  assert.match(navbar, /GoogleAuthProvider\.credential\(response\.credential\)/);
+  assert.match(navbar, /signInWithCredential\(auth, credential\)/);
+  assert.match(navbar, /completeFirebaseSession\(userCredential\.user/);
+  assert.doesNotMatch(navbar, /signInWithPopup|response_type=token/);
+  assert.doesNotMatch(navbar, /if \(sessionReady && isFirebaseConfigured/);
   assert.doesNotMatch(authModal, /signInWithPopup|githubProvider/);
   assert.doesNotMatch(authModal, /response\.json\(/);
   assert.match(authModal, /await ensureGoogleOAuthAvailable\(\)/);
@@ -104,9 +113,15 @@ test('Firebase sync sends a verified ID token and has no fabricated users', () =
   assert.match(oauthService, /apiFetch\('\/api\/auth\/providers', \{ signal \}\)/);
   assert.match(oauthService, /AbortSignal\.timeout\(60_000\)/);
   assert.match(oauthService, /providers\.google\?\.enabled/);
-  assert.match(firebase, /window\.location\.hostname === 'toancaocapueh\.id\.vn'/);
-  assert.match(firebase, /\? 'toancaocapueh\.id\.vn'\s*:\s*viteEnv\.VITE_FIREBASE_AUTH_DOMAIN/);
+  assert.match(firebase, /window\.location\.hostname === ["']toancaocapueh\.id\.vn["']/);
+  assert.match(firebase, /\? ["']toancaocapueh\.id\.vn["']\s*:\s*viteEnv\.VITE_FIREBASE_AUTH_DOMAIN/);
   assert.match(oauthService, /sessionStorage\.setItem\(GITHUB_OAUTH_STATE_KEY, state\)/);
+  assert.match(oauthService, /url\.searchParams\.set\('prompt', 'select_account'\)/);
+  assert.match(oauthService, /window\.open\(/);
+  assert.match(oauthService, /popup\.location\.replace\(url\.toString\(\)\)/);
+  assert.match(navbar, /GITHUB_OAUTH_RESULT_MESSAGE/);
+  assert.match(navbar, /window\.opener\.postMessage\(/);
+  assert.match(navbar, /githubPopupPollTimerRef/);
   assert.match(authService, /firebaseUser\.getIdToken\(\)/);
   assert.match(authService, /JSON\.stringify\(\{ idToken \}\)/);
   assert.doesNotMatch(navbar, /google-user-|github-user-|mockFirebaseUser/);

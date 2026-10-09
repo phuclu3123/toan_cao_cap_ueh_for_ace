@@ -16,7 +16,11 @@ following outside this repository:
 3. In the Google OAuth client used by Firebase, authorize
    `https://toancaocapueh.id.vn/__/auth/handler` as a redirect URI. Keep the
    existing Firebase-hosted URI too if other environments use it.
-4. The backend safely defaults to the public project ID
+4. In Netlify, set `VITE_GOOGLE_CLIENT_ID` to that OAuth **Web** client ID and
+   add `https://toancaocapueh.id.vn` to its authorized JavaScript origins.
+   This variable enables One Tap; the normal Firebase redirect remains the
+   fallback when One Tap is unavailable or suppressed by the browser.
+5. The backend safely defaults to the public project ID
    `toancaocapueh-auth`; Render may still set `FIREBASE_PROJECT_ID` explicitly.
    Set `FIREBASE_AUTH_DISABLED=true` only when Google/Firebase sign-in must be
    intentionally disabled.

@@ -8,6 +8,7 @@ import {
   useParams,
   useRouteError
 } from 'react-router-dom';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ContactLauncher from './components/layout/ContactLauncher';
@@ -42,6 +43,18 @@ import './assets/styles/experience.css';
 export const LanguageContext = createContext();
 // eslint-disable-next-line react-refresh/only-export-components
 export const ThemeContext = createContext();
+
+const googleOneTapClientId = String(import.meta.env.VITE_GOOGLE_CLIENT_ID || '').trim();
+
+function GoogleIdentityBoundary({ children }) {
+  if (!googleOneTapClientId) return children;
+
+  return (
+    <GoogleOAuthProvider clientId={googleOneTapClientId}>
+      {children}
+    </GoogleOAuthProvider>
+  );
+}
 
 // Dynamic chunk fetch error recovery wrapper
 function safeLazy(importFunc) {
@@ -353,9 +366,11 @@ export default function App() {
       <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
         <AuthProvider>
           <NotificationProvider>
-            <GlobalPlayerProvider>
-              <RouterProvider router={router} />
-            </GlobalPlayerProvider>
+            <GoogleIdentityBoundary>
+              <GlobalPlayerProvider>
+                <RouterProvider router={router} />
+              </GlobalPlayerProvider>
+            </GoogleIdentityBoundary>
           </NotificationProvider>
         </AuthProvider>
       </ThemeContext.Provider>

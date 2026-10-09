@@ -37,6 +37,9 @@ export const readApiJson = async (response) => {
   if (!response.ok) {
     const error = new Error(data.message || data.desc || 'Yêu cầu không thể hoàn tất.');
     error.status = response.status;
+    if (typeof data.code === 'string' && data.code.trim()) {
+      error.code = data.code.trim();
+    }
     error.data = data;
     const retryAfter = Number.parseInt(response.headers.get('Retry-After') || '', 10);
     if (Number.isFinite(retryAfter) && retryAfter > 0) {

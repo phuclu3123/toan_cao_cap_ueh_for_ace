@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { getEmailDeliveryConfiguration } from '../config/passwordResetConfig.js';
 
 const escapeHtml = (value) => String(value ?? '')
   .replaceAll('&', '&amp;')
@@ -8,12 +9,10 @@ const escapeHtml = (value) => String(value ?? '')
   .replaceAll("'", '&#39;');
 
 export const sendOtpEmail = async (email, name, otpCode, otpExpiresAt) => {
-  const resendApiKey = process.env.RESEND_API_KEY;
-  const user = process.env.EMAIL_USER;
-  const pass = process.env.EMAIL_PASS;
+  const delivery = getEmailDeliveryConfiguration();
+  const { resend, smtp } = delivery;
   const safeName = escapeHtml(name || 'bạn');
-  const allowMockEmail = process.env.NODE_ENV !== 'production'
-    && process.env.ALLOW_MOCK_EMAIL === 'true';
+  const allowMockEmail = delivery.mockEnabled;
 
   const emailHtml = `
 <!DOCTYPE html>
@@ -93,17 +92,16 @@ export const sendOtpEmail = async (email, name, otpCode, otpExpiresAt) => {
   `;
 
   // Priority 1: Resend API (Preferred when RESEND_API_KEY is available)
-  if (resendApiKey) {
+  if (resend.enabled) {
     try {
-      const fromEmail = process.env.RESEND_FROM_EMAIL || 'UEH TCC Helper <onboarding@resend.dev>';
       const response = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${resendApiKey.trim()}`,
+          'Authorization': `Bearer ${resend.apiKey}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          from: fromEmail,
+          from: resend.from,
           to: [email],
           subject: '[UEH TCC] Mã OTP khôi phục mật khẩu tài khoản của bạn',
           html: emailHtml
@@ -124,21 +122,17 @@ export const sendOtpEmail = async (email, name, otpCode, otpExpiresAt) => {
   }
 
   // Priority 2: Gmail SMTP (Fallback when EMAIL_USER and EMAIL_PASS are set)
-  if (user && pass) {
+  if (smtp.enabled) {
     try {
-      const host = process.env.EMAIL_HOST || 'smtp.gmail.com';
-      const port = Number.parseInt(process.env.EMAIL_PORT || '587', 10);
-      const secure = process.env.EMAIL_SECURE === 'true' || port === 465;
-
       const transporter = nodemailer.createTransport({
-        host,
-        port,
-        secure,
-        auth: { user, pass }
+        host: smtp.host,
+        port: smtp.port,
+        secure: smtp.secure,
+        auth: { user: smtp.user, pass: smtp.password }
       });
 
       const mailOptions = {
-        from: `"Hệ thống Hỗ trợ Học tập UEH TCC" <${user}>`,
+        from: `"Hệ thống Hỗ trợ Học tập UEH TCC" <${smtp.user}>`,
         to: email,
         subject: '[UEH TCC] Mã OTP khôi phục mật khẩu tài khoản của bạn',
         html: emailHtml

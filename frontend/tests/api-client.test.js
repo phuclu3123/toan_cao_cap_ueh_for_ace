@@ -22,7 +22,7 @@ test('API client rejects an HTML SPA fallback instead of treating it as JSON', a
 
 test('API client preserves structured backend errors and retry metadata', async () => {
   const response = Response.json(
-    { success: false, message: 'Thử lại sau.' },
+    { success: false, code: 'RATE_LIMITED', message: 'Thử lại sau.' },
     { status: 429, headers: { 'retry-after': '30' } }
   )
 
@@ -30,8 +30,26 @@ test('API client preserves structured backend errors and retry metadata', async 
     readApiJson(response),
     (error) => {
       assert.equal(error.status, 429)
+      assert.equal(error.code, 'RATE_LIMITED')
       assert.equal(error.message, 'Thử lại sau.')
       assert.equal(error.retryAfterSeconds, 30)
+      return true
+    }
+  )
+})
+
+test('API client does not invent a code when the backend omits one', async () => {
+  const response = Response.json(
+    { success: false, message: 'Dịch vụ tạm thời gián đoạn.' },
+    { status: 503 }
+  )
+
+  await assert.rejects(
+    readApiJson(response),
+    (error) => {
+      assert.equal(error.status, 503)
+      assert.equal(error.code, undefined)
+      assert.equal(error.data.success, false)
       return true
     }
   )

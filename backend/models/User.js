@@ -3,6 +3,10 @@ import mongoose from 'mongoose';
 const userSchema = new mongoose.Schema({
   id: { type: String, unique: true, sparse: true, index: true },
   uid: { type: String, unique: true, sparse: true, index: true },
+  // `uid` remains for backward compatibility while provider-specific IDs let
+  // one account authenticate through both Firebase and GitHub.
+  firebaseUid: { type: String, unique: true, sparse: true, index: true },
+  githubId: { type: String, unique: true, sparse: true, index: true },
   username: {
     type: String,
     required: true,

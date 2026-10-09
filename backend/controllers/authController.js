@@ -4,12 +4,19 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import mongoose from 'mongoose';
 import User from '../models/User.js';
+import { getPasswordResetSecret } from '../config/passwordResetConfig.js';
 import { sendOtpEmail } from '../services/emailService.js';
 import {
   getConfiguredFirebaseProjectId,
   verifyFirebaseIdToken
 } from '../services/firebaseTokenService.js';
 import { listActiveEnrollments } from '../services/enrollmentService.js';
+import {
+  attachExternalIdentity,
+  legacyUidForExternalIdentity,
+  providerFieldForExternalIdentity,
+  resolveExternalIdentityOwner
+} from '../services/externalIdentityService.js';
 import {
   issueSession,
   publicUser,
@@ -36,13 +43,7 @@ const PASSWORD_MIN_LENGTH = 10;
 const PASSWORD_MAX_LENGTH = 128;
 const OTP_TTL_MS = 10 * 60 * 1000;
 const OTP_MAX_ATTEMPTS = 5;
-const DEVELOPMENT_OTP_PEPPER = crypto.randomBytes(32).toString('hex');
-const getOtpPepper = () => (
-  process.env.OTP_SECRET
-  || process.env.SESSION_SECRET
-  || process.env.JWT_SECRET
-  || (process.env.NODE_ENV !== 'production' ? DEVELOPMENT_OTP_PEPPER : '')
-);
+const getOtpPepper = () => getPasswordResetSecret().value;
 const GENERIC_RESET_MESSAGE = 'Nếu email tồn tại trong hệ thống, mã xác thực sẽ được gửi trong ít phút.';
 const DUMMY_PASSWORD_HASH = await hashPassword('not-a-real-user-password');
 
@@ -137,17 +138,30 @@ const findUserByIdentifier = async (identifier, { includeSecrets = false } = {})
   ) || null;
 };
 
-const findUserByUid = async (uid, { includeSecrets = false } = {}) => {
-  if (typeof uid !== 'string' || !uid.trim()) return null;
-  const normalizedUid = uid.trim();
+const findUserByExternalIdentity = async (
+  provider,
+  subject,
+  { includeSecrets = false } = {}
+) => {
+  const normalizedSubject = String(subject || '').trim();
+  if (!normalizedSubject) return null;
+  const providerField = providerFieldForExternalIdentity(provider);
+  const legacyUid = legacyUidForExternalIdentity(provider, normalizedSubject);
 
   if (mongoose.connection.readyState === 1) {
-    let query = User.findOne({ uid: normalizedUid });
+    let query = User.findOne({
+      $or: [
+        { [providerField]: normalizedSubject },
+        { uid: legacyUid }
+      ]
+    });
     if (includeSecrets) query = query.select(secretSelection);
     return query;
   }
 
-  return (await readLocalUsers()).find((user) => user.uid === normalizedUid) || null;
+  return (await readLocalUsers()).find((user) => (
+    user?.[providerField] === normalizedSubject || user?.uid === legacyUid
+  )) || null;
 };
 
 const findAuthenticatedUser = async (identity) => {
@@ -258,19 +272,34 @@ const sendAuthError = (res, error, fallbackMessage) => {
   });
 };
 
-const upsertExternalUser = async ({ uid, email, name, phoneNumber }) => {
-  const sameStoredUser = (left, right) => {
-    const leftId = left?._id?.toString() || left?.id;
-    const rightId = right?._id?.toString() || right?.id;
-    return Boolean(leftId && rightId && leftId === rightId);
-  };
+const upsertExternalUser = async ({
+  provider,
+  subject,
+  email,
+  emailVerified,
+  name,
+  phoneNumber
+}) => {
+  const normalizedSubject = String(subject || '').trim();
+  const candidateEmail = normalizeEmail(email);
+  // Provider claims are still treated as untrusted input. A verified flag is
+  // only useful for linking when the claimed address is syntactically valid.
+  const normalizedEmail = isValidEmail(candidateEmail) ? candidateEmail : '';
+  const providerField = providerFieldForExternalIdentity(provider);
+  const legacyUid = legacyUidForExternalIdentity(provider, normalizedSubject);
 
   const linkIdentity = async (user) => {
-    if (user.uid && user.uid !== uid) {
-      throw httpError(409, 'ACCOUNT_LINK_CONFLICT', 'Email này đã liên kết với tài khoản khác.');
+    attachExternalIdentity(user, { provider, subject: normalizedSubject });
+    const currentUsername = normalizeIdentifier(user.username || user.email);
+    const hasGeneratedEmail = currentUsername.endsWith('@users.invalid')
+      || currentUsername.endsWith('@users.noreply.github.com');
+    if (
+      normalizedEmail
+      && emailVerified
+      && (!currentUsername || currentUsername === normalizedEmail || hasGeneratedEmail)
+    ) {
+      user.username = normalizedEmail;
     }
-    user.uid = uid;
-    if (email) user.username = normalizeEmail(email);
     if (name) user.name = normalizeName(name);
     if (phoneNumber) user.phoneNumber = String(phoneNumber).trim().slice(0, 32);
     user.role = roleForIdentifier(user.username);
@@ -278,14 +307,19 @@ const upsertExternalUser = async ({ uid, email, name, phoneNumber }) => {
   };
 
   const findMatchingUsers = async () => {
-    const [uidUser, emailUser] = await Promise.all([
-      findUserByUid(uid),
-      email ? findUserByIdentifier(email) : Promise.resolve(null)
+    const [identityUser, emailUser] = await Promise.all([
+      findUserByExternalIdentity(provider, normalizedSubject),
+      emailVerified && normalizedEmail
+        ? findUserByIdentifier(normalizedEmail)
+        : Promise.resolve(null)
     ]);
-    if (uidUser && emailUser && !sameStoredUser(uidUser, emailUser)) {
-      throw httpError(409, 'ACCOUNT_LINK_CONFLICT', 'Danh tính đăng nhập đang liên kết với hai tài khoản khác nhau.');
-    }
-    return uidUser || emailUser;
+    return resolveExternalIdentityOwner({
+      provider,
+      subject: normalizedSubject,
+      identityUser,
+      emailUser,
+      emailVerified
+    });
   };
 
   const existingUser = await findMatchingUsers();
@@ -293,12 +327,13 @@ const upsertExternalUser = async ({ uid, email, name, phoneNumber }) => {
     return linkIdentity(existingUser);
   }
 
-  const username = normalizeEmail(email)
-    || `firebase-${crypto.createHash('sha256').update(uid).digest('hex').slice(0, 24)}@users.invalid`;
+  const username = normalizedEmail
+    || `${provider}-${crypto.createHash('sha256').update(normalizedSubject).digest('hex').slice(0, 24)}@users.invalid`;
   try {
     return await createUser({
       id: `u-${crypto.randomUUID()}`,
-      uid,
+      uid: legacyUid,
+      [providerField]: normalizedSubject,
       username,
       name: normalizeName(name) || 'Người dùng',
       phoneNumber: phoneNumber ? String(phoneNumber).trim().slice(0, 32) : '',
@@ -307,7 +342,7 @@ const upsertExternalUser = async ({ uid, email, name, phoneNumber }) => {
   } catch (error) {
     // Two OAuth callbacks can race (redirect result + auth-state listener).
     // The unique indexes choose the winner; the loser reloads and links to it.
-    if (error?.code !== 11000) throw error;
+    if (error?.code !== 11000 && error?.code !== 'ACCOUNT_EXISTS') throw error;
     const concurrentUser = await findMatchingUsers();
     if (!concurrentUser) throw error;
     return linkIdentity(concurrentUser);
@@ -542,7 +577,14 @@ export const getMe = async (req, res) => {
 export const syncFirebaseAuth = async (req, res) => {
   try {
     const identity = await verifyFirebaseIdToken(req.body?.idToken);
-    const user = await upsertExternalUser(identity);
+    const user = await upsertExternalUser({
+      provider: 'firebase',
+      subject: identity.uid,
+      email: identity.email,
+      emailVerified: identity.emailVerified,
+      name: identity.name,
+      phoneNumber: identity.phoneNumber
+    });
     await rotateSession(req, res, user, {
       // A manually verified Firebase token cannot reveal later account
       // revocation. Bound the backend cookie to this signed token's lifetime;
@@ -788,8 +830,10 @@ export const exchangeGithubToken = async (req, res) => {
     const login = String(githubUser.login || 'user').replace(/[^a-z0-9-]/gi, '').slice(0, 39) || 'user';
     const fallbackEmail = `${githubUser.id}+${login}@users.noreply.github.com`;
     const user = await upsertExternalUser({
-      uid: `github:${githubUser.id}`,
+      provider: 'github',
+      subject: String(githubUser.id),
       email: email || fallbackEmail,
+      emailVerified: Boolean(email),
       name: githubUser.name || githubUser.login || 'GitHub user',
       phoneNumber: ''
     });

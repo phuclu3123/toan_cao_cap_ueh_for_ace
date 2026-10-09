@@ -1,15 +1,19 @@
 import { useCallback, useState, useEffect, useContext, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
-  Menu, X, User, LogIn, PlusCircle, Loader2,
+  Menu, X, User, LogIn, PlusCircle, Loader2, CheckCircle2,
   Sun, Moon, Globe, Search, ChevronDown, ChevronRight, BookOpen, LogOut, Bookmark, MessageSquare
 } from 'lucide-react';
+import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
+import { useGoogleOneTapLogin } from '@react-oauth/google';
 import NotificationDropdown from './community/NotificationDropdown';
 import { apiFetch, readApiJson, toClientUser } from '../utils/apiClient';
 import { syncFirebaseUserWithBackend } from '../services/authService';
 import {
   beginGithubOAuth,
   ensureGoogleOAuthAvailable,
+  GITHUB_OAUTH_MODE_KEY,
+  GITHUB_OAUTH_RESULT_MESSAGE,
   GITHUB_OAUTH_STATE_KEY
 } from '../services/oauthService';
 import { getInitials } from '../utils/userInitials';
@@ -39,6 +43,63 @@ const PROFESSOR_NAMES = {
   ntv: 'Thầy Ngô Trấn Vũ',
   ntvv: 'Thầy Nguyễn Thanh Vân'
 };
+
+const googleOneTapClientId = String(import.meta.env.VITE_GOOGLE_CLIENT_ID || '').trim();
+let firebaseRedirectResultPromise;
+
+const getFirebaseRedirectResultOnce = () => {
+  if (!firebaseRedirectResultPromise) {
+    firebaseRedirectResultPromise = getRedirectResult(auth);
+  }
+  return firebaseRedirectResultPromise;
+};
+
+const getPendingAuthProvider = () => {
+  if (typeof window === 'undefined') return '';
+
+  try {
+    const firebaseProvider = window.sessionStorage.getItem(FIREBASE_REDIRECT_PROVIDER_KEY);
+    if (firebaseProvider) return firebaseProvider;
+    if (window.sessionStorage.getItem(GITHUB_OAUTH_STATE_KEY)) return 'GitHub';
+  } catch {
+    // Storage can be unavailable in strict privacy modes. OAuth still works;
+    // it simply cannot restore the progress label after a full-page redirect.
+  }
+
+  return '';
+};
+
+const notifyGithubOpener = (payload) => {
+  try {
+    if (sessionStorage.getItem(GITHUB_OAUTH_MODE_KEY) !== 'popup') return false;
+    if (window.opener && window.opener !== window) {
+      window.opener.postMessage(
+        { type: GITHUB_OAUTH_RESULT_MESSAGE, ...payload },
+        window.location.origin
+      );
+    }
+    sessionStorage.removeItem(GITHUB_OAUTH_MODE_KEY);
+    // Even if GitHub's cross-origin isolation severed window.opener, closing
+    // lets the original tab detect the shared session cookie via /auth/me.
+    window.setTimeout(() => window.close(), 0);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+function GoogleOneTapBridge({ disabled, onSuccess }) {
+  useGoogleOneTapLogin({
+    onSuccess,
+    onError: () => {},
+    disabled,
+    auto_select: false,
+    cancel_on_tap_outside: false,
+    use_fedcm_for_prompt: true
+  });
+
+  return null;
+}
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -92,12 +153,24 @@ export default function Navbar() {
       localStorage.removeItem('ueh_tcc_user');
     }
   }, []);
-  const [sessionReady, setSessionReady] = useState(false);
   const hasBackendSessionRef = useRef(false);
   const [authError, setAuthError] = useState('');
   const [authSuccessMsg, setAuthSuccessMsg] = useState('');
-  const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [isAuthenticating, setIsAuthenticating] = useState(() => Boolean(getPendingAuthProvider()));
+  const [authProgress, setAuthProgress] = useState(() => {
+    const provider = getPendingAuthProvider();
+    return provider
+      ? { phase: 'loading', message: `Đang hoàn tất đăng nhập ${provider}…` }
+      : null;
+  });
   const oauthRequestInFlightRef = useRef(false);
+  const authProgressTimerRef = useRef(null);
+  const githubPopupRef = useRef(null);
+  const githubPopupPollTimerRef = useRef(null);
+  const firebaseSyncsRef = useRef(new Map());
+  const lastFirebaseSyncRef = useRef(null);
+  const firebaseAuthIntentRef = useRef('');
+  const sessionBootstrapPromiseRef = useRef(Promise.resolve());
 
   // Upload Modal States (Admin Only)
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -114,6 +187,167 @@ export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
   const uploadProfName = PROFESSOR_NAMES[uploadProf] || 'Giảng viên UEH';
+
+  const showAuthProgress = useCallback((phase, message) => {
+    if (authProgressTimerRef.current) {
+      window.clearTimeout(authProgressTimerRef.current);
+      authProgressTimerRef.current = null;
+    }
+
+    if (!phase) {
+      setAuthProgress(null);
+      return;
+    }
+
+    setAuthProgress({ phase, message });
+    if (phase === 'success') {
+      authProgressTimerRef.current = window.setTimeout(() => {
+        setAuthProgress(null);
+        authProgressTimerRef.current = null;
+      }, 2200);
+    }
+  }, []);
+
+  const clearGithubPopupWatch = useCallback(() => {
+    if (githubPopupPollTimerRef.current) {
+      window.clearInterval(githubPopupPollTimerRef.current);
+      githubPopupPollTimerRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => () => {
+    if (authProgressTimerRef.current) {
+      window.clearTimeout(authProgressTimerRef.current);
+    }
+    clearGithubPopupWatch();
+  }, [clearGithubPopupWatch]);
+
+  const handleGithubPopupResult = useCallback((payload) => {
+    const expectedState = sessionStorage.getItem(GITHUB_OAUTH_STATE_KEY);
+    if (!expectedState || payload?.state !== expectedState) {
+      return;
+    }
+
+    clearGithubPopupWatch();
+    githubPopupRef.current = null;
+    sessionStorage.removeItem(GITHUB_OAUTH_STATE_KEY);
+    sessionStorage.removeItem(GITHUB_OAUTH_MODE_KEY);
+    oauthRequestInFlightRef.current = false;
+    setIsAuthenticating(false);
+
+    if (!payload.success || !payload.user) {
+      setAuthSuccessMsg('');
+      setAuthError(payload.message || 'Không thể hoàn tất đăng nhập GitHub.');
+      setShowLoginModal(true);
+      showAuthProgress(null);
+      return;
+    }
+
+    const dbUser = toClientUser(payload.user);
+    hasBackendSessionRef.current = true;
+    setLoggedInUser(dbUser);
+    window.dispatchEvent(new Event('ueh-tcc-session-changed'));
+    setAuthError('');
+    setAuthSuccessMsg('Đăng nhập GitHub thành công!');
+    setShowLoginModal(false);
+    showAuthProgress('success', 'Đăng nhập GitHub thành công');
+    navigate('/', { replace: true });
+  }, [clearGithubPopupWatch, navigate, setLoggedInUser, showAuthProgress]);
+
+  useEffect(() => {
+    const handleMessage = (event) => {
+      if (
+        event.origin !== window.location.origin
+        || event.data?.type !== GITHUB_OAUTH_RESULT_MESSAGE
+        || (githubPopupRef.current && event.source !== githubPopupRef.current)
+      ) return;
+
+      handleGithubPopupResult(event.data);
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [handleGithubPopupResult]);
+
+  const completeFirebaseSession = useCallback((firebaseUser, options = {}) => {
+    const uid = String(firebaseUser?.uid || '');
+    if (!uid || typeof firebaseUser?.getIdToken !== 'function') {
+      return Promise.reject(new Error('Không nhận được tài khoản Firebase hợp lệ.'));
+    }
+
+    const provider = options.provider || 'Google';
+    const announce = Boolean(options.announce);
+    const lastSync = lastFirebaseSyncRef.current;
+    if (lastSync?.uid === uid && hasBackendSessionRef.current) {
+      if (announce) {
+        sessionStorage.removeItem(FIREBASE_REDIRECT_PROVIDER_KEY);
+        firebaseAuthIntentRef.current = '';
+        setAuthError('');
+        setAuthSuccessMsg(`Đăng nhập ${provider} thành công!`);
+        setShowLoginModal(false);
+        setIsAuthenticating(false);
+        showAuthProgress('success', `Đăng nhập ${provider} thành công`);
+      }
+      return Promise.resolve(lastSync.user);
+    }
+
+    const existing = firebaseSyncsRef.current.get(uid);
+    if (existing) {
+      if (announce) {
+        existing.announce = true;
+        existing.provider = provider;
+        setIsAuthenticating(true);
+        showAuthProgress('loading', `Đang đồng bộ tài khoản ${provider}…`);
+      }
+      return existing.promise;
+    }
+
+    const entry = { announce, provider, promise: null };
+    if (entry.announce) {
+      setIsAuthenticating(true);
+      showAuthProgress('loading', `Đang đồng bộ tài khoản ${entry.provider}…`);
+    }
+
+    entry.promise = syncFirebaseUserWithBackend(firebaseUser)
+      .then((dbUser) => {
+        hasBackendSessionRef.current = true;
+        lastFirebaseSyncRef.current = { uid, user: dbUser };
+        setLoggedInUser(dbUser);
+        window.dispatchEvent(new Event('ueh-tcc-session-changed'));
+
+        if (entry.announce) {
+          sessionStorage.removeItem(FIREBASE_REDIRECT_PROVIDER_KEY);
+          firebaseAuthIntentRef.current = '';
+          setAuthError('');
+          setAuthSuccessMsg(`Đăng nhập ${entry.provider} thành công!`);
+          setShowLoginModal(false);
+          setIsAuthenticating(false);
+          showAuthProgress('success', `Đăng nhập ${entry.provider} thành công`);
+        }
+
+        return dbUser;
+      })
+      .catch((error) => {
+        if (entry.announce) {
+          sessionStorage.removeItem(FIREBASE_REDIRECT_PROVIDER_KEY);
+          firebaseAuthIntentRef.current = '';
+          setAuthSuccessMsg('');
+          setAuthError(`Lỗi đăng nhập ${entry.provider}: ${error.message || 'Không thể đồng bộ tài khoản.'}`);
+          setShowLoginModal(true);
+          setIsAuthenticating(false);
+          showAuthProgress(null);
+        }
+        throw error;
+      })
+      .finally(() => {
+        if (firebaseSyncsRef.current.get(uid) === entry) {
+          firebaseSyncsRef.current.delete(uid);
+        }
+      });
+
+    firebaseSyncsRef.current.set(uid, entry);
+    return entry.promise;
+  }, [setLoggedInUser, showAuthProgress]);
 
   const [readingProgress, setReadingProgress] = useState(0);
   const isBlogDetailPage = location.pathname.startsWith('/blog/');
@@ -211,83 +445,103 @@ export default function Navbar() {
     let cancelled = false;
 
     const bootstrapSession = async () => {
+      const hadBackendSessionAtStart = hasBackendSessionRef.current;
       try {
         const res = await apiFetch('/api/auth/me');
         if (res.ok) {
           const payload = await readApiJson(res);
           if (payload?.user) {
             const clientUser = toClientUser(payload.user);
-            if (!cancelled) {
+            const newerLoginCompleted = !hadBackendSessionAtStart && hasBackendSessionRef.current;
+            if (!cancelled && !newerLoginCompleted) {
               hasBackendSessionRef.current = true;
               setLoggedInUser(clientUser);
-              localStorage.setItem('ueh_tcc_user', JSON.stringify(clientUser));
             }
             return;
           }
         }
-        if (!cancelled) {
+        if (!cancelled && !hasBackendSessionRef.current) {
           hasBackendSessionRef.current = false;
           setLoggedInUser(null);
+          localStorage.removeItem('ueh_tcc_user');
         }
-        localStorage.removeItem('ueh_tcc_user');
       } catch {
-        if (!cancelled) {
+        if (!cancelled && !hasBackendSessionRef.current) {
           hasBackendSessionRef.current = false;
           setLoggedInUser(null);
+          localStorage.removeItem('ueh_tcc_user');
         }
-        localStorage.removeItem('ueh_tcc_user');
-      } finally {
-        if (!cancelled) setSessionReady(true);
       }
     };
 
-    bootstrapSession();
-    window.addEventListener('ueh-tcc-session-changed', bootstrapSession);
+    const startBootstrapSession = () => {
+      const request = bootstrapSession();
+      sessionBootstrapPromiseRef.current = request;
+      return request;
+    };
+
+    startBootstrapSession();
+    window.addEventListener('ueh-tcc-session-changed', startBootstrapSession);
     return () => {
       cancelled = true;
-      window.removeEventListener('ueh-tcc-session-changed', bootstrapSession);
+      window.removeEventListener('ueh-tcc-session-changed', startBootstrapSession);
     };
   }, [setLoggedInUser]);
 
-  // Listen for real Firebase sessions and exchange their verified ID token for
-  // a backend session cookie. Google uses a top-level redirect instead of One
-  // Tap/a browser popup so the account chooser has the normal full-page UX.
+  // Process Firebase before the slower /auth/me bootstrap finishes. This keeps
+  // redirect and One Tap logins responsive while the shared completion helper
+  // de-duplicates the redirect result and the auth-state listener.
   useEffect(() => {
-    if (sessionReady && isFirebaseConfigured && auth) {
-      let cancelled = false;
-      const pendingRedirectProvider = sessionStorage.getItem(FIREBASE_REDIRECT_PROVIDER_KEY);
-      const redirectProvider = pendingRedirectProvider || 'Google';
-      // Check for redirect result (e.g. from GitHub login)
-      getRedirectResult(auth).then(async (result) => {
-        if (!result) {
-          if (pendingRedirectProvider) {
-            sessionStorage.removeItem(FIREBASE_REDIRECT_PROVIDER_KEY);
-          }
+    if (!isFirebaseConfigured || !auth) return undefined;
+
+    let cancelled = false;
+    let redirectSettled = false;
+    let authStateSettled = false;
+    let firebaseUserObserved = false;
+    const pendingRedirectProvider = sessionStorage.getItem(FIREBASE_REDIRECT_PROVIDER_KEY);
+    const redirectProvider = pendingRedirectProvider || 'Google';
+
+    const finishMissingRedirect = () => {
+      if (
+        cancelled
+        || !pendingRedirectProvider
+        || !redirectSettled
+        || !authStateSettled
+        || firebaseUserObserved
+      ) return;
+
+      sessionStorage.removeItem(FIREBASE_REDIRECT_PROVIDER_KEY);
+      setIsAuthenticating(false);
+      showAuthProgress(null);
+      setAuthSuccessMsg('');
+      setAuthError(`Không nhận được kết quả đăng nhập ${redirectProvider}. Vui lòng thử lại.`);
+      setShowLoginModal(true);
+    };
+
+    getFirebaseRedirectResultOnce()
+      .then((result) => {
+        redirectSettled = true;
+        if (cancelled) return;
+        if (result?.user) {
+          firebaseUserObserved = true;
+          void completeFirebaseSession(result.user, {
+            provider: redirectProvider,
+            announce: Boolean(pendingRedirectProvider)
+          }).catch((error) => {
+            console.error('Lỗi đồng bộ Firebase user với Backend:', error);
+          });
           return;
         }
-
-        try {
-          const dbUser = await syncFirebaseUserWithBackend(result.user);
-          hasBackendSessionRef.current = true;
-          setLoggedInUser(dbUser);
-          window.dispatchEvent(new Event('ueh-tcc-session-changed'));
-          sessionStorage.removeItem(FIREBASE_REDIRECT_PROVIDER_KEY);
-          setAuthError('');
-          setAuthSuccessMsg(`Đăng nhập ${redirectProvider} thành công!`);
-          setShowLoginModal(false);
-          navigate('/', { replace: true });
-        } catch(err) {
-          if (cancelled) return;
-          sessionStorage.removeItem(FIREBASE_REDIRECT_PROVIDER_KEY);
-          console.error("Lỗi đồng bộ Firebase user với Backend:", err);
-          setAuthSuccessMsg('');
-          setAuthError(`Lỗi đăng nhập ${redirectProvider}: ${err.message || 'Không thể hoàn tất đăng nhập. Vui lòng thử lại.'}`);
-          setShowLoginModal(true);
-        }
-      }).catch((error) => {
+        finishMissingRedirect();
+      })
+      .catch((error) => {
+        redirectSettled = true;
         if (cancelled) return;
         sessionStorage.removeItem(FIREBASE_REDIRECT_PROVIDER_KEY);
-        console.error("Redirect auth error:", error);
+        firebaseAuthIntentRef.current = '';
+        setIsAuthenticating(false);
+        showAuthProgress(null);
+        console.error('Redirect auth error:', error);
         const message = error.code === 'auth/account-exists-with-different-credential'
           ? 'Email này đã liên kết với một phương thức đăng nhập khác. Vui lòng dùng phương thức đã đăng ký trước đó.'
           : (error.message || 'Không thể hoàn tất đăng nhập. Vui lòng thử lại.');
@@ -296,37 +550,45 @@ export default function Navbar() {
         setShowLoginModal(true);
       });
 
-      const unsubscribe = onIdTokenChanged(auth, async (firebaseUser) => {
-        if (firebaseUser) {
-          try {
-            const dbUser = await syncFirebaseUserWithBackend(firebaseUser);
-            hasBackendSessionRef.current = true;
-            setLoggedInUser(dbUser);
-            window.dispatchEvent(new Event('ueh-tcc-session-changed'));
-            if (pendingRedirectProvider) {
-              sessionStorage.removeItem(FIREBASE_REDIRECT_PROVIDER_KEY);
-              setAuthError('');
-              setAuthSuccessMsg(`Đăng nhập ${pendingRedirectProvider} thành công!`);
-              setShowLoginModal(false);
-            }
-          } catch(err) {
-            if (cancelled) return;
-            console.error("Lỗi đồng bộ Firebase user với Backend:", err);
-            if (pendingRedirectProvider) {
-              sessionStorage.removeItem(FIREBASE_REDIRECT_PROVIDER_KEY);
-              setAuthSuccessMsg('');
-              setAuthError(`Lỗi đăng nhập ${pendingRedirectProvider}: ${err.message || 'Không thể đồng bộ tài khoản.'}`);
-              setShowLoginModal(true);
-            }
-          }
-        }
-      });
-      return () => {
-        cancelled = true;
-        unsubscribe();
-      };
-    }
-  }, [navigate, sessionReady, setLoggedInUser]);
+    const unsubscribe = onIdTokenChanged(auth, (firebaseUser) => {
+      authStateSettled = true;
+      if (cancelled) return;
+
+      if (!firebaseUser) {
+        finishMissingRedirect();
+        return;
+      }
+
+      firebaseUserObserved = true;
+      const intentProvider = firebaseAuthIntentRef.current
+        || sessionStorage.getItem(FIREBASE_REDIRECT_PROVIDER_KEY);
+      if (intentProvider) {
+        void completeFirebaseSession(firebaseUser, {
+          provider: intentProvider,
+          announce: true
+        }).catch((error) => {
+          console.error('Lỗi đồng bộ Firebase user với Backend:', error);
+        });
+        return;
+      }
+
+      // A persisted Firebase user is only synchronized when the parallel
+      // backend bootstrap confirms that no valid HttpOnly session exists.
+      void sessionBootstrapPromiseRef.current
+        .catch(() => {})
+        .then(() => {
+          if (cancelled || hasBackendSessionRef.current) return;
+          return completeFirebaseSession(firebaseUser).catch((error) => {
+            console.error('Không thể khôi phục phiên Firebase:', error);
+          });
+        });
+    });
+
+    return () => {
+      cancelled = true;
+      unsubscribe();
+    };
+  }, [completeFirebaseSession, showAuthProgress]);
 
   const isActivePath = (path) => location.pathname === path;
 
@@ -435,6 +697,42 @@ export default function Navbar() {
     }
   };
 
+  const handleGoogleOneTapSuccess = useCallback(async (response) => {
+    if (oauthRequestInFlightRef.current || hasBackendSessionRef.current) return;
+
+    oauthRequestInFlightRef.current = true;
+    firebaseAuthIntentRef.current = 'Google';
+    setAuthError('');
+    setAuthSuccessMsg('Đang xác thực nhanh với Google…');
+    setIsAuthenticating(true);
+    showAuthProgress('loading', 'Đang xác thực tài khoản Google…');
+
+    try {
+      if (!isFirebaseConfigured || !auth) {
+        throw new Error('Hệ thống Firebase chưa được cấu hình.');
+      }
+      if (!response?.credential) {
+        throw new Error('Google không trả về thông tin xác thực.');
+      }
+
+      const credential = GoogleAuthProvider.credential(response.credential);
+      const userCredential = await signInWithCredential(auth, credential);
+      await completeFirebaseSession(userCredential.user, {
+        provider: 'Google',
+        announce: true
+      });
+    } catch (error) {
+      firebaseAuthIntentRef.current = '';
+      setIsAuthenticating(false);
+      showAuthProgress(null);
+      setAuthSuccessMsg('');
+      setAuthError(`Lỗi đăng nhập Google: ${error.message || 'Không thể hoàn tất đăng nhập nhanh.'}`);
+      setShowLoginModal(true);
+    } finally {
+      oauthRequestInFlightRef.current = false;
+    }
+  }, [completeFirebaseSession, showAuthProgress]);
+
   const processedCodeRef = useRef(null);
 
   // Handle manual OAuth redirect return
@@ -448,14 +746,17 @@ export default function Navbar() {
       const githubErrorDescription = queryParams.get('error_description');
 
       if (githubError) {
+        const message = githubError === 'access_denied'
+          ? 'Bạn đã hủy đăng nhập GitHub.'
+          : `Không thể đăng nhập GitHub: ${githubErrorDescription || githubError}`;
         sessionStorage.removeItem(GITHUB_OAUTH_STATE_KEY);
         window.history.replaceState({}, document.title, window.location.pathname);
+        if (notifyGithubOpener({ success: false, state: githubState, message })) return;
+        sessionStorage.removeItem(GITHUB_OAUTH_MODE_KEY);
+        setIsAuthenticating(false);
+        showAuthProgress(null);
         setAuthSuccessMsg('');
-        setAuthError(
-          githubError === 'access_denied'
-            ? 'Bạn đã hủy đăng nhập GitHub.'
-            : `Không thể đăng nhập GitHub: ${githubErrorDescription || githubError}`
-        );
+        setAuthError(message);
         setShowLoginModal(true);
         return;
       }
@@ -473,14 +774,19 @@ export default function Navbar() {
       if (githubCode && processedCodeRef.current !== githubCode) {
         processedCodeRef.current = githubCode;
         setIsAuthenticating(true);
+        showAuthProgress('loading', 'Đang xác minh tài khoản GitHub…');
         const expectedState = sessionStorage.getItem(GITHUB_OAUTH_STATE_KEY);
         sessionStorage.removeItem(GITHUB_OAUTH_STATE_KEY);
         window.history.replaceState({}, document.title, window.location.pathname);
 
         if (!expectedState || !githubState || expectedState !== githubState) {
-          setAuthError('Phiên đăng nhập GitHub không hợp lệ hoặc đã hết hạn. Vui lòng thử lại.');
+          const message = 'Phiên đăng nhập GitHub không hợp lệ hoặc đã hết hạn. Vui lòng thử lại.';
+          if (notifyGithubOpener({ success: false, state: githubState, message })) return;
+          sessionStorage.removeItem(GITHUB_OAUTH_MODE_KEY);
+          setAuthError(message);
           setShowLoginModal(true);
           setIsAuthenticating(false);
+          showAuthProgress(null);
           return;
         }
 
@@ -492,6 +798,12 @@ export default function Navbar() {
           });
           const data = await readApiJson(response);
           if (data.success && data.user) {
+            if (notifyGithubOpener({
+              success: true,
+              state: githubState,
+              user: data.user
+            })) return;
+            sessionStorage.removeItem(GITHUB_OAUTH_MODE_KEY);
             const dbUser = toClientUser(data.user);
             hasBackendSessionRef.current = true;
             setLoggedInUser(dbUser);
@@ -499,16 +811,31 @@ export default function Navbar() {
             setAuthError('');
             setAuthSuccessMsg('Đăng nhập GitHub thành công!');
             setShowLoginModal(false);
+            showAuthProgress('success', 'Đăng nhập GitHub thành công');
             navigate('/', { replace: true });
           } else {
             const errorMsg = data.message || 'Lỗi lấy token từ GitHub.';
+            if (notifyGithubOpener({
+              success: false,
+              state: githubState,
+              message: `Lỗi đăng nhập GitHub: ${errorMsg}`
+            })) return;
+            sessionStorage.removeItem(GITHUB_OAUTH_MODE_KEY);
             setAuthError(`Lỗi đăng nhập GitHub: ${errorMsg}`);
             setShowLoginModal(true);
+            showAuthProgress(null);
           }
         } catch (error) {
           console.error("Lỗi xác thực GitHub code:", error);
+          if (notifyGithubOpener({
+            success: false,
+            state: githubState,
+            message: `Lỗi đăng nhập GitHub: ${error.message}`
+          })) return;
+          sessionStorage.removeItem(GITHUB_OAUTH_MODE_KEY);
           setAuthError(`Lỗi đăng nhập GitHub: ${error.message}`);
           setShowLoginModal(true);
+          showAuthProgress(null);
         } finally {
           setIsAuthenticating(false);
         }
@@ -516,7 +843,7 @@ export default function Navbar() {
     };
 
     handleOAuthReturn();
-  }, [navigate, setLoggedInUser]);
+  }, [navigate, setLoggedInUser, showAuthProgress]);
 
   const handleGoogleLogin = async () => {
     if (oauthRequestInFlightRef.current) return;
@@ -524,6 +851,7 @@ export default function Navbar() {
     setAuthError('');
     setAuthSuccessMsg('');
     setIsAuthenticating(true);
+    showAuthProgress('loading', 'Đang chuyển đến Google…');
     try {
       if (!isFirebaseConfigured || !auth || !googleProvider) {
         throw new Error('Hệ thống Firebase chưa được cấu hình.');
@@ -540,6 +868,7 @@ export default function Navbar() {
       setShowLoginModal(true);
       oauthRequestInFlightRef.current = false;
       setIsAuthenticating(false);
+      showAuthProgress(null);
     }
   };
 
@@ -549,13 +878,49 @@ export default function Navbar() {
     setAuthError('');
     setAuthSuccessMsg('Đang chuyển đến GitHub...');
     setIsAuthenticating(true);
+    showAuthProgress('loading', 'Đang chuyển đến GitHub…');
     try {
-      await beginGithubOAuth();
+      const result = await beginGithubOAuth();
+      if (result?.mode === 'popup' && result.popup) {
+        githubPopupRef.current = result.popup;
+        setAuthSuccessMsg('Hãy chọn tài khoản trong cửa sổ GitHub vừa mở.');
+        showAuthProgress('loading', 'Đang chờ bạn xác nhận tài khoản GitHub…');
+        clearGithubPopupWatch();
+        githubPopupPollTimerRef.current = window.setInterval(() => {
+          if (githubPopupRef.current && !githubPopupRef.current.closed) return;
+
+          clearGithubPopupWatch();
+          githubPopupRef.current = null;
+          if (!oauthRequestInFlightRef.current) return;
+
+          const expectedState = sessionStorage.getItem(GITHUB_OAUTH_STATE_KEY);
+          showAuthProgress('loading', 'Đang xác nhận phiên đăng nhập GitHub…');
+          void apiFetch('/api/auth/me')
+            .then((response) => readApiJson(response))
+            .then((payload) => {
+              handleGithubPopupResult({
+                success: Boolean(payload?.user),
+                state: expectedState,
+                user: payload?.user,
+                message: 'Cửa sổ đăng nhập GitHub đã đóng trước khi hoàn tất.'
+              });
+            })
+            .catch(() => {
+              handleGithubPopupResult({
+                success: false,
+                state: expectedState,
+                message: 'Cửa sổ đăng nhập GitHub đã đóng trước khi hoàn tất.'
+              });
+            });
+        }, 500);
+      }
     } catch (error) {
       setAuthSuccessMsg('');
       setAuthError(error.message || 'Không thể bắt đầu đăng nhập GitHub.');
       oauthRequestInFlightRef.current = false;
+      sessionStorage.removeItem(GITHUB_OAUTH_MODE_KEY);
       setIsAuthenticating(false);
+      showAuthProgress(null);
     }
   };
 
@@ -836,6 +1201,39 @@ export default function Navbar() {
 
   return (
     <>
+      {googleOneTapClientId && (
+        <GoogleOneTapBridge
+          disabled={
+            authMode !== 'login'
+            || !showLoginModal
+            || Boolean(loggedInUser)
+            || isAuthenticating
+            || !isFirebaseConfigured
+            || !auth
+          }
+          onSuccess={handleGoogleOneTapSuccess}
+        />
+      )}
+
+      {authProgress && (
+        <div
+          className={`navbar-auth-progress is-${authProgress.phase}`}
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          <span className="navbar-auth-progress-icon" aria-hidden="true">
+            {authProgress.phase === 'success'
+              ? <CheckCircle2 size={20} />
+              : <Loader2 size={20} />}
+          </span>
+          <span className="navbar-auth-progress-copy">
+            <strong>{authProgress.phase === 'success' ? 'Đã xác thực' : 'Đang đăng nhập'}</strong>
+            <span>{authProgress.message}</span>
+          </span>
+        </div>
+      )}
+
       <header className={`header-wrapper ${isScrolled ? 'scrolled' : ''}`}>
         <nav className="navbar" aria-label="Điều hướng chính">
           {/* Reading Progress Bar attached to Navbar Header (Blog Detail Page Only) */}
@@ -931,7 +1329,7 @@ export default function Navbar() {
                 <div className="user-profile-menu-container">
                   <button
                     type="button"
-                    className="user-profile-pill-btn"
+                    className={`user-profile-pill-btn ${authProgress?.phase === 'success' ? 'is-authenticated' : ''}`}
                     onClick={() => setShowUserDropdown(!showUserDropdown)}
                     aria-haspopup="menu"
                     aria-expanded={showUserDropdown}
