@@ -2,6 +2,10 @@ import crypto from 'crypto';
 
 const FIREBASE_CERTS_URL =
   'https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com';
+// Firebase project IDs are public identifiers, not credentials. This project
+// has one canonical Firebase tenant, so keep a safe fallback while allowing
+// deployments to override it explicitly.
+export const DEFAULT_FIREBASE_PROJECT_ID = 'toancaocapueh-auth';
 
 let certificateCache = null;
 let certificateCacheExpiresAt = 0;
@@ -28,6 +32,25 @@ const decodeBase64UrlJson = (value) => {
   } catch {
     throw invalidToken('Firebase ID token is malformed');
   }
+};
+
+export const getConfiguredFirebaseProjectId = () => {
+  if (String(process.env.FIREBASE_AUTH_DISABLED || '').trim().toLowerCase() === 'true') {
+    return '';
+  }
+
+  const candidates = [
+    process.env.FIREBASE_PROJECT_ID,
+    process.env.VITE_FIREBASE_PROJECT_ID,
+    DEFAULT_FIREBASE_PROJECT_ID
+  ];
+
+  for (const candidate of candidates) {
+    const projectId = String(candidate || '').trim();
+    if (projectId) return projectId;
+  }
+
+  return '';
 };
 
 const getFirebaseCertificates = async () => {
@@ -61,9 +84,7 @@ export const verifyFirebaseIdToken = async (idToken) => {
     throw invalidToken('Firebase ID token is required');
   }
 
-  const expectedProjectId =
-    process.env.FIREBASE_PROJECT_ID
-    || process.env.VITE_FIREBASE_PROJECT_ID;
+  const expectedProjectId = getConfiguredFirebaseProjectId();
 
   if (!expectedProjectId) {
     throw serviceUnavailable('FIREBASE_PROJECT_ID is not configured on the backend');

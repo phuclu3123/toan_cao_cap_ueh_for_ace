@@ -57,6 +57,7 @@ test('OAuth provider metadata exposes no server secret', async () => {
 
   assert.equal(response.status, 200);
   assert.equal(payload.success, true);
+  assert.equal(typeof payload.providers.google.enabled, 'boolean');
   assert.equal(typeof payload.providers.github.enabled, 'boolean');
   assert.equal(Object.hasOwn(payload.providers.github, 'clientId'), true);
   assert.equal(Object.hasOwn(payload.providers.github, 'clientSecret'), false);

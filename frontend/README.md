@@ -9,22 +9,36 @@ on the same site origin instead of inside a third-party iframe.
 Before deploying the redirect flow to `toancaocapueh.id.vn`, configure the
 following outside this repository:
 
-1. In Netlify, set `VITE_FIREBASE_AUTH_DOMAIN=toancaocapueh.id.vn` and rebuild.
+1. The canonical site automatically uses `toancaocapueh.id.vn` as its Firebase
+   `authDomain`. If Netlify defines `VITE_FIREBASE_AUTH_DOMAIN`, keep it set to
+   the same value for configuration clarity, then rebuild.
 2. In Firebase Authentication, authorize `toancaocapueh.id.vn`.
 3. In the Google OAuth client used by Firebase, authorize
    `https://toancaocapueh.id.vn/__/auth/handler` as a redirect URI. Keep the
    existing Firebase-hosted URI too if other environments use it.
-4. In Render, set `FIREBASE_PROJECT_ID=toancaocapueh-auth` and redeploy the
-   backend. This value is required for server-side Firebase ID-token checks.
+4. The backend safely defaults to the public project ID
+   `toancaocapueh-auth`; Render may still set `FIREBASE_PROJECT_ID` explicitly.
+   Set `FIREBASE_AUTH_DISABLED=true` only when Google/Firebase sign-in must be
+   intentionally disabled.
 
 GitHub uses a server-side authorization-code exchange. Keep
 `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET` on Render only; the frontend
 requests the public client ID at runtime and never receives the secret.
+Set the GitHub OAuth App callback URL to
+`https://toancaocapueh.id.vn/` so the SPA can validate `state` and exchange
+the returned authorization code.
 
-The canonical production site also calls the backend through Netlify's `/api`
-rewrite. Do not point its `VITE_API_URL` directly at Render: same-origin API
-calls keep the HttpOnly session cookie first-party and reliable in browsers
-that block third-party cookies.
+The canonical production site also calls the backend through a domain-scoped
+Netlify `/api` rewrite. Do not point its `VITE_API_URL` directly at Render:
+same-origin API calls keep the HttpOnly session cookie first-party and reliable
+in browsers that block third-party cookies. Preview and branch deploys do not
+inherit this production proxy; give them an explicit `VITE_API_URL` and matching
+Firebase `authDomain` only when they have their own backend environment.
+
+Netlify evaluates `frontend/public/_redirects` before `netlify.toml`. Keep the
+three `https://toancaocapueh.id.vn/...` proxy rules above the final
+`/* /index.html 200` SPA fallback. The domain-qualified sources deliberately
+prevent Netlify preview URLs from sending auth traffic to production.
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 

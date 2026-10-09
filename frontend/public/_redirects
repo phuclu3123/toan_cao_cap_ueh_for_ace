@@ -1,1 +1,4 @@
+https://toancaocapueh.id.vn/__/auth/* https://toancaocapueh-auth.firebaseapp.com/__/auth/:splat 200!
+https://toancaocapueh.id.vn/__/firebase/* https://toancaocapueh-auth.firebaseapp.com/__/firebase/:splat 200!
+https://toancaocapueh.id.vn/api/* https://ueh-tcc-backend.onrender.com/api/:splat 200!
 /* /index.html 200

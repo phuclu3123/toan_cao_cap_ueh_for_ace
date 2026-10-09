@@ -18,13 +18,18 @@ import {
 export const FIREBASE_REDIRECT_PROVIDER_KEY = 'ueh_tcc_firebase_redirect_provider';
 
 // Firebase configuration using Vite environment variables
+const viteEnv = import.meta.env || {};
+const isCanonicalProductionHost = typeof window !== 'undefined'
+  && window.location.hostname === 'toancaocapueh.id.vn';
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID
+  apiKey: viteEnv.VITE_FIREBASE_API_KEY,
+  authDomain: isCanonicalProductionHost
+    ? 'toancaocapueh.id.vn'
+    : viteEnv.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: viteEnv.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: viteEnv.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: viteEnv.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: viteEnv.VITE_FIREBASE_APP_ID
 };
 
 // Check if Firebase is configured

@@ -12,6 +12,11 @@ import {
   verifyPassword
 } from '../utils/passwordHelper.js';
 import { getPublicAuthProviders } from '../controllers/authController.js';
+import {
+  DEFAULT_FIREBASE_PROJECT_ID,
+  getConfiguredFirebaseProjectId,
+  verifyFirebaseIdToken
+} from '../services/firebaseTokenService.js';
 
 test('session cookies are HttpOnly and production-safe', () => {
   const previousNodeEnv = process.env.NODE_ENV;
@@ -103,12 +108,131 @@ test('the public OAuth configuration never exposes the GitHub client secret', ()
 
     const providers = getPublicAuthProviders();
     assert.deepEqual(providers, {
+      google: {
+        enabled: Boolean(getConfiguredFirebaseProjectId())
+      },
       github: {
         enabled: true,
         clientId: 'public-github-client-id'
       }
     });
     assert.equal(JSON.stringify(providers).includes(process.env.GITHUB_CLIENT_SECRET), false);
+  } finally {
+    if (previousClientId === undefined) delete process.env.GITHUB_CLIENT_ID;
+    else process.env.GITHUB_CLIENT_ID = previousClientId;
+    if (previousClientSecret === undefined) delete process.env.GITHUB_CLIENT_SECRET;
+    else process.env.GITHUB_CLIENT_SECRET = previousClientSecret;
+  }
+});
+
+test('Google OAuth availability reflects the Firebase verifier configuration', () => {
+  const previousProjectId = process.env.FIREBASE_PROJECT_ID;
+  const previousViteProjectId = process.env.VITE_FIREBASE_PROJECT_ID;
+  const previousAuthDisabled = process.env.FIREBASE_AUTH_DISABLED;
+
+  try {
+    delete process.env.FIREBASE_PROJECT_ID;
+    delete process.env.VITE_FIREBASE_PROJECT_ID;
+    delete process.env.FIREBASE_AUTH_DISABLED;
+    assert.equal(getConfiguredFirebaseProjectId(), DEFAULT_FIREBASE_PROJECT_ID);
+    assert.equal(getPublicAuthProviders().google.enabled, true);
+
+    process.env.VITE_FIREBASE_PROJECT_ID = 'toancaocapueh-preview';
+    assert.equal(getPublicAuthProviders().google.enabled, true);
+
+    process.env.FIREBASE_PROJECT_ID = '  toancaocapueh-auth  ';
+    assert.equal(getPublicAuthProviders().google.enabled, true);
+
+    process.env.FIREBASE_PROJECT_ID = '   ';
+    assert.equal(getPublicAuthProviders().google.enabled, true);
+
+    process.env.FIREBASE_AUTH_DISABLED = 'true';
+    assert.equal(getPublicAuthProviders().google.enabled, false);
+  } finally {
+    if (previousProjectId === undefined) delete process.env.FIREBASE_PROJECT_ID;
+    else process.env.FIREBASE_PROJECT_ID = previousProjectId;
+    if (previousViteProjectId === undefined) delete process.env.VITE_FIREBASE_PROJECT_ID;
+    else process.env.VITE_FIREBASE_PROJECT_ID = previousViteProjectId;
+    if (previousAuthDisabled === undefined) delete process.env.FIREBASE_AUTH_DISABLED;
+    else process.env.FIREBASE_AUTH_DISABLED = previousAuthDisabled;
+  }
+});
+
+test('Firebase verification uses the same trimmed project ID as provider metadata', async () => {
+  const previousProjectId = process.env.FIREBASE_PROJECT_ID;
+  const previousViteProjectId = process.env.VITE_FIREBASE_PROJECT_ID;
+  const previousAuthDisabled = process.env.FIREBASE_AUTH_DISABLED;
+
+  try {
+    delete process.env.FIREBASE_AUTH_DISABLED;
+    process.env.FIREBASE_PROJECT_ID = '   ';
+    process.env.VITE_FIREBASE_PROJECT_ID = '  toancaocapueh-auth  ';
+
+    assert.equal(getConfiguredFirebaseProjectId(), 'toancaocapueh-auth');
+    await assert.rejects(
+      verifyFirebaseIdToken('not-a-token'),
+      (error) => error.code === 'INVALID_FIREBASE_TOKEN' && error.statusCode === 401
+    );
+
+    delete process.env.VITE_FIREBASE_PROJECT_ID;
+    assert.equal(getConfiguredFirebaseProjectId(), DEFAULT_FIREBASE_PROJECT_ID);
+    await assert.rejects(
+      verifyFirebaseIdToken('not-a-token'),
+      (error) => error.code === 'INVALID_FIREBASE_TOKEN' && error.statusCode === 401
+    );
+
+    process.env.FIREBASE_AUTH_DISABLED = 'true';
+    assert.equal(getConfiguredFirebaseProjectId(), '');
+    await assert.rejects(
+      verifyFirebaseIdToken('not-a-token'),
+      (error) => error.code === 'FIREBASE_AUTH_UNAVAILABLE' && error.statusCode === 503
+    );
+  } finally {
+    if (previousProjectId === undefined) delete process.env.FIREBASE_PROJECT_ID;
+    else process.env.FIREBASE_PROJECT_ID = previousProjectId;
+    if (previousViteProjectId === undefined) delete process.env.VITE_FIREBASE_PROJECT_ID;
+    else process.env.VITE_FIREBASE_PROJECT_ID = previousViteProjectId;
+    if (previousAuthDisabled === undefined) delete process.env.FIREBASE_AUTH_DISABLED;
+    else process.env.FIREBASE_AUTH_DISABLED = previousAuthDisabled;
+  }
+});
+
+test('GitHub OAuth is enabled only when both trimmed credentials are configured', () => {
+  const previousClientId = process.env.GITHUB_CLIENT_ID;
+  const previousClientSecret = process.env.GITHUB_CLIENT_SECRET;
+  const cases = [
+    {
+      name: 'client ID only',
+      clientId: 'public-github-client-id',
+      clientSecret: undefined,
+      expectedClientId: 'public-github-client-id'
+    },
+    {
+      name: 'client secret only',
+      clientId: undefined,
+      clientSecret: 'server-only-github-client-secret',
+      expectedClientId: null
+    },
+    {
+      name: 'whitespace credentials',
+      clientId: '   ',
+      clientSecret: ' \t ',
+      expectedClientId: null
+    }
+  ];
+
+  try {
+    for (const testCase of cases) {
+      if (testCase.clientId === undefined) delete process.env.GITHUB_CLIENT_ID;
+      else process.env.GITHUB_CLIENT_ID = testCase.clientId;
+      if (testCase.clientSecret === undefined) delete process.env.GITHUB_CLIENT_SECRET;
+      else process.env.GITHUB_CLIENT_SECRET = testCase.clientSecret;
+
+      const providers = getPublicAuthProviders();
+      assert.equal(providers.github.enabled, false, testCase.name);
+      assert.equal(providers.github.clientId, testCase.expectedClientId, testCase.name);
+      assert.equal(Object.hasOwn(providers.github, 'clientSecret'), false, testCase.name);
+    }
   } finally {
     if (previousClientId === undefined) delete process.env.GITHUB_CLIENT_ID;
     else process.env.GITHUB_CLIENT_ID = previousClientId;

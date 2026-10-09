@@ -5,7 +5,10 @@ import { fileURLToPath } from 'url';
 import mongoose from 'mongoose';
 import User from '../models/User.js';
 import { sendOtpEmail } from '../services/emailService.js';
-import { verifyFirebaseIdToken } from '../services/firebaseTokenService.js';
+import {
+  getConfiguredFirebaseProjectId,
+  verifyFirebaseIdToken
+} from '../services/firebaseTokenService.js';
 import { listActiveEnrollments } from '../services/enrollmentService.js';
 import {
   issueSession,
@@ -721,11 +724,16 @@ const githubRequest = async (url, options = {}) => {
 // return to the browser. Keep every client secret on the server: the browser
 // only needs this value to begin GitHub's authorization-code redirect.
 export const getPublicAuthProviders = () => {
+  const firebaseProjectId = getConfiguredFirebaseProjectId();
   const githubClientId = String(process.env.GITHUB_CLIENT_ID || '').trim();
+  const githubClientSecret = String(process.env.GITHUB_CLIENT_SECRET || '').trim();
 
   return {
+    google: {
+      enabled: Boolean(firebaseProjectId)
+    },
     github: {
-      enabled: Boolean(githubClientId),
+      enabled: Boolean(githubClientId && githubClientSecret),
       clientId: githubClientId || null
     }
   };
@@ -746,8 +754,8 @@ export const exchangeGithubToken = async (req, res) => {
   }
 
   try {
-    const clientId = process.env.GITHUB_CLIENT_ID;
-    const clientSecret = process.env.GITHUB_CLIENT_SECRET;
+    const clientId = String(process.env.GITHUB_CLIENT_ID || '').trim();
+    const clientSecret = String(process.env.GITHUB_CLIENT_SECRET || '').trim();
     if (!clientId || !clientSecret) {
       throw httpError(503, 'GITHUB_AUTH_UNAVAILABLE', 'Đăng nhập GitHub chưa được cấu hình.');
     }

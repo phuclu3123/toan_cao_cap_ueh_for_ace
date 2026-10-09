@@ -19,8 +19,11 @@ import {
   isFirebaseConfigured,
   FIREBASE_REDIRECT_PROVIDER_KEY
 } from '../../firebase';
-import { apiFetch, toClientUser } from '../../utils/apiClient';
-import { beginGithubOAuth } from '../../services/oauthService';
+import { apiFetch, readApiJson, toClientUser } from '../../utils/apiClient';
+import {
+  beginGithubOAuth,
+  ensureGoogleOAuthAvailable
+} from '../../services/oauthService';
 import '../../assets/styles/AuthModal.css';
 
 const focusableSelector = [
@@ -31,6 +34,10 @@ const focusableSelector = [
   'textarea:not([disabled])',
   '[tabindex]:not([tabindex="-1"])'
 ].join(',');
+
+const getAuthRequestErrorMessage = (error, fallback) => (
+  error?.code || Number.isInteger(error?.status) ? error.message : fallback
+);
 
 export default function AuthModal({
   showLoginModal,
@@ -71,6 +78,7 @@ export default function AuthModal({
   isOtpSent: propIsOtpSent,
   setIsOtpSent: propSetIsOtpSent,
   otpLoading: propOtpLoading,
+  isAuthenticating: propIsAuthenticating,
   setConfirmationResult: propSetConfirmationResult,
   handleLoginSubmit: propHandleLoginSubmit,
   handleGoogleLogin: propHandleGoogleLogin,
@@ -83,6 +91,7 @@ export default function AuthModal({
 }) {
   const panelRef = useRef(null);
   const previouslyFocusedRef = useRef(null);
+  const providerRequestInFlightRef = useRef(false);
   const titleId = useId();
   const descriptionId = useId();
 
@@ -106,6 +115,7 @@ export default function AuthModal({
   const [internalVerificationCode, setInternalVerificationCode] = useState('');
   const [internalIsOtpSent, setInternalIsOtpSent] = useState(false);
   const [internalOtpLoading] = useState(false);
+  const [internalProviderLoading, setInternalProviderLoading] = useState(false);
 
   // Resolved Props
   const authMode = propAuthMode !== undefined ? propAuthMode : internalAuthMode;
@@ -148,6 +158,7 @@ export default function AuthModal({
   const isOtpSent = propIsOtpSent !== undefined ? propIsOtpSent : internalIsOtpSent;
   const setIsOtpSent = propSetIsOtpSent || setInternalIsOtpSent;
   const otpLoading = propOtpLoading !== undefined ? propOtpLoading : internalOtpLoading;
+  const providerLoading = Boolean(propIsAuthenticating || internalProviderLoading);
   const setConfirmationResult = propSetConfirmationResult || (() => {});
 
   const closeModal = useCallback(() => {
@@ -169,16 +180,19 @@ export default function AuthModal({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
       });
-      const data = await response.json();
-      if (response.ok && data.success) {
+      const data = await readApiJson(response);
+      if (data.success) {
         if (data.user) localStorage.setItem('ueh_tcc_user', JSON.stringify(toClientUser(data.user)));
         window.dispatchEvent(new Event('ueh-tcc-session-changed'));
         closeModal();
       } else {
         setAuthError(data.message || 'Tên đăng nhập hoặc mật khẩu không chính xác!');
       }
-    } catch {
-      setAuthError('Không thể kết nối đến máy chủ Backend!');
+    } catch (error) {
+      setAuthError(getAuthRequestErrorMessage(
+        error,
+        'Không thể kết nối đến máy chủ Backend!'
+      ));
     }
   });
 
@@ -208,44 +222,63 @@ export default function AuthModal({
           name: signupName
         })
       });
-      const data = await response.json();
-      if (response.ok && data.success) {
+      const data = await readApiJson(response);
+      if (data.success) {
         if (data.user) localStorage.setItem('ueh_tcc_user', JSON.stringify(toClientUser(data.user)));
         window.dispatchEvent(new Event('ueh-tcc-session-changed'));
         closeModal();
       } else {
         setAuthError(data.message || 'Không thể tạo tài khoản!');
       }
-    } catch {
-      setAuthError('Không thể kết nối đến máy chủ Backend!');
+    } catch (error) {
+      setAuthError(getAuthRequestErrorMessage(
+        error,
+        'Không thể kết nối đến máy chủ Backend!'
+      ));
     }
   });
 
   const handleGoogleLogin = propHandleGoogleLogin || (async () => {
+    if (providerRequestInFlightRef.current) return;
+    providerRequestInFlightRef.current = true;
+    setInternalProviderLoading(true);
     setAuthError('');
     setAuthSuccessMsg('Đang mở đăng nhập Google...');
     try {
       if (!isFirebaseConfigured || !auth) {
         throw new Error('Hệ thống Firebase chưa được kích hoạt.');
       }
+      await ensureGoogleOAuthAvailable();
       sessionStorage.setItem(FIREBASE_REDIRECT_PROVIDER_KEY, 'Google');
       closeModal();
       await signInWithRedirect(auth, googleProvider);
     } catch (err) {
+      sessionStorage.removeItem(FIREBASE_REDIRECT_PROVIDER_KEY);
+      setAuthSuccessMsg('');
       setAuthError('Lỗi đăng nhập Google: ' + err.message);
       setShowLoginModal(true);
+    } finally {
+      providerRequestInFlightRef.current = false;
+      setInternalProviderLoading(false);
     }
   });
 
   const handleGithubLogin = propHandleGithubLogin || (async () => {
+    if (providerRequestInFlightRef.current) return;
+    providerRequestInFlightRef.current = true;
+    setInternalProviderLoading(true);
     setAuthError('');
     setAuthSuccessMsg('Đang mở đăng nhập GitHub...');
     try {
       closeModal();
       await beginGithubOAuth();
     } catch (err) {
+      setAuthSuccessMsg('');
       setAuthError('Lỗi đăng nhập GitHub: ' + err.message);
       setShowLoginModal(true);
+    } finally {
+      providerRequestInFlightRef.current = false;
+      setInternalProviderLoading(false);
     }
   });
 
@@ -264,15 +297,15 @@ export default function AuthModal({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: forgotEmail })
       });
-      const data = await response.json();
-      if (response.ok && data.success) {
+      const data = await readApiJson(response);
+      if (data.success) {
         setForgotStep(2);
         setAuthSuccessMsg(data.message || 'Mã OTP đã được gửi đến email của bạn.');
       } else {
         setAuthError(data.message || 'Không thể gửi mã OTP!');
       }
-    } catch {
-      setAuthError('Lỗi kết nối máy chủ!');
+    } catch (error) {
+      setAuthError(getAuthRequestErrorMessage(error, 'Lỗi kết nối máy chủ!'));
     } finally {
       setInternalForgotLoading(false);
     }
@@ -282,7 +315,7 @@ export default function AuthModal({
     e?.preventDefault?.();
     setAuthError('');
     setAuthSuccessMsg('');
-    if (!forgotOtp || forgotOtp.length !== 6) {
+    if (!/^\d{6}$/.test(forgotOtp.trim())) {
       setAuthError('Mã OTP phải có đúng 6 chữ số!');
       return;
     }
@@ -301,20 +334,20 @@ export default function AuthModal({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: forgotEmail,
-          otp: forgotOtp,
+          otpCode: forgotOtp.trim(),
           newPassword: forgotNewPassword
         })
       });
-      const data = await response.json();
-      if (response.ok && data.success) {
+      const data = await readApiJson(response);
+      if (data.success) {
         setAuthSuccessMsg('Đổi mật khẩu thành công! Bạn có thể đăng nhập ngay.');
         setMode('login');
         setForgotStep(1);
       } else {
         setAuthError(data.message || 'Mã OTP không đúng hoặc đã hết hạn!');
       }
-    } catch {
-      setAuthError('Lỗi kết nối máy chủ!');
+    } catch (error) {
+      setAuthError(getAuthRequestErrorMessage(error, 'Lỗi kết nối máy chủ!'));
     } finally {
       setInternalForgotLoading(false);
     }
@@ -509,7 +542,13 @@ export default function AuthModal({
             </div>
 
             <div className="auth-provider-grid" aria-label="Nhà cung cấp đăng nhập">
-              <button type="button" className="auth-provider-button" onClick={handleGoogleLogin}>
+              <button
+                type="button"
+                className="auth-provider-button"
+                onClick={handleGoogleLogin}
+                disabled={providerLoading}
+                aria-busy={providerLoading}
+              >
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
                   <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
@@ -519,7 +558,13 @@ export default function AuthModal({
                 <span>Google</span>
               </button>
 
-              <button type="button" className="auth-provider-button" onClick={handleGithubLogin}>
+              <button
+                type="button"
+                className="auth-provider-button"
+                onClick={handleGithubLogin}
+                disabled={providerLoading}
+                aria-busy={providerLoading}
+              >
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M12 0c-6.63 0-12 5.28-12 11.79 0 5.21 3.44 9.63 8.21 11.19.6.11.82-.26.82-.57v-2.18c-3.34.71-4.04-1.54-4.04-1.54-.55-1.37-1.33-1.74-1.33-1.74-1.09-.73.08-.71.08-.71 1.2.08 1.83 1.21 1.83 1.21 1.07 1.8 2.8 1.28 3.49.98.11-.76.42-1.28.76-1.58-2.66-.3-5.47-1.31-5.47-5.83 0-1.29.47-2.34 1.24-3.17-.12-.3-.54-1.5.12-3.12 0 0 1.01-.32 3.31 1.21.96-.26 1.98-.39 3-.4 1.02 0 2.04.14 3 .4 2.3-1.53 3.3-1.21 3.3-1.21.66 1.62.24 2.82.12 3.12.77.83 1.24 1.88 1.24 3.17 0 4.53-2.81 5.53-5.49 5.82.43.37.81 1.09.81 2.2v3.27c0 .32.22.69.82.57 4.77-1.56 8.2-5.98 8.2-11.19C24 5.28 18.63 0 12 0z" fill="currentColor" />
                 </svg>

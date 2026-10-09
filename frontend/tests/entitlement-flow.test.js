@@ -75,14 +75,37 @@ test('Firebase sync sends a verified ID token and has no fabricated users', () =
   const authService = readSource('services/authService.js');
   const authModal = readSource('components/modals/AuthModal.jsx');
   const oauthService = readSource('services/oauthService.js');
+  const firebase = readSource('firebase.js');
 
   assert.match(navbar, /syncFirebaseUserWithBackend/);
   assert.match(navbar, /onIdTokenChanged/);
   assert.match(navbar, /signInWithRedirect\(auth, googleProvider\)/);
+  assert.match(navbar, /await ensureGoogleOAuthAvailable\(\)/);
+  assert.ok(
+    navbar.indexOf('await ensureGoogleOAuthAvailable()')
+      < navbar.indexOf('await signInWithRedirect(auth, googleProvider)')
+  );
+  assert.match(navbar, /pendingRedirectProvider/);
+  assert.match(navbar, /sessionStorage\.removeItem\(FIREBASE_REDIRECT_PROVIDER_KEY\)/);
+  assert.match(navbar, /setAuthError\(`Lỗi đăng nhập \$\{pendingRedirectProvider\}/);
   assert.match(navbar, /beginGithubOAuth/);
   assert.doesNotMatch(navbar, /useGoogleOneTapLogin|signInWithPopup|response_type=token/);
   assert.doesNotMatch(authModal, /signInWithPopup|githubProvider/);
-  assert.match(oauthService, /apiFetch\('\/api\/auth\/providers'\)/);
+  assert.doesNotMatch(authModal, /response\.json\(/);
+  assert.match(authModal, /await ensureGoogleOAuthAvailable\(\)/);
+  assert.ok(
+    authModal.indexOf('await ensureGoogleOAuthAvailable()')
+      < authModal.indexOf('await signInWithRedirect(auth, googleProvider)')
+  );
+  assert.match(authModal, /otpCode: forgotOtp\.trim\(\)/);
+  assert.doesNotMatch(authModal, /\botp:\s*forgotOtp/);
+  assert.match(authModal, /disabled=\{providerLoading\}/);
+  assert.match(navbar, /isAuthenticating=\{isAuthenticating\}/);
+  assert.match(oauthService, /apiFetch\('\/api\/auth\/providers', \{ signal \}\)/);
+  assert.match(oauthService, /AbortSignal\.timeout\(60_000\)/);
+  assert.match(oauthService, /providers\.google\?\.enabled/);
+  assert.match(firebase, /window\.location\.hostname === 'toancaocapueh\.id\.vn'/);
+  assert.match(firebase, /\? 'toancaocapueh\.id\.vn'\s*:\s*viteEnv\.VITE_FIREBASE_AUTH_DOMAIN/);
   assert.match(oauthService, /sessionStorage\.setItem\(GITHUB_OAUTH_STATE_KEY, state\)/);
   assert.match(authService, /firebaseUser\.getIdToken\(\)/);
   assert.match(authService, /JSON\.stringify\(\{ idToken \}\)/);

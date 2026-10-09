@@ -7,7 +7,11 @@ import {
 import NotificationDropdown from './community/NotificationDropdown';
 import { apiFetch, readApiJson, toClientUser } from '../utils/apiClient';
 import { syncFirebaseUserWithBackend } from '../services/authService';
-import { beginGithubOAuth, GITHUB_OAUTH_STATE_KEY } from '../services/oauthService';
+import {
+  beginGithubOAuth,
+  ensureGoogleOAuthAvailable,
+  GITHUB_OAUTH_STATE_KEY
+} from '../services/oauthService';
 import { getInitials } from '../utils/userInitials';
 import '../assets/styles/Navbar.css';
 import {
@@ -93,6 +97,7 @@ export default function Navbar() {
   const [authError, setAuthError] = useState('');
   const [authSuccessMsg, setAuthSuccessMsg] = useState('');
   const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const oauthRequestInFlightRef = useRef(false);
 
   // Upload Modal States (Admin Only)
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -250,28 +255,34 @@ export default function Navbar() {
   useEffect(() => {
     if (sessionReady && isFirebaseConfigured && auth) {
       let cancelled = false;
-      const redirectProvider = sessionStorage.getItem(FIREBASE_REDIRECT_PROVIDER_KEY) || 'Google';
+      const pendingRedirectProvider = sessionStorage.getItem(FIREBASE_REDIRECT_PROVIDER_KEY);
+      const redirectProvider = pendingRedirectProvider || 'Google';
       // Check for redirect result (e.g. from GitHub login)
       getRedirectResult(auth).then(async (result) => {
-        if (result) {
-          try {
-            const dbUser = await syncFirebaseUserWithBackend(result.user);
-            hasBackendSessionRef.current = true;
-            setLoggedInUser(dbUser);
-            window.dispatchEvent(new Event('ueh-tcc-session-changed'));
+        if (!result) {
+          if (pendingRedirectProvider) {
             sessionStorage.removeItem(FIREBASE_REDIRECT_PROVIDER_KEY);
-            setAuthError('');
-            setAuthSuccessMsg(`Đăng nhập ${redirectProvider} thành công!`);
-            setShowLoginModal(false);
-            navigate('/', { replace: true });
-          } catch(err) {
-            if (cancelled) return;
-            sessionStorage.removeItem(FIREBASE_REDIRECT_PROVIDER_KEY);
-            console.error("Lỗi đồng bộ Firebase user với Backend:", err);
-            setAuthSuccessMsg('');
-            setAuthError(`Lỗi đăng nhập ${redirectProvider}: ${err.message || 'Không thể hoàn tất đăng nhập. Vui lòng thử lại.'}`);
-            setShowLoginModal(true);
           }
+          return;
+        }
+
+        try {
+          const dbUser = await syncFirebaseUserWithBackend(result.user);
+          hasBackendSessionRef.current = true;
+          setLoggedInUser(dbUser);
+          window.dispatchEvent(new Event('ueh-tcc-session-changed'));
+          sessionStorage.removeItem(FIREBASE_REDIRECT_PROVIDER_KEY);
+          setAuthError('');
+          setAuthSuccessMsg(`Đăng nhập ${redirectProvider} thành công!`);
+          setShowLoginModal(false);
+          navigate('/', { replace: true });
+        } catch(err) {
+          if (cancelled) return;
+          sessionStorage.removeItem(FIREBASE_REDIRECT_PROVIDER_KEY);
+          console.error("Lỗi đồng bộ Firebase user với Backend:", err);
+          setAuthSuccessMsg('');
+          setAuthError(`Lỗi đăng nhập ${redirectProvider}: ${err.message || 'Không thể hoàn tất đăng nhập. Vui lòng thử lại.'}`);
+          setShowLoginModal(true);
         }
       }).catch((error) => {
         if (cancelled) return;
@@ -292,8 +303,21 @@ export default function Navbar() {
             hasBackendSessionRef.current = true;
             setLoggedInUser(dbUser);
             window.dispatchEvent(new Event('ueh-tcc-session-changed'));
+            if (pendingRedirectProvider) {
+              sessionStorage.removeItem(FIREBASE_REDIRECT_PROVIDER_KEY);
+              setAuthError('');
+              setAuthSuccessMsg(`Đăng nhập ${pendingRedirectProvider} thành công!`);
+              setShowLoginModal(false);
+            }
           } catch(err) {
+            if (cancelled) return;
             console.error("Lỗi đồng bộ Firebase user với Backend:", err);
+            if (pendingRedirectProvider) {
+              sessionStorage.removeItem(FIREBASE_REDIRECT_PROVIDER_KEY);
+              setAuthSuccessMsg('');
+              setAuthError(`Lỗi đăng nhập ${pendingRedirectProvider}: ${err.message || 'Không thể đồng bộ tài khoản.'}`);
+              setShowLoginModal(true);
+            }
           }
         }
       });
@@ -341,8 +365,8 @@ export default function Navbar() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
       });
-      const data = await response.json();
-      if (response.ok && data.success) {
+      const data = await readApiJson(response);
+      if (data.success) {
         hasBackendSessionRef.current = true;
         setLoggedInUser(toClientUser(data.user));
         window.dispatchEvent(new Event('ueh-tcc-session-changed'));
@@ -352,8 +376,12 @@ export default function Navbar() {
       } else {
         setAuthError(data.message || 'Tên đăng nhập hoặc mật khẩu không chính xác!');
       }
-    } catch {
-      setAuthError('Không thể kết nối đến máy chủ Backend!');
+    } catch (error) {
+      setAuthError(
+        error?.status || error?.code
+          ? error.message
+          : 'Không thể kết nối đến máy chủ Backend!'
+      );
     }
   };
 
@@ -385,8 +413,8 @@ export default function Navbar() {
           name: signupName
         })
       });
-      const data = await response.json();
-      if (response.ok && data.success) {
+      const data = await readApiJson(response);
+      if (data.success) {
         hasBackendSessionRef.current = true;
         setLoggedInUser(toClientUser(data.user));
         window.dispatchEvent(new Event('ueh-tcc-session-changed'));
@@ -398,8 +426,12 @@ export default function Navbar() {
       } else {
         setAuthError(data.message || 'Không thể tạo tài khoản!');
       }
-    } catch {
-      setAuthError('Không thể kết nối đến máy chủ Backend!');
+    } catch (error) {
+      setAuthError(
+        error?.status || error?.code
+          ? error.message
+          : 'Không thể kết nối đến máy chủ Backend!'
+      );
     }
   };
 
@@ -487,25 +519,33 @@ export default function Navbar() {
   }, [navigate, setLoggedInUser]);
 
   const handleGoogleLogin = async () => {
+    if (oauthRequestInFlightRef.current) return;
+    oauthRequestInFlightRef.current = true;
     setAuthError('');
+    setAuthSuccessMsg('');
     setIsAuthenticating(true);
     try {
       if (!isFirebaseConfigured || !auth || !googleProvider) {
         throw new Error('Hệ thống Firebase chưa được cấu hình.');
       }
+      await ensureGoogleOAuthAvailable();
       sessionStorage.setItem(FIREBASE_REDIRECT_PROVIDER_KEY, 'Google');
       setAuthSuccessMsg('Đang chuyển đến Google...');
       setShowLoginModal(false);
       await signInWithRedirect(auth, googleProvider);
     } catch (error) {
+      sessionStorage.removeItem(FIREBASE_REDIRECT_PROVIDER_KEY);
+      setAuthSuccessMsg('');
       setAuthError(`Lỗi đăng nhập Google: ${error.message}`);
       setShowLoginModal(true);
-    } finally {
+      oauthRequestInFlightRef.current = false;
       setIsAuthenticating(false);
     }
   };
 
   const handleGithubLogin = async () => {
+    if (oauthRequestInFlightRef.current) return;
+    oauthRequestInFlightRef.current = true;
     setAuthError('');
     setAuthSuccessMsg('Đang chuyển đến GitHub...');
     setIsAuthenticating(true);
@@ -514,6 +554,7 @@ export default function Navbar() {
     } catch (error) {
       setAuthSuccessMsg('');
       setAuthError(error.message || 'Không thể bắt đầu đăng nhập GitHub.');
+      oauthRequestInFlightRef.current = false;
       setIsAuthenticating(false);
     }
   };
@@ -534,7 +575,7 @@ export default function Navbar() {
 
     setForgotLoading(true);
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
+    const timeoutId = setTimeout(() => controller.abort(), 60_000);
 
     try {
       const response = await apiFetch('/api/auth/forgot-password', {
@@ -543,10 +584,8 @@ export default function Navbar() {
         body: JSON.stringify({ email: forgotEmail }),
         signal: controller.signal
       });
-      clearTimeout(timeoutId);
-
-      const data = await response.json().catch(() => ({}));
-      if (response.ok && data.success) {
+      const data = await readApiJson(response);
+      if (data.success) {
         if (data.otpCode) {
           setForgotOtp(data.otpCode);
         }
@@ -557,14 +596,16 @@ export default function Navbar() {
 
       setAuthError(data.message || 'Email này chưa đăng ký tài khoản trên hệ thống.');
     } catch (error) {
-      clearTimeout(timeoutId);
       console.warn("Forgot password request notice:", error.name);
       setAuthError(
         error.name === 'AbortError'
           ? 'Máy chủ phản hồi quá lâu. Vui lòng thử gửi lại mã OTP.'
-          : 'Không thể gửi mã OTP lúc này. Vui lòng kiểm tra kết nối và thử lại.'
+          : error?.code || Number.isInteger(error?.status)
+            ? error.message
+            : 'Không thể gửi mã OTP lúc này. Vui lòng kiểm tra kết nối và thử lại.'
       );
     } finally {
+      clearTimeout(timeoutId);
       setForgotLoading(false);
     }
   };
@@ -574,7 +615,7 @@ export default function Navbar() {
     setAuthError('');
     setAuthSuccessMsg('');
 
-    if (!forgotEmail || !forgotOtp || forgotOtp.trim().length !== 6 || !forgotNewPassword) {
+    if (!forgotEmail || !/^\d{6}$/.test(forgotOtp.trim()) || !forgotNewPassword) {
       setAuthError('Vui lòng nhập đầy đủ thông tin!');
       return;
     }
@@ -598,8 +639,8 @@ export default function Navbar() {
           newPassword: forgotNewPassword
         })
       });
-      const data = await response.json();
-      if (response.ok && data.success) {
+      const data = await readApiJson(response);
+      if (data.success) {
         setAuthSuccessMsg(data.message || 'Đặt lại mật khẩu thành công!');
         setForgotOtp('');
         setForgotNewPassword('');
@@ -612,8 +653,12 @@ export default function Navbar() {
       } else {
         setAuthError(data.message || 'Mã xác thực OTP không chính xác!');
       }
-    } catch {
-      setAuthError('Không thể kết nối đến backend để xác thực OTP.');
+    } catch (error) {
+      setAuthError(
+        error?.code || Number.isInteger(error?.status)
+          ? error.message
+          : 'Không thể kết nối đến backend để xác thực OTP.'
+      );
     } finally {
       setForgotLoading(false);
     }
@@ -1192,6 +1237,7 @@ export default function Navbar() {
         isOtpSent={isOtpSent}
         setIsOtpSent={setIsOtpSent}
         otpLoading={otpLoading}
+        isAuthenticating={isAuthenticating}
         setConfirmationResult={setConfirmationResult}
         handleLoginSubmit={handleLoginSubmit}
         handleGoogleLogin={handleGoogleLogin}

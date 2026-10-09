@@ -2,30 +2,3 @@
   base = "frontend"
   publish = "dist"
   command = "npm run build"
-
-# Firebase's redirect helper must be served from the same origin as the app.
-# The Firebase SDK then keeps its redirect state first-party, which is required
-# by browsers that block third-party storage. These rules precede the SPA
-# fallback and transparently proxy the helper files; they do not redirect users.
-[[redirects]]
-  from = "/__/auth/*"
-  to = "https://toancaocapueh-auth.firebaseapp.com/__/auth/:splat"
-  status = 200
-  force = true
-
-[[redirects]]
-  from = "/__/firebase/*"
-  to = "https://toancaocapueh-auth.firebaseapp.com/__/firebase/:splat"
-  status = 200
-  force = true
-
-[[redirects]]
-  from = "/api/*"
-  to = "https://ueh-tcc-backend.onrender.com/api/:splat"
-  status = 200
-  force = true
-
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200

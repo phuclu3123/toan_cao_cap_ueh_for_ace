@@ -1,4 +1,4 @@
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL } from '../config.js';
 
 const resolveApiUrl = (path) => {
   if (/^https?:\/\//i.test(path)) return path;
@@ -17,7 +17,22 @@ export const apiFetch = (path, options = {}) => {
 };
 
 export const readApiJson = async (response) => {
-  const data = await response.json().catch(() => ({}));
+  let data;
+  try {
+    data = await response.json();
+  } catch {
+    const error = new Error('Máy chủ Backend trả về phản hồi không hợp lệ.');
+    error.status = response.status;
+    error.code = 'INVALID_API_RESPONSE';
+    throw error;
+  }
+
+  if (data === null || typeof data !== 'object' || Array.isArray(data)) {
+    const error = new Error('Máy chủ Backend trả về phản hồi không hợp lệ.');
+    error.status = response.status;
+    error.code = 'INVALID_API_RESPONSE';
+    throw error;
+  }
 
   if (!response.ok) {
     const error = new Error(data.message || data.desc || 'Yêu cầu không thể hoàn tất.');
