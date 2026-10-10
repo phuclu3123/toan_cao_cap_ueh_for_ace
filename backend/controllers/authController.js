@@ -15,7 +15,8 @@ import {
   attachExternalIdentity,
   legacyUidForExternalIdentity,
   providerFieldForExternalIdentity,
-  resolveExternalIdentityOwner
+  resolveExternalIdentityOwner,
+  seedMissingProfileFromExternalIdentity
 } from '../services/externalIdentityService.js';
 import {
   issueSession,
@@ -300,8 +301,7 @@ const upsertExternalUser = async ({
     ) {
       user.username = normalizedEmail;
     }
-    if (name) user.name = normalizeName(name);
-    if (phoneNumber) user.phoneNumber = String(phoneNumber).trim().slice(0, 32);
+    seedMissingProfileFromExternalIdentity(user, { name, phoneNumber });
     user.role = roleForIdentifier(user.username);
     return persistUser(user);
   };

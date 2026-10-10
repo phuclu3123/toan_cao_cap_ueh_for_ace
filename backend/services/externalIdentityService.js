@@ -12,6 +12,16 @@ const accountLinkConflict = (message) => {
 
 const normalizeSubject = (subject) => String(subject || '').trim();
 
+const normalizeProfileName = (value) => (
+  typeof value === 'string'
+    ? value.trim().replace(/\s+/g, ' ').slice(0, 120)
+    : ''
+);
+
+const normalizePhoneNumber = (value) => (
+  typeof value === 'string' ? value.trim().slice(0, 32) : ''
+);
+
 export const providerFieldForExternalIdentity = (provider) => {
   const field = PROVIDER_FIELDS[provider];
   if (!field) throw new TypeError(`Unsupported external identity provider: ${provider}`);
@@ -96,5 +106,27 @@ export const attachExternalIdentity = (user, { provider, subject }) => {
   if (!normalizeSubject(user.uid)) {
     user.uid = legacyUidForExternalIdentity(provider, normalizedSubject);
   }
+  return user;
+};
+
+// MongoDB is the canonical profile store. Provider claims are useful for
+// bootstrapping missing fields, but a login must never replace details the
+// user has already chosen in their UEH TCC profile.
+export const seedMissingProfileFromExternalIdentity = (
+  user,
+  { name, phoneNumber } = {}
+) => {
+  if (!user) throw new TypeError('A user is required to seed profile fields');
+
+  const providerName = normalizeProfileName(name);
+  const providerPhoneNumber = normalizePhoneNumber(phoneNumber);
+
+  if (!normalizeProfileName(user.name) && providerName) {
+    user.name = providerName;
+  }
+  if (!normalizePhoneNumber(user.phoneNumber) && providerPhoneNumber) {
+    user.phoneNumber = providerPhoneNumber;
+  }
+
   return user;
 };

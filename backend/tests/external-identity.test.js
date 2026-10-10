@@ -5,7 +5,8 @@ import User from '../models/User.js';
 import {
   attachExternalIdentity,
   providerSubjectOnUser,
-  resolveExternalIdentityOwner
+  resolveExternalIdentityOwner,
+  seedMissingProfileFromExternalIdentity
 } from '../services/externalIdentityService.js';
 
 test('a verified GitHub email links to the existing Firebase user without replacing legacy uid', () => {
@@ -109,6 +110,113 @@ test('legacy provider IDs are recognized and lazily copied to provider-specific 
   attachExternalIdentity(legacyGithubUser, { provider: 'github', subject: '555' });
   assert.equal(legacyGithubUser.githubId, '555');
   assert.equal(legacyGithubUser.uid, 'github:555');
+});
+
+test('external sign-in preserves the canonical profile already stored by the user', () => {
+  const canonicalUser = {
+    id: 'user-6',
+    name: 'Nguyen Van A',
+    phoneNumber: '0901234567',
+    avatar: 'data:image/png;base64,canonical-avatar',
+    school: 'UEH',
+    bio: 'Canonical profile biography'
+  };
+  const originalProfile = { ...canonicalUser };
+
+  const result = seedMissingProfileFromExternalIdentity(canonicalUser, {
+    name: 'Google Display Name',
+    phoneNumber: '+1 555 0100'
+  });
+
+  assert.equal(result, canonicalUser);
+  assert.deepEqual(canonicalUser, originalProfile);
+});
+
+test('external sign-in seeds only blank canonical profile fields', () => {
+  const user = {
+    id: 'user-7',
+    name: '   ',
+    phoneNumber: '',
+    avatar: 'existing-avatar',
+    school: 'UEH',
+    bio: 'Existing biography'
+  };
+
+  seedMissingProfileFromExternalIdentity(user, {
+    name: '  Google   Student  ',
+    phoneNumber: '  0909 123 456  '
+  });
+
+  assert.equal(user.name, 'Google Student');
+  assert.equal(user.phoneNumber, '0909 123 456');
+  assert.equal(user.avatar, 'existing-avatar');
+  assert.equal(user.school, 'UEH');
+  assert.equal(user.bio, 'Existing biography');
+});
+
+test('provider profile defaults respect canonical field length limits', () => {
+  const user = { name: '', phoneNumber: '' };
+
+  seedMissingProfileFromExternalIdentity(user, {
+    name: `  ${'N'.repeat(140)}  `,
+    phoneNumber: `  ${'1'.repeat(40)}  `
+  });
+
+  assert.equal(user.name, 'N'.repeat(120));
+  assert.equal(user.phoneNumber, '1'.repeat(32));
+});
+
+test('a password account keeps one canonical profile while linking Firebase and GitHub', () => {
+  const passwordUser = {
+    id: 'user-8',
+    username: 'student@example.com',
+    password: 'stored-password-hash',
+    name: 'Canonical Student',
+    phoneNumber: '0901234567',
+    avatar: 'canonical-avatar',
+    school: 'UEH',
+    bio: 'Canonical biography'
+  };
+  const originalProfile = {
+    password: passwordUser.password,
+    name: passwordUser.name,
+    phoneNumber: passwordUser.phoneNumber,
+    avatar: passwordUser.avatar,
+    school: passwordUser.school,
+    bio: passwordUser.bio
+  };
+
+  attachExternalIdentity(passwordUser, {
+    provider: 'firebase',
+    subject: 'firebase-uid-8'
+  });
+  seedMissingProfileFromExternalIdentity(passwordUser, {
+    name: 'Google Name',
+    phoneNumber: '+1 555 0100'
+  });
+  attachExternalIdentity(passwordUser, {
+    provider: 'github',
+    subject: 'github-id-8'
+  });
+  seedMissingProfileFromExternalIdentity(passwordUser, {
+    name: 'GitHub Name',
+    phoneNumber: ''
+  });
+
+  assert.equal(passwordUser.id, 'user-8');
+  assert.equal(passwordUser.firebaseUid, 'firebase-uid-8');
+  assert.equal(passwordUser.githubId, 'github-id-8');
+  assert.deepEqual(
+    {
+      password: passwordUser.password,
+      name: passwordUser.name,
+      phoneNumber: passwordUser.phoneNumber,
+      avatar: passwordUser.avatar,
+      school: passwordUser.school,
+      bio: passwordUser.bio
+    },
+    originalProfile
+  );
 });
 
 test('user schema enforces sparse unique provider identifiers', () => {
