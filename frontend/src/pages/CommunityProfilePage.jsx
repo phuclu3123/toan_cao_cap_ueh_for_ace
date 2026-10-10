@@ -37,6 +37,7 @@ import PostCard from '../components/community/PostCard';
 import CreatePostModal from '../components/community/CreatePostModal';
 import AvatarCropModal from '../components/modals/AvatarCropModal';
 import EmptyState from '../components/ui/EmptyState';
+import ErrorState from '../components/ui/ErrorState';
 import LoadingSkeleton from '../components/ui/LoadingSkeleton';
 import '../assets/styles/community.css';
 
@@ -90,7 +91,7 @@ function resolveBadges(profile) {
 
 export default function CommunityProfilePage({ defaultTab = 'posts' }) {
   const { id } = useParams();
-  const { currentUser, reputationPoints } = useAuth();
+  const { currentUser } = useAuth();
   const {
     savedPostIds,
     toggleSavePost,
@@ -103,9 +104,9 @@ export default function CommunityProfilePage({ defaultTab = 'posts' }) {
     handleDeletePost
   } = useCommunity();
 
-  const signedInId = currentUser?.uid || currentUser?.id || null;
+  const signedInId = currentUser?.id || currentUser?.uid || null;
   const isSelfRoute = !id || id === 'me';
-  const targetId = isSelfRoute ? (signedInId || 'user-phuc') : id;
+  const targetId = isSelfRoute ? (signedInId || '') : id;
   const isMe = Boolean(signedInId && targetId === signedInId) || (isSelfRoute && Boolean(signedInId));
 
   const [activeTab, setActiveTab] = useState(defaultTab);
@@ -114,14 +115,17 @@ export default function CommunityProfilePage({ defaultTab = 'posts' }) {
   const [userPosts, setUserPosts] = useState([]);
   const [savedPosts, setSavedPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
+  const [reloadNonce, setReloadNonce] = useState(0);
   const [copiedLink, setCopiedLink] = useState(false);
   const [showAvatarCropModal, setShowAvatarCropModal] = useState(false);
 
   const handlePostSubmit = async (data) => {
     if (editingPost) {
       await handleUpdatePost(editingPost.id, data);
-      const posts = communityService.getPostsByUser(targetId);
-      setUserPosts(posts);
+      const refreshed = await communityService.fetchUserProfile(targetId);
+      setProfile(refreshed.profile);
+      setUserPosts(refreshed.posts);
     }
   };
 
@@ -130,6 +134,36 @@ export default function CommunityProfilePage({ defaultTab = 'posts' }) {
     await handleDeletePost(pId);
     setUserPosts(prev => prev.filter(p => p.id !== pId));
     setSavedPosts(prev => prev.filter(p => p.id !== pId));
+  };
+
+  const handleProfileUpvote = async (postId) => {
+    const result = await handleUpvotePost(postId);
+    const applyVote = (post) => post.id === postId
+      ? {
+          ...post,
+          upvotes: result.upvotes,
+          upvotedBy: result.upvotedBy,
+          downvotedBy: result.downvotedBy
+        }
+      : post;
+    setUserPosts((previous) => previous.map(applyVote));
+    setSavedPosts((previous) => previous.map(applyVote));
+    return result;
+  };
+
+  const handleProfileToggleSave = async (postId) => {
+    const isSaved = await toggleSavePost(postId);
+    if (isSaved) {
+      const matchingPost = userPosts.find((post) => post.id === postId);
+      if (matchingPost) {
+        setSavedPosts((previous) => previous.some((post) => post.id === postId)
+          ? previous
+          : [matchingPost, ...previous]);
+      }
+    } else {
+      setSavedPosts((previous) => previous.filter((post) => post.id !== postId));
+    }
+    return isSaved;
   };
 
   const handleCopyProfileLink = () => {
@@ -181,10 +215,26 @@ export default function CommunityProfilePage({ defaultTab = 'posts' }) {
 
     async function load() {
       setLoading(true);
+      setLoadError(null);
+      if (!targetId) {
+        setProfile(null);
+        setUserPosts([]);
+        setSavedPosts([]);
+        setLoadError({
+          variant: 'forbidden',
+          message: 'Vui lòng đăng nhập để xem hồ sơ và các bài toán đã lưu của bạn.'
+        });
+        setLoading(false);
+        return;
+      }
       try {
-        const resolved = communityService.getUserProfile(targetId);
-        const posts = communityService.getPostsByUser(targetId);
-        const all = await communityService.getPosts({ limit: 100 });
+        const [communityProfile, savedFeed] = await Promise.all([
+          communityService.fetchUserProfile(targetId),
+          isMe
+            ? communityService.getPosts({ status: 'saved', limit: 50 })
+            : Promise.resolve({ posts: [] })
+        ]);
+        const { profile: resolved, posts } = communityProfile;
 
         if (cancelled) return;
 
@@ -215,19 +265,20 @@ export default function CommunityProfilePage({ defaultTab = 'posts' }) {
           }
         }
 
-        if (isAdminIdentity(merged)) {
-          merged.isAdmin = true;
-          merged.points = 9999;
-          if (merged.avatar === '/images/tccvang.jpg') {
-            merged.avatar = authUser?.avatar || authUser?.photoURL || '';
-          }
-        }
-
         setProfile(merged);
         setUserPosts(posts);
-        setSavedPosts(isMe ? all.posts.filter((p) => savedPostIds.includes(p.id)) : []);
+        setSavedPosts(isMe ? savedFeed.posts : []);
       } catch (err) {
         console.error('Lỗi tải dữ liệu hồ sơ thành viên:', err);
+        if (!cancelled) {
+          setProfile(null);
+          setUserPosts([]);
+          setSavedPosts([]);
+          setLoadError({
+            variant: err.status === 404 ? 'not-found' : (err.status === 401 ? 'forbidden' : 'server-error'),
+            message: err.message || 'Không thể tải hồ sơ thành viên lúc này.'
+          });
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -239,7 +290,7 @@ export default function CommunityProfilePage({ defaultTab = 'posts' }) {
       cancelled = true;
       window.removeEventListener('ueh-tcc-session-changed', load);
     };
-  }, [targetId, isMe, savedPostIds, currentUser, reputationPoints]);
+  }, [targetId, isMe, currentUser, reloadNonce]);
 
   const points = profile?.points || 0;
   const tier = getTierByPoints(points);
@@ -256,6 +307,27 @@ export default function CommunityProfilePage({ defaultTab = 'posts' }) {
     ...(isMe ? [{ id: 'saved', label: 'Bài đã lưu', icon: Bookmark, count: savedPosts.length }] : []),
     { id: 'badges', label: 'Danh hiệu & Cột mốc', icon: Award, count: `${earnedBadges.length}/${SPECIALTY_BADGES.length}` }
   ];
+  const displayedTab = activeTab === 'saved' && !isMe ? 'posts' : activeTab;
+
+  if (!loading && loadError) {
+    return (
+      <div className="community-page-wrapper qa-profile-page-wrapper">
+        <div className="qa-profile-main-container">
+          <div className="qa-profile-top-bar">
+            <Link to="/community" className="qa-profile-back-btn">
+              <span className="qa-back-icon-wrap"><ArrowLeft size={15} /></span>
+              <span className="qa-back-text">Về diễn đàn Toán học</span>
+            </Link>
+          </div>
+          <ErrorState
+            variant={loadError.variant}
+            message={loadError.message}
+            onRetry={targetId ? () => setReloadNonce((value) => value + 1) : undefined}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="community-page-wrapper qa-profile-page-wrapper">
@@ -495,8 +567,8 @@ export default function CommunityProfilePage({ defaultTab = 'posts' }) {
                   key={tabId}
                   type="button"
                   role="tab"
-                  aria-selected={activeTab === tabId}
-                  className={`qa-profile-tab-pill ${activeTab === tabId ? 'active' : ''}`}
+                  aria-selected={displayedTab === tabId}
+                  className={`qa-profile-tab-pill ${displayedTab === tabId ? 'active' : ''}`}
                   onClick={() => setActiveTab(tabId)}
                 >
                   <Icon size={16} />
@@ -512,7 +584,7 @@ export default function CommunityProfilePage({ defaultTab = 'posts' }) {
                 <div className="qa-profile-loading-box">
                   <LoadingSkeleton variant="feed-card" count={3} />
                 </div>
-              ) : activeTab === 'posts' ? (
+              ) : displayedTab === 'posts' ? (
                 userPosts.length === 0 ? (
                   <div className="qa-profile-empty-panel">
                     <EmptyState
@@ -533,15 +605,15 @@ export default function CommunityProfilePage({ defaultTab = 'posts' }) {
                         post={post}
                         currentUserId={signedInId}
                         isSaved={savedPostIds.includes(post.id)}
-                        onUpvote={handleUpvotePost}
-                        onToggleSave={toggleSavePost}
+                        onUpvote={currentUser ? handleProfileUpvote : undefined}
+                        onToggleSave={currentUser ? handleProfileToggleSave : undefined}
                         onEdit={openEditModal}
                         onDelete={onDeletePost}
                       />
                     ))}
                   </div>
                 )
-              ) : activeTab === 'saved' ? (
+              ) : displayedTab === 'saved' ? (
                 savedPosts.length === 0 ? (
                   <div className="qa-profile-empty-panel">
                     <EmptyState
@@ -560,8 +632,8 @@ export default function CommunityProfilePage({ defaultTab = 'posts' }) {
                         post={post}
                         currentUserId={signedInId}
                         isSaved
-                        onUpvote={handleUpvotePost}
-                        onToggleSave={toggleSavePost}
+                        onUpvote={currentUser ? handleProfileUpvote : undefined}
+                        onToggleSave={currentUser ? handleProfileToggleSave : undefined}
                         onEdit={openEditModal}
                         onDelete={onDeletePost}
                       />

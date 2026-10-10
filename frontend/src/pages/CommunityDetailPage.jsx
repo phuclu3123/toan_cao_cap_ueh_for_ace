@@ -155,7 +155,7 @@ export default function CommunityDetailPage() {
     )
   );
 
-  const currentUserId = currentUser?.uid || currentUser?.id || 'guest';
+  const currentUserId = currentUser?.id || currentUser?.uid || 'guest';
   const isUpvoted = Boolean(post?.upvotedBy && post.upvotedBy.includes(currentUserId));
   const isDownvoted = Boolean(post?.downvotedBy && post.downvotedBy.includes(currentUserId));
   const isSaved = Boolean(post && savedPostIds.includes(post.id));
@@ -164,6 +164,14 @@ export default function CommunityDetailPage() {
     navigator.clipboard?.writeText(window.location.href);
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2000);
+  };
+
+  const handleToggleSave = async () => {
+    if (!currentUser) {
+      setShowAuthModal(true);
+      return;
+    }
+    await toggleSavePost(post.id);
   };
 
   const handleUpvote = async () => {
@@ -306,11 +314,8 @@ export default function CommunityDetailPage() {
   };
 
   const handleDeleteAnswer = async (pId, aId) => {
-    await communityService.deleteAnswer(pId, aId);
-    setPost(prev => ({
-      ...prev,
-      answers: (prev.answers || []).filter(a => a.id !== aId)
-    }));
+    const result = await communityService.deleteAnswer(pId, aId);
+    if (result.post) setPost(result.post);
   };
 
   const handleCreateAnswerSubmit = async (content) => {
@@ -443,7 +448,7 @@ export default function CommunityDetailPage() {
                 <button
                   type="button"
                   className={`se-vote-btn bookmark ${isSaved ? 'is-saved' : ''}`}
-                  onClick={() => toggleSavePost(post.id)}
+                  onClick={handleToggleSave}
                   title={isSaved ? 'Bỏ lưu bài toán' : 'Lưu bài toán này'}
                   aria-label="Save question"
                 >
@@ -517,7 +522,11 @@ export default function CommunityDetailPage() {
                         Xóa
                       </button>
                     )}
-                    <button type="button" className="se-detail-link-btn" onClick={() => setReportTarget(post)}>
+                    <button
+                      type="button"
+                      className="se-detail-link-btn"
+                      onClick={currentUser ? () => setReportTarget(post) : () => setShowAuthModal(true)}
+                    >
                       Báo cáo
                     </button>
                   </div>
@@ -602,7 +611,7 @@ export default function CommunityDetailPage() {
                         setQuoteText(text);
                         document.getElementById('answer-composer-section')?.scrollIntoView({ behavior: 'smooth' });
                       }}
-                      onReport={(target) => setReportTarget(target)}
+                      onReport={currentUser ? (target) => setReportTarget(target) : () => setShowAuthModal(true)}
                     />
                   ))
                 )}
@@ -746,9 +755,8 @@ export default function CommunityDetailPage() {
       <ReportContentModal
         isOpen={Boolean(reportTarget)}
         onClose={() => setReportTarget(null)}
-        onSubmit={(data) => {
-          reportPost({ ...data, targetId: reportTarget?.id });
-          setReportTarget(null);
+        onSubmit={async (data) => {
+          await reportPost({ ...data, targetId: reportTarget?.id });
         }}
         contentTitle={reportTarget?.title || 'Nội dung'}
       />

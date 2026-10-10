@@ -11,17 +11,22 @@ import {
 } from 'lucide-react';
 import '../../assets/styles/community.css';
 
+const ACCEPTED_IMAGE_TYPES = new Set(['image/png', 'image/jpeg', 'image/gif', 'image/webp']);
+
 /**
  * ImageUploader component for handwritten problem snapshots, exam papers, or diagrams.
  * Supports File upload (drag & drop / file picker / Ctrl+V paste) and Image URL pasting.
- * Supports up to 8 geometry/diagram images with preview and inline insertion.
+ * Supports configurable image limits with preview and optional inline insertion.
  */
 export default function ImageUploader({
   images = [],
   onChange,
   onImagesChange,
   onInsertToEditor,
-  maxImages = 8,
+  maxImages = 1,
+  maxFileBytes = 1024 * 1024,
+  allowFiles = true,
+  allowPaste = true,
   className = ''
 }) {
   const [isUploading, setIsUploading] = useState(false);
@@ -38,11 +43,24 @@ export default function ImageUploader({
   };
 
   const handleFileChange = (e) => {
+    if (!allowFiles) return;
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
 
     if (images.length + files.length > maxImages) {
       setErrorMessage(`Bạn chỉ có thể đính kèm tối đa ${maxImages} hình ảnh.`);
+      return;
+    }
+
+    const invalidType = files.some((file) => !ACCEPTED_IMAGE_TYPES.has(file.type));
+    if (invalidType) {
+      setErrorMessage('Vui lòng chỉ chọn ảnh PNG, JPG, JPEG, GIF hoặc WEBP.');
+      return;
+    }
+
+    const oversized = files.some((file) => file.size > maxFileBytes);
+    if (oversized) {
+      setErrorMessage(`Kích thước mỗi ảnh tối đa là ${Math.round(maxFileBytes / 1024 / 1024)}MB.`);
       return;
     }
 
@@ -54,18 +72,6 @@ export default function ImageUploader({
     let processed = 0;
 
     files.forEach((file) => {
-      if (!file.type.startsWith('image/')) {
-        setErrorMessage('Vui lòng chỉ chọn tệp hình ảnh (PNG, JPG, JPEG, WEBP).');
-        setIsUploading(false);
-        return;
-      }
-
-      if (file.size > 10 * 1024 * 1024) {
-        setErrorMessage('Kích thước ảnh tối đa là 10MB.');
-        setIsUploading(false);
-        return;
-      }
-
       const reader = new FileReader();
       reader.onload = (uploadEvent) => {
         newImages.push({
@@ -92,6 +98,7 @@ export default function ImageUploader({
   };
 
   const handlePasteInZone = (e) => {
+    if (!allowFiles || !allowPaste) return;
     const items = e.clipboardData?.items;
     if (!items) return;
 
@@ -101,6 +108,14 @@ export default function ImageUploader({
         e.preventDefault();
         const file = item.getAsFile();
         if (file) {
+          if (images.length >= maxImages) {
+            setErrorMessage(`Bạn chỉ có thể đính kèm tối đa ${maxImages} hình ảnh.`);
+            return;
+          }
+          if (!ACCEPTED_IMAGE_TYPES.has(file.type) || file.size > maxFileBytes) {
+            setErrorMessage(`Ảnh dán phải là PNG/JPEG/GIF/WEBP và không quá ${Math.round(maxFileBytes / 1024 / 1024)}MB.`);
+            return;
+          }
           const reader = new FileReader();
           reader.onload = (uploadEvent) => {
             const newImg = {
@@ -127,9 +142,10 @@ export default function ImageUploader({
     }
 
     try {
-      new URL(tempUrl);
+      const parsed = new URL(tempUrl);
+      if (parsed.protocol !== 'https:') throw new Error('HTTPS required');
     } catch {
-      setErrorMessage('Định dạng URL không hợp lệ.');
+      setErrorMessage('URL ảnh phải hợp lệ và sử dụng HTTPS.');
       return;
     }
 
@@ -192,15 +208,15 @@ export default function ImageUploader({
             </div>
           ))}
 
-          {images.length < maxImages && (
+          {allowFiles && images.length < maxImages && (
             <label className="image-add-more-card" title="Thêm ảnh khác (Hoặc bấm Ctrl+V)">
               <Plus size={18} />
               <span>Thêm ảnh ({images.length}/{maxImages})</span>
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/*"
-                multiple
+                accept="image/png,image/jpeg,image/gif,image/webp"
+                multiple={maxImages > 1}
                 style={{ display: 'none' }}
                 onChange={handleFileChange}
               />
@@ -221,21 +237,25 @@ export default function ImageUploader({
               <div className="image-upload-prompt">
                 <ImageIcon size={26} className="image-upload-icon" />
                 <p className="image-upload-text">
-                  Đính kèm ảnh bài tập, đề thi hoặc sơ đồ hình vẽ (Có thể chọn nhiều ảnh hoặc bấm <b>Ctrl+V</b> để dán)
+                  {allowFiles
+                    ? `Đính kèm tối đa ${maxImages} ảnh, mỗi ảnh không quá ${Math.round(maxFileBytes / 1024 / 1024)}MB.`
+                    : 'Dùng URL ảnh HTTPS để chèn vào nội dung.'}
                 </p>
 
                 <div className="image-upload-buttons">
-                  <label className="btn btn-secondary btn-sm image-file-btn">
-                    <Upload size={14} />
-                    <span>Chọn ảnh từ máy (Tối đa 8 ảnh)</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      style={{ display: 'none' }}
-                      onChange={handleFileChange}
-                    />
-                  </label>
+                  {allowFiles && (
+                    <label className="btn btn-secondary btn-sm image-file-btn">
+                      <Upload size={14} />
+                      <span>Chọn ảnh từ máy (tối đa {maxImages})</span>
+                      <input
+                        type="file"
+                        accept="image/png,image/jpeg,image/gif,image/webp"
+                        multiple={maxImages > 1}
+                        style={{ display: 'none' }}
+                        onChange={handleFileChange}
+                      />
+                    </label>
+                  )}
 
                   <button
                     type="button"

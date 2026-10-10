@@ -30,6 +30,7 @@ export default function CommunityPage() {
     error,
     stats,
     leaderboard,
+    hotQuestions,
     trendingTags,
     activeSubject,
     activeDifficulty,
@@ -73,7 +74,7 @@ export default function CommunityPage() {
   const [reportTarget, setReportTarget] = useState(null);
   const [activeNav, setActiveNav] = useState('questions');
 
-  const currentUserId = currentUser?.uid || currentUser?.id || null;
+  const currentUserId = currentUser?.id || currentUser?.uid || null;
 
   const handleRequireLogin = () => {
     setShowAuthModal(true);
@@ -178,12 +179,12 @@ export default function CommunityPage() {
                       currentUserId={currentUserId}
                       isVisited={visitedPostIds.includes(post.id)}
                       isSaved={savedPostIds.includes(post.id)}
-                      onUpvote={handleUpvotePost}
-                      onToggleSave={toggleSavePost}
+                      onUpvote={currentUser ? handleUpvotePost : handleRequireLogin}
+                      onToggleSave={currentUser ? toggleSavePost : handleRequireLogin}
                       onEdit={openEditModal}
                       onDelete={(target) => handleDeletePost(target.id)}
                       onHide={hidePost}
-                      onReport={setReportTarget}
+                      onReport={currentUser ? setReportTarget : handleRequireLogin}
                     />
                   ))}
                 </div>
@@ -204,6 +205,7 @@ export default function CommunityPage() {
           <aside className="qa-right-col">
             <CommunitySidebar
               leaderboard={leaderboard}
+              hotQuestions={hotQuestions}
               trendingTags={trendingTags}
               onOpenLeaderboard={() => setIsLeaderboardOpen(true)}
               onOpenCheatsheet={() => setIsCheatsheetOpen(true)}
@@ -251,9 +253,8 @@ export default function CommunityPage() {
       <ReportContentModal
         isOpen={Boolean(reportTarget)}
         onClose={() => setReportTarget(null)}
-        onSubmit={(data) => {
-          reportPost({ ...data, targetId: reportTarget?.id });
-          setReportTarget(null);
+        onSubmit={async (data) => {
+          await reportPost({ ...data, targetId: reportTarget?.id });
         }}
         contentTitle={reportTarget?.title || 'Bài viết'}
       />

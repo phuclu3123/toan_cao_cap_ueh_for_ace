@@ -121,7 +121,7 @@ export default function CommunityTopBar({ onOpenCreate, onOpenCheatsheet, onOpen
           {/* Auth Button */}
           {currentUser ? (
             <div className="se-topbar-user-profile">
-              <Link to={`/community/user/${currentUser.uid || currentUser.id}`} className="se-topbar-avatar-link">
+              <Link to={`/community/user/${currentUser.id || currentUser.uid}`} className="se-topbar-avatar-link">
                 {currentUser.photoURL || currentUser.avatar ? (
                   <img src={currentUser.photoURL || currentUser.avatar} alt={currentUser.displayName || currentUser.name} />
                 ) : (

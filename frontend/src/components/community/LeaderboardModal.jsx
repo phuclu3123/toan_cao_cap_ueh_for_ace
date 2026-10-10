@@ -1,15 +1,8 @@
-import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { Trophy, X, Crown, Medal, ShieldCheck } from 'lucide-react';
 import UserRankBadge from './UserRankBadge';
 import '../../assets/styles/community.css';
-
-const PERIODS = [
-  { id: 'week', label: 'Tuần này' },
-  { id: 'month', label: 'Tháng này' },
-  { id: 'all', label: 'Mọi thời đại' }
-];
 
 const PODIUM_META = [
   { key: 'gold', label: 'Quán quân', Icon: Crown },
@@ -56,8 +49,6 @@ function Avatar({ member, className = '' }) {
  * Full ranking of community contributors.
  */
 export default function LeaderboardModal({ isOpen, onClose, leaderboard = [] }) {
-  const [period, setPeriod] = useState('all');
-
   if (!isOpen) return null;
 
   // Podium order: 2nd, 1st, 3rd — the champion sits in the middle and taller
@@ -93,21 +84,6 @@ export default function LeaderboardModal({ isOpen, onClose, leaderboard = [] }) 
             <X size={17} />
           </button>
         </header>
-
-        <div className="leaderboard-period-tabs">
-          <div className="qa-segment">
-            {PERIODS.map((t) => (
-              <button
-                key={t.id}
-                type="button"
-                className={period === t.id ? 'is-active' : ''}
-                onClick={() => setPeriod(t.id)}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
-        </div>
 
         {podium.length === 3 && (
           <div className="leaderboard-podium">

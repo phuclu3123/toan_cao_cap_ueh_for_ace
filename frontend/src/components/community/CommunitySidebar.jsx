@@ -14,39 +14,6 @@ import {
 import MathRenderer from '../MathRenderer';
 import '../../assets/styles/community.css';
 
-const HOT_QUESTIONS = [
-  {
-    id: 'ueh-pnta-lagrange-cobb-douglas',
-    title: 'Tìm cực trị có điều kiện của hàm lợi ích $U(x,y)=x^{0.6}y^{0.4}$ ngân sách 120tr',
-    answers: 1,
-    isSolved: true
-  },
-  {
-    id: 'ueh-algebra-matrix-inverse-cramer',
-    title: 'Tìm ma trận nghịch đảo $A^{-1}$ cấp 3 và giải phương trình $AX = B$',
-    answers: 1,
-    isSolved: true
-  },
-  {
-    id: 'ueh-leontief-input-output-3sec',
-    title: 'Mô hình Input-Output Leontief mở: Tính ma trận nghịch đảo $(I - A)^{-1}$',
-    answers: 1,
-    isSolved: true
-  },
-  {
-    id: 'ueh-elasticity-demand-revenue',
-    title: 'Hệ số co giãn của cầu theo giá $\\varepsilon_{Q/P}$ và quan hệ Doanh thu $TR$',
-    answers: 1,
-    isSolved: true
-  },
-  {
-    id: 'ueh-improper-integral-lnx-x2',
-    title: 'Tính tích phân suy rộng loại 1 $\\int_{1}^{+\\infty} \\frac{\\ln x}{x^2}\\,dx$',
-    answers: 1,
-    isSolved: true
-  }
-];
-
 function MedalIcon({ index }) {
   if (index === 0) return <Crown size={14} className="medal-crown-gold" />;
   if (index === 1) return <Medal size={14} className="medal-silver" />;
@@ -60,6 +27,7 @@ function MedalIcon({ index }) {
 export default function CommunitySidebar({
   leaderboard = [],
   topUsers,
+  hotQuestions = [],
   trendingTags = [],
   onOpenLeaderboard,
   onOpenCheatsheet
@@ -78,10 +46,10 @@ export default function CommunitySidebar({
         </div>
 
         <ul className="hot-questions-list">
-          {HOT_QUESTIONS.map((item) => (
+          {hotQuestions.map((item) => (
             <li key={item.id} className="hot-question-item">
               <span className="hot-bullet-icon">
-                {item.isSolved ? (
+                {item.isAccepted || item.status === 'solved' ? (
                   <span className="hot-dot-solved" title="Đã có lời giải">●</span>
                 ) : (
                   <span className="hot-dot-open" title="Đang chờ giải">○</span>

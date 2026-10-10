@@ -150,7 +150,9 @@ export default function AnswerComposer({
               onChange={setImages}
               onImagesChange={setImages}
               onInsertToEditor={handleInsertImageToEditor}
-              maxImages={8}
+              maxImages={4}
+              allowFiles={false}
+              allowPaste={false}
             />
           </div>
         )}
@@ -187,7 +189,7 @@ export default function AnswerComposer({
             onClick={() => setShowImages(!showImages)}
           >
             <ImagePlus size={15} />
-            <span>{showImages ? 'Ẩn đính kèm ảnh' : 'Đính kèm ảnh bài giải'}</span>
+            <span>{showImages ? 'Ẩn chèn ảnh' : 'Chèn ảnh bằng URL HTTPS'}</span>
           </button>
         </div>
       </form>

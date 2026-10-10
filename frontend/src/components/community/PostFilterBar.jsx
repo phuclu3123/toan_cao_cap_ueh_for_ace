@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Search,
   SlidersHorizontal,
@@ -51,6 +51,18 @@ export default function PostFilterBar({
   onOpenCreate
 }) {
   const [localSearch, setLocalSearch] = useState(searchQuery);
+
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    setLocalSearch(searchQuery);
+  }, [searchQuery]);
+  /* eslint-enable react-hooks/set-state-in-effect */
+
+  useEffect(() => {
+    if (localSearch === searchQuery) return undefined;
+    const timer = window.setTimeout(() => onSearchChange?.(localSearch), 350);
+    return () => window.clearTimeout(timer);
+  }, [localSearch, onSearchChange, searchQuery]);
 
   const hasActiveFilters =
     activeSubject !== 'all' ||
@@ -137,7 +149,6 @@ export default function PostFilterBar({
           placeholder="Tìm bài toán, công thức LaTeX (\det, Lagrange, Leontief, Cobb-Douglas, Trị riêng...)"
           onChange={(e) => {
             setLocalSearch(e.target.value);
-            onSearchChange?.(e.target.value);
           }}
           aria-label="Tìm kiếm câu hỏi"
         />

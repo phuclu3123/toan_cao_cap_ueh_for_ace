@@ -15,6 +15,8 @@ export default function ReportContentModal({
   const [reason, setReason] = useState('math_error');
   const [detail, setDetail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
@@ -22,6 +24,8 @@ export default function ReportContentModal({
       setIsSubmitted(false);
       setDetail('');
       setReason('math_error');
+      setIsSubmitting(false);
+      setError('');
     }
   }, [isOpen]);
   /* eslint-enable react-hooks/set-state-in-effect */
@@ -61,15 +65,23 @@ export default function ReportContentModal({
     }
   ];
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (typeof onSubmit === 'function') {
-      onSubmit({ reason, detail: detail.trim() });
+    setError('');
+    setIsSubmitting(true);
+    try {
+      if (typeof onSubmit === 'function') {
+        await onSubmit({ reason, detail: detail.trim() });
+      }
+      setIsSubmitted(true);
+      setTimeout(() => {
+        onClose();
+      }, 1500);
+    } catch (submitError) {
+      setError(submitError.message || 'Không thể gửi báo cáo lúc này. Vui lòng thử lại.');
+    } finally {
+      setIsSubmitting(false);
     }
-    setIsSubmitted(true);
-    setTimeout(() => {
-      onClose();
-    }, 1500);
   };
 
   return createPortal(
@@ -175,12 +187,13 @@ export default function ReportContentModal({
             </div>
 
             <div className="report-modal-footer">
+              {error && <div className="form-error-msg" role="alert">{error}</div>}
               <button type="button" className="report-btn report-btn-cancel" onClick={onClose}>
                 Hủy bỏ
               </button>
-              <button type="submit" className="report-btn report-btn-submit">
+              <button type="submit" className="report-btn report-btn-submit" disabled={isSubmitting}>
                 <Send size={15} />
-                <span>Gửi báo cáo</span>
+                <span>{isSubmitting ? 'Đang gửi...' : 'Gửi báo cáo'}</span>
               </button>
             </div>
           </form>

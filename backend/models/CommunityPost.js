@@ -70,4 +70,9 @@ const CommunityPostSchema = new mongoose.Schema({
   answers: [AnswerSchema]
 }, { timestamps: true, optimisticConcurrency: true });
 
+CommunityPostSchema.index({ createdAt: -1 });
+CommunityPostSchema.index({ subject: 1, difficulty: 1, createdAt: -1 });
+CommunityPostSchema.index({ tags: 1 });
+CommunityPostSchema.index({ savedBy: 1, createdAt: -1 });
+
 export default mongoose.model('CommunityPost', CommunityPostSchema);

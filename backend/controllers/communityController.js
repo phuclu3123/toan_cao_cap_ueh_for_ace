@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import mongoose from 'mongoose';
 import CommunityPost from '../models/CommunityPost.js';
+import CommunityReport from '../models/CommunityReport.js';
 import User from '../models/User.js';
 import { hasOwnerRole } from '../utils/roles.js';
 
@@ -549,6 +550,24 @@ const COMMUNITY_SUBJECTS = new Set([
   'all', 'algebra', 'calc1', 'calc2', 'econ_models', 'prob_stats', 'exam_prep', 'method_tips'
 ]);
 const COMMUNITY_DIFFICULTIES = new Set(['standard', 'medium', 'hard', 'olympiad']);
+const COMMUNITY_TYPES = new Set(['question', 'discussion', 'article']);
+const COMMUNITY_SUBJECT_LABELS = {
+  all: 'Tất cả chuyên mục',
+  algebra: 'Đại số Tuyến tính & Ma trận',
+  calc1: 'Vi tích phân 1 (Hàm 1 biến)',
+  calc2: 'Vi tích phân 2 (Hàm nhiều biến & Tối ưu)',
+  econ_models: 'Mô hình Toán Kinh tế & Leontief',
+  prob_stats: 'Xác suất & Thống kê ứng dụng',
+  exam_prep: 'Đề thi & Ôn luyện UEH',
+  method_tips: 'Mẹo Casio & Công cụ hỗ trợ'
+};
+const COMMUNITY_DIFFICULTY_LABELS = {
+  standard: 'Căn bản (5 - 6.5đ)',
+  medium: 'Khá Giỏi (7 - 8.5đ)',
+  hard: 'Nâng cao A+ (9 - 10đ)',
+  olympiad: 'Thử thách Olympic UEH'
+};
+const MAX_COMMUNITY_IMAGE_LENGTH = 1_500_000;
 
 const cleanText = (value, maxLength) => (
   typeof value === 'string' ? value.trim().slice(0, maxLength) : ''
@@ -557,6 +576,22 @@ const cleanText = (value, maxLength) => (
 const hasUnsafeMarkup = (value) => (
   /<\s*(?:script|iframe|object|embed|style|link|meta)\b|\bon\w+\s*=|javascript\s*:/i.test(value)
 );
+
+const hasInlineDataImage = (value) => (
+  /<img\b[^>]*\bsrc\s*=\s*["']?data:image\//i.test(String(value || ''))
+);
+
+const normalizeCommunityImage = (value) => {
+  if (value === null || value === undefined || value === '') return null;
+  if (typeof value !== 'string') return undefined;
+  const candidate = value.trim();
+  if (!candidate || candidate.length > MAX_COMMUNITY_IMAGE_LENGTH) return undefined;
+  if (/^https:\/\/[^\s]+$/i.test(candidate)) return candidate;
+  if (/^data:image\/(?:png|jpe?g|gif|webp);base64,[a-z0-9+/=\r\n]+$/i.test(candidate)) {
+    return candidate;
+  }
+  return undefined;
+};
 
 const normalizeTags = (tags) => (
   Array.isArray(tags)
@@ -573,7 +608,7 @@ const positiveInteger = (value, fallback, maximum) => {
 };
 
 const actorFromUser = (user) => ({
-  id: user.uid || user.id || user.username,
+  id: user.id || user.uid || user.username,
   name: cleanText(user.name, 120) || 'Sinh viên UEH',
   email: cleanText(user.username || user.email, 254).toLowerCase(),
   cohort: cleanText(user.school, 120) || 'UEH',
@@ -584,10 +619,206 @@ const actorFromUser = (user) => ({
 });
 
 const identityValues = (identity) => new Set(
-  [identity?.id, identity?.uid, identity?.username, identity?.email]
+  [
+    identity?.id,
+    identity?.uid,
+    identity?.firebaseUid,
+    identity?.githubId,
+    identity?.username,
+    identity?.email
+  ]
     .map((value) => cleanText(value, 254).toLowerCase())
     .filter(Boolean)
 );
+
+const identityCandidates = (identity) => [...new Set(
+  [identity?.id, identity?.uid, identity?.firebaseUid, identity?.githubId, identity?.username, identity?.email]
+    .flatMap((value) => {
+      const cleaned = cleanText(value, 254);
+      return cleaned ? [cleaned, cleaned.toLowerCase()] : [];
+    })
+)];
+
+const matchesIdentity = (value, identitySet) => (
+  identitySet.has(cleanText(value, 254).toLowerCase())
+);
+
+const degradedReadOnlyEnabled = () => (
+  process.env.NODE_ENV !== 'production'
+  || process.env.ALLOW_DEGRADED_READ_ONLY_MODE === 'true'
+);
+
+const publicAuthor = (author) => ({
+  id: cleanText(author?.id || author?.uid, 254),
+  name: cleanText(author?.name, 120) || 'Sinh viên UEH',
+  cohort: cleanText(author?.cohort, 160) || 'UEH',
+  avatar: cleanText(author?.avatar, MAX_COMMUNITY_IMAGE_LENGTH),
+  points: Math.max(0, Number(author?.points) || 0),
+  isAdmin: Boolean(author?.isAdmin),
+  isInstructor: Boolean(author?.isInstructor)
+});
+
+const votedByViewer = (values, viewer) => {
+  const viewerIds = identityValues(viewer);
+  if (viewerIds.size === 0) return false;
+  return (values || []).some((value) => viewerIds.has(cleanText(value, 254).toLowerCase()));
+};
+
+const publicComment = (comment) => ({
+  id: comment?.id,
+  content: comment?.content || '',
+  author: publicAuthor(comment?.author),
+  createdAt: comment?.createdAt,
+  updatedAt: comment?.updatedAt
+});
+
+const publicAnswer = (answer, viewer) => {
+  const hasUpvoted = votedByViewer(answer?.upvotedBy, viewer);
+  const hasDownvoted = votedByViewer(answer?.downvotedBy, viewer);
+  return {
+    id: answer?.id,
+    content: answer?.content || '',
+    author: publicAuthor(answer?.author),
+    upvotes: Number(answer?.upvotes) || 0,
+    upvotedBy: hasUpvoted ? [actorFromUser(viewer).id] : [],
+    downvotedBy: hasDownvoted ? [actorFromUser(viewer).id] : [],
+    userVote: hasUpvoted ? 1 : (hasDownvoted ? -1 : 0),
+    isAccepted: Boolean(answer?.isAccepted),
+    instructorVerified: Boolean(answer?.instructorVerified),
+    isFirstSolver: Boolean(answer?.isFirstSolver),
+    comments: (answer?.comments || []).map(publicComment),
+    createdAt: answer?.createdAt,
+    updatedAt: answer?.updatedAt
+  };
+};
+
+const contentExcerpt = (content) => String(content || '')
+  .replace(/<[^>]*>/g, ' ')
+  .replace(/\s+/g, ' ')
+  .trim()
+  .slice(0, 900);
+
+const publicPost = (value, { summary = false, viewer = null } = {}) => {
+  const post = value?.toObject ? value.toObject() : value;
+  const hasUpvoted = votedByViewer(post?.upvotedBy, viewer);
+  const hasDownvoted = votedByViewer(post?.downvotedBy, viewer);
+  const response = {
+    id: post?.id,
+    type: post?.type || 'question',
+    title: post?.title || '',
+    content: summary ? contentExcerpt(post?.content) : (post?.content || ''),
+    subject: post?.subject || 'all',
+    subjectLabel: post?.subjectLabel || COMMUNITY_SUBJECT_LABELS[post?.subject] || '',
+    difficulty: post?.difficulty || 'standard',
+    difficultyLabel: post?.difficultyLabel || COMMUNITY_DIFFICULTY_LABELS[post?.difficulty] || '',
+    tags: Array.isArray(post?.tags) ? post.tags : [],
+    author: publicAuthor(post?.author),
+    views: Math.max(0, Number(post?.views) || 0),
+    upvotes: Number(post?.upvotes) || 0,
+    upvotedBy: hasUpvoted && viewer ? [actorFromUser(viewer).id] : [],
+    downvotedBy: hasDownvoted && viewer ? [actorFromUser(viewer).id] : [],
+    userVote: hasUpvoted ? 1 : (hasDownvoted ? -1 : 0),
+    isSaved: viewer ? votedByViewer(post?.savedBy, viewer) : false,
+    status: post?.status || 'unanswered',
+    isAccepted: Boolean(post?.isAccepted),
+    acceptedAnswerId: post?.acceptedAnswerId || null,
+    instructorVerified: Boolean(post?.instructorVerified),
+    answersCount: Number.isFinite(Number(post?.answersCount))
+      ? Math.max(0, Number(post.answersCount))
+      : (Array.isArray(post?.answers) ? post.answers.length : 0),
+    createdAt: post?.createdAt,
+    updatedAt: post?.updatedAt
+  };
+
+  if (!summary) {
+    response.image = post?.image || null;
+    response.altText = post?.altText || null;
+    response.answers = (post?.answers || []).map((answer) => publicAnswer(answer, viewer));
+  }
+  return response;
+};
+
+const buildLeaderboard = (posts) => {
+  const contributors = new Map();
+  const ensureContributor = (author) => {
+    const sanitized = publicAuthor(author);
+    if (!sanitized.id) return null;
+    if (!contributors.has(sanitized.id)) {
+      contributors.set(sanitized.id, {
+        ...sanitized,
+        points: 0,
+        postsCount: 0,
+        answersCount: 0,
+        solvedCount: 0,
+        upvotesReceived: 0
+      });
+    }
+    return contributors.get(sanitized.id);
+  };
+
+  for (const post of posts || []) {
+    const postAuthor = ensureContributor(post?.author);
+    if (postAuthor) {
+      const upvotes = Math.max(0, Number(post?.upvotes) || 0);
+      postAuthor.postsCount += 1;
+      postAuthor.upvotesReceived += upvotes;
+      postAuthor.points += 5 + upvotes * 5;
+    }
+    for (const answer of post?.answers || []) {
+      const answerAuthor = ensureContributor(answer?.author);
+      if (!answerAuthor) continue;
+      const upvotes = Math.max(0, Number(answer?.upvotes) || 0);
+      answerAuthor.answersCount += 1;
+      answerAuthor.upvotesReceived += upvotes;
+      answerAuthor.points += 10 + upvotes * 5;
+      if (answer?.isFirstSolver) answerAuthor.points += 15;
+      if (answer?.isAccepted) {
+        answerAuthor.solvedCount += 1;
+        answerAuthor.points += 25;
+      }
+    }
+  }
+
+  return [...contributors.values()]
+    .sort((left, right) => right.points - left.points || left.name.localeCompare(right.name, 'vi'));
+};
+
+const canonicalizeContributorPosts = (posts, accounts = []) => {
+  const accountByAlias = new Map();
+  for (const account of accounts) {
+    const canonicalId = account?.id
+      || account?.uid
+      || account?.firebaseUid
+      || account?.githubId;
+    if (!canonicalId) continue;
+    const canonicalAuthor = {
+      id: canonicalId,
+      name: account.name,
+      cohort: account.school,
+      avatar: account.avatar,
+      isAdmin: account.role === 'Admin',
+      isInstructor: account.role === 'Admin'
+    };
+    for (const alias of identityValues({ ...account, email: account.username })) {
+      accountByAlias.set(alias, canonicalAuthor);
+    }
+  }
+
+  const normalizeAuthor = (author) => {
+    const alias = cleanText(author?.id, 254).toLowerCase();
+    const accountAuthor = accountByAlias.get(alias);
+    return accountAuthor ? { ...author, ...accountAuthor } : author;
+  };
+
+  return (posts || []).map((post) => ({
+    ...post,
+    author: normalizeAuthor(post?.author),
+    answers: (post?.answers || []).map((answer) => ({
+      ...answer,
+      author: normalizeAuthor(answer?.author)
+    }))
+  }));
+};
 
 const isOwnerOf = (user, author) => {
   if (!user || !author) return false;
@@ -624,6 +855,7 @@ const loadPostForMutation = async (id) => {
     try {
       const databasePost = await CommunityPost.findOne({ id });
       if (databasePost) return { post: databasePost, persistent: true };
+      if (process.env.NODE_ENV === 'production') return null;
       const memoryPost = findMemoryPost(id);
       if (memoryPost) {
         try {
@@ -690,12 +922,6 @@ const sendCommunityError = (res, error) => {
   });
 };
 
-export const LEADERBOARD_CONTRIBUTORS = [
-  AUTH_ADMIN,
-  AUTH_USER_519,
-  AUTH_USER_0809
-];
-
 // Seed storage to MongoDB if collection is empty (only when connected)
 export const seedDatabaseIfEmpty = async () => {
   if (mongoose.connection.readyState !== 1) return;
@@ -738,6 +964,10 @@ export const getPosts = async (req, res) => {
       query.isAccepted = true;
     } else if (status === 'unsolved') {
       query.isAccepted = false;
+    } else if (status === 'saved') {
+      const user = requireControllerUser(req, res);
+      if (!user) return;
+      query.savedBy = { $in: identityCandidates(user) };
     }
     if (sort === 'unanswered') {
       query.answers = { $size: 0 };
@@ -774,16 +1004,66 @@ export const getPosts = async (req, res) => {
     let databaseSucceeded = false;
     if (mongoose.connection.readyState === 1) {
       try {
+        const viewerAliases = [...identityValues(req.authUser)];
+        const viewerOnly = (fieldName) => viewerAliases.length > 0
+          ? {
+              $filter: {
+                input: { $ifNull: [`$${fieldName}`, []] },
+                as: 'identity',
+                cond: { $in: [{ $toLower: '$$identity' }, viewerAliases] }
+              }
+            }
+          : { $literal: [] };
         total = await CommunityPost.countDocuments(query);
-        posts = await CommunityPost.find(query)
-          .sort(sortOption)
-          .skip(skip)
-          .limit(limitNum)
-          .lean();
+        posts = await CommunityPost.aggregate([
+          { $match: query },
+          { $sort: sortOption },
+          { $skip: skip },
+          { $limit: limitNum },
+          {
+            $project: {
+              _id: 0,
+              id: 1,
+              type: 1,
+              title: 1,
+              content: 1,
+              subject: 1,
+              subjectLabel: 1,
+              difficulty: 1,
+              difficultyLabel: 1,
+              tags: 1,
+              author: {
+                id: '$author.id',
+                name: '$author.name',
+                cohort: '$author.cohort',
+                avatar: '$author.avatar',
+                points: '$author.points',
+                isAdmin: '$author.isAdmin',
+                isInstructor: '$author.isInstructor'
+              },
+              views: 1,
+              upvotes: 1,
+              upvotedBy: viewerOnly('upvotedBy'),
+              downvotedBy: viewerOnly('downvotedBy'),
+              savedBy: viewerOnly('savedBy'),
+              status: 1,
+              isAccepted: 1,
+              acceptedAnswerId: 1,
+              instructorVerified: 1,
+              answersCount: { $size: { $ifNull: ['$answers', []] } },
+              createdAt: 1,
+              updatedAt: 1
+            }
+          }
+        ]);
         databaseSucceeded = true;
       } catch (error) {
         console.warn('[Community] Post query failed, using memory fallback:', error.message);
       }
+    }
+
+    if (!databaseSucceeded && !degradedReadOnlyEnabled()) {
+      throw communityStoreError();
     }
 
     if (!databaseSucceeded) {
@@ -792,6 +1072,12 @@ export const getPosts = async (req, res) => {
       if (difficulty && difficulty !== 'all') filtered = filtered.filter(p => p.difficulty === difficulty);
       if (status === 'solved') filtered = filtered.filter(p => p.isAccepted || p.status === 'solved');
       if (status === 'unsolved') filtered = filtered.filter(p => !p.isAccepted && p.status !== 'solved');
+      if (status === 'saved') {
+        const savedAliases = identityValues(req.authUser);
+        filtered = filtered.filter((post) => (
+          (post.savedBy || []).some((savedId) => matchesIdentity(savedId, savedAliases))
+        ));
+      }
       if (normalizedTag) {
         const tagQuery = normalizedTag.toLowerCase();
         filtered = filtered.filter((post) => (
@@ -826,7 +1112,8 @@ export const getPosts = async (req, res) => {
 
     res.json({
       success: true,
-      posts,
+      degraded: !databaseSucceeded,
+      posts: posts.map((post) => publicPost(post, { summary: true, viewer: req.authUser })),
       total,
       totalPages,
       currentPage: pageNum
@@ -854,11 +1141,14 @@ export const getPostById = async (req, res) => {
           { new: true }
         ).lean();
       } catch (error) {
-        console.warn('[Community] Failed to increment database view:', error.message);
+        if (!degradedReadOnlyEnabled()) throw communityStoreError(error);
+        console.warn('[Community] Failed to increment database view, using development fallback:', error.message);
       }
+    } else if (!degradedReadOnlyEnabled()) {
+      throw communityStoreError();
     }
 
-    if (!post) {
+    if (!post && degradedReadOnlyEnabled()) {
       const memoryPost = findMemoryPost(id);
       if (memoryPost) {
         memoryPost.views = Math.max(0, Number(memoryPost.views) || 0) + 1;
@@ -870,7 +1160,11 @@ export const getPostById = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Không tìm thấy bài toán.' });
     }
 
-    res.json({ success: true, post });
+    res.json({
+      success: true,
+      degraded: mongoose.connection.readyState !== 1,
+      post: publicPost(post, { viewer: req.authUser })
+    });
   } catch (error) {
     return sendCommunityError(res, error);
   }
@@ -886,9 +1180,10 @@ export const createPost = async (req, res) => {
 
     const title = cleanText(req.body?.title, 220);
     const content = cleanText(req.body?.content, 20_000);
+    const type = cleanText(req.body?.type, 40) || 'question';
     const subject = cleanText(req.body?.subject, 40) || 'all';
     const difficulty = cleanText(req.body?.difficulty, 40) || 'standard';
-    const image = cleanText(req.body?.image, 2_000_000);
+    const image = normalizeCommunityImage(req.body?.image);
     const altText = cleanText(req.body?.altText, 300);
 
     if (title.length < 8 || content.length < 20) {
@@ -897,20 +1192,25 @@ export const createPost = async (req, res) => {
         message: 'Tiêu đề phải có ít nhất 8 ký tự và nội dung ít nhất 20 ký tự.'
       });
     }
-    if (hasUnsafeMarkup(title) || hasUnsafeMarkup(content)) {
+    if (hasUnsafeMarkup(title) || hasUnsafeMarkup(content) || hasInlineDataImage(content)) {
       return res.status(400).json({ success: false, message: 'Nội dung chứa mã nhúng không an toàn.' });
     }
-    if (!COMMUNITY_SUBJECTS.has(subject) || !COMMUNITY_DIFFICULTIES.has(difficulty)) {
+    if (image === undefined) {
+      return res.status(400).json({ success: false, message: 'Ảnh phải là HTTPS hoặc ảnh PNG/JPEG/GIF/WEBP không quá 1MB.' });
+    }
+    if (!COMMUNITY_TYPES.has(type) || !COMMUNITY_SUBJECTS.has(subject) || !COMMUNITY_DIFFICULTIES.has(difficulty)) {
       return res.status(400).json({ success: false, message: 'Chuyên mục hoặc độ khó không hợp lệ.' });
     }
 
     const newPost = {
       id: `post-${randomUUID()}`,
-      type: 'question',
+      type,
       title,
       content,
       subject,
+      subjectLabel: COMMUNITY_SUBJECT_LABELS[subject],
       difficulty,
+      difficultyLabel: COMMUNITY_DIFFICULTY_LABELS[difficulty],
       tags: normalizeTags(req.body?.tags),
       image: image || null,
       altText: altText || null,
@@ -942,7 +1242,11 @@ export const createPost = async (req, res) => {
     }
     memoryCommunityPosts.unshift(structuredClone(newPost));
 
-    res.status(201).json({ success: true, persisted, post: newPost });
+    res.status(201).json({
+      success: true,
+      persisted,
+      post: publicPost(newPost, { viewer: user })
+    });
   } catch (error) {
     return sendCommunityError(res, error);
   }
@@ -963,6 +1267,12 @@ export const updatePost = async (req, res) => {
     if (!canManage(user, loaded.post.author)) return forbidden(res);
 
     const updates = {};
+    if (Object.hasOwn(req.body || {}, 'type')) {
+      updates.type = cleanText(req.body.type, 40);
+      if (!COMMUNITY_TYPES.has(updates.type)) {
+        return res.status(400).json({ success: false, message: 'Loại bài viết không hợp lệ.' });
+      }
+    }
     if (Object.hasOwn(req.body || {}, 'title')) {
       updates.title = cleanText(req.body.title, 220);
       if (updates.title.length < 8 || hasUnsafeMarkup(updates.title)) {
@@ -971,7 +1281,7 @@ export const updatePost = async (req, res) => {
     }
     if (Object.hasOwn(req.body || {}, 'content')) {
       updates.content = cleanText(req.body.content, 20_000);
-      if (updates.content.length < 20 || hasUnsafeMarkup(updates.content)) {
+      if (updates.content.length < 20 || hasUnsafeMarkup(updates.content) || hasInlineDataImage(updates.content)) {
         return res.status(400).json({ success: false, message: 'Nội dung không hợp lệ.' });
       }
     }
@@ -980,14 +1290,24 @@ export const updatePost = async (req, res) => {
       if (!COMMUNITY_SUBJECTS.has(updates.subject)) {
         return res.status(400).json({ success: false, message: 'Chuyên mục không hợp lệ.' });
       }
+      updates.subjectLabel = COMMUNITY_SUBJECT_LABELS[updates.subject];
     }
     if (Object.hasOwn(req.body || {}, 'difficulty')) {
       updates.difficulty = cleanText(req.body.difficulty, 40);
       if (!COMMUNITY_DIFFICULTIES.has(updates.difficulty)) {
         return res.status(400).json({ success: false, message: 'Độ khó không hợp lệ.' });
       }
+      updates.difficultyLabel = COMMUNITY_DIFFICULTY_LABELS[updates.difficulty];
     }
     if (Object.hasOwn(req.body || {}, 'tags')) updates.tags = normalizeTags(req.body.tags);
+    if (Object.hasOwn(req.body || {}, 'image')) {
+      const image = normalizeCommunityImage(req.body.image);
+      if (image === undefined) {
+        return res.status(400).json({ success: false, message: 'Ảnh phải là HTTPS hoặc ảnh PNG/JPEG/GIF/WEBP không quá 1MB.' });
+      }
+      updates.image = image;
+    }
+    if (Object.hasOwn(req.body || {}, 'altText')) updates.altText = cleanText(req.body.altText, 300) || null;
     if (Object.keys(updates).length === 0) {
       return res.status(400).json({ success: false, message: 'Không có thay đổi hợp lệ.' });
     }
@@ -995,7 +1315,11 @@ export const updatePost = async (req, res) => {
     Object.assign(loaded.post, updates);
     loaded.post.updatedAt = new Date();
     await saveLoadedPost(loaded);
-    return res.json({ success: true, persisted: loaded.persistent, post: cloneForResponse(loaded.post) });
+    return res.json({
+      success: true,
+      persisted: loaded.persistent,
+      post: publicPost(loaded.post, { viewer: user })
+    });
   } catch (error) {
     return sendCommunityError(res, error);
   }
@@ -1034,6 +1358,7 @@ export const toggleUpvotePost = async (req, res) => {
     if (!user) return;
     const id = cleanText(req.params?.id, 160);
     const userId = actorFromUser(user).id;
+    const userAliases = identityValues(user);
     if (!userId) {
       return res.status(400).json({ success: false, message: 'Tài khoản chưa có mã định danh.' });
     }
@@ -1046,14 +1371,16 @@ export const toggleUpvotePost = async (req, res) => {
     post.upvotedBy ||= [];
     post.downvotedBy ||= [];
     const voteType = req.body?.voteType === 'down' ? 'down' : 'up';
-    const hadUpvoted = post.upvotedBy.includes(userId);
-    const hadDownvoted = post.downvotedBy.includes(userId);
+    const previousUpvotes = post.upvotedBy.filter((value) => matchesIdentity(value, userAliases)).length;
+    const previousDownvotes = post.downvotedBy.filter((value) => matchesIdentity(value, userAliases)).length;
+    const hadUpvoted = previousUpvotes > 0;
+    const hadDownvoted = previousDownvotes > 0;
     let score = Number(post.upvotes) || 0;
 
-    if (hadUpvoted) score -= 1;
-    if (hadDownvoted) score += 1;
-    post.upvotedBy = post.upvotedBy.filter((idValue) => idValue !== userId);
-    post.downvotedBy = post.downvotedBy.filter((idValue) => idValue !== userId);
+    if (hadUpvoted) score -= previousUpvotes;
+    if (hadDownvoted) score += previousDownvotes;
+    post.upvotedBy = post.upvotedBy.filter((value) => !matchesIdentity(value, userAliases));
+    post.downvotedBy = post.downvotedBy.filter((value) => !matchesIdentity(value, userAliases));
 
     let userVote = 0;
     if (voteType === 'up' && !hadUpvoted) {
@@ -1072,12 +1399,146 @@ export const toggleUpvotePost = async (req, res) => {
       success: true,
       persisted: loaded.persistent,
       upvotes: post.upvotes,
-      upvotedBy: post.upvotedBy,
-      downvotedBy: post.downvotedBy,
+      upvotedBy: userVote === 1 ? [userId] : [],
+      downvotedBy: userVote === -1 ? [userId] : [],
       userVote,
       hasUpvoted: userVote === 1,
       hasDownvoted: userVote === -1,
-      post: cloneForResponse(post)
+      post: publicPost(post, { viewer: user })
+    });
+  } catch (error) {
+    return sendCommunityError(res, error);
+  }
+};
+
+/**
+ * POST /api/community/posts/:id/save - Save or remove a post for the signed-in account
+ */
+export const toggleSavePost = async (req, res) => {
+  try {
+    const user = requireControllerUser(req, res);
+    if (!user) return;
+    const id = cleanText(req.params?.id, 160);
+    const userId = actorFromUser(user).id;
+    const userAliases = identityValues(user);
+    const loaded = await loadPostForMutation(id);
+    if (!loaded) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy bài toán.' });
+    }
+
+    loaded.post.savedBy ||= [];
+    const wasSaved = loaded.post.savedBy.some((savedId) => matchesIdentity(savedId, userAliases));
+    loaded.post.savedBy = wasSaved
+      ? loaded.post.savedBy.filter((savedId) => !matchesIdentity(savedId, userAliases))
+      : [
+          ...loaded.post.savedBy.filter((savedId) => !matchesIdentity(savedId, userAliases)),
+          userId
+        ];
+    await saveLoadedPost(loaded);
+
+    let savedPostIds;
+    if (loaded.persistent) {
+      const savedRows = await CommunityPost.find({ savedBy: { $in: identityCandidates(user) } }).select('id -_id').lean();
+      savedPostIds = savedRows.map((row) => row.id);
+    } else {
+      savedPostIds = memoryCommunityPosts
+        .filter((post) => (post.savedBy || []).some((savedId) => matchesIdentity(savedId, userAliases)))
+        .map((post) => post.id);
+    }
+
+    return res.json({
+      success: true,
+      persisted: loaded.persistent,
+      isSaved: !wasSaved,
+      postId: id,
+      savedPostIds
+    });
+  } catch (error) {
+    return sendCommunityError(res, error);
+  }
+};
+
+/**
+ * GET /api/community/saved - Return only the current account's bookmark ids
+ */
+export const getSavedPostIds = async (req, res) => {
+  try {
+    const user = requireControllerUser(req, res);
+    if (!user) return;
+    const userAliases = identityValues(user);
+
+    if (mongoose.connection.readyState === 1) {
+      try {
+        const rows = await CommunityPost.find({ savedBy: { $in: identityCandidates(user) } }).select('id -_id').lean();
+        return res.json({ success: true, savedPostIds: rows.map((row) => row.id) });
+      } catch (error) {
+        throw communityStoreError(error);
+      }
+    }
+    if (process.env.NODE_ENV === 'production') throw communityStoreError();
+
+    return res.json({
+      success: true,
+      savedPostIds: memoryCommunityPosts
+        .filter((post) => (post.savedBy || []).some((savedId) => matchesIdentity(savedId, userAliases)))
+        .map((post) => post.id)
+    });
+  } catch (error) {
+    return sendCommunityError(res, error);
+  }
+};
+
+/**
+ * POST /api/community/reports - Persist a moderation report
+ */
+export const reportCommunityContent = async (req, res) => {
+  try {
+    const user = requireControllerUser(req, res);
+    if (!user) return;
+    const targetId = cleanText(req.body?.targetId, 160);
+    const reason = cleanText(req.body?.reason, 40);
+    const detail = cleanText(req.body?.detail, 500);
+    const allowedReasons = new Set(['math_error', 'spam', 'inappropriate', 'wrong_category', 'other']);
+    if (!targetId || !allowedReasons.has(reason) || hasUnsafeMarkup(detail)) {
+      return res.status(400).json({ success: false, message: 'Báo cáo không hợp lệ.' });
+    }
+    if (mongoose.connection.readyState !== 1) throw communityStoreError();
+
+    const targetExists = await CommunityPost.exists({
+      $or: [
+        { id: targetId },
+        { 'answers.id': targetId },
+        { 'answers.comments.id': targetId }
+      ]
+    });
+    if (!targetExists) {
+      return res.status(404).json({ success: false, message: 'Nội dung cần báo cáo không còn tồn tại.' });
+    }
+
+    const reporter = actorFromUser(user);
+    const recentDuplicate = await CommunityReport.exists({
+      targetId,
+      'reporter.id': reporter.id,
+      createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }
+    });
+    if (recentDuplicate) {
+      return res.status(409).json({
+        success: false,
+        code: 'REPORT_ALREADY_SUBMITTED',
+        message: 'Bạn đã báo cáo nội dung này trong 24 giờ qua.'
+      });
+    }
+
+    const report = await CommunityReport.create({
+      id: `report-${randomUUID()}`,
+      targetId,
+      reason,
+      detail,
+      reporter: { id: reporter.id, name: reporter.name }
+    });
+    return res.status(201).json({
+      success: true,
+      report: { id: report.id, status: report.status, createdAt: report.createdAt }
     });
   } catch (error) {
     return sendCommunityError(res, error);
@@ -1093,7 +1554,7 @@ export const addAnswer = async (req, res) => {
     if (!user) return;
     const id = cleanText(req.params?.id, 160);
     const content = cleanText(req.body?.content, 20_000);
-    if (content.length < 3 || hasUnsafeMarkup(content)) {
+    if (content.length < 3 || hasUnsafeMarkup(content) || hasInlineDataImage(content)) {
       return res.status(400).json({ success: false, message: 'Nội dung câu trả lời không hợp lệ.' });
     }
 
@@ -1125,8 +1586,8 @@ export const addAnswer = async (req, res) => {
     return res.status(201).json({
       success: true,
       persisted: loaded.persistent,
-      answer: newAnswer,
-      post: cloneForResponse(post)
+      answer: publicAnswer(newAnswer, user),
+      post: publicPost(post, { viewer: user })
     });
   } catch (error) {
     return sendCommunityError(res, error);
@@ -1143,6 +1604,7 @@ export const voteAnswer = async (req, res) => {
     const id = cleanText(req.params?.id, 160);
     const answerId = cleanText(req.params?.answerId, 160);
     const userId = actorFromUser(user).id;
+    const userAliases = identityValues(user);
     const voteType = req.body?.voteType === 'down' ? 'down' : 'up';
     if (!userId) {
       return res.status(400).json({ success: false, message: 'Tài khoản chưa có mã định danh.' });
@@ -1159,14 +1621,16 @@ export const voteAnswer = async (req, res) => {
 
     answer.upvotedBy ||= [];
     answer.downvotedBy ||= [];
-    const hadUpvoted = answer.upvotedBy.includes(userId);
-    const hadDownvoted = answer.downvotedBy.includes(userId);
+    const previousUpvotes = answer.upvotedBy.filter((value) => matchesIdentity(value, userAliases)).length;
+    const previousDownvotes = answer.downvotedBy.filter((value) => matchesIdentity(value, userAliases)).length;
+    const hadUpvoted = previousUpvotes > 0;
+    const hadDownvoted = previousDownvotes > 0;
     let score = Number(answer.upvotes) || 0;
 
-    if (hadUpvoted) score -= 1;
-    if (hadDownvoted) score += 1;
-    answer.upvotedBy = answer.upvotedBy.filter((idValue) => idValue !== userId);
-    answer.downvotedBy = answer.downvotedBy.filter((idValue) => idValue !== userId);
+    if (hadUpvoted) score -= previousUpvotes;
+    if (hadDownvoted) score += previousDownvotes;
+    answer.upvotedBy = answer.upvotedBy.filter((value) => !matchesIdentity(value, userAliases));
+    answer.downvotedBy = answer.downvotedBy.filter((value) => !matchesIdentity(value, userAliases));
 
     let userVote = 0;
     if (voteType === 'up' && !hadUpvoted) {
@@ -1185,12 +1649,12 @@ export const voteAnswer = async (req, res) => {
       success: true,
       persisted: loaded.persistent,
       upvotes: answer.upvotes,
-      upvotedBy: answer.upvotedBy,
-      downvotedBy: answer.downvotedBy,
+      upvotedBy: userVote === 1 ? [userId] : [],
+      downvotedBy: userVote === -1 ? [userId] : [],
       userVote,
       hasUpvoted: userVote === 1,
       hasDownvoted: userVote === -1,
-      post: cloneForResponse(loaded.post)
+      post: publicPost(loaded.post, { viewer: user })
     });
   } catch (error) {
     return sendCommunityError(res, error);
@@ -1230,7 +1694,11 @@ export const acceptAnswer = async (req, res) => {
     post.acceptedAnswerId = shouldAccept ? answerId : null;
 
     await saveLoadedPost(loaded);
-    return res.json({ success: true, persisted: loaded.persistent, post: cloneForResponse(post) });
+    return res.json({
+      success: true,
+      persisted: loaded.persistent,
+      post: publicPost(post, { viewer: user })
+    });
   } catch (error) {
     return sendCommunityError(res, error);
   }
@@ -1246,7 +1714,7 @@ export const updateAnswer = async (req, res) => {
     const id = cleanText(req.params?.id, 160);
     const answerId = cleanText(req.params?.answerId, 160);
     const content = cleanText(req.body?.content, 20_000);
-    if (content.length < 3 || hasUnsafeMarkup(content)) {
+    if (content.length < 3 || hasUnsafeMarkup(content) || hasInlineDataImage(content)) {
       return res.status(400).json({ success: false, message: 'Nội dung lời giải không hợp lệ.' });
     }
 
@@ -1267,8 +1735,8 @@ export const updateAnswer = async (req, res) => {
     return res.json({
       success: true,
       persisted: loaded.persistent,
-      answer: cloneForResponse(answer),
-      post: cloneForResponse(loaded.post)
+      answer: publicAnswer(answer, user),
+      post: publicPost(loaded.post, { viewer: user })
     });
   } catch (error) {
     return sendCommunityError(res, error);
@@ -1308,7 +1776,7 @@ export const deleteAnswer = async (req, res) => {
       success: true,
       persisted: loaded.persistent,
       message: 'Đã xóa lời giải thành công.',
-      post: cloneForResponse(loaded.post)
+      post: publicPost(loaded.post, { viewer: user })
     });
   } catch (error) {
     return sendCommunityError(res, error);
@@ -1325,7 +1793,7 @@ export const addCommentToAnswer = async (req, res) => {
     const id = cleanText(req.params?.id, 160);
     const answerId = cleanText(req.params?.answerId, 160);
     const content = cleanText(req.body?.content, 3000);
-    if (!content || hasUnsafeMarkup(content)) {
+    if (!content || hasUnsafeMarkup(content) || hasInlineDataImage(content)) {
       return res.status(400).json({ success: false, message: 'Nội dung bình luận không hợp lệ.' });
     }
 
@@ -1351,8 +1819,8 @@ export const addCommentToAnswer = async (req, res) => {
     return res.status(201).json({
       success: true,
       persisted: loaded.persistent,
-      comment: newComment,
-      post: cloneForResponse(loaded.post)
+      comment: publicComment(newComment),
+      post: publicPost(loaded.post, { viewer: user })
     });
   } catch (error) {
     return sendCommunityError(res, error);
@@ -1370,7 +1838,7 @@ export const updateComment = async (req, res) => {
     const answerId = cleanText(req.params?.answerId, 160);
     const commentId = cleanText(req.params?.commentId, 160);
     const content = cleanText(req.body?.content, 3000);
-    if (!content || hasUnsafeMarkup(content)) {
+    if (!content || hasUnsafeMarkup(content) || hasInlineDataImage(content)) {
       return res.status(400).json({ success: false, message: 'Nội dung bình luận không hợp lệ.' });
     }
 
@@ -1395,8 +1863,8 @@ export const updateComment = async (req, res) => {
     return res.json({
       success: true,
       persisted: loaded.persistent,
-      comment: cloneForResponse(comment),
-      post: cloneForResponse(loaded.post)
+      comment: publicComment(comment),
+      post: publicPost(loaded.post, { viewer: user })
     });
   } catch (error) {
     return sendCommunityError(res, error);
@@ -1437,7 +1905,7 @@ export const deleteComment = async (req, res) => {
       success: true,
       persisted: loaded.persistent,
       message: 'Đã xóa bình luận thành công',
-      post: cloneForResponse(loaded.post)
+      post: publicPost(loaded.post, { viewer: user })
     });
   } catch (error) {
     return sendCommunityError(res, error);
@@ -1449,33 +1917,168 @@ export const deleteComment = async (req, res) => {
  */
 export const getLeaderboard = async (req, res) => {
   try {
-    let list = [...LEADERBOARD_CONTRIBUTORS];
+    let posts;
+    let databaseSucceeded = false;
     if (mongoose.connection.readyState === 1) {
       try {
-        const dbUsers = await User.find({}).lean();
-        if (dbUsers && dbUsers.length > 0) {
-          list = list.map(item => {
-            const matched = dbUsers.find(u => 
-              (u.username && u.username.toLowerCase() === item.email?.toLowerCase()) ||
-              (u.id && u.id === item.id)
-            );
-            if (matched) {
-              return {
-                ...item,
-                name: matched.name || item.name,
-                avatar: matched.avatar || item.avatar || '',
-                cohort: matched.school || item.cohort,
-                isAdmin: Boolean(matched.role === 'Admin' || item.isAdmin)
-              };
-            }
-            return item;
-          });
+        posts = await CommunityPost.find({})
+          .select('author upvotes answers.author answers.upvotes answers.isAccepted answers.isFirstSolver')
+          .lean();
+        const contributorIds = [...new Set(posts.flatMap((post) => [
+          post?.author?.id,
+          ...(post?.answers || []).map((answer) => answer?.author?.id)
+        ]).map((value) => cleanText(value, 254)).filter(Boolean))];
+        if (contributorIds.length > 0) {
+          const lookupIds = [...new Set(contributorIds.flatMap((value) => [value, value.toLowerCase()]))];
+          const accounts = await User.find({
+            $or: [
+              { id: { $in: lookupIds } },
+              { uid: { $in: lookupIds } },
+              { firebaseUid: { $in: lookupIds } },
+              { githubId: { $in: lookupIds } },
+              { username: { $in: lookupIds.map((value) => value.toLowerCase()) } }
+            ]
+          }).select('id uid firebaseUid githubId username name avatar school role').lean();
+          posts = canonicalizeContributorPosts(posts, accounts);
         }
-      } catch {}
+        databaseSucceeded = true;
+      } catch (error) {
+        if (!degradedReadOnlyEnabled()) throw communityStoreError(error);
+      }
+    } else if (!degradedReadOnlyEnabled()) {
+      throw communityStoreError();
     }
     res.json({
       success: true,
-      leaderboard: list
+      degraded: !databaseSucceeded,
+      leaderboard: buildLeaderboard(posts || memoryCommunityPosts).slice(0, 25)
+    });
+  } catch (error) {
+    return sendCommunityError(res, error);
+  }
+};
+
+/**
+ * GET /api/community/users/:id - Public contribution profile backed by MongoDB
+ */
+export const getCommunityUserProfile = async (req, res) => {
+  try {
+    const userId = cleanText(req.params?.id, 254);
+    if (!userId) {
+      return res.status(400).json({ success: false, message: 'Thiếu mã thành viên.' });
+    }
+
+    let posts;
+    let account = null;
+    let profileIdentity = { id: userId };
+    let databaseSucceeded = false;
+    if (mongoose.connection.readyState === 1) {
+      try {
+        const lookupCandidates = identityCandidates({ id: userId });
+        account = await User.findOne({
+          $or: [
+            { id: { $in: lookupCandidates } },
+            { uid: { $in: lookupCandidates } },
+            { firebaseUid: { $in: lookupCandidates } },
+            { githubId: { $in: lookupCandidates } },
+            { username: userId.toLowerCase() }
+          ]
+        }).select('id uid firebaseUid githubId username name avatar school bio role').lean();
+        profileIdentity = account
+          ? { ...account, email: account.username }
+          : { id: userId };
+        const profileAliases = identityCandidates(profileIdentity);
+        posts = await CommunityPost.find({
+          $or: [
+            { 'author.id': { $in: profileAliases } },
+            { 'answers.author.id': { $in: profileAliases } }
+          ]
+        }).lean();
+        databaseSucceeded = true;
+      } catch (error) {
+        if (!degradedReadOnlyEnabled()) throw communityStoreError(error);
+      }
+    } else if (!degradedReadOnlyEnabled()) {
+      throw communityStoreError();
+    }
+
+    if (!databaseSucceeded) {
+      const viewerAliases = identityValues(req.authUser);
+      if (matchesIdentity(userId, viewerAliases)) {
+        profileIdentity = req.authUser;
+      }
+      const profileAliases = identityValues(profileIdentity);
+      posts = memoryCommunityPosts.filter((post) => (
+        matchesIdentity(post.author?.id, profileAliases)
+        || (post.answers || []).some((answer) => matchesIdentity(answer.author?.id, profileAliases))
+      ));
+    }
+
+    const canonicalId = account?.id
+      || account?.uid
+      || account?.firebaseUid
+      || account?.githubId
+      || actorFromUser(profileIdentity).id
+      || userId;
+    const profileAliases = identityValues(profileIdentity);
+    const normalizedPosts = posts.map((post) => ({
+      ...post,
+      author: matchesIdentity(post.author?.id, profileAliases)
+        ? { ...post.author, id: canonicalId }
+        : post.author,
+      answers: (post.answers || []).map((answer) => ({
+        ...answer,
+        author: matchesIdentity(answer.author?.id, profileAliases)
+          ? { ...answer.author, id: canonicalId }
+          : answer.author
+      }))
+    }));
+    const contribution = buildLeaderboard(normalizedPosts).find((item) => item.id === canonicalId);
+    let accountAuthor = account ? publicAuthor({
+      id: canonicalId,
+      name: account.name,
+      cohort: account.school,
+      avatar: account.avatar,
+      isAdmin: account.role === 'Admin',
+      isInstructor: account.role === 'Admin'
+    }) : null;
+    const viewerOwnsProfile = matchesIdentity(userId, identityValues(req.authUser));
+    if (!accountAuthor && viewerOwnsProfile) {
+      accountAuthor = publicAuthor(actorFromUser(req.authUser));
+    }
+    if (!contribution && !accountAuthor) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy thành viên cộng đồng.' });
+    }
+
+    const profile = {
+      ...(contribution || {
+        id: accountAuthor.id,
+        points: 0,
+        postsCount: 0,
+        answersCount: 0,
+        solvedCount: 0,
+        upvotesReceived: 0
+      }),
+      ...(accountAuthor ? {
+        id: canonicalId,
+        name: accountAuthor.name,
+        cohort: accountAuthor.cohort,
+        avatar: accountAuthor.avatar,
+        isAdmin: accountAuthor.isAdmin,
+        isInstructor: accountAuthor.isInstructor
+      } : {}),
+      bio: cleanText(account?.bio || (viewerOwnsProfile ? req.authUser?.bio : ''), 2_000)
+    };
+    const userPosts = normalizedPosts
+      .filter((post) => post.author?.id === canonicalId)
+      .sort((left, right) => new Date(right.createdAt) - new Date(left.createdAt))
+      .map((post) => publicPost(post, { summary: true, viewer: req.authUser }));
+
+    return res.json({
+      success: true,
+      degraded: !databaseSucceeded,
+      profile,
+      posts: userPosts
     });
   } catch (error) {
     return sendCommunityError(res, error);
@@ -1490,23 +2093,42 @@ export const getStats = async (req, res) => {
     let totalPosts;
     let solvedCount;
     let totalAnswers;
+    let trendingTags = [];
+    let databaseSucceeded = false;
 
     if (mongoose.connection.readyState === 1) {
       try {
-        const [postCount, acceptedCount, answerTotals] = await Promise.all([
+        const [postCount, acceptedCount, answerTotals, tagTotals] = await Promise.all([
           CommunityPost.countDocuments(),
           CommunityPost.countDocuments({ isAccepted: true }),
           CommunityPost.aggregate([
             { $project: { answerCount: { $size: { $ifNull: ['$answers', []] } } } },
             { $group: { _id: null, total: { $sum: '$answerCount' } } }
+          ]),
+          CommunityPost.aggregate([
+            { $unwind: '$tags' },
+            {
+              $project: {
+                tag: { $trim: { input: { $toLower: '$tags' }, chars: ' #' } }
+              }
+            },
+            { $match: { tag: { $ne: '' } } },
+            { $group: { _id: '$tag', count: { $sum: 1 } } },
+            { $sort: { count: -1, _id: 1 } },
+            { $limit: 12 }
           ])
         ]);
         totalPosts = postCount;
         solvedCount = acceptedCount;
         totalAnswers = answerTotals[0]?.total || 0;
+        trendingTags = tagTotals.map((item) => ({ tag: item._id, count: item.count }));
+        databaseSucceeded = true;
       } catch (error) {
-        console.warn('[Community] Stats query failed, using memory fallback:', error.message);
+        if (!degradedReadOnlyEnabled()) throw communityStoreError(error);
+        console.warn('[Community] Stats query failed, using development fallback:', error.message);
       }
+    } else if (!degradedReadOnlyEnabled()) {
+      throw communityStoreError();
     }
 
     if (totalPosts === undefined) {
@@ -1518,6 +2140,17 @@ export const getStats = async (req, res) => {
         (sum, post) => sum + (post.answers || []).length,
         0
       );
+      const tagCounts = new Map();
+      for (const post of memoryCommunityPosts) {
+        for (const rawTag of post.tags || []) {
+          const tag = cleanText(rawTag, 80).replace(/^#+/, '').trim().toLowerCase();
+          if (tag) tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
+        }
+      }
+      trendingTags = [...tagCounts.entries()]
+        .map(([tag, count]) => ({ tag, count }))
+        .sort((left, right) => right.count - left.count || left.tag.localeCompare(right.tag, 'vi'))
+        .slice(0, 12);
     }
 
     const openCount = totalPosts - solvedCount;
@@ -1526,12 +2159,14 @@ export const getStats = async (req, res) => {
 
     res.json({
       success: true,
+      degraded: !databaseSucceeded,
       stats: {
         totalPosts,
         solvedCount,
         openCount,
         totalAnswers,
-        solvedPercentage
+        solvedPercentage,
+        trendingTags
       }
     });
   } catch (error) {

@@ -65,6 +65,7 @@ export default function CreatePostModal({
     setDifficulty('medium');
     setTagInput('');
     setTags(['#ToanCaoCap']);
+    setImages([]);
     setImage(null);
     setAltText('');
     setHasDraftLoaded(false);
@@ -88,6 +89,12 @@ export default function CreatePostModal({
       setTags(editingPost.tags || []);
       setImage(editingPost.image || null);
       setAltText(editingPost.altText || '');
+      setImages(editingPost.image ? [{
+        id: `existing-${editingPost.id || 'post'}`,
+        url: editingPost.image,
+        preview: editingPost.image,
+        altText: editingPost.altText || 'Ảnh đề bài'
+      }] : []);
     } else {
       // Load draft if available
       try {
@@ -102,6 +109,12 @@ export default function CreatePostModal({
           setTags(draft.tags || []);
           setImage(draft.image || null);
           setAltText(draft.altText || '');
+          setImages(draft.image ? [{
+            id: 'draft-image',
+            url: draft.image,
+            preview: draft.image,
+            altText: draft.altText || 'Ảnh đề bài'
+          }] : []);
           setHasDraftLoaded(true);
         } else {
           resetForm();
@@ -173,23 +186,10 @@ export default function CreatePostModal({
 
     setIsSubmitting(true);
     try {
-      let finalContent = content.trim();
-      if (images && images.length > 0) {
-        const uninserted = images.filter((img) => !finalContent.includes(img.preview || img.url));
-        if (uninserted.length > 0) {
-          finalContent += uninserted
-            .map(
-              (img) =>
-                `<p><img src="${img.preview || img.url}" alt="${img.altText || 'Ảnh đề bài'}" class="wysiwyg-math-inline-img" style="max-width: 100%; max-height: 480px; height: auto; border-radius: 10px; margin: 12px 0; border: 1px solid #cbd5e1; box-shadow: 0 4px 14px rgba(0,0,0,0.07); display: block;" /></p>`
-            )
-            .join('');
-        }
-      }
-
       await onSubmit({
         type,
         title: title.trim(),
-        content: finalContent,
+        content: content.trim(),
         subject,
         difficulty,
         tags,
@@ -390,18 +390,15 @@ export default function CreatePostModal({
 
             {/* 5. Image Uploader */}
             <div className="form-group">
-              <label className="form-label">Ảnh đính kèm đề bài / sơ đồ (Tối đa 8 ảnh, hoặc dán <b>Ctrl+V</b>):</label>
+              <label className="form-label">Ảnh đính kèm đề bài / sơ đồ (1 ảnh, tối đa 1MB; có thể dán <b>Ctrl+V</b>):</label>
               <ImageUploader
                 images={images}
-                maxImages={8}
+                maxImages={1}
+                maxFileBytes={1024 * 1024}
                 onChange={(nextImages) => {
                   setImages(nextImages);
                   setImage(nextImages[0]?.preview || nextImages[0]?.url || null);
                   setAltText(nextImages[0]?.altText || '');
-                }}
-                onInsertToEditor={(imgSrc, imgAlt) => {
-                  const imgTag = `<p><img src="${imgSrc}" alt="${imgAlt || 'Ảnh đề bài'}" class="wysiwyg-math-inline-img" style="max-width: 100%; max-height: 480px; height: auto; border-radius: 10px; margin: 12px 0; border: 1px solid #cbd5e1; box-shadow: 0 4px 14px rgba(0,0,0,0.07); display: block;" /></p><p><br></p>`;
-                  setContent((prev) => (prev ? `${prev}${imgTag}` : imgTag));
                 }}
               />
             </div>
@@ -503,7 +500,7 @@ export default function CreatePostModal({
                 ) : editingPost ? (
                   'Cập nhật bài viết'
                 ) : (
-                  'Đăng bài ngay (+5 pts)'
+                  'Đăng bài ngay'
                 )}
               </button>
             </div>

@@ -5,11 +5,6 @@ import {
   ChevronDown,
   ShieldCheck,
   Check,
-  Bookmark,
-  Sparkles,
-  BookOpenCheck,
-  Lightbulb,
-  Heart,
   Maximize2,
   Minimize2,
   Trash2,
@@ -40,6 +35,7 @@ export default function AnswerCard({
   onQuote,
   onEditAnswer,
   onDeleteAnswer,
+  onReport,
   onOpenCheatsheet
 }) {
   const [showCommentForm, setShowCommentForm] = useState(false);
@@ -52,6 +48,8 @@ export default function AnswerCard({
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showAcceptConfirm, setShowAcceptConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isAcceptingAnswer, setIsAcceptingAnswer] = useState(false);
+  const [isDeletingAnswer, setIsDeletingAnswer] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
 
   // Edit Answer state
@@ -59,32 +57,8 @@ export default function AnswerCard({
   const [editAnswerText, setEditAnswerText] = useState('');
   const [isSavingAnswerEdit, setIsSavingAnswerEdit] = useState(false);
 
-  // Blog-style reaction state
-  const [userReactions, setUserReactions] = useState({});
-  const [reactionCounts, setReactionCounts] = useState({
-    clear: 14,
-    useful: 28,
-    insightful: 19,
-    love: 35
-  });
-
-  const toggleReaction = (type) => {
-    if (!currentUser) {
-      onRequireLogin?.();
-      return;
-    }
-    setUserReactions(prev => {
-      const active = !prev[type];
-      setReactionCounts(counts => ({
-        ...counts,
-        [type]: active ? counts[type] + 1 : Math.max(0, counts[type] - 1)
-      }));
-      return { ...prev, [type]: active };
-    });
-  };
-
   const isAccepted = Boolean(answer.isAccepted);
-  const currentUserId = currentUser?.uid || currentUser?.id || '';
+  const currentUserId = currentUser?.id || currentUser?.uid || '';
   const isVerified = Boolean(answer.instructorVerified || answer.isInstructorVerified);
   const isAnswerAuthor = currentUser && (currentUser.uid === answer.author?.id || currentUser.id === answer.author?.id);
   const hasUpvoted = Boolean(currentUserId && answer.upvotedBy && answer.upvotedBy.includes(currentUserId));
@@ -175,6 +149,30 @@ export default function AnswerCard({
     }
   };
 
+  const handleAcceptConfirm = async () => {
+    setIsAcceptingAnswer(true);
+    try {
+      await onAcceptAnswer?.(postId, answer.id, isInstructor);
+      setShowAcceptConfirm(false);
+    } catch (err) {
+      console.error('Lỗi khi cập nhật lời giải được chấp nhận:', err);
+    } finally {
+      setIsAcceptingAnswer(false);
+    }
+  };
+
+  const handleDeleteAnswerConfirm = async () => {
+    setIsDeletingAnswer(true);
+    try {
+      await onDeleteAnswer?.(postId, answer.id);
+      setShowDeleteConfirm(false);
+    } catch (err) {
+      console.error('Lỗi khi xóa lời giải:', err);
+    } finally {
+      setIsDeletingAnswer(false);
+    }
+  };
+
   return (
     <article
       id={answer.id}
@@ -214,15 +212,6 @@ export default function AnswerCard({
           aria-label="Downvote answer"
         >
           <ChevronDown size={28} />
-        </button>
-
-        <button
-          type="button"
-          className="se-vote-btn bookmark"
-          title="Lưu lời giải"
-          aria-label="Save answer"
-        >
-          <Bookmark size={18} />
         </button>
 
         {/* Big Green Accepted Checkmark Badge */}
@@ -319,58 +308,6 @@ export default function AnswerCard({
           </div>
         )}
 
-        {/* Reaction Pill Bar (Tương tác cảm xúc chuẩn Blog Chuyên Khảo) */}
-        {!isEditingAnswer && (
-          <div className="math-reaction-bar">
-            <span className="math-reaction-bar-title">Đánh giá lời giải:</span>
-            <div className="math-reaction-pill-list">
-              <button
-                type="button"
-                className={`math-reaction-pill-btn ${userReactions.clear ? 'is-active' : ''}`}
-                onClick={() => toggleReaction('clear')}
-                title="Lời giải dễ hiểu, rõ ràng"
-              >
-                <Sparkles size={13} />
-                <span>Dễ hiểu</span>
-                <strong className="math-reaction-pill-count">{reactionCounts.clear}</strong>
-              </button>
-
-              <button
-                type="button"
-                className={`math-reaction-pill-btn ${userReactions.useful ? 'is-active' : ''}`}
-                onClick={() => toggleReaction('useful')}
-                title="Hữu ích cho kỳ thi UEH"
-              >
-                <BookOpenCheck size={13} />
-                <span>Hữu ích</span>
-                <strong className="math-reaction-pill-count">{reactionCounts.useful}</strong>
-              </button>
-
-              <button
-                type="button"
-                className={`math-reaction-pill-btn ${userReactions.insightful ? 'is-active' : ''}`}
-                onClick={() => toggleReaction('insightful')}
-                title="Tư duy sâu sắc, phương pháp hay"
-              >
-                <Lightbulb size={13} />
-                <span>Sâu sắc</span>
-                <strong className="math-reaction-pill-count">{reactionCounts.insightful}</strong>
-              </button>
-
-              <button
-                type="button"
-                className={`math-reaction-pill-btn ${userReactions.love ? 'is-active' : ''}`}
-                onClick={() => toggleReaction('love')}
-                title="Rất yêu thích cách giải này"
-              >
-                <Heart size={13} />
-                <span>Yêu thích</span>
-                <strong className="math-reaction-pill-count">{reactionCounts.love}</strong>
-              </button>
-            </div>
-          </div>
-        )}
-
         {/* Bottom Actions & Author signature */}
         <div className="se-detail-post-bottom-bar">
           <div className="se-detail-actions-links">
@@ -381,6 +318,12 @@ export default function AnswerCard({
             {onQuote && !isEditingAnswer && (
               <button type="button" className="se-detail-link-btn" onClick={() => onQuote(answer.content)}>
                 Trích dẫn
+              </button>
+            )}
+
+            {onReport && !isEditingAnswer && (
+              <button type="button" className="se-detail-link-btn" onClick={() => onReport(answer)}>
+                Báo cáo
               </button>
             )}
 
@@ -436,7 +379,7 @@ export default function AnswerCard({
                   {answer.author?.name || 'Sinh viên UEH'}
                 </Link>
                 <span className="author-card-rep">
-                  {answer.author?.points || 1} pts
+                  {answer.author?.points || 0} pts
                 </span>
               </div>
             </div>
@@ -576,10 +519,8 @@ export default function AnswerCard({
       <ConfirmDialog
         isOpen={showAcceptConfirm}
         onClose={() => setShowAcceptConfirm(false)}
-        onConfirm={() => {
-          setShowAcceptConfirm(false);
-          onAcceptAnswer(postId, answer.id, isInstructor);
-        }}
+        onConfirm={handleAcceptConfirm}
+        isLoading={isAcceptingAnswer}
         title={isAccepted ? 'Bỏ chọn lời giải này?' : 'Chấp nhận lời giải này?'}
         message={
           isAccepted
@@ -593,10 +534,8 @@ export default function AnswerCard({
       <ConfirmDialog
         isOpen={showDeleteConfirm}
         onClose={() => setShowDeleteConfirm(false)}
-        onConfirm={() => {
-          setShowDeleteConfirm(false);
-          onDeleteAnswer(postId, answer.id);
-        }}
+        onConfirm={handleDeleteAnswerConfirm}
+        isLoading={isDeletingAnswer}
         title="Xóa câu trả lời này?"
         message="Hành động này không thể hoàn tác. Lời giải của bạn sẽ bị xóa vĩnh viễn khỏi cuộc thảo luận."
         confirmLabel="Xóa câu trả lời"

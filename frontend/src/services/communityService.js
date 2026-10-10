@@ -65,10 +65,12 @@ function normalizePost(post) {
 }
 
 const STORAGE_KEY = 'ueh_tcc_community_posts_v15';
-const SAVED_POSTS_KEY = 'ueh_tcc_saved_posts';
 const VISITED_POSTS_KEY = 'ueh_tcc_visited_posts';
 const HIDDEN_POSTS_KEY = 'ueh_tcc_hidden_posts';
-const REPORTS_KEY = 'ueh_tcc_content_reports';
+const ENABLE_LOCAL_COMMUNITY_FALLBACK = Boolean(
+  import.meta.env?.DEV
+  && import.meta.env?.VITE_ENABLE_COMMUNITY_LOCAL_FALLBACK === 'true'
+);
 
 /**
  * 7 Core Subjects of UEH Higher & Applied Mathematics Curriculum
@@ -647,6 +649,7 @@ class CommunityService {
   }
 
   initStorage() {
+    if (!ENABLE_LOCAL_COMMUNITY_FALLBACK) return;
     const existing = safeLocalStorage.getItem(STORAGE_KEY);
     if (!existing) {
       safeLocalStorage.setItem(STORAGE_KEY, JSON.stringify(UEH_CURRICULUM_POSTS));
@@ -656,9 +659,9 @@ class CommunityService {
   getPostsFromStorage() {
     try {
       const data = safeLocalStorage.getItem(STORAGE_KEY);
-      return data ? JSON.parse(data) : UEH_CURRICULUM_POSTS;
+      return data ? JSON.parse(data) : (ENABLE_LOCAL_COMMUNITY_FALLBACK ? UEH_CURRICULUM_POSTS : []);
     } catch {
-      return UEH_CURRICULUM_POSTS;
+      return ENABLE_LOCAL_COMMUNITY_FALLBACK ? UEH_CURRICULUM_POSTS : [];
     }
   }
 
@@ -685,8 +688,6 @@ class CommunityService {
   }
 
   async getPosts(options = {}) {
-    if (options.status === 'saved') return this.getLocalPosts(options);
-
     const params = new URLSearchParams();
     const search = options.search || options.query || '';
     for (const [key, value] of Object.entries({
@@ -725,8 +726,11 @@ class CommunityService {
         currentPage: Number(data.currentPage) || 1
       };
     } catch (error) {
-      console.warn('Không thể tải diễn đàn từ backend, dùng bộ nhớ cục bộ:', error.message);
-      return this.getLocalPosts(options);
+      if (ENABLE_LOCAL_COMMUNITY_FALLBACK) {
+        console.warn('Không thể tải diễn đàn từ backend, dùng fallback development:', error.message);
+        return this.getLocalPosts(options);
+      }
+      throw error;
     }
   }
 
@@ -819,8 +823,8 @@ class CommunityService {
         }
         return normalized;
       }
-    } catch {
-      // Backend unavailable, fall through to storage
+    } catch (error) {
+      if (!ENABLE_LOCAL_COMMUNITY_FALLBACK) throw error;
     }
 
     // Fallback to storage
@@ -1028,6 +1032,11 @@ class CommunityService {
     return this.getCommunityStats();
   }
 
+  async fetchCommunityStats() {
+    const data = await readApiJson(await apiFetch('/api/community/stats'));
+    return data.stats;
+  }
+
   async votePost(postId, userId = 'guest', voteType = 'up') {
     void userId;
     const payload = await readApiJson(await apiFetch(`/api/community/posts/${postId}/upvote`, {
@@ -1047,56 +1056,34 @@ class CommunityService {
     return this.votePost(postId, userId, 'down');
   }
 
-  getTrendingTags() {
-    const posts = this.getPostsFromStorage();
-    const tagCountMap = {};
-
-    posts.forEach(p => {
-      (p.tags || []).forEach(t => {
-        const clean = t.replace('#', '');
-        tagCountMap[clean] = (tagCountMap[clean] || 0) + 1;
-      });
-    });
-
-    return Object.entries(tagCountMap)
-      .map(([name, count]) => ({ tag: `#${name}`, count }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 8);
-  }
-
   getLeaderboard() {
     return UEH_LEADERBOARD_USERS.map(applyAdminIdentity);
   }
 
-  getSavedPostIds() {
-    try {
-      const data = safeLocalStorage.getItem(SAVED_POSTS_KEY);
-      return data ? JSON.parse(data) : [];
-    } catch {
-      return [];
-    }
+  async fetchLeaderboard() {
+    const data = await readApiJson(await apiFetch('/api/community/leaderboard'));
+    return (data.leaderboard || []).map(applyAdminIdentity);
   }
 
-  toggleSavePost(postId) {
-    const saved = this.getSavedPostIds();
-    let nextSaved;
-    let isSaved;
+  async fetchUserProfile(userId) {
+    const data = await readApiJson(await apiFetch(`/api/community/users/${encodeURIComponent(userId)}`));
+    return {
+      profile: data.profile,
+      posts: (data.posts || []).map(normalizePost)
+    };
+  }
 
-    if (saved.includes(postId)) {
-      nextSaved = saved.filter(id => id !== postId);
-      isSaved = false;
-    } else {
-      nextSaved = [...saved, postId];
-      isSaved = true;
-    }
+  async fetchSavedPostIds() {
+    const data = await readApiJson(await apiFetch('/api/community/saved'));
+    return Array.isArray(data.savedPostIds) ? data.savedPostIds : [];
+  }
 
-    try {
-      safeLocalStorage.setItem(SAVED_POSTS_KEY, JSON.stringify(nextSaved));
-    } catch (e) {
-      console.warn('Lỗi khi lưu bài viết:', e);
-    }
-
-    return { savedPostIds: nextSaved, isSaved };
+  async toggleSavePost(postId) {
+    const data = await readApiJson(await apiFetch(`/api/community/posts/${postId}/save`, {
+      method: 'POST'
+    }));
+    const nextSaved = Array.isArray(data.savedPostIds) ? data.savedPostIds : [];
+    return { savedPostIds: nextSaved, isSaved: Boolean(data.isSaved) };
   }
 
   getVisitedPostIds() {
@@ -1135,23 +1122,19 @@ class CommunityService {
     return hidden;
   }
 
-  reportPost(reportData) {
-    try {
-      const existing = safeLocalStorage.getItem(REPORTS_KEY);
-      const reports = existing ? JSON.parse(existing) : [];
-      reports.push({
-        id: `rep-${Date.now()}`,
-        ...reportData,
-        createdAt: new Date().toISOString()
-      });
-      safeLocalStorage.setItem(REPORTS_KEY, JSON.stringify(reports));
-    } catch (err) {
-      console.warn('Lỗi khi ghi nhận báo cáo:', err);
-    }
-    return true;
+  async reportPost(reportData) {
+    return readApiJson(await apiFetch('/api/community/reports', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        targetId: reportData.targetId,
+        reason: reportData.reason,
+        detail: reportData.detail || ''
+      })
+    }));
   }
 
-  reportContent(reportData) {
+  async reportContent(reportData) {
     return this.reportPost(reportData);
   }
 

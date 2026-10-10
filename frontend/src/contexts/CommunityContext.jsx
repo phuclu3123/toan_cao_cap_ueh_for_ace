@@ -2,14 +2,11 @@ import { createContext, useContext, useState, useEffect, useCallback, useRef } f
 import { useSearchParams } from 'react-router-dom';
 import { communityService } from '../services/communityService';
 import { useAuth } from './AuthContext';
-import { useNotifications } from './NotificationContext';
-import { REPUTATION_POINTS } from '../services/reputationService';
 
 const CommunityContext = createContext(null);
 
 export function CommunityProvider({ children }) {
-  const { currentUser, addReputationPoints } = useAuth();
-  const { addNotification } = useNotifications();
+  const { currentUser } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Read initial filter values from URL Search Params
@@ -28,14 +25,16 @@ export function CommunityProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const refreshRequestIdRef = useRef(0);
+  const metadataRequestIdRef = useRef(0);
 
-  const [savedPostIds, setSavedPostIds] = useState(() => communityService.getSavedPostIds());
+  const [savedPostIds, setSavedPostIds] = useState([]);
   const [visitedPostIds, setVisitedPostIds] = useState(() => communityService.getVisitedPostIds());
   const [hiddenPostIds, setHiddenPostIds] = useState(() => communityService.getHiddenPostIds());
 
-  const [stats, setStats] = useState(() => communityService.getCommunityStats());
-  const [leaderboard, setLeaderboard] = useState(() => communityService.getLeaderboard());
-  const [trendingTags, setTrendingTags] = useState(() => communityService.getTrendingTags());
+  const [stats, setStats] = useState({ totalPosts: 0, solvedCount: 0, openCount: 0, totalAnswers: 0, solvedPercentage: 0 });
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [hotQuestions, setHotQuestions] = useState([]);
+  const [trendingTags, setTrendingTags] = useState([]);
 
   // Modal State
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -100,6 +99,13 @@ export function CommunityProvider({ children }) {
     setLoading(true);
     setError(null);
     try {
+      if (activeStatus === 'saved' && !currentUser) {
+        setPosts([]);
+        setTotalPosts(0);
+        setTotalPages(1);
+        setSavedPostIds([]);
+        return;
+      }
       const res = await communityService.getPosts({
         subject: activeSubject,
         difficulty: activeDifficulty,
@@ -115,10 +121,9 @@ export function CommunityProvider({ children }) {
         setPosts(res.posts);
         setTotalPosts(res.total);
         setTotalPages(res.totalPages);
-        setStats(communityService.getCommunityStats());
-        setLeaderboard(communityService.getLeaderboard());
-        setTrendingTags(communityService.getTrendingTags());
+        setLoading(false);
       }
+
     } catch (err) {
       console.error('Lỗi khi tải bài viết community:', err);
       if (requestId === refreshRequestIdRef.current) {
@@ -127,7 +132,7 @@ export function CommunityProvider({ children }) {
     } finally {
       if (requestId === refreshRequestIdRef.current) setLoading(false);
     }
-  }, [activeSubject, activeDifficulty, activeStatus, activeSort, searchQuery, activeTag, currentPage]);
+  }, [activeSubject, activeDifficulty, activeStatus, activeSort, searchQuery, activeTag, currentPage, currentUser]);
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
@@ -135,12 +140,43 @@ export function CommunityProvider({ children }) {
   }, [refreshPosts]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
+  const refreshMetadata = useCallback(async () => {
+    const requestId = metadataRequestIdRef.current + 1;
+    metadataRequestIdRef.current = requestId;
+    const [statsResult, leaderboardResult, hotResult, savedResult] = await Promise.allSettled([
+      communityService.fetchCommunityStats(),
+      communityService.fetchLeaderboard(),
+      communityService.getPosts({ sort: 'popular', page: 1, limit: 5 }),
+      currentUser ? communityService.fetchSavedPostIds() : Promise.resolve([])
+    ]);
+    if (requestId !== metadataRequestIdRef.current) return;
+    if (statsResult.status === 'fulfilled') {
+      setStats(statsResult.value);
+      setTrendingTags(Array.isArray(statsResult.value.trendingTags) ? statsResult.value.trendingTags : []);
+    }
+    if (leaderboardResult.status === 'fulfilled') setLeaderboard(leaderboardResult.value);
+    if (hotResult.status === 'fulfilled') {
+      setHotQuestions(hotResult.value.posts);
+    }
+    if (savedResult.status === 'fulfilled') setSavedPostIds(savedResult.value);
+  }, [currentUser]);
+
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    refreshMetadata();
+  }, [refreshMetadata]);
+  /* eslint-enable react-hooks/set-state-in-effect */
+
   // Bookmark / Save
-  const toggleSavePost = useCallback((postId) => {
-    const { isSaved, savedPostIds: nextSaved } = communityService.toggleSavePost(postId);
+  const toggleSavePost = useCallback(async (postId) => {
+    const { isSaved, savedPostIds: nextSaved } = await communityService.toggleSavePost(postId);
     setSavedPostIds([...nextSaved]);
+    if (!isSaved && activeStatus === 'saved') {
+      setPosts((previous) => previous.filter((post) => post.id !== postId));
+      setTotalPosts((previous) => Math.max(0, previous - 1));
+    }
     return isSaved;
-  }, []);
+  }, [activeStatus]);
 
   // Mark visited
   const markVisited = useCallback((postId) => {
@@ -156,13 +192,13 @@ export function CommunityProvider({ children }) {
   }, []);
 
   // Report post
-  const reportPost = useCallback((data) => {
+  const reportPost = useCallback(async (data) => {
     return communityService.reportContent(data);
   }, []);
 
   // Vote Post (Up / Down)
   const handleVotePost = useCallback(async (postId, voteType = 'up') => {
-    const userId = currentUser?.uid || currentUser?.id || 'guest';
+    const userId = currentUser?.id || currentUser?.uid || 'guest';
     const result = await communityService.votePost(postId, userId, voteType);
 
     setPosts(prev => prev.map(p => {
@@ -177,12 +213,8 @@ export function CommunityProvider({ children }) {
       return p;
     }));
 
-    if (result.userVote === 1 && currentUser) {
-      addReputationPoints(REPUTATION_POINTS.UPVOTE_QUESTION_RECEIVED);
-    }
-
     return result;
-  }, [currentUser, addReputationPoints]);
+  }, [currentUser]);
 
   const handleUpvotePost = useCallback(async (postId) => {
     return handleVotePost(postId, 'up');
@@ -194,7 +226,7 @@ export function CommunityProvider({ children }) {
 
   // Vote Answer (Up / Down)
   const handleVoteAnswer = useCallback(async (postId, answerId, voteType = 'up') => {
-    const userId = currentUser?.uid || currentUser?.id || 'guest';
+    const userId = currentUser?.id || currentUser?.uid || 'guest';
     const result = await communityService.voteAnswer(postId, answerId, userId, voteType);
 
     setPosts(prev => prev.map(p => {
@@ -217,12 +249,8 @@ export function CommunityProvider({ children }) {
       return p;
     }));
 
-    if (result.userVote === 1 && currentUser) {
-      addReputationPoints(REPUTATION_POINTS.UPVOTE_ANSWER_RECEIVED);
-    }
-
     return result;
-  }, [currentUser, addReputationPoints]);
+  }, [currentUser]);
 
   const handleUpvoteAnswer = useCallback(async (postId, answerId) => {
     return handleVoteAnswer(postId, answerId, 'up');
@@ -239,29 +267,26 @@ export function CommunityProvider({ children }) {
       author: currentUser || { name: 'Sinh viên UEH', cohort: 'K50 UEH', points: 65 }
     });
 
-    if (currentUser) {
-      addReputationPoints(REPUTATION_POINTS.POST_QUESTION);
-    }
-
-    setSavedPostIds(communityService.getSavedPostIds());
     setVisitedPostIds(communityService.getVisitedPostIds());
-    await refreshPosts();
+    await Promise.all([refreshPosts(), refreshMetadata()]);
     return created;
-  }, [currentUser, addReputationPoints, refreshPosts]);
+  }, [currentUser, refreshMetadata, refreshPosts]);
 
   // Update Post
   const handleUpdatePost = useCallback(async (postId, updateData) => {
     const updated = await communityService.updatePost(postId, updateData);
     setPosts(prev => prev.map(p => p.id === postId ? updated : p));
+    await refreshMetadata();
     return updated;
-  }, []);
+  }, [refreshMetadata]);
 
   // Delete Post
   const handleDeletePost = useCallback(async (postId) => {
     await communityService.deletePost(postId);
     setPosts(prev => prev.filter(p => p.id !== postId));
     setTotalPosts(prev => Math.max(0, prev - 1));
-  }, []);
+    await refreshMetadata();
+  }, [refreshMetadata]);
 
   // Add Answer
   const handleAddAnswer = useCallback(async (postId, content) => {
@@ -270,57 +295,17 @@ export function CommunityProvider({ children }) {
       author: currentUser || { name: 'Sinh viên UEH', cohort: 'K50 UEH', points: 65 }
     });
 
-    if (currentUser) {
-      const earned = REPUTATION_POINTS.POST_ANSWER + (result.isFirstAnswer ? REPUTATION_POINTS.FIRST_SOLVER_BONUS : 0);
-      addReputationPoints(earned);
-    }
-
-    // Trigger in-app notification to post author if not self
-    if (result.post.author?.id !== (currentUser?.uid || currentUser?.id)) {
-      addNotification({
-        type: 'answer',
-        title: 'Lời giải mới cho bài toán của bạn ✍️',
-        message: `${currentUser?.displayName || currentUser?.name || 'Một sinh viên'} vừa gửi lời giải cho bài toán "${result.post.title.slice(0, 45)}..."`,
-        link: `/community/${postId}#${result.answer.id}`,
-        postId,
-        targetId: result.answer.id,
-        actor: {
-          name: currentUser?.displayName || currentUser?.name || 'Sinh viên UEH',
-          avatar: currentUser?.photoURL || currentUser?.avatar || ''
-        }
-      });
-    }
-
-    await refreshPosts();
+    await Promise.all([refreshPosts(), refreshMetadata()]);
     return result;
-  }, [currentUser, addReputationPoints, addNotification, refreshPosts]);
+  }, [currentUser, refreshMetadata, refreshPosts]);
 
   // Accept Answer
   const handleAcceptAnswer = useCallback(async (postId, answerId, isInstructor = false) => {
     const result = await communityService.toggleAcceptAnswer(postId, answerId, isInstructor);
 
-    if (result.isAccepted && result.answerAuthorId !== (currentUser?.uid || currentUser?.id)) {
-      addReputationPoints(isInstructor ? REPUTATION_POINTS.INSTRUCTOR_VERIFIED : REPUTATION_POINTS.ACCEPTED_SOLUTION);
-
-      addNotification({
-        type: 'accepted_solution',
-        title: isInstructor ? 'Lời giải đã được xác minh' : 'Lời giải của bạn được ghim nổi bật',
-        message: isInstructor
-          ? 'Cố vấn học thuật đã xác minh chuyên môn cho lời giải của bạn.'
-          : 'Tác giả đã đề xuất lời giải của bạn làm phương án tham khảo nổi bật.',
-        link: `/community/${postId}#${answerId}`,
-        postId,
-        targetId: answerId,
-        actor: {
-          name: currentUser?.displayName || currentUser?.name || 'Tác giả bài viết',
-          avatar: currentUser?.photoURL || currentUser?.avatar || ''
-        }
-      });
-    }
-
-    await refreshPosts();
+    await Promise.all([refreshPosts(), refreshMetadata()]);
     return result;
-  }, [currentUser, addReputationPoints, addNotification, refreshPosts]);
+  }, [refreshMetadata, refreshPosts]);
 
   const value = {
     // Data & state
@@ -331,6 +316,7 @@ export function CommunityProvider({ children }) {
     error,
     stats,
     leaderboard,
+    hotQuestions,
     trendingTags,
 
     // Filter controls
