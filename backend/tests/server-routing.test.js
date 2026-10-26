@@ -6,6 +6,34 @@ import { app } from '../server.js';
 let server;
 let baseUrl;
 
+test('BroomSharing relay setup requires the existing private setup token', async () => {
+  const response = await fetch(`${baseUrl}/api/payos/relay/broomsharing`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ destination: 'https://demo.trycloudflare.com/api/payos/webhook' })
+  });
+  assert.equal(response.status, 401);
+});
+
+test('relay setup rejects internal destinations before attempting any database write', async () => {
+  const previous = process.env.PAYOS_CONFIRM_TOKEN;
+  process.env.PAYOS_CONFIRM_TOKEN = 'fixture-only-admin-token';
+  try {
+    const response = await fetch(`${baseUrl}/api/payos/relay/broomsharing`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'x-payos-confirm-token': 'fixture-only-admin-token' },
+      body: JSON.stringify({ destination: 'http://127.0.0.1/api/payos/webhook' })
+    });
+    assert.equal(response.status, 400);
+  } finally {
+    if (previous === undefined) delete process.env.PAYOS_CONFIRM_TOKEN;
+    else process.env.PAYOS_CONFIRM_TOKEN = previous;
+  }
+});
+
+test('deployed webhook capability fingerprint identifies the BroomSharing relay build', async () => {
+  const response = await fetch(`${baseUrl}/api/payos/webhook`);
+  assert.equal((await response.json()).relayVersion, 'broomsharing-v1');
+});
+
 before(async () => {
   await new Promise((resolve) => {
     server = app.listen(0, '127.0.0.1', resolve);

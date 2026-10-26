@@ -2,6 +2,7 @@ import express from 'express';
 import {
   claimLegacyOrder,
   confirmWebhook,
+  configureBroomSharingRelay,
   createOrder,
   getPaymentStatus,
   handleWebhook
@@ -30,7 +31,8 @@ router.get('/api/payos/webhook', (_req, res) => {
     success: true,
     message: 'payOS webhook endpoint is ready.',
     method: 'POST',
-    path: '/api/payos/webhook'
+    path: '/api/payos/webhook',
+    relayVersion: 'broomsharing-v1'
   });
 });
 
@@ -51,6 +53,7 @@ router.get(
 
 router.post('/api/payos/webhook', webhookRateLimit, handleWebhook);
 router.post('/api/payos/confirm-webhook', paymentWriteRateLimit, confirmWebhook);
+router.post('/api/payos/relay/broomsharing', paymentWriteRateLimit, configureBroomSharingRelay);
 
 const frontendPaymentResultUrl = (req, cancelled) => {
   const configuredFrontend = process.env.FRONTEND_URL || process.env.CLIENT_URL;

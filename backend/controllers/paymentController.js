@@ -3,6 +3,8 @@ import mongoose from 'mongoose';
 import { getCourseOffering, listCourseOfferings } from '../config/courseCatalog.js';
 import Payment from '../models/Payment.js';
 import WebhookEvent from '../models/WebhookEvent.js';
+import PayosWebhookRelay from '../models/PayosWebhookRelay.js';
+import { forwardBroomSharingWebhook, validateRelayDestination } from '../services/broomsharingWebhookRelay.js';
 import {
   getCourseAccess,
   grantEnrollment,
@@ -668,6 +670,11 @@ export const handleWebhook = async (req, res) => {
 
   try {
     requireDatabase();
+    const relayed = await forwardBroomSharingWebhook(req.body, {
+      hasCourseOrder: (code) => Payment.exists({ orderCode: code }),
+      readRelay: () => PayosWebhookRelay.findOne({ key: 'BROOMSHARING' }).lean()
+    });
+    if (relayed) return res.json({ success: true, relayed: 'BROOMSHARING' });
     const fingerprint = crypto
       .createHash('sha256')
       .update(`${req.body.signature}:${JSON.stringify(data)}`)
@@ -716,6 +723,23 @@ export const handleWebhook = async (req, res) => {
   } catch (error) {
     return sendPaymentError(res, error, 'Không thể xử lý webhook PayOS.');
   }
+};
+
+// Reuses the existing server-only setup token. It does not change the provider's webhook URL.
+export const configureBroomSharingRelay = async (req, res) => {
+  const expected = process.env.PAYOS_CONFIRM_TOKEN || '';
+  if (!expected || !safeCompareText(expected, req.get('x-payos-confirm-token') || '')) {
+    return res.status(401).json({ success: false, code: 'UNAUTHORIZED' });
+  }
+  let destination;
+  try { destination = validateRelayDestination(req.body?.destination); }
+  catch { return res.status(400).json({ success: false, code: 'INVALID_RELAY_DESTINATION' }); }
+  try {
+    requireDatabase();
+    await PayosWebhookRelay.findOneAndUpdate({ key: 'BROOMSHARING' },
+      { $set: { destination } }, { upsert: true, new: true });
+    return res.json({ success: true, relay: 'BROOMSHARING', destination });
+  } catch (error) { return sendPaymentError(res, error, 'Cannot configure BroomSharing webhook relay.'); }
 };
 
 export const confirmWebhook = async (req, res) => {
