@@ -16,6 +16,7 @@ import {
   legacyUidForExternalIdentity,
   providerFieldForExternalIdentity,
   resolveExternalIdentityOwner,
+  reconcileExternalEmail,
   seedMissingProfileFromExternalIdentity
 } from '../services/externalIdentityService.js';
 import {
@@ -273,13 +274,14 @@ const sendAuthError = (res, error, fallbackMessage) => {
   });
 };
 
-const upsertExternalUser = async ({
+export const upsertExternalUser = async ({
   provider,
   subject,
   email,
   emailVerified,
   name,
-  phoneNumber
+  phoneNumber,
+  requireVerifiedEmail = false
 }) => {
   const normalizedSubject = String(subject || '').trim();
   const candidateEmail = normalizeEmail(email);
@@ -291,16 +293,7 @@ const upsertExternalUser = async ({
 
   const linkIdentity = async (user) => {
     attachExternalIdentity(user, { provider, subject: normalizedSubject });
-    const currentUsername = normalizeIdentifier(user.username || user.email);
-    const hasGeneratedEmail = currentUsername.endsWith('@users.invalid')
-      || currentUsername.endsWith('@users.noreply.github.com');
-    if (
-      normalizedEmail
-      && emailVerified
-      && (!currentUsername || currentUsername === normalizedEmail || hasGeneratedEmail)
-    ) {
-      user.username = normalizedEmail;
-    }
+    reconcileExternalEmail(user, { email: normalizedEmail, emailVerified, requireVerifiedEmail });
     seedMissingProfileFromExternalIdentity(user, { name, phoneNumber });
     user.role = roleForIdentifier(user.username);
     return persistUser(user);
@@ -326,6 +319,8 @@ const upsertExternalUser = async ({
   if (existingUser) {
     return linkIdentity(existingUser);
   }
+
+  reconcileExternalEmail(null, { email: normalizedEmail, emailVerified, requireVerifiedEmail });
 
   const username = normalizedEmail
     || `${provider}-${crypto.createHash('sha256').update(normalizedSubject).digest('hex').slice(0, 24)}@users.invalid`;
@@ -582,6 +577,7 @@ export const syncFirebaseAuth = async (req, res) => {
       subject: identity.uid,
       email: identity.email,
       emailVerified: identity.emailVerified,
+      requireVerifiedEmail: identity.signInProvider === 'google.com',
       name: identity.name,
       phoneNumber: identity.phoneNumber
     });

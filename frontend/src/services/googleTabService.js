@@ -7,6 +7,11 @@ export const GOOGLE_TAB_RESULT = 'ueh-tcc:google-tab-result';
 export const GOOGLE_TAB_STORAGE_KEY = 'ueh_tcc_google_tab';
 const MAX_AGE_MS = 5 * 60 * 1000;
 const viteEnv = import.meta.env || {};
+const GOOGLE_AUTH_ERRORS = Object.freeze({
+  GOOGLE_EMAIL_REQUIRED: 'Google chưa cung cấp email đã xác minh. Hãy đăng nhập Google lại để hoàn tất liên kết email.',
+  ACCOUNT_LINK_CONFLICT: 'Email và danh tính Google đang gắn với hai tài khoản khác nhau. Vui lòng liên hệ quản trị viên để kiểm tra.',
+  INVALID_FIREBASE_TOKEN: 'Phiên xác thực Google chưa hợp lệ hoặc đã hết hạn. Vui lòng đăng nhập lại.'
+});
 
 const firebaseRequest = async (method, body, apiKey) => {
   if (!apiKey) throw new Error('Chưa cấu hình Firebase API key.');
@@ -54,7 +59,8 @@ export const beginGoogleTabSignIn = ({ signal } = {}) => new Promise((resolve, r
   const handleResult = async (payload) => {
     if (settled || checking || payload?.type !== GOOGLE_TAB_RESULT || payload.requestId !== requestId) return;
     if (!payload.success) {
-      finish(new Error('Đăng nhập Google chưa hoàn tất. Hãy kiểm tra tab đăng nhập.'));
+      finish(new Error(Object.hasOwn(GOOGLE_AUTH_ERRORS, payload.code)
+        ? GOOGLE_AUTH_ERRORS[payload.code] : 'Đăng nhập Google chưa hoàn tất. Hãy kiểm tra tab đăng nhập.'));
       return;
     }
     checking = true;
@@ -106,14 +112,23 @@ export const prepareGoogleTab = async ({
     providerId: 'google.com',
     continueUri: callbackUrl,
     authFlowType: 'CODE_FLOW',
+    // createAuthUri adds openid itself; email/profile must be requested explicitly.
+    // Keep select_account, not consent: returning users are not forced to re-consent.
+    oauthScope: 'email profile',
     customParameter: { prompt: 'select_account' }
   }, apiKey);
   const authUrl = new URL(payload.authUri);
   const state = authUrl.searchParams.get('state');
+  const scopes = new Set((authUrl.searchParams.get('scope') || '').split(/\s+/));
+  const hasEmail = scopes.has('email') || scopes.has('https://www.googleapis.com/auth/userinfo.email');
+  const hasProfile = scopes.has('profile') || scopes.has('https://www.googleapis.com/auth/userinfo.profile');
   if (authUrl.origin !== 'https://accounts.google.com' || !state || !payload.sessionId
       || authUrl.searchParams.get('redirect_uri') !== callbackUrl
       || authUrl.searchParams.get('response_type') !== 'code') {
     throw new Error('Không nhận được đường dẫn đăng nhập Google hợp lệ.');
+  }
+  if (!scopes.has('openid') || !hasEmail || !hasProfile) {
+    throw new Error('Chưa yêu cầu đủ thông tin email từ Google. Vui lòng thử đăng nhập lại.');
   }
   storage.setItem(GOOGLE_TAB_STORAGE_KEY, JSON.stringify({
     requestId, sessionId: payload.sessionId, state, callbackUrl, expiresAt: Date.now() + MAX_AGE_MS
@@ -148,8 +163,10 @@ export const completeGoogleTab = async ({
   return { requestId: transaction.requestId };
 };
 
-export const notifyGoogleTabResult = (requestId, success) => {
-  const result = { type: GOOGLE_TAB_RESULT, requestId, success };
+export const notifyGoogleTabResult = (requestId, success, code) => {
+  // Only an allowlisted failure code crosses tabs. Never broadcast tokens/profile data.
+  const result = { type: GOOGLE_TAB_RESULT, requestId, success,
+    ...(!success && Object.hasOwn(GOOGLE_AUTH_ERRORS, code) ? { code } : {}) };
   if (typeof BroadcastChannel === 'function') {
     const channel = new BroadcastChannel(`${GOOGLE_TAB_RESULT}:${requestId}`);
     channel.postMessage(result);

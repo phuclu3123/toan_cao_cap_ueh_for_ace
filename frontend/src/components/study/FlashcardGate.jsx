@@ -4,6 +4,7 @@ import { ArrowRight, BookOpen, KeyRound, LockKeyhole, RefreshCw } from 'lucide-r
 import { useAuth } from '../../contexts/AuthContext';
 import { loadFlashcardAccess, redeemFlashcardKey } from '../../services/flashcardAccessService';
 import BrandLoader from '../ui/BrandLoader';
+import { needsGoogleEmail } from '../../utils/accountIdentity';
 import '../../assets/styles/FlashcardAccess.css';
 
 export default function FlashcardGate({ children, adminOnly = false }) {
@@ -85,6 +86,7 @@ export default function FlashcardGate({ children, adminOnly = false }) {
         <p id="fc-key-feedback" className="fc-error" role="status">{notice}</p>
         <button className="fc-primary" disabled={busy || !code.trim()}>{busy ? 'Đang kích hoạt…' : 'Mở khóa Flashcard'}<ArrowRight size={17} /></button>
       </form>}
+      {!login && !unavailable && !adminOnly && needsGoogleEmail(currentUser) && <div className="fc-email-notice"><p>Để quản trị viên cấp quyền bằng Gmail, hãy hoàn tất liên kết email cho tài khoản này.</p><button className="fc-secondary" onClick={handleLogin}>Đồng bộ email Google</button></div>}
       {!login && !unavailable && !adminOnly && <a className="fc-contact" href="mailto:luphuc321@gmail.com?subject=Yeu%20cau%20cap%20quyen%20Flashcard">Liên hệ quản trị viên</a>}
       <Link className="fc-back" to="/">Trở về trang chủ</Link>
     </section>

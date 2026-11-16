@@ -229,6 +229,19 @@ export const issueSession = async (res, user, { ttlMs = SESSION_TTL_MS } = {}) =
   return token;
 };
 
+// Emails can be completed after an older Google login. Resolve sessions by the
+// stable account ID first so that completing an email does not sign out other
+// devices. The username fallback supports legacy Mongo records without `id`.
+const getFreshSessionUser = async session => {
+  const userId = String(session.userId || '');
+  if (userId) {
+    const byId = await getFreshUser(userId);
+    if (byId) return byId.user.id === userId ? byId : null;
+  }
+  const byUsername = await getFreshUser(session.username);
+  return userId && byUsername?.user.id !== userId ? null : byUsername;
+};
+
 export const resolveSessionUser = async (req) => {
   const token = requestToken(req);
   if (!token) return null;
@@ -249,9 +262,7 @@ export const resolveSessionUser = async (req) => {
       MEMORY_SESSIONS.delete(tokenHash);
       return null;
     }
-    const freshIdentity = await getFreshUser(
-      persistedSession.username || persistedSession.userId
-    );
+    const freshIdentity = await getFreshSessionUser(persistedSession);
     if (!freshIdentity || !isSessionVersionCurrent(persistedSession, freshIdentity)) {
       MEMORY_SESSIONS.delete(tokenHash);
       await Session.deleteOne({ tokenHash }).catch(() => {});
@@ -273,7 +284,7 @@ export const resolveSessionUser = async (req) => {
     return null;
   }
 
-  const freshIdentity = await getFreshUser(memorySession.username || memorySession.userId);
+  const freshIdentity = await getFreshSessionUser(memorySession);
   if (!freshIdentity || !isSessionVersionCurrent(memorySession, freshIdentity)) {
     MEMORY_SESSIONS.delete(tokenHash);
     return null;

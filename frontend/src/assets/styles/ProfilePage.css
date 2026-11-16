@@ -834,3 +834,5 @@
     transition: none;
   }
 }
+.profile-email-notice{margin:0 0 24px;padding:20px;border:1px solid var(--profile-line);border-radius:12px;background:var(--profile-mint)}
+.profile-email-notice strong{display:block;margin-bottom:8px}.profile-email-notice p{margin:0 0 16px;font-size:14px;color:var(--profile-muted);line-height:1.6}.profile-email-notice button{min-height:44px;font:inherit;cursor:pointer}.profile-email-notice button:focus-visible{outline:2px solid var(--profile-brand);outline-offset:3px}

@@ -26,7 +26,7 @@ beforeEach(() => {
     if (url === '/api/auth/providers') return Response.json({ providers: { google: { enabled: true } } });
     if (url.includes('createAuthUri')) return Response.json({
       sessionId: 'firebase-session',
-      authUri: `https://accounts.google.com/o/oauth2/v2/auth?state=bound-state&response_type=code&redirect_uri=${encodeURIComponent(callbackUrl)}`
+      authUri: `https://accounts.google.com/o/oauth2/v2/auth?state=bound-state&response_type=code&scope=openid%20email%20profile&redirect_uri=${encodeURIComponent(callbackUrl)}`
     });
     if (url.includes('signInWithIdp')) return Response.json({ providerId: 'google.com', idToken: 'verified-by-backend' });
     if (url === '/api/auth/sync') return Response.json({ success: true, user: { id: 'server-user' } });
@@ -50,6 +50,33 @@ test('Google tab binds the code flow to the callback, session and expiring state
   const body = JSON.parse(calls[1].options.body);
   assert.equal(body.authFlowType, 'CODE_FLOW');
   assert.equal(body.continueUri, callbackUrl);
+  assert.equal(body.oauthScope, 'email profile');
+  assert.deepEqual(body.customParameter, { prompt: 'select_account' });
+});
+
+test('a Google URL missing email scope cannot start a sign-in transaction', async () => {
+  globalThis.fetch = async url => url === '/api/auth/providers'
+    ? Response.json({ providers: { google: { enabled: true } } })
+    : Response.json({ sessionId: 'no-email-session', authUri: `https://accounts.google.com/o/oauth2/v2/auth?state=bound-state&response_type=code&scope=openid&redirect_uri=${encodeURIComponent(callbackUrl)}` });
+  await assert.rejects(prepareGoogleTab({ requestId, origin, storage, apiKey }), /email/);
+  assert.equal(storage.getItem(GOOGLE_TAB_STORAGE_KEY), null);
+});
+
+test('Google canonical email/profile scope aliases are accepted', async () => {
+  globalThis.fetch = async url => url === '/api/auth/providers'
+    ? Response.json({ providers: { google: { enabled: true } } })
+    : Response.json({ sessionId: 'canonical-scope-session', authUri: `https://accounts.google.com/o/oauth2/v2/auth?state=bound-state&response_type=code&scope=${encodeURIComponent('openid https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile')}&redirect_uri=${encodeURIComponent(callbackUrl)}` });
+  await prepareGoogleTab({ requestId, origin, storage, apiKey });
+  assert.equal(JSON.parse(storage.getItem(GOOGLE_TAB_STORAGE_KEY)).sessionId, 'canonical-scope-session');
+});
+
+test('Google backend email errors do not produce a successful callback signal', async () => {
+  await prepareGoogleTab({ requestId, origin, storage, apiKey });
+  const previous = globalThis.fetch;
+  globalThis.fetch = (url, options) => url === '/api/auth/sync'
+    ? Promise.resolve(Response.json({ code: 'GOOGLE_EMAIL_REQUIRED', message: 'Hãy đồng bộ email Google.' }, { status: 422 }))
+    : previous(url, options);
+  await assert.rejects(completeGoogleTab({ requestUri: `${callbackUrl}?code=one-use-code&state=bound-state`, storage, apiKey }), error => error.code === 'GOOGLE_EMAIL_REQUIRED');
 });
 
 test('Google callback consumes its session and syncs only the Firebase-issued token', async () => {
@@ -114,4 +141,15 @@ test('closing the login dialog can abort its tab wait without reopening a dialog
   const pending = beginGoogleTabSignIn({ signal: controller.signal });
   controller.abort();
   await assert.rejects(pending, { name: 'AbortError' });
+});
+
+test('the original tab displays an allowlisted email error without treating its existing session as a new login', async () => {
+  let channel;
+  globalThis.BroadcastChannel = class { constructor(name) { this.name = name; channel = this; } close() {} };
+  globalThis.window = { location: { origin }, addEventListener() {}, removeEventListener() {}, open: () => ({}) };
+  globalThis.fetch = async () => assert.fail('a failure signal must not confirm a successful login');
+  const pending = beginGoogleTabSignIn();
+  const id = channel.name.split(':').at(-1);
+  channel.onmessage({ data: { type: GOOGLE_TAB_RESULT, requestId: id, success: false, code: 'GOOGLE_EMAIL_REQUIRED' } });
+  await assert.rejects(pending, /email đã xác minh/);
 });

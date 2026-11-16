@@ -16,7 +16,7 @@ const runAuthTab = () => {
         const { requestId } = await completeGoogleTab({ requestUri: url.href });
         notifyGoogleTabResult(requestId, true);
       } catch (error) {
-        if (transaction?.requestId) notifyGoogleTabResult(transaction.requestId, false);
+        if (transaction?.requestId) notifyGoogleTabResult(transaction.requestId, false, error.code);
         throw error;
       }
       // Give the original tab time to receive the signal before closing.

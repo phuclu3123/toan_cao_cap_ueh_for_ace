@@ -21,6 +21,7 @@ import {
   signOut as firebaseSignOut
 } from '../firebase';
 import { getInitials } from '../utils/userInitials';
+import { needsGoogleEmail } from '../utils/accountIdentity';
 import '../assets/styles/ProfilePage.css';
 
 const DEFAULT_SCHOOL = 'Đại học Kinh tế TP.HCM (UEH)';
@@ -277,6 +278,9 @@ export default function ProfilePage() {
 
   const avatarUrl = user.photoURL || user.avatar;
   const identity = user.username || user.email;
+  const pendingGoogleEmail = needsGoogleEmail(user);
+  // Reuse the existing Google flow without deleting the user's current session.
+  const handleSyncGoogleEmail = () => window.dispatchEvent(new Event('ueh-tcc-open-login'));
 
   return (
     <main className="profile-page">
@@ -335,7 +339,7 @@ export default function ProfilePage() {
           </div>
           <div className="profile-identity-copy">
             <strong>{user.name || 'Học viên UEH TCC'}</strong>
-            <span>{identity}</span>
+            <span>{pendingGoogleEmail ? 'Chưa liên kết email' : identity}</span>
           </div>
           <div className="profile-verified">
             <ShieldCheck aria-hidden="true" />
@@ -468,6 +472,13 @@ export default function ProfilePage() {
               </p>
             )}
 
+            {pendingGoogleEmail && (
+              <div className="profile-email-notice" role="status">
+                <strong>Hoàn tất liên kết email</strong>
+                <p>Tài khoản này chưa có email liên kết. Nếu bạn đăng nhập bằng Google, hãy dùng lại đúng tài khoản Google để đồng bộ email vào hồ sơ hiện có.</p>
+                <button type="button" className="profile-primary-link" onClick={handleSyncGoogleEmail}>Đồng bộ email Google</button>
+              </div>
+            )}
             <form onSubmit={handleSaveProfile} className="profile-settings-form">
               <div className="profile-form-grid">
                 <label>
@@ -476,8 +487,8 @@ export default function ProfilePage() {
                 </label>
                 <label>
                   <span>Email / tài khoản</span>
-                  <input value={identity} disabled aria-describedby="fixed-identity-note" />
-                  <small id="fixed-identity-note">Thông tin đăng nhập không thể thay đổi tại đây.</small>
+                  <input value={pendingGoogleEmail ? 'Chưa liên kết email' : identity} disabled aria-describedby="fixed-identity-note" />
+                  <small id="fixed-identity-note">{pendingGoogleEmail ? 'Dùng nút Đồng bộ email Google ở phía trên để hoàn tất.' : 'Thông tin đăng nhập không thể thay đổi tại đây.'}</small>
                 </label>
                 <label>
                   <span>Số điện thoại liên hệ</span>

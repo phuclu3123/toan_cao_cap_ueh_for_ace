@@ -17,6 +17,7 @@ import {
   GITHUB_OAUTH_STATE_KEY
 } from '../services/oauthService';
 import { getInitials } from '../utils/userInitials';
+import { needsGoogleEmail } from '../utils/accountIdentity';
 import '../assets/styles/Navbar.css';
 import {
   auth,
@@ -1394,7 +1395,7 @@ export default function Navbar() {
                         </div>
                         <div className="dropdown-user-info">
                           <span className="dropdown-user-name">{loggedInUser.name}</span>
-                          <span className="dropdown-user-email">{loggedInUser.username || loggedInUser.email}</span>
+                          <span className="dropdown-user-email">{needsGoogleEmail(loggedInUser) ? 'Chưa liên kết email' : loggedInUser.username || loggedInUser.email}</span>
                         </div>
                       </div>
 
