@@ -60,13 +60,17 @@ const visit = (value, contentPath) => {
 }
 
 try {
-  const [{ practiceExams }, { blogPosts }] = await Promise.all([
+  const [{ practiceExams }, { blogPosts }, { flashcardTopics }, { studyTopics }] = await Promise.all([
     server.ssrLoadModule('/src/data/practiceExams.js'),
-    server.ssrLoadModule('/src/data/blogPosts.js')
+    server.ssrLoadModule('/src/data/blogPosts.js'),
+    server.ssrLoadModule('/src/data/flashcardsData.js'),
+    server.ssrLoadModule('/src/data/studyCurriculum.js')
   ])
 
   visit(practiceExams, 'practiceExams')
   visit(blogPosts, 'blogPosts')
+  visit(flashcardTopics, 'flashcardTopics')
+  visit(studyTopics, 'studyTopics')
 } finally {
   await server.close()
 }

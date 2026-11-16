@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "export:flashcards": "node scripts/export-study-content.mjs",
     "test": "node --test",
     "lint": "eslint .",
     "validate:math": "node scripts/validate-math.mjs",

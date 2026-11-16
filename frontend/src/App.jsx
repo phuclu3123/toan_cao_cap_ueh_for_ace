@@ -10,7 +10,9 @@ import {
 } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import Navbar from './components/Navbar';
+import GoogleAuthTab from './pages/GoogleAuthTab';
 import Footer from './components/Footer';
+import CookieConsent from './components/CookieConsent';
 import ContactLauncher from './components/layout/ContactLauncher';
 import ScrollManager from './components/layout/ScrollManager';
 import AppBootLifecycle from './components/layout/AppBootLifecycle';
@@ -34,6 +36,8 @@ const NotFoundPage = safeLazy(() => import('./pages/NotFoundPage'));
 const CommunityPage = safeLazy(() => import('./pages/CommunityPage'));
 const CommunityDetailPage = safeLazy(() => import('./pages/CommunityDetailPage'));
 const CommunityProfilePage = safeLazy(() => import('./pages/CommunityProfilePage'));
+const FlashcardStudyPage = safeLazy(() => import('./pages/StudyWorkspace'));
+const FlashcardAdmin = safeLazy(() => import('./pages/FlashcardAdmin'));
 import { safeLocalStorage } from './utils/safeStorage';
 import './App.css';
 import './assets/styles/experience.css';
@@ -57,17 +61,33 @@ function GoogleIdentityBoundary({ children }) {
 }
 
 // Dynamic chunk fetch error recovery wrapper
+const lazyChunkReloadKey = 'ueh_tcc_lazy_chunk_reload_v1';
+function claimLazyChunkReload() {
+  try {
+    if (window.sessionStorage.getItem(lazyChunkReloadKey) === '1') return false;
+    window.sessionStorage.setItem(lazyChunkReloadKey, '1');
+    return true;
+  } catch {
+    return false;
+  }
+}
+function clearLazyChunkReload() {
+  try { window.sessionStorage.removeItem(lazyChunkReloadKey); return true; } catch { return false; }
+}
 function safeLazy(importFunc) {
-  return lazy(() =>
-    importFunc().catch((error) => {
-      console.warn('Cập nhật phiên bản mới, đang tự động đồng bộ tài nguyên...', error);
-      // Auto-reload to load fresh Vite chunk hashes from Netlify
+  return lazy(async () => {
+    try {
+      const module = await importFunc();
+      clearLazyChunkReload();
+      return module;
+    } catch (error) {
+      if (!claimLazyChunkReload()) throw error;
+      console.warn('Đang thử tải lại một lần sau lỗi nạp trang...', error);
       window.location.reload();
       return new Promise(() => {});
-    })
-  );
+    }
+  });
 }
-
 // Global Route Error Boundary to handle version updates gracefully
 function GlobalErrorBoundary() {
   const error = useRouteError();
@@ -78,13 +98,10 @@ function GlobalErrorBoundary() {
       errorMsg.indexOf('Failed to fetch') !== -1 ||
       errorMsg.indexOf('dynamically imported module') !== -1 ||
       errorMsg.indexOf('Importing binding') !== -1;
-
-    if (isChunkError) {
-      console.warn('Đang tự động làm mới trang để cập nhật phiên bản mới nhất...');
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
-    }
+    if (!isChunkError || !claimLazyChunkReload()) return undefined;
+    console.warn('Đang thử tải lại một lần để đồng bộ tài nguyên...', errorMsg);
+    const timer = window.setTimeout(() => window.location.reload(), 1000);
+    return () => window.clearTimeout(timer);
   }, [errorMsg]);
 
   return (
@@ -114,6 +131,8 @@ const PaymentResult = safeLazy(() => import('./pages/PaymentResult'));
 function Layout() {
   const location = useLocation();
   const navigate = useNavigate();
+  const isStudyPage = location.pathname === '/flashcards';
+  const [studyHeaderHidden, setStudyHeaderHidden] = useState(false);
   const isGiftPage = location.pathname === '/20-10';
   const isExamPage = location.pathname.startsWith('/exam/');
 
@@ -127,9 +146,33 @@ function Layout() {
 
   const showHeaderFooter = !isGiftPage && !isExamPage;
 
+  useEffect(() => {
+    if (!isStudyPage) return;
+    let previousY = window.scrollY;
+    let frame = 0;
+    const handleScroll = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        const currentY = Math.max(0, window.scrollY);
+        if (document.querySelector('.header-wrapper')?.contains(document.activeElement) && document.activeElement.matches(':focus-visible')) {
+          setStudyHeaderHidden(false);
+          previousY = currentY;
+          return;
+        }
+        if (currentY < 100) setStudyHeaderHidden(false);
+        else if (Math.abs(currentY - previousY) > 10) setStudyHeaderHidden(currentY > previousY);
+        if (Math.abs(currentY - previousY) > 10 || currentY < 100) previousY = currentY;
+      });
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => { window.removeEventListener('scroll', handleScroll); window.cancelAnimationFrame(frame); };
+  }, [isStudyPage]);
+
   return (
     <CommunityProvider>
-      <div className="app-container">
+      <div className={`app-container${isStudyPage ? ' study-route' : ''}${isStudyPage && studyHeaderHidden ? ' study-header-hidden' : ''}`}>
         <AppBootLifecycle />
         <ScrollManager />
         <MotionOrchestrator />
@@ -140,6 +183,7 @@ function Layout() {
         <GlobalPlayer />
         {showHeaderFooter && <ContactLauncher />}
         {showHeaderFooter && <Footer />}
+        {showHeaderFooter && <CookieConsent />}
       </div>
     </CommunityProvider>
   );
@@ -156,6 +200,7 @@ function LegacyAccountRedirect() {
 }
 
 const router = createBrowserRouter([
+  { path: '/auth/google', element: <GoogleAuthTab /> },
   {
     path: '/',
     element: <Layout />,
@@ -240,6 +285,22 @@ const router = createBrowserRouter([
             <ExamsPage />
           </Suspense>
         )
+      },
+      {
+        path: 'flashcards',
+        element: (
+          <Suspense fallback={<BrandLoader label="Đang tải Flashcard & Bài học..." />}>
+            <FlashcardStudyPage />
+          </Suspense>
+        )
+      },
+      {
+        path: 'study',
+        element: <Navigate to="/flashcards" replace />
+      },
+      {
+        path: 'admin/flashcards',
+        element: <Suspense fallback={<BrandLoader label="Đang tải quản trị Flashcard…" />}><FlashcardAdmin /></Suspense>
       },
       {
         path: 'blog',

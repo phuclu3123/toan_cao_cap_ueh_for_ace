@@ -1,0 +1,12 @@
+.study-content-editor { width: min(940px, 94vw); max-height: 90vh; padding: 24px; border: 1px solid #d6d9df; border-radius: 12px; color: #202831; background: #fff; }
+.study-content-editor::backdrop { background: #15202b90; }
+.study-content-editor header, .study-content-editor footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.study-content-editor h2 { font-size: 22px; }
+.study-content-editor fieldset { border: 0; padding: 16px 0; min-width: 0; }
+.study-content-editor label { display: grid; gap: 8px; margin: 14px 0; font-weight: 600; }
+.study-content-editor textarea, .study-content-editor select { width: 100%; box-sizing: border-box; padding: 10px 12px; font: inherit; font-weight: 400; border: 1px solid #aab1bb; border-radius: 6px; background: #fff; color: #202831; }
+.study-content-editor textarea { resize: vertical; line-height: 1.6; }
+.study-content-editor :focus-visible { outline: 3px solid #5b86bc; outline-offset: 2px; }
+.study-content-editor details { padding: 18px 0; border-top: 1px solid #d6d9df; }
+.study-content-editor summary { cursor: pointer; font-weight: 600; padding: 8px 0; }
+.study-content-editor footer { position: sticky; bottom: -24px; background: #fff; padding: 16px 0; border-top: 1px solid #d6d9df; }

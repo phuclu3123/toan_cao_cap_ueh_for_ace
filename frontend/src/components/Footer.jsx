@@ -1,12 +1,15 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useRef } from 'react';
+import TurnstileWidget from './TurnstileWidget';
 import { Link } from 'react-router-dom';
 import { AlertCircle, CheckCircle, Mail, Phone, Send } from 'lucide-react';
 import { LanguageContext } from '../App';
 import { translations } from '../utils/translations';
 import { API_BASE_URL } from '../config';
+import { openCookieSettings } from '../utils/cookieConsent';
 import '../assets/styles/Footer.css';
 
 export default function Footer() {
+  const turnstileRef = useRef(null);
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState('idle');
   const [message, setMessage] = useState('');
@@ -22,10 +25,11 @@ export default function Footer() {
     setMessage('');
 
     try {
+      const turnstileToken = turnstileRef.current?.getToken() || '';
       const response = await fetch(`${API_BASE_URL}/api/subscribe`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
+        body: JSON.stringify({ email, 'cf-turnstile-response': turnstileToken })
       });
       const data = await response.json();
 
@@ -37,11 +41,13 @@ export default function Footer() {
         setStatus('error');
         setMessage(data.message || (language === 'vi' ? 'Không thể gửi đăng ký lúc này.' : 'Subscription failed.'));
       }
-    } catch {
+    } catch (error) {
       setStatus('error');
-      setMessage(language === 'vi' 
+      setMessage(error.message || (language === 'vi'
         ? 'Không thể gửi đăng ký lúc này. Vui lòng liên hệ Zalo 0833830322 hoặc email luphuc321@gmail.com.'
-        : 'Could not connect to server. Please try again later.');
+        : 'Could not connect to server. Please try again later.'));
+    } finally {
+      turnstileRef.current?.reset();
     }
   };
 
@@ -112,6 +118,7 @@ export default function Footer() {
             <h4>{t.footer.subscribeTitle}</h4>
             <p className="newsletter-desc">{t.footer.subscribeDesc}</p>
             <form onSubmit={handleSubscribeSubmit} className="newsletter-form">
+              <TurnstileWidget ref={turnstileRef} action="subscribe" />
               <div className="input-group">
                 <label className="footer-sr-only" htmlFor="footer-newsletter-email">
                   {t.footer.subscribePlaceholder}
@@ -155,6 +162,7 @@ export default function Footer() {
             © <span>{new Date().getFullYear()}</span> <strong className="logo-main">UEH TCC</strong>. {language === 'vi' ? 'Hỗ Trợ Học Tập Toán Cao Cấp.' : 'Advanced Calculus Learning Support.'}
           </p>
           <div className="credits">
+            <button className="footer-cookie-settings" onClick={openCookieSettings}>{language === 'vi' ? 'Cài đặt cookie' : 'Cookie settings'}</button>
             {t.footer.credits} <a href="https://www.facebook.com/Luphuc08092006/" target="_blank" rel="noopener noreferrer" className="author-link">{language === 'vi' ? 'Lữ Phúc' : 'Lu Phuc'}</a>
           </div>
         </div>

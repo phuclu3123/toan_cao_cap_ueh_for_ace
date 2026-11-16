@@ -77,15 +77,12 @@ test('Firebase sync sends a verified ID token and has no fabricated users', () =
   const authModal = readSource('components/modals/AuthModal.jsx');
   const oauthService = readSource('services/oauthService.js');
   const firebase = readSource('firebase.js');
+  const googleTab = readSource('services/googleTabService.js');
 
   assert.match(navbar, /syncFirebaseUserWithBackend/);
   assert.match(navbar, /onIdTokenChanged/);
-  assert.match(navbar, /signInWithRedirect\(auth, googleProvider\)/);
-  assert.match(navbar, /await ensureGoogleOAuthAvailable\(\)/);
-  assert.ok(
-    navbar.indexOf('await ensureGoogleOAuthAvailable()')
-      < navbar.indexOf('await signInWithRedirect(auth, googleProvider)')
-  );
+  assert.match(navbar, /await beginGoogleTabSignIn\(/);
+  assert.match(googleTab, /await ensureGoogleOAuthAvailable\(\)/);
   assert.match(navbar, /pendingRedirectProvider/);
   assert.match(navbar, /sessionStorage\.removeItem\(FIREBASE_REDIRECT_PROVIDER_KEY\)/);
   assert.match(navbar, /setAuthError\(`Lỗi đăng nhập \$\{entry\.provider\}/);
@@ -97,15 +94,14 @@ test('Firebase sync sends a verified ID token and has no fabricated users', () =
   assert.match(navbar, /GoogleAuthProvider\.credential\(response\.credential\)/);
   assert.match(navbar, /signInWithCredential\(auth, credential\)/);
   assert.match(navbar, /completeFirebaseSession\(userCredential\.user/);
-  assert.doesNotMatch(navbar, /signInWithPopup|response_type=token/);
+  assert.doesNotMatch(navbar, /response_type=token/);
+  assert.doesNotMatch(navbar, /signInWithPopup/);
+  assert.match(googleTab, /authFlowType: 'CODE_FLOW'/);
+  assert.match(googleTab, /syncFirebaseIdTokenWithBackend\(payload\.idToken\)/);
   assert.doesNotMatch(navbar, /if \(sessionReady && isFirebaseConfigured/);
-  assert.doesNotMatch(authModal, /signInWithPopup|githubProvider/);
+  assert.doesNotMatch(authModal, /githubProvider/);
+  assert.match(authModal, /await beginGoogleTabSignIn\(/);
   assert.doesNotMatch(authModal, /response\.json\(/);
-  assert.match(authModal, /await ensureGoogleOAuthAvailable\(\)/);
-  assert.ok(
-    authModal.indexOf('await ensureGoogleOAuthAvailable()')
-      < authModal.indexOf('await signInWithRedirect(auth, googleProvider)')
-  );
   assert.match(authModal, /otpCode: forgotOtp\.trim\(\)/);
   assert.doesNotMatch(authModal, /\botp:\s*forgotOtp/);
   assert.match(authModal, /disabled=\{providerLoading\}/);

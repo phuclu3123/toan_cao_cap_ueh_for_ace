@@ -1,4 +1,5 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useRef } from 'react';
+import TurnstileWidget from './TurnstileWidget';
 import { CheckCircle2, ArrowRight } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 import { LanguageContext } from '../App';
@@ -6,6 +7,7 @@ import { translations } from '../utils/translations';
 import '../assets/styles/ConsultationForm.css';
 
 export default function ConsultationForm({ theme = 'dark', onClose }) {
+  const turnstileRef = useRef(null);
   const { language } = useContext(LanguageContext);
   const t = translations[language];
 
@@ -40,10 +42,12 @@ export default function ConsultationForm({ theme = 'dark', onClose }) {
     };
 
     try {
+      const turnstileToken = turnstileRef.current?.getToken() || '';
       const response = await fetch(`${API_BASE_URL}/api/contact`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          'cf-turnstile-response': turnstileToken,
           name: form.name.trim(),
           email: form.email.trim(),
           subject: language === 'vi' ? 'Đăng ký tư vấn khóa học UEH TCC' : 'UEH TCC Course Consultation Registration',
@@ -61,8 +65,9 @@ export default function ConsultationForm({ theme = 'dark', onClose }) {
       }
     } catch (err) {
       console.error('Error submitting consultation form:', err);
-      setErrorMsg(t.consultForm.serverError);
+      setErrorMsg(err.message || t.consultForm.serverError);
     } finally {
+      turnstileRef.current?.reset();
       setIsSubmitting(false);
     }
   };
@@ -150,6 +155,7 @@ export default function ConsultationForm({ theme = 'dark', onClose }) {
 
           {errorMsg && <div className="consult-error-msg">{errorMsg}</div>}
 
+          <TurnstileWidget ref={turnstileRef} action="contact" />
           <div className="consult-form-actions">
             <button type="submit" className="btn-consult-submit" disabled={isSubmitting}>
               <span>{isSubmitting ? t.consultForm.submitting : t.consultForm.btnSubmit}</span>

@@ -1,6 +1,19 @@
-import { apiFetch, readApiJson, toClientUser } from '../utils/apiClient';
+import { apiFetch, readApiJson, toClientUser } from '../utils/apiClient.js';
 
 const pendingFirebaseSyncs = new Map();
+
+export const syncFirebaseIdTokenWithBackend = async (idToken) => {
+  const response = await apiFetch('/api/auth/sync', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ idToken })
+  });
+  const data = await readApiJson(response);
+  if (!data.success || !data.user) {
+    throw new Error(data.message || 'Không thể đồng bộ phiên đăng nhập.');
+  }
+  return toClientUser(data.user);
+};
 
 export const syncFirebaseUserWithBackend = (firebaseUser) => {
   if (!firebaseUser || typeof firebaseUser.getIdToken !== 'function') {
@@ -13,16 +26,7 @@ export const syncFirebaseUserWithBackend = (firebaseUser) => {
 
   const request = (async () => {
     const idToken = await firebaseUser.getIdToken();
-    const response = await apiFetch('/api/auth/sync', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ idToken })
-    });
-    const data = await readApiJson(response);
-    if (!data.success || !data.user) {
-      throw new Error(data.message || 'Không thể đồng bộ phiên đăng nhập.');
-    }
-    return toClientUser(data.user);
+    return syncFirebaseIdTokenWithBackend(idToken);
   })();
 
   pendingFirebaseSyncs.set(identityKey, request);

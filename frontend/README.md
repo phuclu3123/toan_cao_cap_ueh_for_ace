@@ -2,7 +2,27 @@
 
 ## Production OAuth redirect (Netlify)
 
-Google sign-in uses Firebase's full-page redirect flow. This project proxies
+The Google button opens `/auth/google` in a normal browser tab. That tab uses
+Firebase `accounts:createAuthUri` with `CODE_FLOW`, validates the returned
+state and expiring session, and exchanges the code with `accounts:signInWithIdp`.
+The backend verifies the resulting Firebase ID token and issues an HttpOnly
+session. The original tab then reads `/api/auth/me`; no tokens or user records
+are trusted from cross-tab messages. Closing the login dialog cancels its wait.
+
+Add these exact callback URLs to the Google OAuth web client used by Firebase:
+
+```
+http://localhost:5173/auth/google
+https://toancaocapueh.id.vn/auth/google
+```
+
+Other development ports or preview origins need their own exact callback URL
+and must be authorized in Firebase Authentication. Deploy the frontend before
+testing the production callback. Keep existing `/__/auth/handler` callbacks
+for legacy redirects and Firebase SDK flows. No new client secret is required
+in the frontend or backend; Firebase performs the provider code exchange.
+
+The existing Firebase helper proxy remains available. This project proxies
 `/__/auth/*` and `/__/firebase/*` through Netlify so the Firebase helper runs
 on the same site origin instead of inside a third-party iframe.
 

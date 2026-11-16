@@ -10,6 +10,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
+    "seed:flashcards": "node scripts/seed-study-content.js",
     "test": "node --test",
     "check": "npm run test"
   },

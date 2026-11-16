@@ -1,0 +1,40 @@
+import { mockStudyContent } from './study-api.fixture.js';
+import process from 'node:process';
+import { test, expect } from '@playwright/test';
+import { mkdir } from 'node:fs/promises';
+import { resolve } from 'node:path';
+
+test('Cramer three-row flow renders all replacements and solution', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.setViewportSize({ width: 1440, height: 1100 });
+  await page.route('https://accounts.google.com/**', route => route.fulfill({ contentType: 'application/javascript', body: '' }));
+  await page.route('**/api/**', route => route.fulfill({ json: { success: true, user: null, data: [], posts: [], notifications: [], members: [], stats: { trendingTags: [] }, leaderboard: [] } }));
+  await mockStudyContent(page);
+  await page.goto('/flashcards?topic=chuyen-de-3&mode=lesson&section=section-3');
+  const consent = page.getByRole('button', { name: 'Chỉ dùng cần thiết', exact: true });
+  if (await consent.isVisible().catch(() => false)) await consent.click();
+
+  const scene = page.locator('.study-scene-host[data-scene-id="cramer"]');
+  await expect(scene).toBeVisible();
+  await expect(scene.locator('.cramer-replacements .cramer-replacement-card')).toHaveCount(3);
+  await expect(scene.locator('.cramer-matrix')).toHaveCount(4);
+  await scene.scrollIntoViewIfNeeded();
+  await scene.getByRole('button', { name: 'Từng bước', exact: true }).click();
+  const next = scene.getByRole('button', { name: /^Bước tiếp / });
+  await next.click();
+  await expect(scene.locator('.cramer-flight')).toHaveCount(3);
+  await page.waitForTimeout(1000);
+  await next.click();
+  await expect(scene.locator('.cramer-matrix-cell.is-empty')).toHaveCount(0);
+  await next.click();
+  await expect(scene.locator('.cramer-outcome-card[data-revealed="true"]')).toHaveCount(3);
+  await next.click();
+  await expect(scene.locator('.cramer-conclusion')).toContainText('3');
+  await expect(scene.locator('.cramer-conclusion')).toContainText('−1');
+  await expect(scene.locator('.math-render-error')).toHaveCount(0);
+  expect(errors).toEqual([]);
+  await mkdir(resolve(process.cwd(), '../tmp'), { recursive: true });
+  await page.screenshot({ path: resolve(process.cwd(), '../tmp/cramer-visual-qa.png'), fullPage: true });
+});

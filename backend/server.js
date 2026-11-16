@@ -18,6 +18,10 @@ import blogEngagementRoutes from './routes/blogEngagementRoutes.js';
 import enrollmentRoutes from './routes/enrollmentRoutes.js';
 import communityRoutes from './routes/communityRoutes.js';
 import courseContentRoutes from './routes/courseContentRoutes.js';
+import studyContentRoutes from './routes/studyContentRoutes.js';
+import flashcardAccessRoutes from './routes/flashcardAccessRoutes.js';
+import { initializeFlashcardAccess } from './services/flashcardAccess.js';
+import { seedStudyContent } from './services/studyContent.js';
 
 const app = express();
 const configuredPort = Number.parseInt(process.env.PORT || '5000', 10);
@@ -103,6 +107,8 @@ app.use('/api', blogEngagementRoutes);
 app.use('/api', enrollmentRoutes);
 app.use('/api', communityRoutes);
 app.use('/api', courseContentRoutes);
+app.use('/api', studyContentRoutes);
+app.use('/api', flashcardAccessRoutes);
 app.use('/', paymentRoutes);
 
 // Health check endpoint
@@ -149,7 +155,18 @@ app.use((err, req, res, next) => {
 export const startServer = async () => {
   try {
     reportPasswordResetReadiness();
-    await connectDB(runAutoMigration);
+    const connected = await connectDB(runAutoMigration);
+    if (connected) {
+      try {
+        await initializeFlashcardAccess();
+        console.log('[Flashcard access] Indexes ready.');
+      } catch (error) {
+        // Keep authentication and other modules available. Flashcard access
+        // fails closed until its required unique indexes have been initialized.
+        console.error('[Flashcard access] Initialization failed; access APIs remain unavailable:', error.code || error.name);
+      }
+      await seedStudyContent();
+    }
     const server = app.listen(PORT, () => {
       console.log(`🚀 Backend Server is running on port ${PORT}`);
       console.log(`👉 API Health: http://localhost:${PORT}/api/health`);

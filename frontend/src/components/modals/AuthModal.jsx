@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import TurnstileWidget from '../TurnstileWidget';
 import {
   ArrowLeft,
   CircleUserRound,
@@ -14,15 +15,13 @@ import {
 } from 'lucide-react';
 import {
   auth,
-  googleProvider,
-  signInWithRedirect,
   isFirebaseConfigured,
   FIREBASE_REDIRECT_PROVIDER_KEY
 } from '../../firebase';
+import { beginGoogleTabSignIn } from '../../services/googleTabService';
 import { apiFetch, readApiJson, toClientUser } from '../../utils/apiClient';
 import {
-  beginGithubOAuth,
-  ensureGoogleOAuthAvailable
+  beginGithubOAuth
 } from '../../services/oauthService';
 import '../../assets/styles/AuthModal.css';
 
@@ -90,10 +89,18 @@ export default function AuthModal({
   handleVerifyOtp: propHandleVerifyOtp
 }) {
   const panelRef = useRef(null);
+  const turnstileRef = useRef(null);
+  const protectedSubmitRef = useRef(false);
   const previouslyFocusedRef = useRef(null);
   const providerRequestInFlightRef = useRef(false);
+  const googleTabAbortRef = useRef(null);
   const titleId = useId();
   const descriptionId = useId();
+
+  useEffect(() => {
+    if (!showLoginModal) googleTabAbortRef.current?.abort();
+    return () => { googleTabAbortRef.current?.abort(); };
+  }, [showLoginModal]);
 
   // Internal Fallback States
   const [internalAuthMode, setInternalAuthMode] = useState('login');
@@ -166,7 +173,7 @@ export default function AuthModal({
   }, [setShowLoginModal]);
 
   // Built-in Fallback Handlers
-  const handleLoginSubmit = propHandleLoginSubmit || (async (e) => {
+  const handleLoginSubmit = propHandleLoginSubmit || (async (e, turnstileToken) => {
     e.preventDefault();
     setAuthError('');
     setAuthSuccessMsg('');
@@ -178,7 +185,7 @@ export default function AuthModal({
       const response = await apiFetch('/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify({ username, password, 'cf-turnstile-response': turnstileToken })
       });
       const data = await readApiJson(response);
       if (data.success) {
@@ -196,7 +203,7 @@ export default function AuthModal({
     }
   });
 
-  const handleSignupSubmit = propHandleSignupSubmit || (async (e) => {
+  const handleSignupSubmit = propHandleSignupSubmit || (async (e, turnstileToken) => {
     e.preventDefault();
     setAuthError('');
     setAuthSuccessMsg('');
@@ -219,7 +226,8 @@ export default function AuthModal({
         body: JSON.stringify({
           username: signupUsername,
           password: signupPassword,
-          name: signupName
+          name: signupName,
+          'cf-turnstile-response': turnstileToken
         })
       });
       const data = await readApiJson(response);
@@ -238,6 +246,7 @@ export default function AuthModal({
     }
   });
 
+  // Standalone dialogs use the same Google tab and verified backend session.
   const handleGoogleLogin = propHandleGoogleLogin || (async () => {
     if (providerRequestInFlightRef.current) return;
     providerRequestInFlightRef.current = true;
@@ -248,16 +257,22 @@ export default function AuthModal({
       if (!isFirebaseConfigured || !auth) {
         throw new Error('Hệ thống Firebase chưa được kích hoạt.');
       }
-      await ensureGoogleOAuthAvailable();
-      sessionStorage.setItem(FIREBASE_REDIRECT_PROVIDER_KEY, 'Google');
+      sessionStorage.removeItem(FIREBASE_REDIRECT_PROVIDER_KEY);
+      const controller = new AbortController();
+      googleTabAbortRef.current = controller;
+      const user = await beginGoogleTabSignIn({ signal: controller.signal });
+      localStorage.setItem('ueh_tcc_user', JSON.stringify(user));
+      window.dispatchEvent(new Event('ueh-tcc-session-changed'));
+      setAuthSuccessMsg('Đăng nhập Google thành công!');
       closeModal();
-      await signInWithRedirect(auth, googleProvider);
     } catch (err) {
       sessionStorage.removeItem(FIREBASE_REDIRECT_PROVIDER_KEY);
       setAuthSuccessMsg('');
+      if (err.name === 'AbortError') return;
       setAuthError('Lỗi đăng nhập Google: ' + err.message);
       setShowLoginModal(true);
     } finally {
+      googleTabAbortRef.current = null;
       providerRequestInFlightRef.current = false;
       setInternalProviderLoading(false);
     }
@@ -282,7 +297,7 @@ export default function AuthModal({
     }
   });
 
-  const handleForgotPasswordSubmit = propHandleForgotPasswordSubmit || (async (e) => {
+  const handleForgotPasswordSubmit = propHandleForgotPasswordSubmit || (async (e, turnstileToken) => {
     e?.preventDefault?.();
     setAuthError('');
     setAuthSuccessMsg('');
@@ -295,7 +310,7 @@ export default function AuthModal({
       const response = await apiFetch('/api/auth/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: forgotEmail })
+        body: JSON.stringify({ email: forgotEmail, 'cf-turnstile-response': turnstileToken })
       });
       const data = await readApiJson(response);
       if (data.success) {
@@ -447,6 +462,24 @@ export default function AuthModal({
           : 'Dùng số điện thoại đã liên kết với tài khoản của bạn.'
         : 'Tiếp tục hành trình học Toán Cao Cấp trên UEH TCC.';
 
+  // Share token handling between standalone dialogs and Navbar callbacks.
+  const handleProtectedSubmit = async (event, handler) => {
+    event.preventDefault();
+    if (protectedSubmitRef.current) return;
+    protectedSubmitRef.current = true;
+    let submitted = false;
+    try {
+      const token = turnstileRef.current?.getToken() || '';
+      submitted = true;
+      await handler(event, token);
+    } catch (error) {
+      setAuthError(error.message);
+    } finally {
+      if (submitted) turnstileRef.current?.reset();
+      protectedSubmitRef.current = false;
+    }
+  };
+
   return createPortal(
     <div
       className="auth-modal-overlay"
@@ -494,7 +527,7 @@ export default function AuthModal({
         )}
 
         {authMode === 'login' && (
-          <form className="auth-modal-form" onSubmit={handleLoginSubmit}>
+          <form className="auth-modal-form" onSubmit={(event) => handleProtectedSubmit(event, handleLoginSubmit)}>
             <label className="auth-field" htmlFor="username">
               <span>Email hoặc tài khoản</span>
               <span className="auth-input-shell">
@@ -533,6 +566,7 @@ export default function AuthModal({
               </span>
             </label>
 
+            <TurnstileWidget ref={turnstileRef} action="login" />
             <button type="submit" className="auth-primary-button">
               Đăng nhập
             </button>
@@ -580,7 +614,7 @@ export default function AuthModal({
         )}
 
         {authMode === 'signup' && (
-          <form className="auth-modal-form" onSubmit={handleSignupSubmit}>
+          <form className="auth-modal-form" onSubmit={(event) => handleProtectedSubmit(event, handleSignupSubmit)}>
             <label className="auth-field" htmlFor="signupName">
               <span>Họ và tên</span>
               <span className="auth-input-shell">
@@ -649,6 +683,7 @@ export default function AuthModal({
               </label>
             </div>
 
+            <TurnstileWidget ref={turnstileRef} action="register" />
             <button type="submit" className="auth-primary-button">Tạo tài khoản</button>
             <p className="auth-switch">
               Đã có tài khoản?
@@ -658,7 +693,7 @@ export default function AuthModal({
         )}
 
         {authMode === 'forgot' && forgotStep === 1 && (
-          <form className="auth-modal-form" onSubmit={handleForgotPasswordSubmit}>
+          <form className="auth-modal-form" onSubmit={(event) => handleProtectedSubmit(event, handleForgotPasswordSubmit)}>
             <label className="auth-field" htmlFor="forgotEmail">
               <span>Email đã đăng ký</span>
               <span className="auth-input-shell">
@@ -676,6 +711,7 @@ export default function AuthModal({
               </span>
             </label>
 
+            <TurnstileWidget ref={turnstileRef} action="reset_request" />
             <button type="submit" className="auth-primary-button" disabled={forgotLoading}>
               {forgotLoading ? 'Đang gửi mã OTP…' : 'Gửi mã OTP'}
             </button>
@@ -769,10 +805,11 @@ export default function AuthModal({
                 <ArrowLeft size={16} aria-hidden="true" />
                 Đổi email
               </button>
-              <button type="button" className="auth-text-button" onClick={handleForgotPasswordSubmit} disabled={forgotLoading}>
+              <button type="button" className="auth-text-button" onClick={(event) => handleProtectedSubmit(event, handleForgotPasswordSubmit)} disabled={forgotLoading}>
                 Gửi lại mã OTP
               </button>
             </div>
+            <TurnstileWidget ref={turnstileRef} action="reset_request" />
           </form>
         )}
 

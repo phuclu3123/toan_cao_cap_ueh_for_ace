@@ -9,9 +9,9 @@ import { useGoogleOneTapLogin } from '@react-oauth/google';
 import NotificationDropdown from './community/NotificationDropdown';
 import { apiFetch, readApiJson, toClientUser } from '../utils/apiClient';
 import { syncFirebaseUserWithBackend } from '../services/authService';
+import { beginGoogleTabSignIn } from '../services/googleTabService';
 import {
   beginGithubOAuth,
-  ensureGoogleOAuthAvailable,
   GITHUB_OAUTH_MODE_KEY,
   GITHUB_OAUTH_RESULT_MESSAGE,
   GITHUB_OAUTH_STATE_KEY
@@ -20,12 +20,10 @@ import { getInitials } from '../utils/userInitials';
 import '../assets/styles/Navbar.css';
 import {
   auth,
-  googleProvider,
   isFirebaseConfigured,
   RecaptchaVerifier,
   signInWithPhoneNumber,
   signOut as firebaseSignOut,
-  signInWithRedirect,
   onIdTokenChanged,
   getRedirectResult,
   FIREBASE_REDIRECT_PROVIDER_KEY
@@ -117,6 +115,12 @@ export default function Navbar() {
 
   // Login / Signup / Phone OTP / Forgot Password Modal States
   const [showLoginModal, setShowLoginModal] = useState(false);
+  // Allow protected screens to open the same login dialog as the navbar.
+  useEffect(() => {
+    const handleOpenLogin = () => setShowLoginModal(true);
+    window.addEventListener('ueh-tcc-open-login', handleOpenLogin);
+    return () => window.removeEventListener('ueh-tcc-open-login', handleOpenLogin);
+  }, []);
   const [authMode, setAuthMode] = useState('login'); // 'login' | 'signup' | 'forgot' | 'phone'
 
   // Email/Password inputs
@@ -164,6 +168,7 @@ export default function Navbar() {
       : null;
   });
   const oauthRequestInFlightRef = useRef(false);
+  const googleTabAbortRef = useRef(null);
   const authProgressTimerRef = useRef(null);
   const githubPopupRef = useRef(null);
   const githubPopupPollTimerRef = useRef(null);
@@ -171,6 +176,11 @@ export default function Navbar() {
   const lastFirebaseSyncRef = useRef(null);
   const firebaseAuthIntentRef = useRef('');
   const sessionBootstrapPromiseRef = useRef(Promise.resolve());
+
+  useEffect(() => {
+    if (!showLoginModal) googleTabAbortRef.current?.abort();
+    return () => { googleTabAbortRef.current?.abort(); };
+  }, [showLoginModal]);
 
   // Upload Modal States (Admin Only)
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -612,7 +622,7 @@ export default function Navbar() {
     navigate(`/resources?q=${encodeURIComponent(query)}`);
   };
 
-  const handleLoginSubmit = async (e) => {
+  const handleLoginSubmit = async (e, turnstileToken) => {
     e.preventDefault();
     setAuthError('');
     setAuthSuccessMsg('');
@@ -625,7 +635,7 @@ export default function Navbar() {
       const response = await apiFetch('/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify({ username, password, 'cf-turnstile-response': turnstileToken })
       });
       const data = await readApiJson(response);
       if (data.success) {
@@ -647,7 +657,7 @@ export default function Navbar() {
     }
   };
 
-  const handleSignupSubmit = async (e) => {
+  const handleSignupSubmit = async (e, turnstileToken) => {
     e.preventDefault();
     setAuthError('');
     setAuthSuccessMsg('');
@@ -672,7 +682,8 @@ export default function Navbar() {
         body: JSON.stringify({
           username: signupUsername,
           password: signupPassword,
-          name: signupName
+          name: signupName,
+          'cf-turnstile-response': turnstileToken
         })
       });
       const data = await readApiJson(response);
@@ -845,30 +856,47 @@ export default function Navbar() {
     handleOAuthReturn();
   }, [navigate, setLoggedInUser, showAuthProgress]);
 
+  // Start a normal tab directly from the click and trust the backend session
+  // only after the tab has completed Google's authorization-code flow.
   const handleGoogleLogin = async () => {
     if (oauthRequestInFlightRef.current) return;
     oauthRequestInFlightRef.current = true;
     setAuthError('');
     setAuthSuccessMsg('');
     setIsAuthenticating(true);
-    showAuthProgress('loading', 'Đang chuyển đến Google…');
+    showAuthProgress('loading', 'Đang chờ đăng nhập Google trong tab mới…');
     try {
-      if (!isFirebaseConfigured || !auth || !googleProvider) {
+      if (!isFirebaseConfigured || !auth) {
         throw new Error('Hệ thống Firebase chưa được cấu hình.');
       }
-      await ensureGoogleOAuthAvailable();
-      sessionStorage.setItem(FIREBASE_REDIRECT_PROVIDER_KEY, 'Google');
-      setAuthSuccessMsg('Đang chuyển đến Google...');
+      sessionStorage.removeItem(FIREBASE_REDIRECT_PROVIDER_KEY);
+      setAuthSuccessMsg('Hãy chọn tài khoản trong tab Google vừa mở.');
+      const controller = new AbortController();
+      googleTabAbortRef.current = controller;
+      const user = await beginGoogleTabSignIn({ signal: controller.signal });
+      hasBackendSessionRef.current = true;
+      setLoggedInUser(user);
+      window.dispatchEvent(new Event('ueh-tcc-session-changed'));
+      setAuthSuccessMsg('Đăng nhập Google thành công!');
       setShowLoginModal(false);
-      await signInWithRedirect(auth, googleProvider);
+      showAuthProgress('success', 'Đăng nhập Google thành công');
     } catch (error) {
+      firebaseAuthIntentRef.current = '';
       sessionStorage.removeItem(FIREBASE_REDIRECT_PROVIDER_KEY);
       setAuthSuccessMsg('');
+      if (error.name === 'AbortError') {
+        showAuthProgress(null);
+        return;
+      }
       setAuthError(`Lỗi đăng nhập Google: ${error.message}`);
       setShowLoginModal(true);
       oauthRequestInFlightRef.current = false;
       setIsAuthenticating(false);
       showAuthProgress(null);
+    } finally {
+      googleTabAbortRef.current = null;
+      oauthRequestInFlightRef.current = false;
+      setIsAuthenticating(false);
     }
   };
 
@@ -924,7 +952,7 @@ export default function Navbar() {
     }
   };
 
-  const handleForgotPasswordSubmit = async (e) => {
+  const handleForgotPasswordSubmit = async (e, turnstileToken) => {
     if (e && e.preventDefault) e.preventDefault();
     setAuthError('');
     setAuthSuccessMsg('');
@@ -946,7 +974,7 @@ export default function Navbar() {
       const response = await apiFetch('/api/auth/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: forgotEmail }),
+        body: JSON.stringify({ email: forgotEmail, 'cf-turnstile-response': turnstileToken }),
         signal: controller.signal
       });
       const data = await readApiJson(response);
@@ -1266,6 +1294,7 @@ export default function Navbar() {
               <Link to="/community" className={`nav-link-item ${isActivePath('/community') ? 'active' : ''}`} aria-current={isActivePath('/community') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.community || 'Hỏi đáp TCC'}</Link>
               <Link to="/resources?category=all" className={`nav-link-item ${location.pathname === '/resources' ? 'active' : ''}`} aria-current={location.pathname === '/resources' ? 'page' : undefined} onClick={handleNavClick}>{t.nav.library}</Link>
               <Link to="/exams" className={`nav-link-item ${isActivePath('/exams') ? 'active' : ''}`} aria-current={isActivePath('/exams') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.exams}</Link>
+              <Link to="/flashcards" className={`nav-link-item ${isActivePath('/flashcards') ? 'active' : ''}`} aria-current={isActivePath('/flashcards') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.flashcards || 'Flashcard TCC'}</Link>
               <Link to="/blog" className={`nav-link-item ${isActivePath('/blog') ? 'active' : ''}`} aria-current={isActivePath('/blog') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.blog}</Link>
               <Link to="/20-10" className={`nav-link-item rose-link ${location.pathname === '/20-10' ? 'active' : ''}`} aria-current={location.pathname === '/20-10' ? 'page' : undefined} onClick={handleNavClick}>{t.nav.gift}</Link>
             </div>
@@ -1370,6 +1399,8 @@ export default function Navbar() {
                       </div>
 
                       <div className="user-dropdown-divider" />
+
+                      {loggedInUser.role === 'Admin' && <Link to="/admin/flashcards" className="user-dropdown-item" onClick={() => setShowUserDropdown(false)}>Quản lý quyền Flashcard <ChevronRight size={14} /></Link>}
 
                       <Link
                         to="/account?tab=courses"
@@ -1487,8 +1518,9 @@ export default function Navbar() {
             </button>
           </div>
         </nav>
+      </header>
 
-        {/* Mobile Navigation Sidebar Drawer */}
+        {/* A viewport drawer must stay outside the glass header's transform. */}
         <div className={`mobile-drawer ${isOpen ? 'open' : ''}`} aria-hidden={!isOpen}>
           <div className="mobile-drawer-overlay" onClick={() => setIsOpen(false)} />
           <div ref={mobileDrawerRef} id="mobile-navigation" className="mobile-drawer-content" role="dialog" aria-modal="true" aria-label="Menu điều hướng">
@@ -1504,6 +1536,7 @@ export default function Navbar() {
               <Link to="/community" className={`mobile-link-item ${isActivePath('/community') ? 'active' : ''}`} aria-current={isActivePath('/community') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.community || 'Hỏi đáp TCC'}</Link>
               <Link to="/resources?category=all" className={`mobile-link-item ${location.pathname === '/resources' ? 'active' : ''}`} aria-current={location.pathname === '/resources' ? 'page' : undefined} onClick={handleNavClick}>{t.nav.library}</Link>
               <Link to="/exams" className={`mobile-link-item ${isActivePath('/exams') ? 'active' : ''}`} aria-current={isActivePath('/exams') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.exams}</Link>
+              <Link to="/flashcards" className={`mobile-link-item ${isActivePath('/flashcards') ? 'active' : ''}`} aria-current={isActivePath('/flashcards') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.flashcards || 'Flashcard TCC'}</Link>
               <Link to="/blog" className={`mobile-link-item ${isActivePath('/blog') ? 'active' : ''}`} aria-current={isActivePath('/blog') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.blog}</Link>
               <Link to="/20-10" className={`mobile-link-item rose-link ${location.pathname === '/20-10' ? 'active' : ''}`} aria-current={location.pathname === '/20-10' ? 'page' : undefined} onClick={handleNavClick}>{t.nav.gift}</Link>
 
@@ -1561,7 +1594,6 @@ export default function Navbar() {
             </div>
           </div>
         </div>
-      </header>
 
       {/* Subcomponents Modals */}
       <SearchModal

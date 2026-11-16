@@ -1,0 +1,56 @@
+/* One reading column: question -> answer -> recall rating. */
+.app-container.study-route .study-practice--focused { --card-width: 740px; }
+.app-container.study-route .study-practice--focused .study-card-toolbar,
+.app-container.study-route .study-practice--focused .study-flashcard,
+.app-container.study-route .study-practice--focused .study-card-progress,
+.app-container.study-route .study-practice--focused .study-card-navigation,
+.app-container.study-route .study-practice--focused .study-card-notes,
+.app-container.study-route .study-practice--focused .study-ratings,
+.app-container.study-route .study-practice--focused .study-before-flip { width: 100%; max-width: var(--card-width); margin-inline: auto; }
+.app-container.study-route .study-practice--focused .study-card-toolbar { gap: 12px; margin-top: 28px; margin-bottom: 8px; font-variant-numeric: tabular-nums; }
+.app-container.study-route .study-practice--focused .study-flashcard { min-height: 0; }
+.app-container.study-route .study-practice--focused .study-card-kind { padding: 5px 10px; background: var(--s-soft); color: var(--s-muted); font-size: 11px; font-weight: 500; border-radius: 5px; }
+.app-container.study-route .study-practice--focused .study-card-toolbar .study-icon { border: 0; min-width: 36px; min-height: 36px; padding: 8px; }
+.app-container.study-route .study-practice--focused .study-card-progress { height: 2px; border: 0; margin-bottom: 20px; background: var(--s-border); }
+.app-container.study-route .study-practice--focused .study-card-progress > span { background: var(--s-accent); }
+.app-container.study-route .study-practice--focused .study-card-face { min-height: 300px; height: auto; max-height: 430px; box-sizing: border-box; gap: 22px; padding: 26px 34px 22px; border: 1px solid var(--s-border); border-radius: 16px; background: var(--s-paper); color: var(--s-text); box-shadow: 0 10px 24px -18px #183a2930; }
+.app-container.study-route .study-practice--focused .study-card-front { border-top: 3px solid var(--s-accent); }
+.app-container.study-route .study-practice--focused .study-card-back { background: var(--s-paper); border-top: 3px solid var(--s-accent); }
+.app-container.study-route .study-practice--focused .study-card-label { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; color: var(--s-accent); font-size: 12px; font-weight: 650; opacity: 1; }
+.app-container.study-route .study-practice--focused .study-card-label > span { color: var(--s-muted); font-size: 11px; font-weight: 400; }
+.app-container.study-route .study-practice--focused .study-card-front > .study-math { flex: 1; display: grid; align-content: center; font-size: clamp(19px, 1.65vw, 24px); line-height: 1.65; text-wrap: pretty; }
+.app-container.study-route .study-practice--focused .study-card-back > .study-math { flex: 1; font-size: 16px; line-height: 1.8; align-content: center; }
+.app-container.study-route .study-practice--focused .study-card-face .ai-text-line { margin: 8px 0; }
+.app-container.study-route .study-practice--focused .study-card-face .math-block { margin: 14px 0 !important; }
+.app-container.study-route .study-practice--focused .study-card-face .katex { font-size: 1.08em; }
+.app-container.study-route .study-practice--focused .study-card-tap-hint { justify-content: center; color: var(--s-muted); font-size: 11px; margin: 0; opacity: 1; }
+.app-container.study-route .study-practice--focused .study-card-surface:focus-visible { outline: 3px solid var(--s-accent) !important; }
+.app-container.study-route .study-practice--focused .study-card-navigation { margin-top: 12px; }
+.app-container.study-route .study-practice--focused .study-card-navigation .study-icon { min-height: 36px; min-width: 36px; padding: 7px; border-radius: 8px; }
+.app-container.study-route .study-practice--focused .study-card-navigation > span { font-size: 10px; }
+.study-card-notes { margin-block: 18px 0; font-size: 13px; }
+.study-card-reminder { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 16px; padding: 16px 0; border-top: 1px solid var(--s-border); }
+.study-card-reminder > span { color: var(--s-accent); font-size: 11px; font-weight: 600; padding-top: 3px; }
+.study-card-reminder .ai-text-line { margin: 0; line-height: 1.75; }
+.study-card-conditions { border-block: 1px solid var(--s-border); padding-block: 6px; }
+.study-card-conditions summary { cursor: pointer; display: flex; align-items: center; justify-content: space-between; min-height: 36px; color: var(--s-muted); font-size: 12px; list-style: none; }
+.study-card-conditions summary::-webkit-details-marker { display: none; }
+.study-card-conditions[open] summary svg { transform: rotate(90deg); }
+.study-card-conditions > .study-math { padding: 4px 0 12px; line-height: 1.75; }
+.app-container.study-route .study-practice--focused .study-ratings { margin-block: 22px; }
+.app-container.study-route .study-practice--focused .study-ratings > p { margin-bottom: 10px; font-size: 12px; }
+.app-container.study-route .study-practice--focused .study-ratings > div { gap: 8px; }
+.app-container.study-route .study-practice--focused .study-ratings button { min-height: 62px; padding: 10px 8px; border-radius: 10px; font-size: 12px; background: var(--s-paper); border-color: var(--s-border); }
+.app-container.study-route .study-practice--focused .study-ratings small { margin-top: 3px; font-size: 10px; }
+.app-container.study-route .study-practice--focused .study-ratings .study-rating-good { background: var(--s-accent); color: var(--s-paper); border-color: var(--s-accent); }
+.app-container.study-route .study-practice--focused .study-rating-good small { color: inherit; opacity: .8; }
+.app-container.study-route .study-practice--focused .study-before-flip { margin-block: 18px; font-size: 12px; line-height: 1.7; }
+.app-container.study-route .study-practice--focused .study-practice-footer { margin-top: 24px; }
+@media (max-width: 700px) {
+  .app-container.study-route .study-practice--focused .study-card-face { min-height: 280px; max-height: 420px; padding: 20px 18px; gap: 18px; border-radius: 12px; }
+  .app-container.study-route .study-practice--focused .study-card-label > span { max-width: 145px; text-align: right; font-size: 10px; }
+  .app-container.study-route .study-practice--focused .study-card-front > .study-math { font-size: 19px; }
+  .app-container.study-route .study-practice--focused .study-card-back > .study-math { font-size: 15px; }
+  .study-card-reminder { grid-template-columns: 1fr; gap: 6px; }
+  .app-container.study-route .study-practice--focused .study-ratings button { font-size: 11px; padding-inline: 5px; }
+}

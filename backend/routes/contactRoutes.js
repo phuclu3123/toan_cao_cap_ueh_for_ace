@@ -1,4 +1,5 @@
 import express from 'express';
+import { requireTurnstile } from '../middleware/turnstile.js';
 import { subscribe, submitContact } from '../controllers/contactController.js';
 import { createRateLimit } from '../middleware/rateLimit.js';
 
@@ -14,7 +15,7 @@ const contactRateLimit = createRateLimit({
   max: 8
 });
 
-router.post('/subscribe', subscribeRateLimit, subscribe);
-router.post('/contact', contactRateLimit, submitContact);
+router.post('/subscribe', subscribeRateLimit, requireTurnstile('subscribe'), subscribe);
+router.post('/contact', contactRateLimit, requireTurnstile('contact'), submitContact);
 
 export default router;

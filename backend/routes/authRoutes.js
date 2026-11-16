@@ -1,4 +1,5 @@
 import express from 'express';
+import { requireTurnstile } from '../middleware/turnstile.js';
 import { signup, login, syncFirebaseAuth, forgotPassword, resetPassword, updateProfile, exchangeGithubToken, getAuthProviders, getMe } from '../controllers/authController.js';
 import { getCurrentSession, logoutSession } from '../controllers/sessionController.js';
 import { requireAuth } from '../middleware/requireAuth.js';
@@ -29,11 +30,11 @@ const profileWriteRateLimit = createRateLimit({
 router.get('/auth/me', requireAuth, getMe);
 router.get('/auth/session', requireAuth, getCurrentSession);
 router.post('/auth/logout', sessionWriteRateLimit, logoutSession);
-router.post('/signup', authenticationRateLimit, signup);
-router.post('/login', authenticationRateLimit, login);
+router.post('/signup', authenticationRateLimit, requireTurnstile('register'), signup);
+router.post('/login', authenticationRateLimit, requireTurnstile('login'), login);
 router.get('/auth/providers', getAuthProviders);
 router.post('/auth/sync', firebaseSyncRateLimit, syncFirebaseAuth);
-router.post('/auth/forgot-password', passwordResetRateLimit, forgotPassword);
+router.post('/auth/forgot-password', passwordResetRateLimit, requireTurnstile('reset_request'), forgotPassword);
 router.post('/auth/reset-password', passwordResetRateLimit, resetPassword);
 router.post('/auth/update-profile', requireAuth, profileWriteRateLimit, updateProfile);
 router.post('/auth/github/token', authenticationRateLimit, exchangeGithubToken);

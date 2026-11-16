@@ -13,6 +13,7 @@ export const translations = {
       upload: "Đăng tài liệu",
       courses: "Khóa học",
       community: "Hỏi đáp TCC",
+      flashcards: "Flashcard TCC",
       blog: "Blog"
     },
     hero: {
@@ -366,6 +367,7 @@ export const translations = {
       upload: "Upload Doc",
       courses: "Courses",
       community: "Q&A Community",
+      flashcards: "Flashcards",
       blog: "Blog"
     },
     hero: {
@@ -721,6 +723,7 @@ export const translations = {
       upload: "資料投稿",
       courses: "コース",
       community: "数学Q&A",
+      flashcards: "単語カード",
       blog: "ブログ"
     },
     hero: {
@@ -1076,6 +1079,7 @@ export const translations = {
       upload: "发布资料",
       courses: "课程",
       community: "问答社区",
+      flashcards: "知识卡片",
       blog: "博客"
     },
     hero: {

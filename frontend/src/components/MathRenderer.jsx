@@ -69,7 +69,7 @@ function renderHtmlWithMath(htmlStr) {
   return sanitizeHtml(processed);
 }
 
-export default function MathRenderer({ text, className = '', inline = false }) {
+export default function MathRenderer({ text, className = '', inline = false, emoticons = true }) {
   const renderedContent = useMemo(() => {
     if (!text || typeof text !== 'string') return text || '';
 
@@ -80,13 +80,13 @@ export default function MathRenderer({ text, className = '', inline = false }) {
       .replace(/\\\(([\s\S]*?)\\\)/g, '$$$1$$');
 
     // Replace text emoticons (<3 -> ❤️, :) -> 🙂, :3 -> 😺, (y) -> 👍, etc.)
-    normalized = replaceEmoticons(normalized);
+    if (emoticons) normalized = replaceEmoticons(normalized);
 
     // Replace country flags with high-res flag images
     normalized = replaceFlagEmojisWithImages(normalized);
 
     // Check if input contains rich HTML tags from WYSIWYG editor
-    const hasHtmlTags = /<([a-z][a-z0-9]*)\b[^>]*>/i.test(normalized);
+    const hasHtmlTags = /<\/?(?:a|abbr|article|b|blockquote|br|code|dd|del|div|dl|dt|em|figcaption|figure|h[1-6]|hr|i|img|li|main|ol|p|pre|s|section|small|span|strong|sub|sup|table|tbody|td|th|thead|tr|u|ul)\b[^>]*>/i.test(normalized);
     if (hasHtmlTags) {
       const processedHtml = renderHtmlWithMath(normalized);
       const hasBlockTags = /<(div|p|blockquote|table|ul|ol|h[1-6])\b/i.test(normalized);
@@ -98,6 +98,10 @@ export default function MathRenderer({ text, className = '', inline = false }) {
 
     // Decode HTML entities if markdown mode
     normalized = decodeHtmlEntities(normalized);
+
+    // Keep punctuation from becoming an orphan paragraph after a display formula.
+    normalized = normalized.replace(/(\$\$[\s\S]*?\$\$)[ \t]*\.(?=[ \t]*(?:\r?\n|\\n|$))/g, '$1');
+    normalized = normalized.replace(/(\$\$[\s\S]*?\$\$)(?:[ \t]*(?:\r?\n|\\n))+[ \t]*\.(?=[ \t]*(?:\r?\n|\\n|$))/g, '$1');
 
     // Inline mode for titles, headings, and buttons
     if (inline) {
@@ -181,7 +185,7 @@ export default function MathRenderer({ text, className = '', inline = false }) {
       // 4. Regular text containing headers, lists, quotes, tables, and inline math
       return <span key={index}>{renderMarkdownParagraphs(part)}</span>;
     });
-  }, [text, inline, className]);
+  }, [text, inline, className, emoticons]);
 
   if (inline) {
     return <span className={`math-rendered-inline ${className}`}>{renderedContent}</span>;
@@ -195,6 +199,8 @@ export default function MathRenderer({ text, className = '', inline = false }) {
  */
 function renderMarkdownParagraphs(content) {
   const lines = content.split('\n');
+  while (lines.length && !lines[0].trim()) lines.shift();
+  while (lines.length && !lines.at(-1).trim()) lines.pop();
   const elements = [];
   let tableBuffer = [];
 
@@ -204,10 +210,13 @@ function renderMarkdownParagraphs(content) {
     tableBuffer = [];
 
     const isHeaderSeparator = (row) => /^\|?\s*:?-+:?\s*(\|:?-+:?\s*)*\|?$/.test(row.trim());
+    const derivativeTable = /đạo hàm/i.test(rows[0] || '');
+    const wrapperClass = derivativeTable ? 'ai-table-wrapper ai-derivative-table-wrapper' : 'ai-table-wrapper';
+    const tableClass = derivativeTable ? 'ai-markdown-table ai-derivative-table' : 'ai-markdown-table';
 
     return (
-      <div key={`table-${keyPrefix}`} className="ai-table-wrapper">
-        <table className="ai-markdown-table">
+      <div key={`table-${keyPrefix}`} className={wrapperClass}>
+        <table className={tableClass}>
           <tbody>
             {rows.map((rowStr, rIdx) => {
               if (isHeaderSeparator(rowStr)) return null;
