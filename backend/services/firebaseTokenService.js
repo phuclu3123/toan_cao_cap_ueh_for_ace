@@ -156,6 +156,9 @@ export const verifyFirebaseIdToken = async (idToken) => {
     email: payload.email || '',
     emailVerified: Boolean(payload.email && payload.email_verified === true),
     signInProvider: typeof payload.firebase?.sign_in_provider === 'string' ? payload.firebase.sign_in_provider : '',
+    googleSubjects: Array.isArray(payload.firebase?.identities?.['google.com'])
+      ? payload.firebase.identities['google.com'].filter(value => typeof value === 'string' && value.length > 0 && value.length <= 255)
+      : [],
     name: payload.name || '',
     phoneNumber: payload.phone_number || '',
     expiresAt: payload.exp * 1000

@@ -48,7 +48,7 @@ test(`Google ${scenario}: opens a normal tab and preserves the correct account/s
     if (path === '/api/auth/providers') {
       await route.fulfill({ json: { providers: { google: { enabled: true }, github: { enabled: false } } } });
     } else if (path === '/api/auth/sync') {
-      expect(route.request().postDataJSON()).toEqual({ idToken: 'firebase-token-for-test' });
+      expect(route.request().postDataJSON()).toEqual({ idToken: 'firebase-token-for-test', googleIdToken: 'google-proof-for-test' });
       exchangeCount += 1;
       if (scenario === 'email-error') {
         await route.fulfill({ status: 422, json: { success: false, code: 'GOOGLE_EMAIL_REQUIRED', message: 'Google chưa cung cấp email đã xác minh.' } });
@@ -84,7 +84,8 @@ test(`Google ${scenario}: opens a normal tab and preserves the correct account/s
       const body = route.request().postDataJSON();
       expect(body.sessionId).toBe('bound-firebase-session');
       expect(new URL(body.requestUri).searchParams.get('code')).toBe('one-use-test-code');
-      await route.fulfill({ json: { providerId: 'google.com', idToken: 'firebase-token-for-test' } });
+      expect(body.returnIdpCredential).toBe(true);
+      await route.fulfill({ json: { providerId: 'google.com', idToken: 'firebase-token-for-test', oauthIdToken: 'google-proof-for-test' } });
     } else {
       await route.fulfill({ status: 400, json: { error: { message: 'UNEXPECTED_TEST_REQUEST' } } });
     }
@@ -123,7 +124,9 @@ test(`Google ${scenario}: opens a normal tab and preserves the correct account/s
   await page.getByRole('button', { name: 'Google', exact: true }).click();
   const authTab = await newTabPromise;
   if (scenario === 'email-error') {
-    await expect(page.getByRole('dialog').getByText('Google chưa cung cấp email đã xác minh. Hãy đăng nhập Google lại để hoàn tất liên kết email.')).toBeVisible();
+    await expect(page.getByRole('dialog').getByText('Chưa hoàn tất đồng bộ email. Hãy bấm Google hoặc One Tap để đăng nhập lại.')).toBeVisible();
+    await expect(authTab.getByRole('alert')).toBeVisible();
+    await expect(authTab.locator('#app-boot')).toHaveCount(0);
     await expect(page.locator('.profile-email-notice')).toBeVisible();
     expect((await context.cookies()).find(item => item.name === SESSION_COOKIE_NAME)?.value).toBe(sessionToken);
     expect(exchangeCount).toBe(1);

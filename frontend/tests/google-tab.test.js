@@ -28,7 +28,7 @@ beforeEach(() => {
       sessionId: 'firebase-session',
       authUri: `https://accounts.google.com/o/oauth2/v2/auth?state=bound-state&response_type=code&scope=openid%20email%20profile&redirect_uri=${encodeURIComponent(callbackUrl)}`
     });
-    if (url.includes('signInWithIdp')) return Response.json({ providerId: 'google.com', idToken: 'verified-by-backend' });
+    if (url.includes('signInWithIdp')) return Response.json({ providerId: 'google.com', idToken: 'verified-by-backend', oauthIdToken: 'google-proof-for-backend' });
     if (url === '/api/auth/sync') return Response.json({ success: true, user: { id: 'server-user' } });
     throw new Error(`Unexpected endpoint: ${url}`);
   };
@@ -79,15 +79,16 @@ test('Google backend email errors do not produce a successful callback signal', 
   await assert.rejects(completeGoogleTab({ requestUri: `${callbackUrl}?code=one-use-code&state=bound-state`, storage, apiKey }), error => error.code === 'GOOGLE_EMAIL_REQUIRED');
 });
 
-test('Google callback consumes its session and syncs only the Firebase-issued token', async () => {
+test('Google callback consumes its session and forwards both proofs without trusting provider email fields', async () => {
   await prepareGoogleTab({ requestId, origin, storage, apiKey });
   const result = await completeGoogleTab({ requestUri: `${callbackUrl}?code=one-use-code&state=bound-state`, storage, apiKey });
   assert.deepEqual(result, { requestId });
   assert.equal(storage.getItem(GOOGLE_TAB_STORAGE_KEY), null);
   const exchange = calls.find((call) => call.url.includes('signInWithIdp'));
   assert.equal(JSON.parse(exchange.options.body).sessionId, 'firebase-session');
+  assert.equal(JSON.parse(exchange.options.body).returnIdpCredential, true);
   const sync = calls.find((call) => call.url === '/api/auth/sync');
-  assert.deepEqual(JSON.parse(sync.options.body), { idToken: 'verified-by-backend' });
+  assert.deepEqual(JSON.parse(sync.options.body), { idToken: 'verified-by-backend', googleIdToken: 'google-proof-for-backend' });
   assert.equal(sync.options.credentials, 'include');
   await assert.rejects(completeGoogleTab({ requestUri: `${callbackUrl}?code=replay&state=bound-state`, storage, apiKey }), /hết hạn/);
 });
@@ -151,5 +152,5 @@ test('the original tab displays an allowlisted email error without treating its 
   const pending = beginGoogleTabSignIn();
   const id = channel.name.split(':').at(-1);
   channel.onmessage({ data: { type: GOOGLE_TAB_RESULT, requestId: id, success: false, code: 'GOOGLE_EMAIL_REQUIRED' } });
-  await assert.rejects(pending, /email đã xác minh/);
+  await assert.rejects(pending, /hoàn tất đồng bộ email/);
 });

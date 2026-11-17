@@ -176,6 +176,7 @@ export default function Navbar() {
   const firebaseSyncsRef = useRef(new Map());
   const lastFirebaseSyncRef = useRef(null);
   const firebaseAuthIntentRef = useRef('');
+  const googleIdentityProofRef = useRef(null);
   const sessionBootstrapPromiseRef = useRef(Promise.resolve());
 
   useEffect(() => {
@@ -287,6 +288,8 @@ export default function Navbar() {
     }
 
     const provider = options.provider || 'Google';
+    const googleIdToken = options.googleIdToken || googleIdentityProofRef.current;
+    const syncKey = `${uid}:${googleIdToken ? 'google' : 'firebase'}`;
     const announce = Boolean(options.announce);
     const lastSync = lastFirebaseSyncRef.current;
     if (lastSync?.uid === uid && hasBackendSessionRef.current) {
@@ -302,7 +305,7 @@ export default function Navbar() {
       return Promise.resolve(lastSync.user);
     }
 
-    const existing = firebaseSyncsRef.current.get(uid);
+    const existing = firebaseSyncsRef.current.get(syncKey);
     if (existing) {
       if (announce) {
         existing.announce = true;
@@ -319,7 +322,7 @@ export default function Navbar() {
       showAuthProgress('loading', `Đang đồng bộ tài khoản ${entry.provider}…`);
     }
 
-    entry.promise = syncFirebaseUserWithBackend(firebaseUser)
+    entry.promise = syncFirebaseUserWithBackend(firebaseUser, { googleIdToken })
       .then((dbUser) => {
         hasBackendSessionRef.current = true;
         lastFirebaseSyncRef.current = { uid, user: dbUser };
@@ -351,12 +354,12 @@ export default function Navbar() {
         throw error;
       })
       .finally(() => {
-        if (firebaseSyncsRef.current.get(uid) === entry) {
-          firebaseSyncsRef.current.delete(uid);
+        if (firebaseSyncsRef.current.get(syncKey) === entry) {
+          firebaseSyncsRef.current.delete(syncKey);
         }
       });
 
-    firebaseSyncsRef.current.set(uid, entry);
+    firebaseSyncsRef.current.set(syncKey, entry);
     return entry.promise;
   }, [setLoggedInUser, showAuthProgress]);
 
@@ -571,6 +574,9 @@ export default function Navbar() {
       }
 
       firebaseUserObserved = true;
+      // The interactive One Tap callback owns completion. Do not race it with
+      // a cached user's listener or a refresh-triggered listener.
+      if (googleIdentityProofRef.current) return;
       const intentProvider = firebaseAuthIntentRef.current
         || sessionStorage.getItem(FIREBASE_REDIRECT_PROVIDER_KEY);
       if (intentProvider) {
@@ -588,7 +594,7 @@ export default function Navbar() {
       void sessionBootstrapPromiseRef.current
         .catch(() => {})
         .then(() => {
-          if (cancelled || hasBackendSessionRef.current) return;
+          if (cancelled || hasBackendSessionRef.current || googleIdentityProofRef.current) return;
           return completeFirebaseSession(firebaseUser).catch((error) => {
             console.error('Không thể khôi phục phiên Firebase:', error);
           });
@@ -727,10 +733,14 @@ export default function Navbar() {
         throw new Error('Google không trả về thông tin xác thực.');
       }
 
+      // Hold proof only for this interactive attempt. The token listener waits
+      // for this callback; never persist the Google token.
+      googleIdentityProofRef.current = response.credential;
       const credential = GoogleAuthProvider.credential(response.credential);
       const userCredential = await signInWithCredential(auth, credential);
       await completeFirebaseSession(userCredential.user, {
         provider: 'Google',
+        googleIdToken: response.credential,
         announce: true
       });
     } catch (error) {
@@ -741,6 +751,7 @@ export default function Navbar() {
       setAuthError(`Lỗi đăng nhập Google: ${error.message || 'Không thể hoàn tất đăng nhập nhanh.'}`);
       setShowLoginModal(true);
     } finally {
+      googleIdentityProofRef.current = null;
       oauthRequestInFlightRef.current = false;
     }
   }, [completeFirebaseSession, showAuthProgress]);

@@ -11,6 +11,7 @@ import {
   verifyFirebaseIdToken
 } from '../services/firebaseTokenService.js';
 import { listActiveEnrollments } from '../services/enrollmentService.js';
+import { getConfiguredGoogleClientIds, verifyGoogleIdentityForFirebase } from '../services/googleIdentityService.js';
 import {
   attachExternalIdentity,
   legacyUidForExternalIdentity,
@@ -569,18 +570,32 @@ export const getMe = async (req, res) => {
   }
 };
 
-export const syncFirebaseAuth = async (req, res) => {
-  try {
-    const identity = await verifyFirebaseIdToken(req.body?.idToken);
-    const user = await upsertExternalUser({
+export const resolveFirebaseLogin = async ({ idToken, googleIdToken } = {}) => {
+  const identity = await verifyFirebaseIdToken(idToken);
+  let emailIdentity = { email: identity.email, emailVerified: identity.emailVerified };
+  if (identity.signInProvider === 'google.com' && !identity.email) {
+    const owner = await findUserByExternalIdentity('firebase', identity.uid);
+    const storedEmail = normalizeEmail(owner?.username || owner?.email);
+    const hasCanonicalEmail = isValidEmail(storedEmail)
+      && !storedEmail.endsWith('@users.invalid') && !storedEmail.endsWith('@users.noreply.github.com');
+    // Existing canonical accounts keep working even without a new Google proof.
+    // New/generated-email accounts need independently verified, UID-bound proof.
+    if (!hasCanonicalEmail) emailIdentity = await verifyGoogleIdentityForFirebase(googleIdToken, identity);
+  }
+  const user = await upsertExternalUser({
       provider: 'firebase',
       subject: identity.uid,
-      email: identity.email,
-      emailVerified: identity.emailVerified,
+      ...emailIdentity,
       requireVerifiedEmail: identity.signInProvider === 'google.com',
       name: identity.name,
       phoneNumber: identity.phoneNumber
-    });
+  });
+  return { user, identity };
+};
+
+export const syncFirebaseAuth = async (req, res) => {
+  try {
+    const { user, identity } = await resolveFirebaseLogin(req.body);
     await rotateSession(req, res, user, {
       // A manually verified Firebase token cannot reveal later account
       // revocation. Bound the backend cookie to this signed token's lifetime;
@@ -768,7 +783,8 @@ export const getPublicAuthProviders = () => {
 
   return {
     google: {
-      enabled: Boolean(firebaseProjectId)
+      enabled: Boolean(firebaseProjectId),
+      emailSyncEnabled: Boolean(firebaseProjectId && getConfiguredGoogleClientIds().length)
     },
     github: {
       enabled: Boolean(githubClientId && githubClientSecret),

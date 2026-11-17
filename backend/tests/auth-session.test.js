@@ -109,7 +109,8 @@ test('the public OAuth configuration never exposes the GitHub client secret', ()
     const providers = getPublicAuthProviders();
     assert.deepEqual(providers, {
       google: {
-        enabled: Boolean(getConfiguredFirebaseProjectId())
+        enabled: Boolean(getConfiguredFirebaseProjectId()),
+        emailSyncEnabled: providers.google.emailSyncEnabled
       },
       github: {
         enabled: true,
@@ -117,6 +118,7 @@ test('the public OAuth configuration never exposes the GitHub client secret', ()
       }
     });
     assert.equal(JSON.stringify(providers).includes(process.env.GITHUB_CLIENT_SECRET), false);
+    assert.equal(typeof providers.google.emailSyncEnabled, 'boolean');
   } finally {
     if (previousClientId === undefined) delete process.env.GITHUB_CLIENT_ID;
     else process.env.GITHUB_CLIENT_ID = previousClientId;

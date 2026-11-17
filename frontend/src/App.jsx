@@ -173,7 +173,6 @@ function Layout() {
   return (
     <CommunityProvider>
       <div className={`app-container${isStudyPage ? ' study-route' : ''}${isStudyPage && studyHeaderHidden ? ' study-header-hidden' : ''}`}>
-        <AppBootLifecycle />
         <ScrollManager />
         <MotionOrchestrator />
         {showHeaderFooter && <Navbar />}
@@ -424,6 +423,7 @@ export default function App() {
 
   return (
     <LanguageContext.Provider value={{ language, setLanguage, toggleLanguage }}>
+      <AppBootLifecycle />
       <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
         <AuthProvider>
           <NotificationProvider>

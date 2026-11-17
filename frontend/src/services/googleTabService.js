@@ -8,7 +8,11 @@ export const GOOGLE_TAB_STORAGE_KEY = 'ueh_tcc_google_tab';
 const MAX_AGE_MS = 5 * 60 * 1000;
 const viteEnv = import.meta.env || {};
 const GOOGLE_AUTH_ERRORS = Object.freeze({
-  GOOGLE_EMAIL_REQUIRED: 'Google chưa cung cấp email đã xác minh. Hãy đăng nhập Google lại để hoàn tất liên kết email.',
+  GOOGLE_EMAIL_REQUIRED: 'Chưa hoàn tất đồng bộ email. Hãy bấm Google hoặc One Tap để đăng nhập lại.',
+  INVALID_GOOGLE_IDENTITY: 'Danh tính Google chưa khớp với phiên đăng nhập. Vui lòng đăng nhập lại đúng tài khoản.',
+  GOOGLE_AUTH_NOT_CONFIGURED: 'Máy chủ chưa sẵn sàng đồng bộ email Google. Vui lòng liên hệ quản trị viên.',
+  GOOGLE_AUTH_UNAVAILABLE: 'Tạm thời chưa xác minh được Google. Vui lòng thử lại.',
+  AUTH_SYNC_TIMEOUT: 'Đồng bộ tài khoản mất quá lâu. Vui lòng thử đăng nhập lại.',
   ACCOUNT_LINK_CONFLICT: 'Email và danh tính Google đang gắn với hai tài khoản khác nhau. Vui lòng liên hệ quản trị viên để kiểm tra.',
   INVALID_FIREBASE_TOKEN: 'Phiên xác thực Google chưa hợp lệ hoặc đã hết hạn. Vui lòng đăng nhập lại.'
 });
@@ -154,12 +158,15 @@ export const completeGoogleTab = async ({
   const payload = await firebaseRequest('signInWithIdp', {
     requestUri,
     sessionId: transaction.sessionId,
-    returnSecureToken: true
+    returnSecureToken: true,
+    returnIdpCredential: true
   }, apiKey);
   if (payload.needConfirmation || payload.providerId !== 'google.com' || !payload.idToken) {
     throw new Error('Không thể xác thực tài khoản Google. Vui lòng dùng phương thức đăng nhập đã liên kết.');
   }
-  await syncFirebaseIdTokenWithBackend(payload.idToken);
+  // Only tokens are sent. Backend independently verifies Google email and
+  // binds its subject to the signed Firebase identity before updating any user.
+  await syncFirebaseIdTokenWithBackend(payload.idToken, { googleIdToken: payload.oauthIdToken });
   return { requestId: transaction.requestId };
 };
 

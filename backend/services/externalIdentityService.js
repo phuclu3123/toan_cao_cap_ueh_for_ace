@@ -22,7 +22,7 @@ export const reconcileExternalEmail = (user, { email, emailVerified, requireVeri
   const generated = current.endsWith('@users.invalid') || current.endsWith('@users.noreply.github.com');
   const verifiedCandidate = Boolean(validEmail(candidate) && emailVerified);
   if (requireVerifiedEmail && !verifiedCandidate && (!user || generated || !validEmail(current))) {
-    throw Object.assign(new Error('Google chưa cung cấp email đã xác minh. Vui lòng đăng nhập Google lại để hoàn tất liên kết email.'), {
+    throw Object.assign(new Error('Chưa hoàn tất đồng bộ email. Hãy bấm Google hoặc One Tap để đăng nhập lại.'), {
       statusCode: 422, code: 'GOOGLE_EMAIL_REQUIRED'
     });
   }

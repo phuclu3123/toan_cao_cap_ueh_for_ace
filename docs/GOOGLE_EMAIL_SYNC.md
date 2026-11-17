@@ -1,4 +1,29 @@
-# Đồng bộ email Google cho tài khoản cũ
+# Đồng bộ email Google và giữ tài khoản cũ
+
+## Tương thích Firebase multiple accounts per email
+
+Firebase đang dùng **Create multiple accounts for each identity provider**. Email chính của Firebase user/token có thể trống dù Google provider có email. Bổ sung scope `email profile` cho luồng mở tab không tự giải quyết điều này.
+
+Giữ nguyên User account linking. Không import lại users, không xóa hoặc tạo lại tài khoản Firebase/MongoDB.
+
+Backend cần `GOOGLE_CLIENT_ID` bằng Client ID web công khai đang dùng ở frontend `VITE_GOOGLE_CLIENT_ID`. Nếu hai luồng dùng hai Client ID khác nhau, khai báo thêm `GOOGLE_CLIENT_IDS` phân cách bằng dấu phẩy. Không dùng Client Secret, không lấy audience tin cậy từ request của trình duyệt. `GET /api/auth/providers` trả `providers.google.emailSyncEnabled: true` khi bản mới đã khai báo audience; đây không thay thế kiểm tra đăng nhập thật.
+
+### Hai token được xác minh và đối chiếu trước khi lưu
+
+1. One Tap gửi Google ID token từ callback cùng Firebase ID token. Nút Google mở tab gửi `oauthIdToken` từ Firebase `signInWithIdp` cùng `idToken`. Không gửi email/profile tự khai làm bằng chứng.
+2. Backend xác minh Firebase token như trước, lấy Firebase UID và Google subjects trong claim đã ký `firebase.identities['google.com']`.
+3. Token có email đã xác minh hoặc UID đã có tài khoản MongoDB với email thật tiếp tục đường xử lý hiện có; không cần một lần xác minh Google bổ sung để đăng nhập trở lại.
+4. Nếu tài khoản Google mới hoặc còn email tạm và Firebase token thiếu email, dùng **google-auth-library** chính thức xác minh Google token: chữ ký, issuer, audience được cấu hình, thời hạn, `email_verified`. Google `sub` phải nằm trong Google subjects của Firebase token đã xác minh. Google `sub` và Firebase UID là hai định danh khác nhau.
+5. Chỉ sau các bước trên mới tìm/cập nhật/tạo tài khoản. Email và UID chỉ tới hai người khác nhau => `ACCOUNT_LINK_CONFLICT`, không tự gộp. Email tạm được cập nhật trên chính record cũ, giữ `id`, Mongo `_id`, legacy `uid`, hồ sơ và các tham chiếu ID như quyền/tiến độ/thẻ đã lưu. Tài khoản có email thật không bị đổi sang email khác từ provider.
+
+Không dùng `providerData.email` hoặc JSON decode token ở frontend làm dữ liệu đã xác minh. Không ghi Google token vào local/session storage hoặc log; proof chỉ nằm trong bộ nhớ của lần đăng nhập, không truyền qua thông điệp giữa các tab. Không có thao tác xóa user/quyền hoặc migration hàng loạt trong bản sửa.
+
+### Callback và chống đồng bộ trùng
+
+- One Tap hoàn tất trong callback tương tác; Firebase token listener không tranh hoàn tất với callback. Lần có proof không dùng chung request nền cũ đang thiếu proof.
+- Đồng bộ backend có timeout 30 giây với thông báo thử lại.
+- `AppBootLifecycle` chạy ở cấp App, bao gồm `/auth/google`; lỗi callback không còn bị lớp loading che mãi.
+- Xác minh thất bại không cấp phiên mới hoặc xóa phiên backend đang dùng. Điện thoại và GitHub giữ luồng riêng hiện có.
 
 ## Nguyên nhân và cách xử lý
 
@@ -37,9 +62,17 @@ Các bài kiểm tra dùng dữ liệu và persistence mô phỏng, không sửa
 node --test tests/google-email-sync.test.js tests/auth-session.test.js tests/external-identity.test.js tests/flashcard-startup.test.js
 
 # Chạy tại frontend
-node --test tests/google-tab.test.js
-npx.cmd playwright test e2e/google-tab.spec.js --reporter=line --output=../artifacts/google-email-sync/results
+node --test tests/google-tab.test.js tests/auth-service.test.js tests/oauth-service.test.js
+npx.cmd playwright test e2e/google-tab.spec.js e2e/external-google.spec.js --reporter=line --output=../artifacts/google-auth-compatible/results
 npm.cmd run build
 ```
 
-Browser test bao gồm đăng nhập mới, đồng bộ tài khoản cũ trên desktop/mobile, và lỗi email vẫn giữ phiên. Google/Firebase API và backend được mô phỏng trong browser test. Kiểm tra trực tiếp `createAuthUri` với cấu hình mới trả HTTP 200 và scope `openid email profile`; điều này chưa thay thế việc đăng nhập Google thật sau deploy.
+Browser test bao gồm cả One Tap và mở tab, với tài khoản mới, tài khoản legacy còn email tạm, tài khoản đã có email và lỗi callback thoát loading. `external-google.spec.js` dùng Firebase JS SDK thật và backend controller/verifier thật với hai JWT ký thử bằng hai cặp khóa. Google/Firebase endpoints và persistence được giả lập; không kết nối hoặc sửa MongoDB thật. Có ca chứng minh Firebase `user.email === null` trong khi provider có email, nhưng backend chỉ cập nhật sau khi xác minh và đối chiếu hai token. Kiểm tra bảo toàn ID/hồ sơ/dữ liệu tham chiếu, sai subject/audience/issuer/chữ ký, hết hạn, thiếu config và xung đột email.
+
+Deploy cả frontend và backend, backend cài dependency theo lockfile để có google-auth-library. Sau deploy kiểm tra health, `emailSyncEnabled`, fingerprint frontend và thử Google thật cho tài khoản mới cùng tài khoản cũ còn email tạm. Hoàn tất email diễn ra ở lần đăng nhập hợp lệ tiếp theo, không phải migration hàng loạt.
+
+## Tài liệu
+
+- https://firebase.google.com/docs/reference/android/com/google/firebase/auth/FirebaseUser#getEmail()
+- https://developers.google.com/identity/gsi/web/guides/verify-google-id-token
+- https://docs.cloud.google.com/identity-platform/docs/reference/rest/v1/accounts/signInWithIdp
