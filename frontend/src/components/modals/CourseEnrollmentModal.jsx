@@ -568,7 +568,7 @@ function CourseEnrollmentModalContent({ onClose, course, onEnrollSuccess }) {
           </button>
         <div className="enrollment-scroll" ref={scrollRef}><div className="enrollment-layout">
           <aside className="checkout-summary" aria-label="Tóm tắt khóa học">
-            <div className="checkout-brand" aria-label="α∫M4A"><span className="brand-wordmark"><span className="brand-math">α∫</span>M4A</span></div>
+            <div className="checkout-brand" aria-label="α∫M4A"><img className="brand-image-mark" src="/images/brand/aim4a-mark.png" alt="α∫M4A" width="52" height="52" /></div>
             <div className="checkout-summary__course">
             {!imageFailed && course.image ? (
               <img src={course.image} alt="" onError={() => setImageFailed(true)} />

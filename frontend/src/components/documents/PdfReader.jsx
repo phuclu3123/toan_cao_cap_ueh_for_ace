@@ -69,20 +69,27 @@ export default function PdfReader({ url, title, initialPage = 1, initialLayout =
   const [width, setWidth] = useState(0), [page, setPage] = useState(firstPage), [pageInput, setPageInput] = useState(String(firstPage));
   const [layout, setLayout] = useState(initialLayout), [zoom, setZoom] = useState(1), [rotation, setRotation] = useState(0), [fullscreen, setFullscreen] = useState(false);
   const [notice, setNotice] = useState('');
+  const [height, setHeight] = useState(0), [pageAspect, setPageAspect] = useState(1.414);
+  const [fit, setFit] = useState(initialLayout === '1' ? 'page' : 'width');
   const autoColumns = Math.max(1, Math.min(5, Math.floor((width - 40) / 350)));
   const maxColumns = width < 700 ? 1 : 5;
   const columns = Math.min(maxColumns, layout === 'auto' ? autoColumns : Number(layout));
   const pageWidth = Math.max(180, (width - 48 - (columns-1)*20) / columns);
   const end = pdf ? Math.min(pdf.numPages, page + columns - 1) : page;
+  const fittedZoom = Math.min(1, Math.max(.01, (height - 60) / (pageWidth * pageAspect)));
+  const effectiveZoom = fit === 'page' ? fittedZoom : fit === 'width' ? 1 : zoom;
+  const handleZoom = delta => { setZoom(Math.min(2.5, Math.max(.1, effectiveZoom + delta))); setFit('custom'); };
   const pages = pdf ? Array.from({ length: end-page+1 }, (_, i) => page+i) : [];
 
   useEffect(() => {
     let resizeTimer, initialized = false;
     const observer = new ResizeObserver(([entry]) => {
       const nextWidth = Math.floor(entry.contentRect.width);
+      const nextHeight = Math.floor(entry.contentRect.height);
+      const updateSize = () => { setWidth(nextWidth); setHeight(nextHeight); };
       clearTimeout(resizeTimer);
-      if (!initialized) { setWidth(nextWidth); initialized = true; }
-      else resizeTimer = setTimeout(() => setWidth(nextWidth), 100);
+      if (!initialized) { updateSize(); initialized = true; }
+      else resizeTimer = setTimeout(updateSize, 100);
     });
     observer.observe(stageRef.current);
     const handleFullscreen = () => setFullscreen(document.fullscreenElement === hostRef.current);
@@ -101,10 +108,24 @@ export default function PdfReader({ url, title, initialPage = 1, initialLayout =
     return () => { active = false; clearTimeout(timeout); void task.destroy(); };
   }, [url, retry]);
 
+  useEffect(() => {
+    if (!pdf) return;
+    let active = true;
+    Promise.all(Array.from({ length: end - page + 1 }, (_, index) => pdf.getPage(page + index)))
+      .then(items => { if (active) setPageAspect(Math.max(...items.map(item => { const view = item.getViewport({ scale: 1, rotation }); return view.height / view.width; }))); })
+      .catch(() => { /* Keep the previous fit while a page is unavailable. */ });
+    return () => { active = false; };
+  }, [pdf, page, end, rotation]);
+
   const handlePage = value => {
     if (!pdf) return;
     const next = Math.min(pdf.numPages, Math.max(1, Math.floor(Number(value)) || 1));
     setPage(next); setPageInput(String(next)); stageRef.current.scrollTo({ top: 0, left: 0 });
+  };
+  const handleFitPage = () => {
+    setFit('page');
+    stageRef.current.scrollTo({ top: 0, left: 0 });
+    hostRef.current.scrollIntoView({ block: 'start', behavior: 'instant' });
   };
   const handleFullscreen = async () => {
     try { if (document.fullscreenElement) await document.exitFullscreen(); else await hostRef.current.requestFullscreen(); }
@@ -125,15 +146,15 @@ export default function PdfReader({ url, title, initialPage = 1, initialLayout =
         <form onSubmit={event => { event.preventDefault(); handlePage(pageInput); }}><label className="sr-only" htmlFor="pdf-page-number">Đến trang</label><input id="pdf-page-number" type="number" min="1" max={pdf?.numPages || 1} value={pageInput} onChange={event => setPageInput(event.target.value)} onBlur={() => handlePage(pageInput)} disabled={!pdf} /><span>{end > page ? `– ${end}` : ''} / {pdf?.numPages || '—'}</span></form>
         <button type="button" title="Nhóm trang sau" aria-label="Nhóm trang sau" disabled={!pdf || end >= pdf.numPages} onClick={() => handlePage(page+columns)}><ChevronRight size={18} /></button>
       </div>
-      <div className="pdf-display-controls"><label htmlFor="pdf-layout">Hiển thị</label><select id="pdf-layout" value={layout} onChange={event => { setLayout(event.target.value); setZoom(1); }}><option value="auto">Tự động · {autoColumns} trang</option>{Array.from({length:maxColumns},(_,i) => <option value={String(i+1)} key={i}>{i+1} trang</option>)}</select></div>
-      <div className="pdf-zoom-controls"><button type="button" title="Thu nhỏ" aria-label="Thu nhỏ" disabled={zoom <= .5} onClick={() => setZoom(value => Math.max(.5,value-.25))}><Minus size={17} /></button><button type="button" className="pdf-zoom-reset" title="Vừa khung" aria-label="Vừa khung" onClick={() => setZoom(1)}>{Math.round(zoom*100)}%</button><button type="button" title="Phóng to" aria-label="Phóng to" disabled={zoom >= 2.5} onClick={() => setZoom(value => Math.min(2.5,value+.25))}><Plus size={17} /></button><button type="button" title="Xoay trang" aria-label="Xoay trang" onClick={() => setRotation(value => (value+90)%360)}><RotateCw size={17} /></button></div>
+      <div className="pdf-display-controls"><label htmlFor="pdf-layout">Hiển thị</label><select id="pdf-layout" value={layout} onChange={event => { setLayout(event.target.value); setFit(event.target.value === '1' ? 'page' : 'width'); setZoom(1); if (event.target.value === '1') handleFitPage(); }}><option value="auto">Tự động · {autoColumns} trang</option>{Array.from({length:maxColumns},(_,i) => <option value={String(i+1)} key={i}>{i+1} trang</option>)}</select></div>
+      <div className="pdf-zoom-controls"><button type="button" title="Thu nhỏ" aria-label="Thu nhỏ" disabled={effectiveZoom <= .1} onClick={() => handleZoom(-.1)}><Minus size={17} /></button><button type="button" className="pdf-zoom-reset" title="Vừa chiều ngang" aria-label="Vừa chiều ngang" onClick={() => setFit('width')}>{Math.round(effectiveZoom*100)}%</button><button type="button" title="Phóng to" aria-label="Phóng to" disabled={effectiveZoom >= 2.5} onClick={() => handleZoom(.1)}><Plus size={17} /></button><button type="button" className="pdf-fit-page" aria-pressed={fit === 'page'} title="Vừa toàn trang" aria-label="Vừa toàn trang" onClick={handleFitPage}><Expand size={17} /><span>Vừa trang</span></button><button type="button" title="Xoay trang" aria-label="Xoay trang" onClick={() => setRotation(value => (value+90)%360)}><RotateCw size={17} /></button></div>
       <div className="pdf-file-controls"><a href={url} target="_blank" rel="noopener noreferrer" aria-label="Mở bản gốc" title="Mở bản gốc"><ArrowUpRight size={18} /></a><a href={url} download aria-label="Tải tài liệu" title="Tải tài liệu"><ArrowDownToLine size={18} /></a>{document.fullscreenEnabled && <button type="button" title="Toàn màn hình" aria-label="Toàn màn hình" onClick={handleFullscreen}>{fullscreen ? <Minimize size={17} /> : <Maximize size={17} />}</button>}</div>
     </div>
     <div className="pdf-stage" ref={stageRef} tabIndex={0} aria-label="Các trang PDF. Dùng phím trái hoặc phải để chuyển nhóm trang." onKeyDown={event => { if (event.target === event.currentTarget && ['ArrowLeft','ArrowRight'].includes(event.key)) { event.preventDefault(); handlePage(page+(event.key === 'ArrowRight' ? columns : -columns)); } }}>
       {!pdf && !error && <div className="pdf-load-desk" role="status"><FilePlaceholder /><strong>Đang mở tài liệu…</strong></div>}
       {error && <div className="pdf-load-desk pdf-error" role="alert"><p>{error}</p><div><button type="button" onClick={() => { setPdf(null); setError(''); setRetry(value => value+1); }}>Thử lại</button><a href={url} target="_blank" rel="noopener noreferrer">Mở bản gốc</a></div></div>}
-      {pdf && !error && width > 0 && <div className="pdf-pages" style={{ gridTemplateColumns: `repeat(${columns}, ${pageWidth*zoom}px)`, width: columns*pageWidth*zoom+(columns-1)*20 }}>
-        {pages.map(number => <PdfSheet key={`${number}:${zoom}:${rotation}:${pageWidth}`} pdf={pdf} number={number} width={pageWidth} zoom={zoom} rotation={rotation} onNavigate={handleDestination} onReadPage={value => { setLayout('1'); setZoom(1); handlePage(value); }} />)}
+      {pdf && !error && width > 0 && <div className="pdf-pages" style={{ gridTemplateColumns: `repeat(${columns}, ${pageWidth*effectiveZoom}px)`, width: columns*pageWidth*effectiveZoom+(columns-1)*20 }}>
+        {pages.map(number => <PdfSheet key={`${number}:${effectiveZoom}:${rotation}:${pageWidth}`} pdf={pdf} number={number} width={pageWidth} zoom={effectiveZoom} rotation={rotation} onNavigate={handleDestination} onReadPage={value => { setLayout('1'); setZoom(1); handlePage(value); handleFitPage(); }} />)}
       </div>}
     </div>
     {notice && <p className="pdf-reader-notice" role="status">{notice}<button type="button" onClick={() => setNotice('')}>Đóng</button></p>}

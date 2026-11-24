@@ -53,6 +53,7 @@ import './assets/styles/CommunityPastel.css';
 import './assets/styles/CommunityQuietLight.css';
 import './assets/styles/CapsuleHeaderLight.css';
 import './assets/styles/LearningSpacesLight.css';
+import './assets/styles/LearningInterfaceRefresh.css';
 
 // Create Global Contexts
 // eslint-disable-next-line react-refresh/only-export-components

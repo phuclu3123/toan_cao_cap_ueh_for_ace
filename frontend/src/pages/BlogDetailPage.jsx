@@ -356,7 +356,7 @@ function BlogDetailContent({ post, slug }) {
             })}
             </div>
 
-            {post.sections && <BlogEngagement slug={post.slug} title={post.title} />}
+            {post.sections && <BlogEngagement key={post.slug} slug={post.slug} title={post.title} />}
 
             <div className="related-section">
               <span className="related-kicker">Đọc tiếp</span>

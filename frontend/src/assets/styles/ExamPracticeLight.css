@@ -40,7 +40,11 @@
 .light-practice .option-key { width: 30px; height: 30px; background: #f0eeeb; border: 0; border-radius: 50%; color: #5e5d58; font-size: .75rem; font-weight: 550; }
 .light-practice .answer-option:is(:hover,.selected) .option-key { background: #bec9ed; color: #191918; }
 .light-practice .option-text { font-size: .94rem; line-height: 1.75; }
+.light-practice .option-text { text-align: left; justify-self: stretch; }
+.exam-practice-page .katex-display { text-align: left; }
+.exam-practice-page .katex-display > .katex { text-align: left; }
 .light-practice .option-text .katex-display { margin-block: .25em; }
+.light-practice .option-text .math-block { padding:0 !important; margin:0 !important; border:0; background:transparent; }
 .light-practice .answer-option.correct { background: #acd6af45; border-color: #52875b; box-shadow: none; }
 .light-practice .answer-option.correct .option-key { background: #acd6af; color: #23472a; }
 .light-practice .answer-option.wrong { background: #f8d6d955; border-color: #ba6774; box-shadow: none; }

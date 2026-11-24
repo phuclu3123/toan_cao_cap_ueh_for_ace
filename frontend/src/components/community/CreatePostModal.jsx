@@ -19,6 +19,7 @@ import MathRenderer from '../MathRenderer';
 import ConfirmDialog from '../ui/ConfirmDialog';
 import { SUBJECT_CATEGORIES, DIFFICULTY_LEVELS, reviewCommunityPost } from '../../services/communityService';
 import { safeLocalStorage } from '../../utils/safeStorage';
+import useModalFocus from '../../hooks/useModalFocus';
 import '../../assets/styles/community.css';
 
 
@@ -208,6 +209,7 @@ export default function CreatePostModal({
   };
 
   const handleAttemptClose = () => {
+    if (isSubmitting) return;
     const hasChanges = title.trim() || content.trim();
     if (hasChanges && !editingPost) {
       setShowLeaveConfirm(true);
@@ -215,6 +217,8 @@ export default function CreatePostModal({
       onClose();
     }
   };
+
+  const modalRef = useModalFocus(isOpen, handleAttemptClose);
 
   if (!isOpen) return null;
 
@@ -229,7 +233,7 @@ export default function CreatePostModal({
           if (e.target === e.currentTarget) handleAttemptClose();
         }}
       >
-        <div className="create-post-modal-card glass-panel animate-scale-up" onClick={(e) => e.stopPropagation()}>
+        <div ref={modalRef} tabIndex={-1} className="create-post-modal-card glass-panel animate-scale-up" onClick={(e) => e.stopPropagation()}>
           {/* Header */}
           <div className="create-modal-header">
             <div className="header-badge-title">

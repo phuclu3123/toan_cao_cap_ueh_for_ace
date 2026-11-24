@@ -12,7 +12,7 @@ const schema = new mongoose.Schema({
   targetId: String,
   isRead: { type: Boolean, default: false },
   dismissedAt: { type: Date, default: null }
-}, { timestamps: true });
+}, { timestamps: true, autoCreate: false, autoIndex: false });
 schema.index({ recipientId: 1, dismissedAt: 1, createdAt: -1 });
 schema.index({ recipientId: 1, isRead: 1, dismissedAt: 1 });
 export default mongoose.model('UserNotification', schema);

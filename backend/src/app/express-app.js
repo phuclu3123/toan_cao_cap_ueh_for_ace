@@ -103,6 +103,12 @@ app.use((req, _res, next) => {
 });
 
 // Routes
+// Hosting probes use both GET and HEAD at the service origin.
+// Keep liveness separate from /api/health, which reports dependency readiness.
+app.get('/', (_req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  res.json({ service: 'M4A API', status: 'running', health: '/api/health' });
+});
 app.use('/api', authRoutes);
 if (!nativeResources) app.use('/api', resourceRoutes);
 app.use('/api', contactRoutes);

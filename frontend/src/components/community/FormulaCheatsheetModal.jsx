@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { BookOpen, X, Copy, Check, Search, Sparkles, PlusCircle, Layers, Grid } from 'lucide-react';
 import MathRenderer from '../MathRenderer';
+import useModalFocus from '../../hooks/useModalFocus';
 import '../../assets/styles/community.css';
 
 /**
@@ -250,6 +251,8 @@ export default function FormulaCheatsheetModal({ isOpen, onClose, onSelectFormul
   const [activeQuickToast, setActiveQuickToast] = useState({ id: null, message: '' });
   const [showGreekExplorer, setShowGreekExplorer] = useState(false);
   const [greekTab, setGreekTab] = useState('all');
+  const modalRef = useModalFocus(isOpen, onClose);
+  const greekRef = useModalFocus(isOpen && showGreekExplorer, () => setShowGreekExplorer(false));
 
   const filteredCategories = useMemo(() => {
     return CHEATSHEET_CATEGORIES.map(cat => {
@@ -297,6 +300,8 @@ export default function FormulaCheatsheetModal({ isOpen, onClose, onSelectFormul
 
   return createPortal(
     <div
+      ref={modalRef}
+      tabIndex={-1}
       className="modal-backdrop-overlay"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
       role="dialog"
@@ -514,13 +519,13 @@ export default function FormulaCheatsheetModal({ isOpen, onClose, onSelectFormul
           style={{ zIndex: 10001 }}
           onClick={() => setShowGreekExplorer(false)}
         >
-          <div className="symbol-explorer-card" onClick={(e) => e.stopPropagation()}>
+          <div ref={greekRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="greek-explorer-title" className="symbol-explorer-card" onClick={(e) => e.stopPropagation()}>
             <header className="cheatsheet-header">
               <div className="cheatsheet-title-wrap">
                 <span className="q-eyebrow qa-modal-eyebrow">
                   <Layers size={13} /> Tra cứu 1 chạm
                 </span>
-                <h3 className="qa-modal-title">Bảng 24 Ký Hiệu Hy Lạp Đầy Đủ</h3>
+                <h3 id="greek-explorer-title" className="qa-modal-title">Bảng 24 Ký Hiệu Hy Lạp Đầy Đủ</h3>
                 <p className="qa-modal-sub">
                   Chọn một ký hiệu để sao chép công thức.
                 </p>

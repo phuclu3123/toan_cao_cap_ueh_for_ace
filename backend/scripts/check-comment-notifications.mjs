@@ -13,6 +13,7 @@ import CommunityPost from '../src/modules/community/persistence/CommunityPost.js
 import UserNotification from '../src/modules/notifications/persistence/UserNotification.js';
 import communityRoutes from '../src/modules/community/http/communityRoutes.js';
 import notificationRoutes from '../src/modules/notifications/http/notificationRoutes.js';
+import blogRoutes from '../src/modules/blog/http/blogEngagementRoutes.js';
 import { requireAuth } from '../src/modules/identity/index.js';
 import { getMe } from '../src/modules/identity/http/authController.js';
 import { issueSession } from '../src/modules/identity/application/sessionService.js';
@@ -38,7 +39,7 @@ try {
   const tokens = await Promise.all(users.map(user => issueSession({ setHeader() {}, cookie() {} }, user)));
   const app = express(); app.use(express.json({ limit: '3mb' }));
   app.get('/api/auth/me', requireAuth, getMe);
-  app.use('/api', communityRoutes, notificationRoutes);
+  app.use('/api', communityRoutes, notificationRoutes, blogRoutes);
   app.use((error, req, res, next) => { void next; res.status(error.statusCode || 500).json({ success: false, message: error.message }); });
   server = await new Promise(resolve => { const instance = app.listen(0, '127.0.0.1', () => resolve(instance)); });
   const origin = `http://127.0.0.1:${server.address().port}`;
@@ -46,6 +47,18 @@ try {
     const response = await fetch(origin + '/api' + path, { method, headers: { Authorization: `Bearer ${tokens[user]}`, 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
     return { status: response.status, data: await response.json() };
   };
+  const blogPath = '/blog/qa-real-discussion';
+  const blogBody = { clientId: 'qa-reader-real-client', authorName: 'QA reader', content: 'A persisted discussion checked against MongoDB.' };
+  const blogComment = await request(0, blogPath + '/comments', 'POST', blogBody);
+  assert.equal(blogComment.status, 201);
+  const loadedBlog = await request(0, blogPath + '/engagement?clientId=' + blogBody.clientId);
+  assert.equal(loadedBlog.data.engagement.comments[0].content, blogBody.content);
+  const blogId = loadedBlog.data.engagement.comments[0].commentId;
+  const blogLike = await request(0, blogPath + '/comments/' + blogId + '/like', 'POST', { clientId: blogBody.clientId });
+  assert.equal(blogLike.data.engagement.comments[0].likes, 1);
+  const blogReaction = await request(0, blogPath + '/reactions', 'POST', { clientId: blogBody.clientId, reaction: 'useful' });
+  assert.equal(blogReaction.data.engagement.reactions.useful, 1);
+  report.checks.push('Blog comments persist across reload; comment likes and article reactions persist in MongoDB.');
   const post = await request(0, '/community/posts', 'POST', { title: 'Trao đổi về giới hạn và tính liên tục', content: '<p>Làm thế nào để hiểu điều kiện liên tục của hàm số tại một điểm?</p>', subject: 'calc1', tags: ['GioiHan'] });
   assert.equal(post.status, 201); const postId = post.data.post.id;
   const path = `/community/posts/${postId}`;
@@ -110,8 +123,8 @@ try {
   const ownerPage = await contexts[0].newPage();
   const readerPage = await contexts[1].newPage();
   for (const page of [ownerPage, readerPage]) page.on('pageerror', error => report.browserErrors.push(error.message));
-  await ownerPage.goto(`http://localhost:5174/community/${postId}`);
-  await readerPage.goto(`http://localhost:5174/community/${postId}`);
+  await ownerPage.goto(`${process.env.QA_UI_ORIGIN || 'http://localhost:5174'}/community/${postId}`);
+  await readerPage.goto(`${process.env.QA_UI_ORIGIN || 'http://localhost:5174'}/community/${postId}`);
   await ownerPage.locator(`#comment-${commentId}`).waitFor();
   await readerPage.locator(`#comment-${commentId}`).waitFor();
   await readerPage.locator(`#comment-${commentId} .qa-comment-heart`).click(); // Undo the reader's earlier heart.

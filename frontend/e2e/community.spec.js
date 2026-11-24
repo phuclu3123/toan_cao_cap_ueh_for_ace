@@ -82,6 +82,46 @@ async function open(page, path = '/community') {
   await expect(page.locator('.se-question-item').first()).toBeVisible();
 }
 
+test('refreshed composer, notebook and member profile fit all three screen sizes', async ({ page, context }, info) => {
+  const state = await fixture(context); await open(page);
+  for (const width of [1440, 768, 390]) {
+    await page.setViewportSize({ width, height: 1000 });
+    await page.getByRole('button', { name: 'Đặt câu hỏi', exact: true }).click();
+    const composer = page.locator('.create-post-modal-card');
+    await expect(composer).toBeVisible();
+    const cardBox = await composer.boundingBox();
+    for (const field of await composer.locator('.form-row-2col .form-group').all()) {
+      const box = await field.boundingBox(); expect(box.x + box.width).toBeLessThanOrEqual(cardBox.x + cardBox.width);
+    }
+    await page.evaluate(() => document.fonts.ready);
+    await page.screenshot({ path: info.outputPath(`composer-${width}.png`) });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
+    await composer.getByRole('button', { name: 'Sổ tay của Phúc', exact: true }).click();
+    await expect(page.locator('.cheatsheet-modal-card')).toBeVisible();
+    await page.screenshot({ path: info.outputPath(`notebook-${width}.png`) });
+    await page.getByRole('button', { name: 'Bảng Hy Lạp đầy đủ', exact: true }).click();
+    await expect(page.locator('.symbol-explorer-card')).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(page.locator('.symbol-explorer-card')).toHaveCount(0);
+    await expect(page.locator('.cheatsheet-modal-card')).toBeVisible();
+    await page.locator('.cheatsheet-modal-card').getByRole('button', { name: 'Đóng sổ tay', exact: true }).first().click();
+    await page.keyboard.press('Escape');
+    await expect(composer).toHaveCount(0);
+  }
+  await page.goto('/community/user/qa-ui-solver');
+  await expect(page.locator('.qa-profile-user-name')).toHaveText('Người chia sẻ');
+  for (const width of [1440, 768, 390]) {
+    await page.setViewportSize({ width, height: 1000 });
+    await page.screenshot({ path: info.outputPath(`profile-${width}.png`) });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
+  }
+  state.posts = [];
+  await page.reload();
+  await expect(page.getByRole('heading', { name: 'Chưa có bài toán nào', exact: true })).toBeVisible();
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.screenshot({ path: info.outputPath('profile-empty-1440.png') });
+});
+
 test('filters, real tag directory, search and URL state work together', async ({ page, context }) => {
   await fixture(context); await open(page);
   await page.getByRole('button', { name: 'Bộ lọc', exact: true }).click();

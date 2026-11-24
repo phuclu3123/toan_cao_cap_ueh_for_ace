@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   BookOpenCheck,
   Heart,
@@ -10,6 +10,7 @@ import {
   UsersRound,
 } from 'lucide-react';
 import { API_BASE_URL } from '../config';
+import { safeLocalStorage } from '../utils/safeStorage';
 import '../assets/styles/BlogEngagement.css';
 
 const reactionOptions = [
@@ -27,26 +28,26 @@ const emptyEngagement = {
 
 const getClientId = () => {
   const storageKey = 'ueh_tcc_blog_client_id';
-  const existing = window.localStorage.getItem(storageKey);
-  if (existing) return existing;
+  const existing = safeLocalStorage.getItem(storageKey);
+  if (/^[A-Za-z0-9._:-]{8,120}$/.test(existing || '')) return existing;
   const nextId =
     window.crypto?.randomUUID?.() ||
     `reader-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
-  window.localStorage.setItem(storageKey, nextId);
+  safeLocalStorage.setItem(storageKey, nextId);
   return nextId;
 };
 
 const getReaderName = () => {
   try {
-    const user = JSON.parse(window.localStorage.getItem('ueh_tcc_user') || 'null');
+    const user = JSON.parse(safeLocalStorage.getItem('ueh_tcc_user') || 'null');
     return (
       user?.name ||
       user?.displayName ||
-      window.localStorage.getItem('ueh_tcc_blog_reader_name') ||
+      safeLocalStorage.getItem('ueh_tcc_blog_reader_name') ||
       ''
     );
   } catch {
-    return window.localStorage.getItem('ueh_tcc_blog_reader_name') || '';
+    return safeLocalStorage.getItem('ueh_tcc_blog_reader_name') || '';
   }
 };
 
@@ -71,17 +72,8 @@ const formatCommentDate = (dateValue) => {
 };
 
 const persistEngagement = (cacheKey, engagement) => {
-  window.localStorage.setItem(cacheKey, JSON.stringify(engagement));
+  safeLocalStorage.setItem(cacheKey, JSON.stringify(engagement));
 };
-
-const createOptimisticComment = (authorName, content) => ({
-  commentId: `local-${window.crypto?.randomUUID?.() || Math.random().toString(36).slice(2, 10)}`,
-  authorName,
-  content,
-  createdAt: new Date().toISOString(),
-  likes: 0,
-  viewerLiked: false,
-});
 
 export default function BlogEngagement({ slug, title }) {
   const [clientId] = useState(() => getClientId());
@@ -93,6 +85,8 @@ export default function BlogEngagement({ slug, title }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [notice, setNotice] = useState('');
   const [isOfflineFallback, setIsOfflineFallback] = useState(false);
+  const [pendingAction, setPendingAction] = useState('');
+  const mutationBusy = useRef(false);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -113,8 +107,8 @@ export default function BlogEngagement({ slug, title }) {
       } catch (error) {
         if (error.name === 'AbortError') return;
         try {
-          const cached = JSON.parse(window.localStorage.getItem(cacheKey) || 'null');
-          if (cached) setEngagement(cached);
+          const cached = JSON.parse(safeLocalStorage.getItem(cacheKey) || 'null');
+          if (cached) setEngagement({ ...cached, comments: (cached.comments || []).filter(item => !item.commentId.startsWith('local-')) });
         } catch {
           setEngagement(emptyEngagement);
         }
@@ -128,136 +122,47 @@ export default function BlogEngagement({ slug, title }) {
     return () => controller.abort();
   }, [cacheKey, clientId, slug]);
 
-  const updateLocalEngagement = (updater) => {
-    setEngagement((current) => {
-      const next = updater(current);
-      persistEngagement(cacheKey, next);
-      return next;
-    });
-  };
-
-  const handleReaction = async (reaction) => {
-    const previousReaction = engagement.viewerReaction;
-    updateLocalEngagement((current) => {
-      const reactions = { ...emptyEngagement.reactions, ...current.reactions };
-      if (current.viewerReaction) {
-        reactions[current.viewerReaction] = Math.max(
-          0,
-          Number(reactions[current.viewerReaction] || 0) - 1,
-        );
-      }
-      const viewerReaction = current.viewerReaction === reaction ? null : reaction;
-      if (viewerReaction) {
-        reactions[viewerReaction] = Number(reactions[viewerReaction] || 0) + 1;
-      }
-      return { ...current, reactions, viewerReaction };
-    });
-
+  // Only server-confirmed writes enter the public stream or its cache.
+  const handleMutation = async (path, body, successMessage = '') => {
+    if (mutationBusy.current) return false;
+    mutationBusy.current = true;
+    setPendingAction(path); setNotice('');
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/blog/${encodeURIComponent(slug)}/reactions`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ clientId, reaction }),
-        },
-      );
-      if (!response.ok) throw new Error('Reaction request failed');
-      const data = await response.json();
+      const response = await fetch(`${API_BASE_URL}/api/blog/${encodeURIComponent(slug)}/${path}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ clientId, ...body }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.success || !data.engagement) throw new Error(data.message || 'Chưa thể lưu thay đổi. Vui lòng thử lại.');
       setEngagement(data.engagement);
       persistEngagement(cacheKey, data.engagement);
-      setIsOfflineFallback(false);
-    } catch {
+      setIsOfflineFallback(false); setNotice(successMessage);
+      return true;
+    } catch (error) {
+      setNotice(error.message === 'Failed to fetch' ? 'Chưa kết nối được máy chủ. Nội dung của bạn vẫn được giữ lại, hãy thử gửi lại.' : error.message);
       setIsOfflineFallback(true);
-      if (previousReaction !== reaction) {
-        setNotice('Cảm xúc đã được lưu trên thiết bị và sẽ đồng bộ khi kết nối ổn định.');
-      }
-    }
+      return false;
+    } finally { mutationBusy.current = false; setPendingAction(''); }
   };
 
-  const handleCommentSubmit = async (event) => {
+  const handleReaction = reaction => handleMutation('reactions', { reaction });
+
+  const handleCommentSubmit = async event => {
     event.preventDefault();
+    if (mutationBusy.current) return;
     const cleanName = authorName.replace(/\s+/g, ' ').trim();
     const cleanComment = comment.trim();
-
     if (cleanName.length < 2 || cleanComment.length < 3) {
-      setNotice('Vui lòng nhập tên và một bình luận rõ ràng.');
-      return;
+      setNotice('Vui lòng nhập tên và một bình luận rõ ràng.'); return;
     }
-
     setIsSubmitting(true);
-    setNotice('');
-    window.localStorage.setItem('ueh_tcc_blog_reader_name', cleanName);
-
-    const optimisticComment = createOptimisticComment(cleanName, cleanComment);
-
-    updateLocalEngagement((current) => ({
-      ...current,
-      comments: [optimisticComment, ...(current.comments || [])],
-    }));
-    setComment('');
-
-    try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/blog/${encodeURIComponent(slug)}/comments`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            clientId,
-            authorName: cleanName,
-            content: cleanComment,
-          }),
-        },
-      );
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || 'Comment request failed');
-      setEngagement(data.engagement);
-      persistEngagement(cacheKey, data.engagement);
-      setNotice('Bình luận của bạn đã được đăng.');
-      setIsOfflineFallback(false);
-    } catch {
-      setNotice('Bình luận đang được lưu trên thiết bị; hệ thống sẽ hiển thị bản cục bộ này.');
-      setIsOfflineFallback(true);
-    } finally {
-      setIsSubmitting(false);
-    }
+    safeLocalStorage.setItem('ueh_tcc_blog_reader_name', cleanName);
+    const saved = await handleMutation('comments', { authorName: cleanName, content: cleanComment }, 'Bình luận của bạn đã được đăng.');
+    if (saved) setComment('');
+    setIsSubmitting(false);
   };
 
-  const handleCommentLike = async (commentId) => {
-    updateLocalEngagement((current) => ({
-      ...current,
-      comments: current.comments.map((item) =>
-        item.commentId === commentId
-          ? {
-              ...item,
-              viewerLiked: !item.viewerLiked,
-              likes: Math.max(0, Number(item.likes || 0) + (item.viewerLiked ? -1 : 1)),
-            }
-          : item,
-      ),
-    }));
-
-    if (commentId.startsWith('local-')) return;
-
-    try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/blog/${encodeURIComponent(slug)}/comments/${encodeURIComponent(commentId)}/like`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ clientId }),
-        },
-      );
-      if (!response.ok) throw new Error('Like request failed');
-      const data = await response.json();
-      setEngagement(data.engagement);
-      persistEngagement(cacheKey, data.engagement);
-      setIsOfflineFallback(false);
-    } catch {
-      setIsOfflineFallback(true);
-    }
-  };
+  const handleCommentLike = commentId => handleMutation(`comments/${encodeURIComponent(commentId)}/like`, {});
 
   const totalReactions = Object.values(engagement.reactions || {}).reduce(
     (sum, value) => sum + Number(value || 0),
@@ -292,8 +197,7 @@ export default function BlogEngagement({ slug, title }) {
               key={id}
               className={engagement.viewerReaction === id ? 'is-selected' : ''}
               aria-pressed={engagement.viewerReaction === id}
-              onClick={() => handleReaction(id)}
-              disabled={isLoading}
+              disabled={Boolean(pendingAction) || isLoading} onClick={() => handleReaction(id)}
             >
               <Icon size={18} />
               <span>{label}</span>
@@ -322,6 +226,7 @@ export default function BlogEngagement({ slug, title }) {
             onChange={(event) => setAuthorName(event.target.value)}
             placeholder="Ví dụ: Nguyễn An"
             autoComplete="name"
+            disabled={isSubmitting}
           />
 
           <div className="blog-comment-label-row">
@@ -333,13 +238,14 @@ export default function BlogEngagement({ slug, title }) {
             value={comment}
             maxLength={1200}
             rows={6}
+            disabled={isSubmitting}
             onChange={(event) => setComment(event.target.value)}
             placeholder={`Bạn muốn trao đổi điều gì về “${title}”?`}
           />
 
           <div className="blog-comment-form-footer">
             <p>Bình luận được hiển thị công khai. Vui lòng trao đổi lịch sự và đúng chủ đề.</p>
-            <button type="submit" disabled={isSubmitting}>
+            <button type="submit" disabled={isSubmitting || Boolean(pendingAction) || isLoading}>
               <Send size={17} />
               {isSubmitting ? 'Đang đăng…' : 'Đăng bình luận'}
             </button>
@@ -347,7 +253,7 @@ export default function BlogEngagement({ slug, title }) {
           {notice && <div className="blog-comment-notice" role="status">{notice}</div>}
           {isOfflineFallback && (
             <div className="blog-community-status">
-              Kết nối cộng đồng đang ở chế độ dự phòng trên thiết bị.
+              Chưa kết nối được khu vực thảo luận. Bản đã lưu chỉ dùng để đọc; hãy thử gửi lại khi kết nối ổn định.
             </div>
           )}
         </form>
@@ -381,7 +287,7 @@ export default function BlogEngagement({ slug, title }) {
                     <button
                       type="button"
                       className={item.viewerLiked ? 'is-liked' : ''}
-                      onClick={() => handleCommentLike(item.commentId)}
+                      disabled={Boolean(pendingAction) || isLoading} onClick={() => handleCommentLike(item.commentId)}
                     >
                       <ThumbsUp size={15} />
                       Hữu ích

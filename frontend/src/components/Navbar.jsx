@@ -1257,7 +1257,7 @@ export default function Navbar() {
           <div className="container navbar-container">
             <Link to="/" className="navbar-logo" onClick={handleNavClick} aria-label="α∫M4A — Trang chủ">
 
-              <span className="brand-wordmark"><span className="brand-math">α∫</span>M4A</span>
+              <img className="brand-image-mark" src="/images/brand/aim4a-mark.png" alt="α∫M4A" width="52" height="52" />
             </Link>
 
             {/* Desktop Navigation Links */}

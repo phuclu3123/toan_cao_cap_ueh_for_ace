@@ -65,7 +65,7 @@ export default function Footer() {
       <div className="footer-grid">
         <div className="footer-about">
           <span className="footer-kicker">{vi ? 'HỌC HIỂU. LÀM ĐƯỢC.' : 'UNDERSTAND. PUT IT INTO PRACTICE.'}</span>
-          <Link to="/" className="footer-logo" aria-label="α∫M4A — Trang chủ"><span className="brand-wordmark"><span className="brand-math">α∫</span>M4A</span></Link>
+          <Link to="/" className="footer-logo" aria-label="α∫M4A — Trang chủ"><img className="brand-image-mark" src="/images/brand/aim4a-mark.png" alt="α∫M4A" width="52" height="52" /></Link>
           <p className="footer-desc">{vi ? 'Một nơi để học Toán Cao Cấp, tìm lời giải và cùng nhau tiến bộ.' : 'A place to learn advanced mathematics, find solutions and grow together.'}</p>
           <div className="footer-contact"><a href="tel:0833830322"><Phone size={15}/><span>0833830322</span></a><a href="mailto:luphuc321@gmail.com"><Mail size={15}/><span>luphuc321@gmail.com</span></a></div>
           <SocialLinks/>

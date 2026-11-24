@@ -6,6 +6,15 @@ import { app } from '../server.js';
 let server;
 let baseUrl;
 
+test('service origin accepts GET and HEAD hosting probes', async () => {
+  const get = await fetch(baseUrl);
+  assert.equal(get.status, 200);
+  assert.equal((await get.json()).health, '/api/health');
+  const head = await fetch(baseUrl, { method: 'HEAD' });
+  assert.equal(head.status, 200);
+  assert.equal(await head.text(), '');
+});
+
 test('BroomSharing relay setup requires the existing private setup token', async () => {
   const response = await fetch(`${baseUrl}/api/payos/relay/broomsharing`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' },

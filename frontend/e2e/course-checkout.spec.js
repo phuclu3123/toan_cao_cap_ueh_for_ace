@@ -205,6 +205,32 @@ async function confirmCheckout(dialog) {
   await expect(dialog.getByRole('img', { name: 'Mã QR thanh toán PayOS' })).toBeVisible();
 }
 
+test('refreshed course, player and auth remain usable across screen sizes', async ({ page, context }, info) => {
+  const state = await installFixture(context, { user: null });
+  await openCourse(page);
+  for (const width of [1440, 768, 390]) {
+    await page.setViewportSize({ width, height: 1000 });
+    await page.evaluate(() => document.fonts.ready);
+    await page.screenshot({ path: info.outputPath(`course-${width}.png`) });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
+  }
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.getByRole('button', { name: 'Đăng Nhập', exact: true }).first().click();
+  await expect(page.locator('.auth-modal-panel')).toBeVisible();
+  for (const width of [1440, 768, 390]) {
+    await page.setViewportSize({ width, height: 1000 });
+    await page.screenshot({ path: info.outputPath(`auth-${width}.png`) });
+    const box = await page.locator('.auth-modal-panel').boundingBox();
+    expect(box.x).toBeGreaterThanOrEqual(0); expect(box.x + box.width).toBeLessThanOrEqual(width);
+  }
+  await page.keyboard.press('Escape');
+  state.user = student; state.previewEnabled = true;
+  await page.reload();
+  await page.getByRole('button', { name: 'Xem bài học đầu tiên', exact: true }).click();
+  await expect(page.locator('.learning-player')).toBeVisible();
+  await page.screenshot({ path: info.outputPath('player-390.png') });
+});
+
 test('checkout countdown does not restart polling and donate stays isolated in the same browser', async ({ page, context }) => {
   const state = await installFixture(context);
   const support = { payment: null, creates: 0, reads: 0 };

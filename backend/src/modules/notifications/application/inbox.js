@@ -1,7 +1,26 @@
 import { createHash } from 'node:crypto';
 import UserNotification from '../persistence/UserNotification.js';
 
-export const prepareNotificationStore = () => UserNotification.init();
+const preparations = new WeakMap();
+
+// Model.init() caches its first rejection when imported before Mongo connects
+// with buffering disabled. Prepare after connection and allow failed attempts
+// to retry; the collection must also exist before entering a transaction.
+export function prepareNotificationStore() {
+  const connection = UserNotification.db;
+  if (connection.readyState !== 1) {
+    return Promise.reject(Object.assign(new Error('Chưa kết nối được hộp thông báo.'), { statusCode: 503 }));
+  }
+  const database = connection.db;
+  if (preparations.has(database)) return preparations.get(database);
+  const preparation = (async () => {
+    try { await UserNotification.createCollection(); }
+    catch (error) { if (error.code !== 48 && error.codeName !== 'NamespaceExists') throw error; }
+    await UserNotification.createIndexes();
+  })().catch(error => { preparations.delete(database); throw error; });
+  preparations.set(database, preparation);
+  return preparation;
+}
 
 /** Called with the reaction's MongoDB transaction: both persist, or neither does. */
 export async function recordCommentHeart({ recipientId, actor, postId, commentId, excerpt }, session) {
