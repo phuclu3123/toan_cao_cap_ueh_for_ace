@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import mongoose from 'mongoose';
-import { connectDB } from '../config/db.js';
-import { seedStudyContent } from '../services/studyContent.js';
+import { connectDB } from '../src/platform/database/db.js';
+import { seedStudyContent } from '../src/modules/learning/application/studyContent.js';
 try {
   if (!await connectDB()) throw new Error('MongoDB chưa sẵn sàng; không thay đổi dữ liệu.');
   await seedStudyContent();

@@ -18,6 +18,7 @@ import {
 } from '../services/oauthService';
 import { getInitials } from '../utils/userInitials';
 import { needsGoogleEmail } from '../utils/accountIdentity';
+import { useAuth } from '../contexts/AuthContext';
 import '../assets/styles/Navbar.css';
 import {
   auth,
@@ -149,15 +150,15 @@ export default function Navbar() {
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
 
-  const [loggedInUser, setLoggedInUserState] = useState(null);
+  const { currentUser: loggedInUser, setCurrentUser, syncUserFromBackend } = useAuth();
   const setLoggedInUser = useCallback((user) => {
-    setLoggedInUserState(user);
+    setCurrentUser(user);
     if (user) {
       localStorage.setItem('ueh_tcc_user', JSON.stringify(user));
     } else {
       localStorage.removeItem('ueh_tcc_user');
     }
-  }, []);
+  }, [setCurrentUser]);
   const hasBackendSessionRef = useRef(false);
   const [authError, setAuthError] = useState('');
   const [authSuccessMsg, setAuthSuccessMsg] = useState('');
@@ -174,7 +175,6 @@ export default function Navbar() {
   const githubPopupRef = useRef(null);
   const githubPopupPollTimerRef = useRef(null);
   const firebaseSyncsRef = useRef(new Map());
-  const lastFirebaseSyncRef = useRef(null);
   const firebaseAuthIntentRef = useRef('');
   const googleIdentityProofRef = useRef(null);
   const sessionBootstrapPromiseRef = useRef(Promise.resolve());
@@ -291,20 +291,6 @@ export default function Navbar() {
     const googleIdToken = options.googleIdToken || googleIdentityProofRef.current;
     const syncKey = `${uid}:${googleIdToken ? 'google' : 'firebase'}`;
     const announce = Boolean(options.announce);
-    const lastSync = lastFirebaseSyncRef.current;
-    if (lastSync?.uid === uid && hasBackendSessionRef.current) {
-      if (announce) {
-        sessionStorage.removeItem(FIREBASE_REDIRECT_PROVIDER_KEY);
-        firebaseAuthIntentRef.current = '';
-        setAuthError('');
-        setAuthSuccessMsg(`Đăng nhập ${provider} thành công!`);
-        setShowLoginModal(false);
-        setIsAuthenticating(false);
-        showAuthProgress('success', `Đăng nhập ${provider} thành công`);
-      }
-      return Promise.resolve(lastSync.user);
-    }
-
     const existing = firebaseSyncsRef.current.get(syncKey);
     if (existing) {
       if (announce) {
@@ -325,7 +311,6 @@ export default function Navbar() {
     entry.promise = syncFirebaseUserWithBackend(firebaseUser, { googleIdToken })
       .then((dbUser) => {
         hasBackendSessionRef.current = true;
-        lastFirebaseSyncRef.current = { uid, user: dbUser };
         setLoggedInUser(dbUser);
         window.dispatchEvent(new Event('ueh-tcc-session-changed'));
 
@@ -453,54 +438,16 @@ export default function Navbar() {
     };
   }, [isOpen]);
 
-  // Bootstrap the HttpOnly backend session. Browser storage is never an
-  // authentication source.
+  // Navbar and feature gates share AuthContext's single verified session.
+  // Keep this promise for the existing Firebase redirect synchronization.
   useEffect(() => {
     let cancelled = false;
-
-    const bootstrapSession = async () => {
-      const hadBackendSessionAtStart = hasBackendSessionRef.current;
-      try {
-        const res = await apiFetch('/api/auth/me');
-        if (res.ok) {
-          const payload = await readApiJson(res);
-          if (payload?.user) {
-            const clientUser = toClientUser(payload.user);
-            const newerLoginCompleted = !hadBackendSessionAtStart && hasBackendSessionRef.current;
-            if (!cancelled && !newerLoginCompleted) {
-              hasBackendSessionRef.current = true;
-              setLoggedInUser(clientUser);
-            }
-            return;
-          }
-        }
-        if (!cancelled && !hasBackendSessionRef.current) {
-          hasBackendSessionRef.current = false;
-          setLoggedInUser(null);
-          localStorage.removeItem('ueh_tcc_user');
-        }
-      } catch {
-        if (!cancelled && !hasBackendSessionRef.current) {
-          hasBackendSessionRef.current = false;
-          setLoggedInUser(null);
-          localStorage.removeItem('ueh_tcc_user');
-        }
-      }
-    };
-
-    const startBootstrapSession = () => {
-      const request = bootstrapSession();
-      sessionBootstrapPromiseRef.current = request;
-      return request;
-    };
-
-    startBootstrapSession();
-    window.addEventListener('ueh-tcc-session-changed', startBootstrapSession);
-    return () => {
-      cancelled = true;
-      window.removeEventListener('ueh-tcc-session-changed', startBootstrapSession);
-    };
-  }, [setLoggedInUser]);
+    const request = syncUserFromBackend();
+    sessionBootstrapPromiseRef.current = request;
+    request.then(user => { if (!cancelled) hasBackendSessionRef.current = Boolean(user); });
+    return () => { cancelled = true; };
+  }, [syncUserFromBackend]);
+  useEffect(() => { hasBackendSessionRef.current = Boolean(loggedInUser); }, [loggedInUser]);
 
   // Process Firebase before the slower /auth/me bootstrap finishes. This keeps
   // redirect and One Tap logins responsive while the shared completion helper
@@ -593,8 +540,23 @@ export default function Navbar() {
       // backend bootstrap confirms that no valid HttpOnly session exists.
       void sessionBootstrapPromiseRef.current
         .catch(() => {})
-        .then(() => {
-          if (cancelled || hasBackendSessionRef.current || googleIdentityProofRef.current) return;
+        .then(async () => {
+          if (cancelled || googleIdentityProofRef.current) return;
+          if (hasBackendSessionRef.current) {
+            try {
+              const idToken = await firebaseUser.getIdToken();
+              if (cancelled || auth.currentUser?.uid !== firebaseUser.uid) return;
+              const response = await apiFetch('/api/auth/session/refresh', {
+                method: 'POST', signal: AbortSignal.timeout(12_000),
+                headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken })
+              });
+              if (response.status === 401) await syncUserFromBackend();
+              // A different cached provider account (409) must not replace the
+              // signed-in backend account. Transient failures are retried on
+              // the next token refresh/focus, without reopening a login popup.
+            } catch { /* Retain the last verified identity during an outage. */ }
+            return;
+          }
           return completeFirebaseSession(firebaseUser).catch((error) => {
             console.error('Không thể khôi phục phiên Firebase:', error);
           });
@@ -605,7 +567,7 @@ export default function Navbar() {
       cancelled = true;
       unsubscribe();
     };
-  }, [completeFirebaseSession, showAuthProgress]);
+  }, [completeFirebaseSession, showAuthProgress, syncUserFromBackend]);
 
   const isActivePath = (path) => location.pathname === path;
 
@@ -1293,10 +1255,9 @@ export default function Navbar() {
             </div>
           )}
           <div className="container navbar-container">
-            <Link to="/" className="navbar-logo" onClick={handleNavClick} aria-label="UEH TCC — Trang chủ">
-              <span className="logo-symbol" aria-hidden="true" />
-              <span className="logo-helper">UEH</span>
-              <span className="logo-main">TCC</span>
+            <Link to="/" className="navbar-logo" onClick={handleNavClick} aria-label="α∫M4A — Trang chủ">
+
+              <span className="brand-wordmark"><span className="brand-math">α∫</span>M4A</span>
             </Link>
 
             {/* Desktop Navigation Links */}
@@ -1413,6 +1374,7 @@ export default function Navbar() {
                       <div className="user-dropdown-divider" />
 
                       {loggedInUser.role === 'Admin' && <Link to="/admin/flashcards" className="user-dropdown-item" onClick={() => setShowUserDropdown(false)}>Quản lý quyền Flashcard <ChevronRight size={14} /></Link>}
+                      {loggedInUser.role === 'Admin' && <Link to="/admin/courses" className="user-dropdown-item" onClick={() => setShowUserDropdown(false)}>Quản trị khóa học <ChevronRight size={14} /></Link>}
 
                       <Link
                         to="/account?tab=courses"
@@ -1517,6 +1479,7 @@ export default function Navbar() {
             </div>
 
             {/* Mobile Menu Toggle Button */}
+            <div className="mobile-notification"><NotificationDropdown /></div>
             <button
               type="button"
               ref={mobileToggleRef}
@@ -1537,7 +1500,7 @@ export default function Navbar() {
           <div className="mobile-drawer-overlay" onClick={() => setIsOpen(false)} />
           <div ref={mobileDrawerRef} id="mobile-navigation" className="mobile-drawer-content" role="dialog" aria-modal="true" aria-label="Menu điều hướng">
             <div className="drawer-header">
-              <span className="logo-main">Menu UEH TCC</span>
+              <span className="logo-main">Menu α∫M4A</span>
               <button type="button" className="close-btn" onClick={() => setIsOpen(false)} aria-label="Đóng menu" data-mobile-menu-close>
                 <X size={24} />
               </button>

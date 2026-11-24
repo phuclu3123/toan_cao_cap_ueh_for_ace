@@ -1,0 +1,28 @@
+/* Original layered pastel material. Static raster grain: no animated noise/filter. */
+.paper-surface {
+  --paper-base: var(--ui-pastel-lavender);
+  --paper-shade: #737fb92b;
+  --paper-angle: 132deg;
+  --ui-ink: #191918;
+  --ui-muted: #474941;
+  --ui-subtle: #55574f;
+  --ui-accent: #191918;
+  --ui-accent-hover: #373733;
+  --ui-on-accent: #fff;
+  --ui-paper: #fffefded;
+  --ui-soft: #ffffff80;
+  --ui-line: #19191826;
+  background-color: var(--paper-base);
+  background-image: var(--ui-grain),url('/textures/paper-fibers.webp'),
+    radial-gradient(ellipse at 15% 8%,#ffffff26 0,transparent 65%),
+    radial-gradient(ellipse at 90% 90%,var(--paper-shade),transparent 66%),
+    linear-gradient(var(--paper-angle),color-mix(in srgb,var(--paper-base) 94%,#fff),var(--paper-base));
+  background-size: 256px 256px,512px 512px,100% 100%,100% 100%,100% 100%;
+  background-repeat: repeat,repeat,no-repeat,no-repeat,no-repeat;
+  background-blend-mode: soft-light,overlay,normal,normal,normal;
+  color: #1b1c19;
+}
+.paper-surface[data-paper='sky'] { --paper-base: var(--ui-pastel-sky); --paper-shade: #538a9a26; --paper-angle: 114deg; }
+.paper-surface[data-paper='mint'] { --paper-base: var(--ui-pastel-mint); --paper-shade: #4e96562b; --paper-angle: 146deg; }
+.paper-surface[data-paper='peach'] { --paper-base: var(--ui-pastel-peach); --paper-shade: #c5795329; --paper-angle: 122deg; }
+.paper-surface[data-paper='sun'] { --paper-base: var(--ui-pastel-sun); --paper-shade: #c6a34e25; --paper-angle: 161deg; }

@@ -1,4 +1,4 @@
-// Anti-Piracy Security Guard Utility for UEH TCC
+// Anti-Piracy Security Guard Utility for α∫M4A
 
 export const isAdminAccount = () => {
   try {
@@ -26,13 +26,13 @@ export const getStudentIdentifier = () => {
       const user = JSON.parse(savedUserStr);
       if (user) {
         const idStr = user.email || user.username || user.phone || 'Sinh viên UEH';
-        return `${idStr} • UEH TCC`;
+        return `${idStr} • α∫M4A`;
       }
     }
   } catch {
     // Invalid local session data falls back to the guest watermark.
   }
-  return 'Guest • UEH TCC';
+  return 'Guest • α∫M4A';
 };
 
 // Check if account is locked due to security violation

@@ -21,7 +21,9 @@ import {
   EyeOff,
   Smile,
   Layers,
-  Image as ImageIcon
+  Image as ImageIcon,
+  SlidersHorizontal,
+  Sigma
 } from 'lucide-react';
 import MathRenderer from '../MathRenderer';
 import { sanitizeHtml } from '../../utils/htmlSanitizer';
@@ -83,7 +85,9 @@ export default function WYSIWYGMathEditor({
   onOpenCheatsheet,
   minHeight = '180px',
   compact = false,
-  showLivePreview = true
+  streamlined = false,
+  showLivePreview = true,
+  onAttachImage
 }) {
   const editorRef = useRef(null);
   const imageInputRef = useRef(null);
@@ -95,8 +99,11 @@ export default function WYSIWYGMathEditor({
   const [showHighlightPicker, setShowHighlightPicker] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showSizeDropdown, setShowSizeDropdown] = useState(false);
-  const [isPreviewVisible, setIsPreviewVisible] = useState(true);
+  const [isPreviewVisible, setIsPreviewVisible] = useState(!streamlined);
+  const [expandedTools, setExpandedTools] = useState(false);
+  const [mathTools, setMathTools] = useState(false);
   const [showCalloutModal, setShowCalloutModal] = useState(false);
+  const [imageError, setImageError] = useState('');
 
   const saveSelection = () => {
     try {
@@ -252,6 +259,18 @@ export default function WYSIWYGMathEditor({
     insertHtmlAtCursor(htmlSnippet);
   };
 
+  const handleAttachment = (file) => {
+    setImageError('');
+    if (!onAttachImage) { setImageError('Ảnh chỉ được đính kèm ở câu hỏi hoặc lời giải mới. Bình luận hỗ trợ văn bản và công thức.'); return; }
+    if (!['image/png', 'image/jpeg', 'image/gif', 'image/webp'].includes(file.type) || file.size > 1024 * 1024) {
+      setImageError('Chọn ảnh PNG, JPEG, GIF hoặc WEBP, tối đa 1MB.'); return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => onAttachImage({ preview: reader.result, altText: file.name, file });
+    reader.onerror = () => setImageError('Không đọc được ảnh. Vui lòng chọn lại.');
+    reader.readAsDataURL(file);
+  };
+
   const handlePaste = (e) => {
     const items = e.clipboardData?.items;
     if (!items) return;
@@ -261,15 +280,7 @@ export default function WYSIWYGMathEditor({
       if (item.type && item.type.startsWith('image/')) {
         e.preventDefault();
         const file = item.getAsFile();
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = (uploadEvent) => {
-            const base64 = uploadEvent.target.result;
-            const imgHtml = `<p><img src="${base64}" alt="Ảnh bài giải đính kèm" class="wysiwyg-math-inline-img" style="max-width: 100%; max-height: 480px; height: auto; border-radius: 10px; margin: 12px 0; border: 1px solid #cbd5e1; box-shadow: 0 4px 14px rgba(0,0,0,0.07); display: block;" /></p><p><br></p>`;
-            insertHtmlAtCursor(imgHtml);
-          };
-          reader.readAsDataURL(file);
-        }
+        if (file) handleAttachment(file);
         return;
       }
     }
@@ -293,16 +304,7 @@ export default function WYSIWYGMathEditor({
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
 
-    files.forEach((file) => {
-      if (!file.type.startsWith('image/')) return;
-      const reader = new FileReader();
-      reader.onload = (loadEvent) => {
-        const base64 = loadEvent.target.result;
-        const imgHtml = `<p><img src="${base64}" alt="${file.name || 'Ảnh hình học đính kèm'}" class="wysiwyg-math-inline-img" style="max-width: 100%; max-height: 480px; height: auto; border-radius: 10px; margin: 12px 0; border: 1px solid #cbd5e1; box-shadow: 0 4px 14px rgba(0,0,0,0.07); display: block;" /></p><p><br></p>`;
-        insertHtmlAtCursor(imgHtml);
-      };
-      reader.readAsDataURL(file);
-    });
+    handleAttachment(files[0]);
 
     if (imageInputRef.current) imageInputRef.current.value = '';
   };
@@ -343,9 +345,9 @@ export default function WYSIWYGMathEditor({
   };
 
   return (
-    <div className={`docs-wysiwyg-wrapper ${compact ? 'is-compact' : ''}`}>
+    <div className={`docs-wysiwyg-wrapper ${compact ? 'is-compact' : ''}${streamlined ? ' is-streamlined' : ''}${expandedTools ? ' is-expanded-tools' : ''}${mathTools ? ' is-math-open' : ''}`}>
       {/* 1. Google Docs / Word Style Ribbon Toolbar */}
-      <div className="docs-toolbar-ribbon" role="toolbar">
+      <div className="docs-toolbar-ribbon" role="toolbar" aria-label="Định dạng nội dung">
         {/* ROW 1: Standard Document Formatting */}
         <div className="docs-toolbar-row">
           {/* Font Size Stepper */}
@@ -623,7 +625,7 @@ export default function WYSIWYGMathEditor({
               <Layers size={14} />
             </button>
 
-            <button
+            {onAttachImage && <button
               type="button"
               className="docs-tool-btn docs-image-btn"
               onClick={() => {
@@ -633,17 +635,20 @@ export default function WYSIWYGMathEditor({
               title="Chèn ảnh / hình vẽ vào văn bản (Hoặc bấm Ctrl+V để dán trực tiếp)"
             >
               <ImageIcon size={14} />
-            </button>
+            </button>}
             <input
               ref={imageInputRef}
               type="file"
               accept="image/*"
-              multiple
               onChange={handleImageFileChange}
               style={{ display: 'none' }}
             />
           </div>
 
+          {streamlined && <div className="docs-toolbar-section docs-disclosure-tools">
+            <button type="button" className="docs-tool-btn docs-labeled-tool" aria-expanded={mathTools} onClick={() => setMathTools(value => !value)} title="Công thức toán"><Sigma size={16} /><span>Công thức</span></button>
+            <button type="button" className="docs-tool-btn" aria-expanded={expandedTools} onClick={() => setExpandedTools(value => !value)} title="Công cụ định dạng khác" aria-label="Công cụ định dạng khác"><SlidersHorizontal size={16} /></button>
+          </div>}
           {/* Preview Toggle Button */}
           {showLivePreview && (
             <div className="docs-toolbar-section" style={{ marginLeft: 'auto' }}>
@@ -651,10 +656,10 @@ export default function WYSIWYGMathEditor({
                 type="button"
                 className={`docs-preview-toggle-btn ${isPreviewVisible ? 'is-active' : ''}`}
                 onClick={() => setIsPreviewVisible(!isPreviewVisible)}
-                title="Bật/Tắt xem trước công thức KaTeX trực tiếp"
+                title="Bật hoặc tắt bản xem trước"
               >
                 {isPreviewVisible ? <Eye size={13} /> : <EyeOff size={13} />}
-                <span>{isPreviewVisible ? 'Ẩn xem trước' : 'Xem trước KaTeX'}</span>
+                <span>{isPreviewVisible ? 'Ẩn xem trước' : 'Xem trước'}</span>
               </button>
             </div>
           )}
@@ -663,7 +668,7 @@ export default function WYSIWYGMathEditor({
         {/* ROW 2: Prioritized Common KaTeX Formulas */}
         <div className="docs-toolbar-row docs-math-row">
           <div className="docs-toolbar-math-section">
-            <span className="docs-math-ribbon-tag">KaTeX thường dùng:</span>
+            <span className="docs-math-ribbon-tag">Công thức thường dùng:</span>
             {COMMON_MATH_BUTTONS.map((btn, idx) => (
               <button
                 key={idx}
@@ -697,7 +702,7 @@ export default function WYSIWYGMathEditor({
           </div>
 
           {/* Sổ tay của Phúc button */}
-          {onOpenCheatsheet && (
+          {onOpenCheatsheet && !streamlined && (
             <button
               type="button"
               className="docs-cheatsheet-trigger"
@@ -711,10 +716,14 @@ export default function WYSIWYGMathEditor({
         </div>
       </div>
 
+      {imageError && <p className="qa-action-feedback is-error" role="alert">{imageError}</p>}
       {/* 2. Visual ContentEditable Document Area */}
       <div
         ref={editorRef}
         contentEditable
+        role="textbox"
+        aria-multiline="true"
+        aria-label="Nội dung lời giải hoặc bình luận"
         className="docs-wysiwyg-content"
         style={{ minHeight }}
         onInput={handleInput}
@@ -732,7 +741,7 @@ export default function WYSIWYGMathEditor({
         <div className="docs-live-preview-box">
           <div className="docs-preview-header">
             <Eye size={13} />
-            <span>Xem trước đồng thời (KaTeX Live Preview):</span>
+            <span>Xem trước</span>
           </div>
           <div className="docs-preview-body">
             <MathRenderer text={value} />

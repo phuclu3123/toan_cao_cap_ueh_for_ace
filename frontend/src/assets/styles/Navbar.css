@@ -85,7 +85,7 @@
 .navbar-reading-progress-fill {
   height: 100%;
   border-radius: 0 999px 999px 0;
-  background: #176b4a !important;
+  background: var(--ui-accent) !important;
   box-shadow: 0 0 8px rgba(23, 107, 74, 0.35) !important;
   transition: width 100ms cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
@@ -95,7 +95,7 @@
 }
 
 :root:not(.light-theme) .navbar-reading-progress-fill {
-  background: #69d39f !important;
+  background: var(--ui-accent) !important;
   box-shadow: 0 0 10px rgba(105, 211, 159, 0.4) !important;
 }
 
@@ -1449,7 +1449,7 @@
   height: 31px;
   margin-right: 3px;
   border-radius: 999px;
-  background: linear-gradient(180deg, #bd9349 0%, #1b6a4f 82%);
+  background: linear-gradient(180deg, #bd9349 0%, var(--ui-accent) 82%);
 }
 
 .logo-helper {
@@ -1457,7 +1457,7 @@
 }
 
 .logo-main {
-  color: #1b6a4f;
+  color: var(--ui-accent);
 }
 
 .nav-links {
@@ -1480,7 +1480,7 @@
 .nav-link-item.active,
 .rose-link:hover,
 .rose-link.active {
-  color: #155a43 !important;
+  color: var(--ui-accent) !important;
   background: transparent !important;
 }
 
@@ -1495,7 +1495,7 @@
   left: 0;
   margin: auto;
   border-radius: 999px;
-  background: #1b6a4f;
+  background: var(--ui-accent);
   opacity: 0;
   transform: scaleX(0.5);
   transition: opacity 140ms ease, transform 140ms ease;
@@ -1515,28 +1515,28 @@
   gap: 7px;
   margin-left: 0;
   padding-left: 13px;
-  border-left: 1px solid #e1e2dc;
+  border-left: 1px solid var(--ui-line);
 }
 
 .control-btn {
   width: 38px;
   height: 38px;
-  border: 1px solid #dde0d9;
+  border: 1px solid var(--ui-line);
   border-radius: 11px;
-  color: #53615a;
-  background: #f8f7f2;
+  color: var(--ui-muted);
+  background: var(--ui-soft);
 }
 
 :root.light-theme .control-btn {
-  border-color: #dde0d9;
-  background: #f8f7f2;
+  border-color: var(--ui-line);
+  background: var(--ui-soft);
 }
 
 .control-btn:hover,
 :root.light-theme .control-btn:hover {
-  color: #155a43;
-  border-color: #bdcbc2;
-  background: #edf3ed;
+  color: var(--ui-accent);
+  border-color: var(--ui-line);
+  background: var(--ui-accent-soft);
 }
 
 .lang-btn {
@@ -1554,9 +1554,9 @@
   width: 150px;
   margin-top: 9px;
   padding: 6px;
-  border: 1px solid #dcded8;
+  border: 1px solid var(--ui-line);
   border-radius: 13px !important;
-  background: #fffdf8;
+  background: var(--ui-paper);
   box-shadow: 0 18px 42px rgba(24, 45, 36, 0.13);
 }
 
@@ -1569,14 +1569,14 @@
 
 .lang-option-btn:hover,
 :root.light-theme .lang-option-btn:hover {
-  color: #174f3d;
-  background: #f1f4ef;
+  color: var(--ui-accent);
+  background: var(--ui-soft);
 }
 
 .lang-option-btn.active,
 :root.light-theme .lang-option-btn.active {
-  color: #155a43;
-  background: #e9f2eb;
+  color: var(--ui-accent);
+  background: var(--ui-accent-soft);
 }
 
 .auth-action {
@@ -1586,18 +1586,18 @@
 .btn-login-nav {
   min-height: 40px;
   padding: 0 17px !important;
-  border: 1px solid #185c46 !important;
+  border: 1px solid var(--ui-accent) !important;
   border-radius: 11px !important;
-  color: #fff !important;
-  background: #185c46 !important;
+  color: var(--ui-on-accent) !important;
+  background: var(--ui-accent) !important;
   box-shadow: none !important;
   font-size: 0.8rem !important;
   font-weight: 780 !important;
 }
 
 .btn-login-nav:hover {
-  border-color: #104b38 !important;
-  background: #104b38 !important;
+  border-color: var(--ui-accent-hover) !important;
+  background: var(--ui-accent-hover) !important;
   transform: translateY(-1px);
 }
 
@@ -1605,21 +1605,21 @@
   min-height: 42px;
   gap: 8px;
   padding: 4px 12px 4px 5px;
-  border-color: #dce0d8;
-  color: #22312a;
-  background: #fffdf8;
+  border-color: var(--ui-line);
+  color: var(--ui-ink);
+  background: var(--ui-paper);
   box-shadow: none;
 }
 
 .user-profile-pill-btn:hover {
-  border-color: #aebfb5;
+  border-color: var(--ui-line);
   box-shadow: none;
 }
 
 .user-avatar-circle,
 .dropdown-avatar-circle {
   color: #fff;
-  background: #1b644b;
+  background: var(--ui-accent);
 }
 
 .user-profile-name-text {
@@ -1634,21 +1634,21 @@
 .user-dropdown-card {
   width: min(290px, calc(100vw - 24px));
   padding: 11px;
-  border-color: #dce0d8;
+  border-color: var(--ui-line);
   border-radius: 16px;
-  background: #fffdf8;
+  background: var(--ui-paper);
   box-shadow: 0 22px 54px rgba(24, 45, 36, 0.16);
 }
 
 .user-dropdown-item {
   min-height: 44px;
   border-radius: 10px;
-  color: #25342d;
+  color: var(--ui-ink);
   font-size: 0.8rem;
 }
 
 .user-dropdown-item:hover {
-  background: #f0f3ee;
+  background: var(--ui-soft);
 }
 
 .dropdown-item-icon-circle {
@@ -1663,7 +1663,7 @@
 
 .navbar-reading-progress-fill,
 :root:not(.light-theme) .navbar-reading-progress-fill {
-  background: #1b6a4f !important;
+  background: var(--ui-accent) !important;
   box-shadow: none !important;
 }
 
@@ -1681,10 +1681,10 @@
   align-items: center;
   justify-content: center;
   padding: 0;
-  border: 1px solid #dce0d8;
+  border: 1px solid var(--ui-line);
   border-radius: 11px;
   color: #244038;
-  background: #f8f7f2;
+  background: var(--ui-soft);
 }
 
 .mobile-drawer {
@@ -1709,9 +1709,9 @@
   padding: max(20px, env(safe-area-inset-top)) 20px max(22px, env(safe-area-inset-bottom));
   overflow-x: hidden;
   overflow-y: auto;
-  border-left: 1px solid #dce0d8;
+  border-left: 1px solid var(--ui-line);
   color: #1e2c26;
-  background: #fffdf8;
+  background: var(--ui-paper);
   box-shadow: -22px 0 60px rgba(15, 33, 26, 0.16);
   overscroll-behavior: contain;
 }
@@ -1734,7 +1734,7 @@
   display: grid;
   place-items: center;
   padding: 0;
-  border: 1px solid #dce0d8;
+  border: 1px solid var(--ui-line);
   border-radius: 11px;
   color: #34453d;
   background: #f7f6f1;
@@ -1760,8 +1760,8 @@
 .mobile-link-item:hover,
 .mobile-link-item.active,
 .mobile-link-item.rose-link.active {
-  color: #155a43 !important;
-  background: #edf3ed !important;
+  color: var(--ui-accent) !important;
+  background: var(--ui-accent-soft) !important;
 }
 
 .mobile-controls-row {
@@ -1779,10 +1779,10 @@
   justify-content: center;
   gap: 7px;
   padding: 0 10px;
-  border: 1px solid #dce0d8;
+  border: 1px solid var(--ui-line);
   border-radius: 10px;
   color: #4c5b54;
-  background: #f8f7f2;
+  background: var(--ui-soft);
   font-size: 0.78rem;
 }
 
@@ -1793,17 +1793,17 @@
 
 .mobile-lang-btn {
   height: 36px;
-  border-color: #dce0d8;
+  border-color: var(--ui-line);
   border-radius: 9px;
-  color: #59675f;
-  background: #f8f7f2;
+  color: var(--ui-muted);
+  background: var(--ui-soft);
   font-size: 0.75rem;
 }
 
 .mobile-lang-btn.active {
-  color: #155a43;
-  border-color: #9ab8a8;
-  background: #e9f2eb;
+  color: var(--ui-accent);
+  border-color: var(--ui-line);
+  background: var(--ui-accent-soft);
 }
 
 .mobile-drawer-auth {
@@ -1817,27 +1817,27 @@
 .mobile-user-profile .user-details {
   padding: 10px 12px;
   border-radius: 10px;
-  color: #34463d;
-  background: #f3f4ef;
+  color: var(--ui-ink);
+  background: var(--ui-soft);
   font-size: 0.8rem;
 }
 
 :root:not(.light-theme) .navbar,
 :root:not(.light-theme) .header-wrapper.scrolled .navbar {
-  background: rgba(18, 30, 25, 0.96);
-  border-bottom-color: #33463d;
+  background: var(--ui-paper);
+  border-bottom-color: var(--ui-line);
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
 }
 
 :root:not(.light-theme) .navbar-logo,
 :root:not(.light-theme) .logo-helper {
-  color: #edf3ef;
+  color: var(--ui-ink);
 }
 
 :root:not(.light-theme) .logo-main,
 :root:not(.light-theme) .nav-link-item:hover,
 :root:not(.light-theme) .nav-link-item.active {
-  color: #83c4a8 !important;
+  color: var(--ui-accent) !important;
 }
 
 :root:not(.light-theme) .nav-link-item:hover,
@@ -1847,32 +1847,32 @@
 
 :root:not(.light-theme) .control-btn,
 :root:not(.light-theme) .user-profile-pill-btn {
-  color: #dce7e1;
-  border-color: #3a4d44;
-  background: #21322a;
+  color: var(--ui-ink);
+  border-color: var(--ui-line);
+  background: var(--ui-soft);
 }
 
 :root:not(.light-theme) .lang-dropdown-menu,
 :root:not(.light-theme) .user-dropdown-card,
 :root:not(.light-theme) .mobile-drawer-content {
-  color: #eaf1ed;
-  border-color: #3a4d44;
-  background: #18261f;
+  color: var(--ui-ink);
+  border-color: var(--ui-line);
+  background: var(--ui-paper);
 }
 
 :root:not(.light-theme) .mobile-link-item,
 :root:not(.light-theme) .mobile-control-btn,
 :root:not(.light-theme) .mobile-lang-btn,
 :root:not(.light-theme) .close-btn {
-  color: #bdcbc3;
-  border-color: #3a4d44;
-  background: #21322a;
+  color: var(--ui-muted);
+  border-color: var(--ui-line);
+  background: var(--ui-soft);
 }
 
 :root:not(.light-theme) .mobile-link-item:hover,
 :root:not(.light-theme) .mobile-link-item.active {
-  color: #98d1b7 !important;
-  background: #24382f !important;
+  color: var(--ui-accent) !important;
+  background: var(--ui-accent-soft) !important;
 }
 
 .navbar-auth-progress {
@@ -1889,7 +1889,7 @@
   padding: 11px 14px 11px 11px;
   border: 1px solid #cfdad3;
   border-radius: 15px;
-  color: #24342c;
+  color: var(--ui-ink);
   background: rgba(255, 253, 248, 0.98);
   box-shadow: 0 18px 48px rgba(24, 47, 38, 0.18);
   animation: navbar-auth-progress-in 220ms cubic-bezier(0.22, 1, 0.36, 1);
@@ -1901,8 +1901,8 @@
   display: grid;
   place-items: center;
   border-radius: 12px;
-  color: #176348;
-  background: #e9f3ec;
+  color: var(--ui-accent);
+  background: var(--ui-accent-soft);
 }
 
 .navbar-auth-progress.is-loading .navbar-auth-progress-icon svg {
@@ -1910,7 +1910,7 @@
 }
 
 .navbar-auth-progress.is-success {
-  border-color: #afd0bd;
+  border-color: var(--ui-line);
   background: rgba(245, 253, 247, 0.98);
 }
 
@@ -1921,14 +1921,14 @@
 }
 
 .navbar-auth-progress-copy strong {
-  color: #173d2f;
+  color: var(--ui-ink);
   font-size: 0.8rem;
   font-weight: 850;
 }
 
 .navbar-auth-progress-copy span {
   overflow: hidden;
-  color: #66756d;
+  color: var(--ui-muted);
   font-size: 0.74rem;
   font-weight: 620;
   line-height: 1.35;
@@ -1941,23 +1941,23 @@
 }
 
 :root:not(.light-theme) .navbar-auth-progress {
-  color: #eaf1ed;
-  border-color: #3a5548;
+  color: var(--ui-ink);
+  border-color: var(--ui-line);
   background: rgba(24, 38, 31, 0.98);
   box-shadow: 0 18px 48px rgba(0, 0, 0, 0.34);
 }
 
 :root:not(.light-theme) .navbar-auth-progress-icon {
-  color: #8bd0af;
-  background: #253d32;
+  color: var(--ui-accent);
+  background: var(--ui-accent-soft);
 }
 
 :root:not(.light-theme) .navbar-auth-progress-copy strong {
-  color: #eff8f3;
+  color: var(--ui-ink);
 }
 
 :root:not(.light-theme) .navbar-auth-progress-copy span {
-  color: #b8c9c0;
+  color: var(--ui-muted);
 }
 
 @keyframes navbar-auth-spin {

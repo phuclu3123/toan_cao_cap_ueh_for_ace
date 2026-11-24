@@ -2,8 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import express from 'express';
-import { validateStudyContent, saveStudyContent, seedStudyContent } from '../services/studyContent.js';
-import { createStudyContentRouter } from '../routes/studyContentRoutes.js';
+import { validateStudyContent, saveStudyContent, seedStudyContent } from '../src/modules/learning/application/studyContent.js';
+import { createStudyContentRouter } from '../src/modules/learning/http/studyContentRoutes.js';
 
 const topics = JSON.parse(await readFile(new URL('../data/flashcard-topics.json', import.meta.url), 'utf8'));
 test('All 10 published chapters validate and regenerate the same cards', () => {
@@ -50,7 +50,7 @@ test('Seed only inserts missing chapters and never updates existing content', as
   const model = { collection: { createIndex: async () => 'id_1' }, updateOne: async (_filter, update, options) => { calls++; assert.deepEqual(Object.keys(update), ['$setOnInsert']); assert.equal(options.upsert, true); return { upsertedCount: 0 }; } };
   assert.equal(await seedStudyContent({ model, ensureDatabase: () => {} }), 0); assert.equal(calls, 10);
 });
-test('HTTP: public reads, 404, owner write guard and database outage', async t => {
+test('HTTP: authorized reads, 404, owner write guard and database outage', async t => {
   const originalOwner = process.env.ADMIN_EMAIL;
   process.env.ADMIN_EMAIL = 'owner@example.com';
   t.after(() => { if (originalOwner === undefined) delete process.env.ADMIN_EMAIL; else process.env.ADMIN_EMAIL = originalOwner; });
@@ -59,16 +59,18 @@ test('HTTP: public reads, 404, owner write guard and database outage', async t =
   const ensureDatabase = () => { if (!readyState) throw Object.assign(new Error('Unavailable'), { status: 503 }); };
   const app = express(); app.use(express.json());
   const authenticate = (req, res, next) => { if (!req.get('x-test-role')) return res.sendStatus(401); req.authUser = { role: req.get('x-test-role'), username: 'student@example.com' }; next(); };
-  app.use('/api', createStudyContentRouter({ authenticate, model, ensureDatabase }));
+  app.use('/api', createStudyContentRouter({ authenticate, authorize: (_req, _res, next) => next(), model, ensureDatabase }));
   app.use((error, _req, res, _next) => res.status(error.status || 500).json({ message: error.message }));
   const server = app.listen(0, '127.0.0.1'); await new Promise(resolve => server.once('listening', resolve));
   t.after(() => new Promise(resolve => server.close(resolve)));
   const base = `http://127.0.0.1:${server.address().port}/api/flashcards/topics`;
-  const listing = await fetch(base); assert.equal(listing.status, 200); assert.equal(listing.headers.get('cache-control'), 'no-store'); assert.equal((await listing.json()).topics[0].id, topics[0].id);
-  const detail = await (await fetch(`${base}/${topics[0].id}`)).json(); assert.deepEqual(detail.topic, topics[0]); assert.equal(detail.revisions, undefined);
-  assert.equal((await fetch(`${base}/missing`)).status, 404);
+  assert.equal((await fetch(base)).status, 401);
+  const allowed = { headers: { 'x-test-role': 'Student' } };
+  const listing = await fetch(base, allowed); assert.equal(listing.status, 200); assert.equal(listing.headers.get('cache-control'), 'no-store'); assert.equal((await listing.json()).topics[0].id, topics[0].id);
+  const detail = await (await fetch(`${base}/${topics[0].id}`, allowed)).json(); assert.deepEqual(detail.topic, topics[0]); assert.equal(detail.revisions, undefined);
+  assert.equal((await fetch(`${base}/missing`, allowed)).status, 404);
   assert.equal((await fetch(`${base}/${topics[0].id}`, { method: 'PUT' })).status, 401);
   for (const role of ['Student','Admin']) assert.equal((await fetch(`${base}/${topics[0].id}`, { method: 'PUT', headers: { 'x-test-role': role } })).status, 403);
   readyState = 0;
-  assert.equal((await fetch(base)).status, 503);
+  assert.equal((await fetch(base, allowed)).status, 503);
 });

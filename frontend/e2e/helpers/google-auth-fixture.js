@@ -2,10 +2,10 @@ import crypto from 'node:crypto';
 import process from 'node:process';
 import { Buffer } from 'node:buffer';
 import { createRequire } from 'node:module';
-import User from '../../../backend/models/User.js';
-import { resolveFirebaseLogin } from '../../../backend/controllers/authController.js';
-import { publicUser } from '../../../backend/services/sessionService.js';
-import { getConfiguredFirebaseProjectId } from '../../../backend/services/firebaseTokenService.js';
+import User from '../../../backend/src/modules/identity/persistence/User.js';
+import { resolveFirebaseLogin } from '../../../backend/src/modules/identity/http/authController.js';
+import { publicUser } from '../../../backend/src/modules/identity/application/sessionService.js';
+import { getConfiguredFirebaseProjectId } from '../../../backend/src/modules/identity/application/firebaseTokenService.js';
 
 const require = createRequire(new URL('../../../backend/package.json', import.meta.url));
 const mongoose = require('mongoose');

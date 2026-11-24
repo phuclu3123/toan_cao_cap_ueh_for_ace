@@ -17,8 +17,7 @@ export default function BrandLoader({
     >
       <div className="brand-loader-inner">
         <div className="brand-loader-mark" aria-hidden="true">
-          <span>UEH</span>
-          <span>TCC</span>
+          <span className="brand-wordmark"><span className="brand-math">α∫</span>M4A</span>
         </div>
         <div className="brand-loader-deck" aria-hidden="true">
           <div className="brand-loader-paper brand-loader-paper--left"><span>TÍCH PHÂN</span><strong>∫ f(x) dx</strong><i /></div>

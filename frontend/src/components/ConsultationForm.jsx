@@ -6,7 +6,7 @@ import { LanguageContext } from '../App';
 import { translations } from '../utils/translations';
 import '../assets/styles/ConsultationForm.css';
 
-export default function ConsultationForm({ theme = 'dark', onClose }) {
+export default function ConsultationForm({ theme = 'dark', onClose, variant = 'standard' }) {
   const turnstileRef = useRef(null);
   const { language } = useContext(LanguageContext);
   const t = translations[language];
@@ -50,7 +50,7 @@ export default function ConsultationForm({ theme = 'dark', onClose }) {
           'cf-turnstile-response': turnstileToken,
           name: form.name.trim(),
           email: form.email.trim(),
-          subject: language === 'vi' ? 'Đăng ký tư vấn khóa học UEH TCC' : 'UEH TCC Course Consultation Registration',
+          subject: language === 'vi' ? 'Đăng ký tư vấn khóa học α∫M4A' : 'α∫M4A Course Consultation Registration',
           message: language === 'vi'
             ? `Thông tin đăng ký tư vấn:\n- Khóa học quan tâm: ${courseNames[form.course] || form.course}\n- Số điện thoại: ${form.phone.trim()}\n- Email: ${form.email.trim()}`
             : `Consultation Registration Info:\n- Course of interest: ${courseNames[form.course] || form.course}\n- Phone: ${form.phone.trim()}\n- Email: ${form.email.trim()}`
@@ -85,8 +85,8 @@ export default function ConsultationForm({ theme = 'dark', onClose }) {
         </button>
       )}
 
-      <h2 className="consult-title">{t.consultForm.title}</h2>
-      <p className="consult-subtitle">{t.consultForm.subtitle}</p>
+      <h2 className="consult-title">{variant === 'guided' ? 'Nhận gợi ý học phù hợp' : t.consultForm.title}</h2>
+      <p className="consult-subtitle">{variant === 'guided' ? 'Để lại thông tin và phần kiến thức bạn quan tâm. α∫M4A sẽ liên hệ để trao đổi cùng bạn.' : t.consultForm.subtitle}</p>
 
       {isSuccess ? (
         <div className="consult-success-panel">
@@ -97,6 +97,19 @@ export default function ConsultationForm({ theme = 'dark', onClose }) {
             {t.consultForm.btnRegisterAgain}
           </button>
         </div>
+      ) : variant === 'guided' ? (
+        <form onSubmit={handleSubmit} className="consult-guided-form">
+          <div className="consult-guided-fields">
+            <label htmlFor="consult-name">Họ và tên<input id="consult-name" autoComplete="name" type="text" placeholder="Tên của bạn" value={form.name} onChange={event=>updateField('name',event.target.value)} required /></label>
+            <label htmlFor="consult-phone">Số điện thoại<input id="consult-phone" autoComplete="tel" type="tel" placeholder="Số điện thoại liên hệ" value={form.phone} onChange={event=>updateField('phone',event.target.value)} required /></label>
+            <label htmlFor="consult-email">Email<input id="consult-email" autoComplete="email" type="email" placeholder="ban@example.com" value={form.email} onChange={event=>updateField('email',event.target.value)} required /></label>
+            <label htmlFor="consult-course">Bạn muốn tìm hiểu<select id="consult-course" value={form.course} onChange={event=>updateField('course',event.target.value)}><option value="foundation">Nền tảng Toán cao cấp</option><option value="calculus">Giải tích & các dạng bài</option><option value="economic">Toán ứng dụng trong kinh tế</option></select></label>
+          </div>
+          {errorMsg && <div className="consult-error-msg" role="alert">{errorMsg}</div>}
+          <TurnstileWidget ref={turnstileRef} action="contact" />
+          <div className="consult-form-actions"><button type="submit" className="btn-consult-submit" disabled={isSubmitting}><span>{isSubmitting ? t.consultForm.submitting : 'Đăng ký tư vấn miễn phí'}</span><ArrowRight size={17}/></button></div>
+          <p className="consult-guided-note">Thông tin được dùng để liên hệ về nhu cầu học của bạn.</p>
+        </form>
       ) : (
         <form onSubmit={handleSubmit} className="consult-madlibs-form">
           <div className="madlibs-sentence">

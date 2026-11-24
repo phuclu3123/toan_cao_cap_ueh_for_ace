@@ -236,6 +236,7 @@ export const SPECIALTY_BADGES = [
  */
 export function getTierByPoints(points = 0) {
   for (const tier of MEMBER_TIERS) {
+    if (tier.id === 'owner') continue;
     if (points >= tier.minPoints) {
       return tier;
     }
@@ -248,7 +249,8 @@ export function getTierByPoints(points = 0) {
  */
 export function getTierProgress(points = 0) {
   const currentTier = getTierByPoints(points);
-  const currentIdx = MEMBER_TIERS.findIndex(t => t.id === currentTier.id);
+  const earnedTiers = MEMBER_TIERS.filter(tier => tier.id !== 'owner');
+  const currentIdx = earnedTiers.findIndex(t => t.id === currentTier.id);
 
   if (currentIdx === 0) {
     return {
@@ -261,7 +263,7 @@ export function getTierProgress(points = 0) {
     };
   }
 
-  const nextTier = MEMBER_TIERS[currentIdx - 1];
+  const nextTier = earnedTiers[currentIdx - 1];
   const pointsInCurrentTier = points - currentTier.minPoints;
   const pointsNeeded = nextTier.minPoints - currentTier.minPoints;
   const percentage = Math.min(100, Math.max(0, Math.round((pointsInCurrentTier / pointsNeeded) * 100)));

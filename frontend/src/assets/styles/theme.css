@@ -1,52 +1,111 @@
-/* Semantic color contracts. Light is the safe default; dark requires explicit opt-in. */
+/* Generated from src/design/colorPalette.js. Original publication artwork is unchanged. */
 :root {
   color-scheme: light;
-
-  --color-canvas: #f5f2ea;
-  --color-canvas-subtle: #ece8de;
-  --color-surface: #fffdf8;
-  --color-surface-raised: #f8f5ed;
-  --color-text: #10211b;
-  --color-text-muted: #526159;
-  --color-text-subtle: #738078;
-  --color-border: rgba(16, 46, 38, 0.14);
-  --color-border-strong: rgba(16, 46, 38, 0.24);
-
-  --color-brand: #176f62;
-  --color-brand-hover: #0f5b51;
-  --color-brand-active: #0b493f;
-  --color-on-brand: #ffffff;
-  --color-champagne: #a87b38;
-  --color-focus: rgba(23, 111, 98, 0.27);
-
-  --color-info: #245fae;
-  --color-success: #177447;
-  --color-warning: #9a6416;
-  --color-danger: #b83b3b;
+  --ui-grain: url('/textures/paper-grain.webp');
+  --ui-canvas: #faf8f5;
+  --ui-paper: #fffefd;
+  --ui-soft: #f0eeeb;
+  --ui-ink: #191918;
+  --ui-muted: #5e5d58;
+  --ui-subtle: #6c6a65;
+  --ui-line: #dedbd5;
+  --ui-accent: #191918;
+  --ui-accent-hover: #373733;
+  --ui-accent-soft: #eeece8;
+  --ui-on-accent: #ffffff;
+  --ui-blue: #292a28;
+  --ui-blue-soft: #ececf5;
+  --ui-copper: #4e4b40;
+  --ui-copper-soft: #f6eedb;
+  --ui-apricot: #f7e6a9;
+  --ui-hero: #faf8f5;
+  --ui-field: #d3dcf1;
+  --ui-grid: #1919180a;
+  --ui-reader-ground: #eae7e2;
+  --ui-pastel-sky: #b9deeb;
+  --ui-pastel-lavender: #bec9ed;
+  --ui-pastel-mint: #acd6af;
+  --ui-pastel-peach: #f1c7b0;
+  --ui-pastel-sun: #f8e6a4;
+  --ui-layer-paper: #ffffffbb;
+  --ui-layer-shadow: #24201c17;
+  --ui-info: #484950;
+  --ui-success: #367457;
+  --ui-warning: #8a661e;
+  --ui-danger: #b43e4e;
+  --ui-danger-soft: #f8e5e7;
+  --ui-focus: #19191835;
+  --ui-shadow: #25211b16;
+  --ui-footer-bg: #eee9e1;
+  --ui-footer-ink: #191918;
+  --ui-footer-muted: #5e5d58;
+  --ui-footer-accent: #191918;
+  --ui-footer-line: #d9d4ca;
+  --ui-footer-surface: #faf8f5;
+  --ui-footer-bottom: #e7e1d7;
 }
-
 :root[data-theme='dark'] {
   color-scheme: dark;
-
-  --color-canvas: #07110f;
-  --color-canvas-subtle: #0b1915;
-  --color-surface: #0f201b;
-  --color-surface-raised: #142a23;
-  --color-text: #f3f8f5;
-  --color-text-muted: #b4c2bb;
-  --color-text-subtle: #87978f;
-  --color-border: rgba(220, 239, 231, 0.13);
-  --color-border-strong: rgba(220, 239, 231, 0.24);
-
-  --color-brand: #78cfb7;
-  --color-brand-hover: #9adfcd;
-  --color-brand-active: #57b99f;
-  --color-on-brand: #07211b;
-  --color-champagne: #d1ad70;
-  --color-focus: rgba(120, 207, 183, 0.38);
-
-  --color-info: #7db3f4;
-  --color-success: #6fd0a1;
-  --color-warning: #e6b96c;
-  --color-danger: #f28b8b;
+  --ui-canvas: #191918;
+  --ui-paper: #252522;
+  --ui-soft: #33332f;
+  --ui-ink: #f6f4ee;
+  --ui-muted: #ccc9c0;
+  --ui-subtle: #b5b1a7;
+  --ui-line: #48473f;
+  --ui-accent: #f4f1e9;
+  --ui-accent-hover: #ffffff;
+  --ui-accent-soft: #3c3b35;
+  --ui-on-accent: #191918;
+  --ui-blue: #e5e4e9;
+  --ui-blue-soft: #35363d;
+  --ui-copper: #e9d9b6;
+  --ui-copper-soft: #343027;
+  --ui-apricot: #ead49a;
+  --ui-hero: #21211e;
+  --ui-field: #353744;
+  --ui-grid: #f5f0de0a;
+  --ui-reader-ground: #11110f;
+  --ui-pastel-sky: #abcdd7;
+  --ui-pastel-lavender: #b9c2e2;
+  --ui-pastel-mint: #aac9a7;
+  --ui-pastel-peach: #dfbca8;
+  --ui-pastel-sun: #e8d69e;
+  --ui-layer-paper: #ffffffb5;
+  --ui-layer-shadow: #00000025;
+  --ui-info: #d5d4de;
+  --ui-success: #a5d5b3;
+  --ui-warning: #ead49a;
+  --ui-danger: #efa5b0;
+  --ui-danger-soft: #482e33;
+  --ui-focus: #f4f1e950;
+  --ui-shadow: #00000030;
+  --ui-footer-bg: #22221f;
+  --ui-footer-ink: #f6f4ee;
+  --ui-footer-muted: #ccc9c0;
+  --ui-footer-accent: #f6f4ee;
+  --ui-footer-line: #48473f;
+  --ui-footer-surface: #2e2e29;
+  --ui-footer-bottom: #171714;
+}
+:root, :root[data-theme='dark'] {
+  --color-canvas: var(--ui-canvas);
+  --color-canvas-subtle: var(--ui-soft);
+  --color-surface: var(--ui-paper);
+  --color-surface-raised: var(--ui-soft);
+  --color-text: var(--ui-ink);
+  --color-text-muted: var(--ui-muted);
+  --color-text-subtle: var(--ui-subtle);
+  --color-border: var(--ui-line);
+  --color-brand: var(--ui-accent);
+  --color-brand-hover: var(--ui-accent-hover);
+  --color-brand-active: var(--ui-accent-hover);
+  --color-on-brand: var(--ui-on-accent);
+  --color-champagne: var(--ui-copper);
+  --color-focus: var(--ui-focus);
+  --color-info: var(--ui-info);
+  --color-success: var(--ui-success);
+  --color-warning: var(--ui-warning);
+  --color-danger: var(--ui-danger);
+  --color-border-strong: color-mix(in srgb,var(--ui-ink) 24%,transparent);
 }

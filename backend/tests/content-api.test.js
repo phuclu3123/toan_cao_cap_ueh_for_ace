@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+process.env.ALLOW_COMMUNITY_MEMORY_WRITES = 'true';
 
-import communityRoutes from '../routes/communityRoutes.js';
-import resourceRoutes from '../routes/resourceRoutes.js';
+import communityRoutes from '../src/modules/community/http/communityRoutes.js';
+import resourceRoutes from '../src/modules/resources/http/resourceRoutes.js';
 import {
   createPost,
   deletePost,
@@ -15,17 +16,17 @@ import {
   toggleSavePost,
   toggleUpvotePost,
   updatePost
-} from '../controllers/communityController.js';
+} from '../src/modules/community/http/communityController.js';
 import {
   createResource,
   getResources,
   incrementResourceView
-} from '../controllers/resourceController.js';
-import { createBlogComment, updateBlogReaction } from '../controllers/blogEngagementController.js';
-import { subscribe, submitContact } from '../controllers/contactController.js';
-import BlogEngagement from '../models/BlogEngagement.js';
-import CommunityPost from '../models/CommunityPost.js';
-import Resource from '../models/Resource.js';
+} from '../src/modules/resources/http/resourceController.js';
+import { createBlogComment, updateBlogReaction } from '../src/modules/blog/http/blogEngagementController.js';
+import { subscribe, submitContact } from '../src/modules/contact/http/contactController.js';
+import BlogEngagement from '../src/modules/blog/persistence/BlogEngagement.js';
+import CommunityPost from '../src/modules/community/persistence/CommunityPost.js';
+import Resource from '../src/modules/resources/persistence/Resource.js';
 
 const createResponse = () => ({
   statusCode: 200,

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { requireTurnstile } from '../middleware/turnstile.js';
+import { requireTurnstile } from '../src/platform/http/turnstile.js';
 
 test('Turnstile rejects missing, invalid and mismatched tokens before allowing a controller', async (t) => {
   const originalEnv = { ...process.env };

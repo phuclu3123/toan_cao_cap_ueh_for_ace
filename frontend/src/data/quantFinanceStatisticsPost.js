@@ -3,6 +3,7 @@ const code = String.raw;
 
 export const quantFinanceStatisticsPost = {
   slug: 'thong-ke-den-quant-finance-vn30',
+  shortTitle: 'Thống kê & rủi ro VN30',
   title: 'Từ thống kê mẫu đến Quant Finance: đo lợi suất và rủi ro trên VN30',
   category: 'Chuyên khảo · Quant Finance',
   date: '23/07/2026',

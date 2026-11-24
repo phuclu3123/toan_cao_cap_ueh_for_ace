@@ -13,6 +13,14 @@ export const apiFetch = (path, options = {}) => {
     ...options,
     headers,
     credentials: 'include'
+  }).then(response => {
+    // A feature endpoint cannot decide whether a different tab has just
+    // replaced the cookie. Ask the canonical /me check; never replay a write.
+    if (response.status === 401 && !/\/(?:auth\/|login(?:\?|$)|signup(?:\?|$))/.test(path)
+      && typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('ueh-tcc-auth-check-required'));
+    }
+    return response;
   });
 };
 

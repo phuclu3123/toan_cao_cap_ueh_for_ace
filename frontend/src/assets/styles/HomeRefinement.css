@@ -1,0 +1,20 @@
+/* Home composition. Keep the author's original book assets and one reading axis. */
+.enterprise-home { --home-ivory: var(--ui-canvas); --home-paper: var(--ui-paper); --home-ink: var(--ui-ink); --home-ink-soft: var(--ui-muted); --home-line: var(--ui-line); background: var(--ui-canvas); }
+.enterprise-home .enterprise-copy h1 { color: var(--text-primary); line-height: 1.22; letter-spacing: -.035em; text-wrap: pretty; }
+.enterprise-home .hero-title-statement { font-size: clamp(2.8rem,4.7vw,4.7rem); }
+:root .enterprise-home .enterprise-hero { min-height: auto; padding: clamp(48px,6vw,82px) 0; background: var(--ui-hero); }
+.enterprise-home .enterprise-hero-grid { grid-template-columns: minmax(0,1.1fr) minmax(0,.9fr); align-items: center; gap: clamp(32px,5vw,80px); }
+.enterprise-home .enterprise-copy { padding: 0; }
+.enterprise-home .enterprise-copy > p { color: var(--ui-muted); }
+.enterprise-home .product-switchboard { padding-block: clamp(56px,7vw,96px); background: var(--ui-canvas); }
+.enterprise-home .product-switchboard > .container { margin-top: 0; }
+.enterprise-home .section-title-split h2, .enterprise-home .operating-panel h2 { color: var(--text-primary); font-size: clamp(1.9rem,3.5vw,3.3rem); line-height: 1.26; letter-spacing: -.035em; }
+.enterprise-home .operating-model, .enterprise-home .blog-preview-section, .enterprise-home .enterprise-cta { background: var(--ui-canvas); }
+.enterprise-home .operating-panel, .enterprise-home .flow-step, .enterprise-home .news-feature, .enterprise-home .news-item, .enterprise-home .product-card { background: var(--ui-paper); border-color: var(--ui-line); box-shadow: none; }
+.enterprise-home .news-feature h3, .enterprise-home .news-item h3 { line-height: 1.5; letter-spacing: -.025em; }
+:root[data-theme='dark'] .enterprise-home { --home-ivory: var(--ui-canvas); --home-paper: var(--ui-paper); --home-ink: var(--ui-ink); --home-ink-soft: var(--ui-muted); --home-line: var(--ui-line); background: var(--ui-canvas); }
+:root[data-theme='dark'] .enterprise-home .enterprise-hero, :root[data-theme='dark'] .enterprise-home .product-switchboard, :root[data-theme='dark'] .enterprise-home .operating-model, :root[data-theme='dark'] .enterprise-home .blog-preview-section, :root[data-theme='dark'] .enterprise-home .enterprise-cta { background: var(--ui-canvas); }
+:root[data-theme='dark'] .enterprise-home .enterprise-copy > p { color: var(--ui-muted); }
+:root[data-theme='dark'] .enterprise-home .operating-panel, :root[data-theme='dark'] .enterprise-home .flow-step, :root[data-theme='dark'] .enterprise-home .news-feature, :root[data-theme='dark'] .enterprise-home .news-item, :root[data-theme='dark'] .enterprise-home .product-card { background: var(--ui-paper); border-color: var(--ui-line); }
+@media (max-width:900px) { .enterprise-home .enterprise-hero-grid { grid-template-columns: 1fr; } }
+@media (max-width:600px) { .enterprise-home .hero-title-statement { font-size: clamp(2.35rem,9.5vw,3.2rem); } .enterprise-home .hero-badge { font-size: .6rem; letter-spacing: .06em; } }

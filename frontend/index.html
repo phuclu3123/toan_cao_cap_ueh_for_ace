@@ -4,28 +4,30 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/jpeg" href="/images/fvc.jpg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preload" href="/fonts/coiny/brand.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/brand-math/comfortaa.woff2" as="font" type="font/woff2" crossorigin />
     <meta name="description" content="Trang web hỗ trợ học tập Toán Cao Cấp cho sinh viên trường Đại học Kinh tế TP. Hồ Chí Minh (UEH). Cung cấp đề thi, tài liệu bổ trợ và lời giải chi tiết Toán Cao Cấp UEH." />
-    <meta name="keywords" content="Toán Cao Cấp, Toán Cao Cấp UEH, Đề thi Toán Cao Cấp UEH, Giải bài tập Toán UEH, UEH TCC, Hỗ Trợ Học Tập, UEH, Lời Giải Toán Cao Cấp" />
+    <meta name="keywords" content="Toán Cao Cấp, Toán Cao Cấp UEH, Đề thi Toán Cao Cấp UEH, Giải bài tập Toán UEH, α∫M4A, Hỗ Trợ Học Tập, UEH, Lời Giải Toán Cao Cấp" />
     <meta name="author" content="Phúc Lư" />
     <meta name="robots" content="index, follow" />
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://toancaocapueh.id.vn/" />
-    <meta property="og:title" content="UEH TCC - Hỗ Trợ Học Tập Toán Cao Cấp" />
+    <meta property="og:title" content="α∫M4A - Hỗ Trợ Học Tập Toán Cao Cấp" />
     <meta property="og:description" content="Nền tảng tự học, luyện thi và tài liệu môn Toán Cao Cấp dành riêng cho sinh viên UEH. Cập nhật liên tục đề thi và lời giải chi tiết." />
     <meta property="og:image" content="https://toancaocapueh.id.vn/images/fvc.jpg" />
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:url" content="https://toancaocapueh.id.vn/" />
-    <meta property="twitter:title" content="UEH TCC - Hỗ Trợ Học Tập Toán Cao Cấp" />
+    <meta property="twitter:title" content="α∫M4A - Hỗ Trợ Học Tập Toán Cao Cấp" />
     <meta property="twitter:description" content="Nền tảng tự học, luyện thi và tài liệu môn Toán Cao Cấp dành riêng cho sinh viên UEH. Cập nhật liên tục đề thi và lời giải chi tiết." />
     <meta property="twitter:image" content="https://toancaocapueh.id.vn/images/fvc.jpg" />
 
     <meta name="theme-color" content="#f4f2ec" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#07110f" media="(prefers-color-scheme: dark)" />
-    <title>Toán Cao Cấp UEH - Hỗ Trợ Học Tập & Tài Liệu TCC</title>
+    <title>α∫M4A — Học để hiểu</title>
 
     <!-- Pre-paint theme synchronization script (Prevents FOUC) -->
     <script>
@@ -45,6 +47,10 @@
     </script>
 
     <style>
+      @font-face { font-family: "Coiny Brand"; src: url('/fonts/coiny/brand.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+      @font-face { font-family: "Comfortaa Brand Math"; src: url('/fonts/brand-math/comfortaa.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+      #app-boot .app-boot-mark { font-family: "Coiny Brand",sans-serif; font-weight: 400; }
+      .app-boot-mark .brand-math { font-family: "Comfortaa Brand Math",sans-serif; font-weight: 700; -webkit-text-stroke: .04em currentColor; letter-spacing: -.09em; }
       #app-boot {
         position: fixed;
         inset: 0;
@@ -165,7 +171,7 @@
   <body>
     <div id="app-boot" aria-hidden="true">
       <div class="app-boot-inner">
-        <div class="app-boot-mark"><span>UEH</span><span>TCC</span></div>
+        <div class="app-boot-mark"><span><span class="brand-math">α∫</span>M4A</span></div>
         <p class="app-boot-kicker">Learning · Research · Quantitative thinking</p>
         <div class="app-boot-line"><span></span></div>
       </div>

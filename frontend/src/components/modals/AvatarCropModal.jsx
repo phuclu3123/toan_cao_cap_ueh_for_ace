@@ -30,6 +30,7 @@ export default function AvatarCropModal({
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [isProcessing, setIsProcessing] = useState(false);
   const [imageVersion, setImageVersion] = useState(0);
+  const [saveError, setSaveError] = useState('');
 
   const fileInputRef = useRef(null);
   const canvasRef = useRef(null);
@@ -206,10 +207,12 @@ export default function AvatarCropModal({
       );
 
       const croppedBase64 = exportCanvas.toDataURL('image/jpeg', 0.92);
+      setSaveError('');
       await onSave?.(croppedBase64);
       onClose?.();
     } catch (err) {
       console.error('Lỗi cắt ảnh đại diện:', err);
+      setSaveError(err.message || 'Chưa lưu được ảnh đại diện. Vui lòng thử lại.');
     } finally {
       setIsProcessing(false);
     }
@@ -358,6 +361,7 @@ export default function AvatarCropModal({
         </div>
 
         {/* Footer */}
+        {saveError && <p className="qa-action-feedback is-error" role="alert">{saveError}</p>}
         <div className="avatar-crop-footer">
           <button
             type="button"

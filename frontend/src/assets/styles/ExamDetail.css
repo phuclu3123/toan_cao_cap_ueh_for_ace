@@ -1237,3 +1237,6 @@ body.dark-mode .exam-video-modal-card {
   height: 100%;
   border: 0;
 }
+dialog.exam-modal-overlay { inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; margin: 0; padding: 20px; border: 0; color: inherit; }
+dialog.exam-modal-overlay::backdrop { background: transparent; }
+button.review-table-row { width: 100%; border: 0; border-bottom: 1px solid var(--ui-line); border-radius: 0; background: transparent; font: inherit; text-align: left; color: inherit; }

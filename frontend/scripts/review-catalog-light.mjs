@@ -1,0 +1,85 @@
+import { chromium } from '@playwright/test';
+import assert from 'node:assert/strict';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+const output = new URL('../../artifacts/color-refinement/catalog-light/', import.meta.url);
+await mkdir(output,{recursive:true});
+const browser = await chromium.launch({channel:'msedge',headless:true});
+const context = await browser.newContext({viewport:{width:1440,height:1000},reducedMotion:'reduce'});
+await context.addInitScript(()=>{localStorage.setItem('ueh_tcc_theme','light');localStorage.setItem('ueh_tcc_consent_v1',JSON.stringify({version:1,necessary:true,preferences:false}));});
+const page = await context.newPage(), report = {checks:[],errors:[]};
+page.on('pageerror',error=>report.errors.push(error.message));
+page.on('dialog',dialog=>dialog.accept());
+const shot = async name=>page.screenshot({path:fileURLToPath(new URL(`${name}.png`,output))});
+const check = (condition,name)=>{assert.ok(condition,name);report.checks.push(name);};
+const visit = async path=>{await page.goto(`http://localhost:5174${path}`);await page.evaluate(()=>document.fonts.ready);};
+try {
+  for (const width of [1440,390]) {
+    await page.setViewportSize({width,height:1000});
+    await visit('/exams');
+    await page.locator('.exam-ticket').first().waitFor();
+    check(await page.locator('.exam-ticket').count()===12,`12 real exam cards at ${width}`);
+    await page.locator('.exam-catalog-grid').scrollIntoViewIfNeeded();
+    await page.locator('.exam-ticket img').first().evaluate(image=>image.decode());
+    await shot(`exam-cards-${width}`);
+    check(!await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),`Exam catalog fits ${width}`);
+    const preview = page.locator('.exam-ticket-preview').first();
+    await preview.click();
+    await page.locator('.pdf-sheet[data-rendered-page="20"]').waitFor({timeout:45000});
+    await shot(`pdf-preview-${width}`);
+    check(await page.locator('#pdf-page-number').inputValue()==='20',`PDF opens mapped page at ${width}`);
+    await page.getByRole('button',{name:'Nhóm trang sau',exact:true}).click();
+    await page.locator('.pdf-sheet[data-rendered-page="21"]').waitFor();
+    await page.keyboard.press('Escape');
+    await page.locator('.exam-pdf-dialog').waitFor({state:'detached'});
+    check(await preview.evaluate(node=>node===document.activeElement),`PDF restores trigger focus at ${width}`);
+    await visit('/blog');
+    await page.locator('.headline-story-vertical').waitFor();
+    await page.locator('.headline-img-wrapper img').evaluate(image=>image.decode());
+    await shot(`blog-${width}`);
+    const links = await page.locator('.headline-story-vertical,.journal-side-story,.article-row-vertical').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('href')));
+    check(links.length===7&&new Set(links).size===7,`Seven unique blog posts at ${width}`);
+    check(!await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),`Blog fits ${width}`);
+    await page.locator('.blog-search input').fill('Deep BSDE');
+    check(await page.locator('.headline-story-vertical').count()===1,`Blog search finds article at ${width}`);
+    await page.locator('.blog-search input').fill('zzzznotfound');
+    await page.locator('.empty-results').waitFor();
+    if(width===390){
+      await page.locator('.mobile-toggle').click();
+      await page.locator('.mobile-drawer .mobile-link-item[href="/exams"]').click();
+      await page.locator('.exam-catalog-hero').waitFor();
+      check(await page.locator('.mobile-toggle').getAttribute('aria-expanded')==='false','Mobile navigation closes after route change');
+    }
+    await visit('/exam/k51-tonghop');
+    await page.locator('.answer-option').first().waitFor();
+    await shot(`practice-${width}`);
+    await page.locator('.answer-option').nth(1).click();
+    await page.locator('.flag-question-btn').click();
+    check(await page.locator('.question-map-btn.answered.flagged').count()===1,`Answer and flag state at ${width}`);
+    await page.locator('.question-map-btn').nth(1).click();
+    await page.locator('.question-map-btn').first().click();
+    check(await page.locator('.answer-option[aria-pressed="true"]').count()===1,`Answer survives question navigation at ${width}`);
+    await page.locator('.exam-submit-inline').click();
+    await page.locator('.exam-modal .btn-secondary').click();
+    await page.locator('.exam-submit-inline').click();
+    await page.locator('.exam-modal .btn-primary').click();
+    await page.locator('.exam-result-panel').waitFor();
+    await shot(`result-${width}`);
+    check((await page.locator('.result-copy h2').innerText()).includes('10/100'),`Practice calculates actual score at ${width}`);
+    check(await page.locator('.answer-explanation').count()===1,`Solution visible after submission at ${width}`);
+    check(!await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),`Practice fits ${width}`);
+    await page.locator('.exam-reset-btn').click();
+    check(await page.locator('.answer-option[aria-pressed="true"]').count()===0,`Reset clears answers at ${width}`);
+  }
+  await page.setViewportSize({width:1920,height:1080});
+  await visit('/community');
+  await page.locator('.se-question-item').first().waitFor();
+  await shot('characters-top');
+  await page.evaluate(()=>scrollTo(0,430));
+  await shot('characters-next');
+  check(report.errors.length===0,'No browser exceptions');
+} finally {
+  await writeFile(new URL('report.json',output),JSON.stringify(report,null,2));
+  await browser.close();
+  console.log(JSON.stringify(report));
+}

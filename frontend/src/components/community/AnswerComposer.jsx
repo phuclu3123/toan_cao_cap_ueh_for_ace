@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   BookOpen,
   FileText,
@@ -10,6 +10,7 @@ import {
 import WYSIWYGMathEditor from './WYSIWYGMathEditor';
 import ImageUploader from './ImageUploader';
 import MathRenderer from '../MathRenderer';
+import { safeSessionStorage } from '../../utils/safeStorage';
 import '../../assets/styles/community.css';
 
 /**
@@ -22,9 +23,30 @@ export default function AnswerComposer({
   onRequireLogin,
   onOpenCheatsheet,
   quoteText = '',
-  onClearQuote
+  onClearQuote,
+  postId
 }) {
-  const [content, setContent] = useState('');
+  const guestDraftKey = `ueh_tcc_answer_draft:guest:${postId}`;
+  const draftKey = currentUser ? `ueh_tcc_answer_draft:${currentUser.id || currentUser.uid}:${postId}` : guestDraftKey;
+  const [content, setContentState] = useState(() => safeSessionStorage.getItem(draftKey) || (currentUser ? safeSessionStorage.getItem(guestDraftKey) : '') || '');
+  const [pendingGuestDraft, setPendingGuestDraft] = useState(() => {
+    const guest = currentUser && safeSessionStorage.getItem(guestDraftKey);
+    const own = currentUser && safeSessionStorage.getItem(draftKey);
+    return guest && own && guest !== own ? guest : '';
+  });
+  useEffect(() => {
+    if (!currentUser || !safeSessionStorage.getItem(guestDraftKey)) return;
+    if (!safeSessionStorage.getItem(draftKey) && content) safeSessionStorage.setItem(draftKey, content);
+    safeSessionStorage.removeItem(guestDraftKey);
+  }, [currentUser, guestDraftKey, draftKey, content]);
+  const setContent = next => {
+    const value = typeof next === 'function' ? next(content) : next;
+    setContentState(value);
+    if (draftKey) {
+      if (value) safeSessionStorage.setItem(draftKey, value);
+      else safeSessionStorage.removeItem(draftKey);
+    }
+  };
   const [images, setImages] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -38,11 +60,6 @@ export default function AnswerComposer({
       `<div><b>Bước 3: Kết luận nghiệm tối ưu</b></div>` +
       `<div>Điểm tối ưu là $(x^*, y^*) = \\dots$</div>`;
     setContent((prev) => prev ? `${prev}<br><br>${template}` : template);
-  };
-
-  const handleInsertImageToEditor = (imgSrc, altText = 'Ảnh bài giải') => {
-    const imgTag = `<p><img src="${imgSrc}" alt="${altText}" class="wysiwyg-math-inline-img" style="max-width: 100%; max-height: 480px; height: auto; border-radius: 10px; margin: 12px 0; border: 1px solid #cbd5e1; box-shadow: 0 4px 14px rgba(0,0,0,0.07); display: block;" /></p><p><br></p>`;
-    setContent((prev) => (prev ? `${prev}${imgTag}` : imgTag));
   };
 
   const handleFormSubmit = async (event) => {
@@ -60,22 +77,11 @@ export default function AnswerComposer({
     setError('');
     setIsSubmitting(true);
     try {
-      let finalContent = content.trim();
-      // If there are attached images that haven't been inserted inline yet, append them
-      if (images.length) {
-        const uninsertedImages = images.filter(
-          (img) => !finalContent.includes(img.preview || img.url)
-        );
-        if (uninsertedImages.length) {
-          finalContent += uninsertedImages
-            .map(
-              (image) =>
-                `<p><img src="${image.preview || image.url}" alt="${image.altText || 'Ảnh bài giải'}" class="wysiwyg-math-inline-img" style="max-width: 100%; max-height: 480px; height: auto; border-radius: 10px; margin: 12px 0; border: 1px solid #cbd5e1; box-shadow: 0 4px 14px rgba(0,0,0,0.07); display: block;" /></p>`
-            )
-            .join('');
-        }
-      }
-      await onSubmit(finalContent);
+      await onSubmit({
+        content: (quoteText ? `<blockquote>${quoteText}</blockquote>` : '') + (content.trim() || (images.length ? '<p>Lời giải đính kèm.</p>' : '')),
+        image: images[0]?.preview || images[0]?.url || null,
+        altText: images[0]?.altText || ''
+      });
       setContent('');
       setImages([]);
       setShowImages(false);
@@ -90,7 +96,7 @@ export default function AnswerComposer({
   return (
     <div className="se-your-answer-card">
       <div className="se-your-answer-header">
-        <h3 className="se-your-answer-title">Câu trả lời của bạn</h3>
+        <div><h3 className="se-your-answer-title">Viết lời giải</h3><p className="qa-answer-composer-hint">Chia sẻ cách làm, cùng nhau hiểu sâu hơn.</p></div>
         <div className="se-composer-helper-links">
           <button
             type="button"
@@ -98,7 +104,7 @@ export default function AnswerComposer({
             onClick={onOpenCheatsheet}
           >
             <BookOpen size={14} />
-            <span>Sổ tay công thức của Phúc</span>
+            <span>Sổ tay công thức</span>
           </button>
           <button
             type="button"
@@ -132,12 +138,15 @@ export default function AnswerComposer({
 
       {/* WYSIWYG Word/Docs Rich Editor */}
       <form onSubmit={handleFormSubmit} className="se-composer-form">
+        {pendingGuestDraft && <div className="qa-answer-draft-choice"><span>Đang mở bản nháp tài khoản. Bạn còn một bản soạn trước đăng nhập.</span><button type="button" onClick={() => { setContent(pendingGuestDraft); setPendingGuestDraft(''); }}>Dùng bản vừa soạn</button><button type="button" aria-label="Bỏ qua bản nháp trước đăng nhập" onClick={() => setPendingGuestDraft('')}><X size={14} /></button></div>}
         <WYSIWYGMathEditor
           value={content}
           onChange={setContent}
-          placeholder="Nhập lời giải hoặc phân tích bài toán (soạn thảo in đậm B, nghiêng I, gạch chân U, đổi màu sắc, chèn KaTeX, chèn ảnh bài giải hoặc bấm Ctrl+V để dán trực tiếp)..."
+          onAttachImage={image => { setImages([image]); setShowImages(true); }}
+          placeholder="Trình bày cách giải của bạn… Có thể dùng công thức hoặc dán ảnh trực tiếp."
           onOpenCheatsheet={onOpenCheatsheet}
           minHeight="220px"
+          streamlined
         />
 
         {error && <div className="se-composer-error-msg">{error}</div>}
@@ -149,10 +158,10 @@ export default function AnswerComposer({
               images={images}
               onChange={setImages}
               onImagesChange={setImages}
-              onInsertToEditor={handleInsertImageToEditor}
-              maxImages={4}
-              allowFiles={false}
-              allowPaste={false}
+              maxImages={1}
+              maxFileBytes={1024 * 1024}
+              allowFiles
+              allowPaste
             />
           </div>
         )}
@@ -161,14 +170,7 @@ export default function AnswerComposer({
         {!currentUser && (
           <div className="se-composer-auth-prompt">
             <LogIn size={15} />
-            <span>Bạn cần đăng nhập tài khoản UEH để gửi câu trả lời bài toán.</span>
-            <button
-              type="button"
-              className="se-composer-auth-link"
-              onClick={onRequireLogin}
-            >
-              Đăng nhập ngay
-            </button>
+            <span>Bạn có thể soạn trước, đăng nhập để gửi lời giải.</span>
           </div>
         )}
 
@@ -179,8 +181,8 @@ export default function AnswerComposer({
             className="se-post-answer-btn"
             disabled={isSubmitting}
           >
-            <Send size={15} />
-            <span>{isSubmitting ? 'Đang gửi...' : 'Gửi câu trả lời'}</span>
+            {currentUser ? <Send size={15} /> : <LogIn size={15} />}
+            <span>{isSubmitting ? 'Đang gửi...' : currentUser ? 'Gửi lời giải' : 'Đăng nhập để gửi'}</span>
           </button>
 
           <button
@@ -189,7 +191,7 @@ export default function AnswerComposer({
             onClick={() => setShowImages(!showImages)}
           >
             <ImagePlus size={15} />
-            <span>{showImages ? 'Ẩn chèn ảnh' : 'Chèn ảnh bằng URL HTTPS'}</span>
+            <span>{showImages ? 'Ẩn ảnh đính kèm' : 'Đính kèm ảnh'}</span>
           </button>
         </div>
       </form>

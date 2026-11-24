@@ -1,0 +1,79 @@
+/* Shared semantic adapters for legacy route names. Palette: design/colorPalette.js. */
+:root, :root[data-theme='dark'] {
+  --color-canvas: var(--ui-canvas);
+  --color-canvas-subtle: var(--ui-soft);
+  --color-surface: var(--ui-paper);
+  --color-surface-raised: var(--ui-soft);
+  --color-text: var(--ui-ink);
+  --color-text-muted: var(--ui-muted);
+  --color-text-subtle: var(--ui-subtle);
+  --color-border: var(--ui-line);
+  --color-border-strong: color-mix(in srgb,var(--ui-ink) 26%,transparent);
+  --color-brand: var(--ui-accent);
+  --color-brand-hover: var(--ui-accent-hover);
+  --color-brand-active: var(--ui-accent-hover);
+  --color-on-brand: var(--ui-on-accent);
+  --color-champagne: var(--ui-copper);
+  --color-focus: color-mix(in srgb,var(--ui-accent) 28%,transparent);
+  --bg-primary: var(--ui-canvas);
+  --bg-secondary: var(--ui-paper);
+  --bg-tertiary: var(--ui-soft);
+  --bg-soft: var(--ui-soft);
+  --text-primary: var(--ui-ink);
+  --text-secondary: var(--ui-muted);
+  --text-muted: var(--ui-subtle);
+  --accent-teal: var(--ui-accent);
+  --accent-teal-hover: var(--ui-accent-hover);
+  --accent-emerald: var(--ui-accent);
+  --border-color: var(--ui-line);
+  --border-color-hover: var(--ui-accent);
+  --glass-bg: var(--ui-paper);
+  --glass-border: var(--ui-line);
+  --accent-blue: var(--ui-blue); --accent-indigo: var(--ui-blue); --accent-gold: var(--ui-copper); --accent-rose: var(--ui-danger);
+  --text-dark: var(--ui-ink); --border-color-light: var(--ui-line);
+  --bg-white: var(--ui-paper); --primary-color: var(--ui-accent);
+}
+body, :root[data-theme='dark'] body { background: var(--ui-canvas); }
+::selection { background: var(--ui-accent); color: var(--ui-on-accent); }
+.header-wrapper .navbar { background: var(--ui-paper); border-color: var(--ui-line); }
+.header-wrapper .navbar .nav-link-item.active { color: var(--ui-accent); }
+.header-wrapper .navbar .nav-link-item.active::after { background: var(--ui-accent); }
+.header-wrapper .btn-login-nav, .btn.btn-primary { background: var(--ui-accent); border-color: var(--ui-accent); color: var(--ui-on-accent); box-shadow: none; }
+.btn.btn-primary:hover { background: var(--ui-accent-hover); border-color: var(--ui-accent-hover); box-shadow: none; }
+.navbar-logo .logo-main, .footer-logo .logo-main { color: var(--ui-accent); }
+.navbar-logo .logo-helper { color: var(--ui-ink); }
+@font-face { font-family: 'Coiny Brand'; src: url('/fonts/coiny/brand.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Comfortaa Brand Math'; src: url('/fonts/brand-math/comfortaa.woff2') format('woff2'); font-weight: 700; font-style: normal; font-display: swap; }
+.brand-wordmark { display: inline-block; color: inherit; font-family: 'Coiny Brand','Arial Rounded MT Bold',sans-serif; font-weight: 400; letter-spacing: -.045em; white-space: nowrap; line-height: 1.3; }
+.brand-wordmark .brand-math { font-family: 'Comfortaa Brand Math',sans-serif; font-weight: 700; font-size: 1.04em; letter-spacing: -.09em; -webkit-text-stroke: .04em currentColor; paint-order: stroke fill; }
+.navbar-logo .brand-wordmark { font-size: 1.18em; }
+#footer .footer-logo .logo-helper { color: var(--ui-footer-ink); }
+#footer .footer-logo .logo-main { color: var(--ui-footer-accent); }
+:root[data-theme='dark'] .community-route .header-wrapper .navbar { background: color-mix(in srgb,var(--ui-paper) 94%,transparent); }
+/* Native resource artwork fills its one image slot; no padding placeholder. */
+.resources-page .card-image-wrapper, .resources-page .external-card .card-image-wrapper { padding: 0; aspect-ratio: 16/10; height: auto; }
+.resources-page .card-image-wrapper > .resource-artwork { position: absolute; inset: 0; height: 100%; min-height: 0; }
+.resources-page .resources-grid > .doc-card { box-shadow: none; border-radius: 16px; }
+.resources-page .resources-grid > .doc-card:hover { box-shadow: none; border-color: var(--ui-accent); }
+.resources-page .card-body { padding: 20px; }
+.resources-page .card-meta { flex-wrap: wrap; align-items: center; gap: 10px; font-size: .7rem; }
+.resources-page .resource-category { color: var(--ui-accent); font-weight: 600; }
+.resources-page .card-title, .resources-page .card-title a { display: block; font-size: 1rem; line-height: 1.65; letter-spacing: -.02em; -webkit-line-clamp: unset; overflow: visible; }
+.resources-page .card-desc { font-size: .8rem; line-height: 1.75; -webkit-line-clamp: 2; }
+.resource-artwork { color: #191918; }
+.resource-artwork > svg { color: #191918; }
+.resource-artwork .resource-art-foot { font-weight: 500; }
+.resource-artwork--book { display: grid; place-items: center; padding: 14px; background: var(--ui-soft); }
+.resource-artwork--book > img { display: block; height: 100%; max-width: 100%; width: auto; object-fit: contain; box-shadow: 3px 3px 8px #20232b18; }
+.resources-page .resources-banner { min-height: 0; padding: 48px 0; background: var(--ui-canvas); }
+.resources-page .resources-banner-title { font-size: clamp(2.4rem,4vw,4rem); line-height: 1.25; }
+.resources-page .library-index-card { background-color: var(--ui-paper); box-shadow: none; }
+/* Shared action color across the new course and exam catalog. */
+.designed-courses .courses-hero-badge, .designed-courses .section-subtitle { color: var(--ui-accent); }
+.designed-courses .course-hero-links .btn-primary, .designed-courses .btn-course-detail { background: var(--ui-accent); border-color: var(--ui-accent); color: var(--ui-on-accent); }
+.exam-catalog-page .catalog-primary-link { background: var(--ui-accent); color: var(--ui-on-accent); }
+.exam-catalog-page .catalog-eyebrow, .exam-catalog-page .exam-ticket-top > span:first-child, .exam-catalog-page .exam-ticket-bottom, .exam-catalog-page .exam-note-link { color: var(--ui-accent); }
+.designed-courses .courses-hero h1 { font-size: clamp(2.5rem,4vw,4rem); line-height: 1.25; }
+.course-shelf-note { border-radius: 5px; }
+.enterprise-home .enterprise-cta .consult-form-container { background: var(--ui-paper); border-color: var(--ui-line); color: var(--ui-ink); box-shadow: none; }
+.enterprise-home .enterprise-cta .btn-consult-submit { background: var(--ui-accent); color: var(--ui-on-accent); }

@@ -21,7 +21,6 @@ import { SUBJECT_CATEGORIES, DIFFICULTY_LEVELS, reviewCommunityPost } from '../.
 import { safeLocalStorage } from '../../utils/safeStorage';
 import '../../assets/styles/community.css';
 
-const DRAFT_KEY = 'ueh_tcc_post_draft';
 
 /**
  * CreatePostModal component supporting Split-View on desktop and Tabbed on mobile,
@@ -36,6 +35,7 @@ export default function CreatePostModal({
   onRequireLogin,
   onOpenCheatsheet
 }) {
+  const draftKey = `ueh_tcc_post_draft:${currentUser?.id || currentUser?.uid || 'guest'}`;
   const [type, setType] = useState('question');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -98,7 +98,7 @@ export default function CreatePostModal({
     } else {
       // Load draft if available
       try {
-        const draftStr = safeLocalStorage.getItem(DRAFT_KEY);
+        const draftStr = safeLocalStorage.getItem(draftKey);
         if (draftStr) {
           const draft = JSON.parse(draftStr);
           setType(draft.type || 'question');
@@ -123,7 +123,7 @@ export default function CreatePostModal({
         resetForm();
       }
     }
-  }, [isOpen, editingPost]);
+  }, [isOpen, editingPost, draftKey]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
   // Auto-save draft
@@ -132,12 +132,12 @@ export default function CreatePostModal({
 
     if (title.trim() || content.trim()) {
       const draft = { type, title, content, subject, difficulty, tags, image, altText };
-      safeLocalStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+      safeLocalStorage.setItem(draftKey, JSON.stringify(draft));
     }
-  }, [isOpen, editingPost, type, title, content, subject, difficulty, tags, image, altText]);
+  }, [isOpen, editingPost, type, title, content, subject, difficulty, tags, image, altText, draftKey]);
 
   const handleClearDraft = () => {
-    safeLocalStorage.removeItem(DRAFT_KEY);
+    safeLocalStorage.removeItem(draftKey);
     resetForm();
   };
 
@@ -198,7 +198,7 @@ export default function CreatePostModal({
       });
 
       // Clear draft on success
-      safeLocalStorage.removeItem(DRAFT_KEY);
+      safeLocalStorage.removeItem(draftKey);
       onClose();
     } catch (err) {
       setErrors({ submit: err.message || 'Không thể đăng bài viết lúc này.' });
@@ -235,7 +235,7 @@ export default function CreatePostModal({
             <div className="header-badge-title">
               <span className="create-modal-mark"><FileQuestion size={20} /></span>
               <div>
-                <span className="q-eyebrow">UEH Knowledge Desk</span>
+                <span className="q-eyebrow">α∫M4A</span>
                 <h2 id="create-post-modal-title" className="create-modal-title">
                   {editingPost ? 'Chỉnh sửa bài viết' : 'Soạn câu hỏi học thuật'}
                 </h2>
@@ -353,7 +353,7 @@ export default function CreatePostModal({
                   onClick={() => setActiveMobileTab('preview')}
                 >
                   <Eye size={15} />
-                  <span>Xem trước KaTeX ({content.trim() ? 'Sẵn sàng' : 'Chưa có nội dung'})</span>
+                  <span>Xem trước ({content.trim() ? 'Sẵn sàng' : 'Chưa có nội dung'})</span>
                 </button>
               </div>
 
@@ -362,7 +362,8 @@ export default function CreatePostModal({
                   <WYSIWYGMathEditor
                     value={content}
                     onChange={setContent}
-                    placeholder="Nhập nội dung câu hỏi hoặc đề bài chi tiết (hỗ trợ in đậm B, nghiêng I, gạch chân U, màu sắc, chèn công thức KaTeX trực quan như Google Docs)..."
+                    onAttachImage={item => { setImages([item]); setImage(item.preview); setAltText(item.altText); }}
+                    placeholder="Viết câu hỏi hoặc đề bài của bạn. Có thể thêm công thức và hình minh họa."
                     onOpenCheatsheet={onOpenCheatsheet}
                     minHeight="220px"
                     showLivePreview={false}
@@ -373,7 +374,7 @@ export default function CreatePostModal({
                 <div className="create-preview-full-card">
                   <div className="preview-pane-header">
                     <Eye size={14} />
-                    <span>Bản xem trước trực quan (KaTeX Live Preview)</span>
+                    <span>Xem trước bài viết</span>
                   </div>
                   <div className="preview-content-box full-preview">
                     {content.trim() ? (

@@ -1,0 +1,39 @@
+.knowledge-strip { padding: 56px 0 60px; color: var(--ui-ink); background: var(--ui-canvas); border-block: 1px solid var(--ui-line); }
+.knowledge-strip header { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 30px; }
+.knowledge-kicker { color: var(--ui-accent); letter-spacing: .1em; font-size: .65rem; font-weight: 650; }
+.knowledge-strip h2 { margin: 12px 0 0; font-size: clamp(1.5rem, 2.6vw, 2.5rem); line-height: 1.3; letter-spacing: -.03em; color: inherit; }
+.knowledge-caption { color: var(--ui-muted); font-size: .78rem; max-width: 270px; line-height: 1.6; }
+.knowledge-track { display: grid; grid-template-columns: repeat(6, minmax(170px, 1fr)); gap: 12px; overflow: auto; padding: 2px 0 16px; scrollbar-color: var(--ui-accent) var(--ui-line); }
+.concept-card { position: relative; padding: 18px 16px; background: var(--ui-paper); border: 1px solid var(--ui-line); border-radius: 9px; min-width: 0; }
+.concept-number { font-size: .66rem; color: var(--ui-subtle); font-variant-numeric: tabular-nums; }
+.concept-card > svg { display: block; width: 100%; height: auto; color: var(--ui-accent); }
+.concept-card:nth-child(3n + 1) > svg { color: var(--ui-accent); }
+.concept-card .concept-runner { fill: var(--ui-copper); }
+.concept-card a { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--ui-ink); }
+.concept-card a > svg { width: 18px; height: 18px; flex: 0 0 18px; color: var(--ui-accent); }
+.concept-card h3 { font-size: 1rem; font-weight: 550; color: inherit; line-height: 1.5; }
+.concept-card p { font-size: .7rem; color: var(--ui-muted); margin-top: 7px; line-height: 1.6; }
+.concept-card a:focus-visible, .knowledge-strip button:focus-visible { outline: 2px solid var(--ui-accent); outline-offset: 4px; }
+.resource-artwork { position: relative; width: 100%; height: 100%; min-height: 180px; overflow: hidden; color: #191918; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 24px; }
+.resource-art-brand { display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 1; font-size: 11px; font-weight: 750; letter-spacing: .02em; }
+.resource-art-brand > span { font-size: 8px; font-weight: 500; letter-spacing: .12em; }
+.resource-artwork > svg { display: block; width: 60%; height: 150px; align-self: center; margin: -6px 0; }
+.resource-art-foot { display: flex; justify-content: space-between; gap: 10px; align-items: center; font-size: 11px; font-weight: 650; line-height: 1.5; }
+.resource-art-foot > span { font-size: 22px; }
+@media (max-width: 600px) { .knowledge-strip { padding: 40px 0; } .knowledge-strip header { align-items: start; flex-direction: column; gap: 18px; } .knowledge-track { grid-template-columns: repeat(6, 190px); } }
+
+
+.resources-page .list-img-wrapper .resource-artwork--compact { width: 116px; height: 88px; min-height: 0; padding: 8px; }
+.resource-artwork--compact > svg { width: 90%; height: 80px; margin: 0; }
+.resource-artwork--compact .resource-art-brand, .resource-artwork--compact .resource-art-foot { display: none; }
+.home-catalog-summary { background: var(--ui-canvas); padding: 0 0 50px; }
+.enterprise-home .home-catalog-summary .home-stats { margin: 0; box-shadow: none; border-color: var(--ui-line); background: white; border-radius: 12px; }
+.enterprise-home .home-catalog-summary .home-stats > div { border-color: var(--ui-line); }
+.enterprise-home .home-catalog-summary .home-stats dd { color: var(--ui-ink); letter-spacing: -.035em; line-height: 1.3; }
+.enterprise-home .home-catalog-summary .home-stats dt { color: var(--ui-muted); }
+:root[data-theme='dark'] .home-catalog-summary { background: var(--ui-canvas); }
+:root[data-theme='dark'] .enterprise-home .home-catalog-summary .home-stats { background: var(--ui-paper); border-color: var(--ui-line); }
+:root[data-theme='dark'] .enterprise-home .home-catalog-summary .home-stats > div { border-color: var(--ui-line); }
+:root[data-theme='dark'] .enterprise-home .home-catalog-summary .home-stats dd { color: var(--ui-ink); }
+:root[data-theme='dark'] .enterprise-home .home-catalog-summary .home-stats dt { color: var(--ui-muted); }
+@media (max-width: 600px) { .resources-page .list-img-wrapper .resource-artwork--compact { width: 100%; height: 150px; } .resource-artwork--compact > svg { height: 150px; } .home-catalog-summary { padding-bottom: 28px; } .enterprise-home .home-catalog-summary .home-stats { grid-template-columns: repeat(2,minmax(0,1fr)); } }

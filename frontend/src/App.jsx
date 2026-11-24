@@ -23,6 +23,8 @@ import { GlobalPlayerProvider } from './contexts/GlobalPlayerContext';
 import GlobalPlayer from './components/GlobalPlayer';
 import { AuthProvider } from './contexts/AuthContext';
 import { NotificationProvider } from './contexts/NotificationContext';
+import { CheckoutSessionProvider } from './contexts/CheckoutSessionContext';
+import CheckoutSessionDock from './components/CheckoutSessionDock';
 import { CommunityProvider } from './contexts/CommunityContext';
 const Home = safeLazy(() => import('./pages/Home'));
 const GiftPage = safeLazy(() => import('./pages/GiftPage'));
@@ -38,9 +40,19 @@ const CommunityDetailPage = safeLazy(() => import('./pages/CommunityDetailPage')
 const CommunityProfilePage = safeLazy(() => import('./pages/CommunityProfilePage'));
 const FlashcardStudyPage = safeLazy(() => import('./pages/StudyWorkspace'));
 const FlashcardAdmin = safeLazy(() => import('./pages/FlashcardAdmin'));
+const CourseCommerceAdmin = safeLazy(() => import('./pages/CourseCommerceAdmin'));
+const PurchaseTerms = safeLazy(() => import('./pages/PurchaseTerms'));
 import { safeLocalStorage } from './utils/safeStorage';
+import { claimChunkRecovery, isRecoverableChunkError } from './utils/chunkRecovery';
 import './App.css';
 import './assets/styles/experience.css';
+import './assets/styles/CommunityChrome.css';
+import './assets/styles/InterfaceSystem.css';
+import './assets/styles/PaperSurfaces.css';
+import './assets/styles/CommunityPastel.css';
+import './assets/styles/CommunityQuietLight.css';
+import './assets/styles/CapsuleHeaderLight.css';
+import './assets/styles/LearningSpacesLight.css';
 
 // Create Global Contexts
 // eslint-disable-next-line react-refresh/only-export-components
@@ -62,62 +74,37 @@ function GoogleIdentityBoundary({ children }) {
 
 // Dynamic chunk fetch error recovery wrapper
 const lazyChunkReloadKey = 'ueh_tcc_lazy_chunk_reload_v1';
-function claimLazyChunkReload() {
-  try {
-    if (window.sessionStorage.getItem(lazyChunkReloadKey) === '1') return false;
-    window.sessionStorage.setItem(lazyChunkReloadKey, '1');
-    return true;
-  } catch {
-    return false;
-  }
-}
-function clearLazyChunkReload() {
-  try { window.sessionStorage.removeItem(lazyChunkReloadKey); return true; } catch { return false; }
-}
 function safeLazy(importFunc) {
   return lazy(async () => {
     try {
-      const module = await importFunc();
-      clearLazyChunkReload();
-      return module;
+      return await importFunc();
     } catch (error) {
-      if (!claimLazyChunkReload()) throw error;
+      if (!import.meta.env.PROD || !isRecoverableChunkError(error)) throw error;
+      // A successful sibling import must not reset the guard for a failed chunk.
+      let claimed = false;
+      try { claimed = claimChunkRecovery(window.sessionStorage, lazyChunkReloadKey, error.message); } catch { /* Storage can be blocked. */ }
+      if (!claimed) throw error;
       console.warn('Đang thử tải lại một lần sau lỗi nạp trang...', error);
       window.location.reload();
-      return new Promise(() => {});
+      // If navigation is blocked, the router still gets an actionable error.
+      throw error;
     }
   });
 }
-// Global Route Error Boundary to handle version updates gracefully
+// An error is terminal until an explicit retry; never disguise it as loading.
 function GlobalErrorBoundary() {
   const error = useRouteError();
-  const errorMsg = error?.message || error?.toString() || '';
-
-  useEffect(() => {
-    const isChunkError =
-      errorMsg.indexOf('Failed to fetch') !== -1 ||
-      errorMsg.indexOf('dynamically imported module') !== -1 ||
-      errorMsg.indexOf('Importing binding') !== -1;
-    if (!isChunkError || !claimLazyChunkReload()) return undefined;
-    console.warn('Đang thử tải lại một lần để đồng bộ tài nguyên...', errorMsg);
-    const timer = window.setTimeout(() => window.location.reload(), 1000);
-    return () => window.clearTimeout(timer);
-  }, [errorMsg]);
-
   return (
-    <div style={{ padding: '60px 20px', textAlign: 'center', minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-      <BrandLoader label="Đang làm mới dữ liệu hệ thống UEH TCC..." />
-      <p style={{ marginTop: '16px', color: '#64748b', fontSize: '0.9rem' }}>
-        Hệ thống đang tự động đồng bộ phiên bản mới nhất. Vui lòng đợi trong giây lát...
-      </p>
-      <button
-        onClick={() => window.location.reload()}
-        className="btn btn-primary"
-        style={{ marginTop: '16px', padding: '10px 20px', borderRadius: '10px' }}
-      >
-        🔄 Tải lại trang ngay
-      </button>
-    </div>
+    <main className="route-load-error" role="alert">
+      <span className="route-load-error-brand">α∫M4A</span>
+      <h1>Chưa tải được trang</h1>
+      <p>Giao diện chưa thể mở. Bạn có thể tải lại hoặc trở về trang chủ.</p>
+      <div className="route-load-error-actions">
+        <button type="button" className="btn btn-primary" onClick={() => window.location.reload()}>Thử tải lại</button>
+        <a href="/">Về trang chủ</a>
+      </div>
+      {import.meta.env.DEV && <details><summary>Chi tiết lỗi phát triển</summary><pre>{error?.message || 'Lỗi không xác định.'}</pre></details>}
+    </main>
   );
 }
 
@@ -132,6 +119,7 @@ function Layout() {
   const location = useLocation();
   const navigate = useNavigate();
   const isStudyPage = location.pathname === '/flashcards';
+  const isCommunityPage = location.pathname === '/community' || location.pathname.startsWith('/community/');
   const [studyHeaderHidden, setStudyHeaderHidden] = useState(false);
   const isGiftPage = location.pathname === '/20-10';
   const isExamPage = location.pathname.startsWith('/exam/');
@@ -172,14 +160,16 @@ function Layout() {
 
   return (
     <CommunityProvider>
-      <div className={`app-container${isStudyPage ? ' study-route' : ''}${isStudyPage && studyHeaderHidden ? ' study-header-hidden' : ''}`}>
+      <div className={`app-container${showHeaderFooter ? ' capsule-route' : ''}${isStudyPage ? ' study-route' : ''}${isCommunityPage ? ' community-route' : ''}${isStudyPage && studyHeaderHidden ? ' study-header-hidden' : ''}`}>
         <ScrollManager />
         <MotionOrchestrator />
         {showHeaderFooter && <Navbar />}
         <main id="main-content" className="main-content" tabIndex="-1">
+          <span className="scroll-replay-top" data-scroll-replay-top aria-hidden="true"/>
           <PageTransition />
         </main>
         <GlobalPlayer />
+        <CheckoutSessionDock />
         {showHeaderFooter && <ContactLauncher />}
         {showHeaderFooter && <Footer />}
         {showHeaderFooter && <CookieConsent />}
@@ -300,6 +290,14 @@ const router = createBrowserRouter([
       {
         path: 'admin/flashcards',
         element: <Suspense fallback={<BrandLoader label="Đang tải quản trị Flashcard…" />}><FlashcardAdmin /></Suspense>
+      },
+      {
+        path: 'admin/courses',
+        element: <Suspense fallback={<BrandLoader label="Đang tải quản trị khóa học…" />}><CourseCommerceAdmin /></Suspense>
+      },
+      {
+        path: 'purchase-terms',
+        element: <Suspense fallback={<BrandLoader label="Đang tải điều khoản mua…" />}><PurchaseTerms /></Suspense>
       },
       {
         path: 'blog',
@@ -427,11 +425,13 @@ export default function App() {
       <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
         <AuthProvider>
           <NotificationProvider>
+            <CheckoutSessionProvider>
             <GoogleIdentityBoundary>
               <GlobalPlayerProvider>
                 <RouterProvider router={router} />
               </GlobalPlayerProvider>
             </GoogleIdentityBoundary>
+            </CheckoutSessionProvider>
           </NotificationProvider>
         </AuthProvider>
       </ThemeContext.Provider>

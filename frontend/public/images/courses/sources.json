@@ -1,0 +1,64 @@
+{
+  "sources": [
+    {
+      "asset": "lesson-partial-derivatives.webp",
+      "video": "https://www.youtube.com/watch?v=DTcEh5Vl8-M",
+      "seconds": 900,
+      "crop_pixels": [
+        250,
+        143,
+        930,
+        620
+      ],
+      "original_size": [
+        1280,
+        720
+      ],
+      "output_size": [
+        768,
+        488
+      ],
+      "bytes": 35704
+    },
+    {
+      "asset": "lesson-lagrange.webp",
+      "video": "https://www.youtube.com/watch?v=K7EF4KAL2Wg",
+      "seconds": 1800,
+      "crop_pixels": [
+        176,
+        150,
+        939,
+        620
+      ],
+      "original_size": [
+        1280,
+        720
+      ],
+      "output_size": [
+        768,
+        488
+      ],
+      "bytes": 24318
+    },
+    {
+      "asset": "lesson-differential-equations.webp",
+      "video": "https://www.youtube.com/watch?v=3y3kTI6gazQ",
+      "seconds": 1200,
+      "crop_pixels": [
+        219,
+        168,
+        936,
+        620
+      ],
+      "original_size": [
+        1280,
+        720
+      ],
+      "output_size": [
+        768,
+        488
+      ],
+      "bytes": 21136
+    }
+  ]
+}

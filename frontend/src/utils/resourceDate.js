@@ -1,4 +1,5 @@
-const DATE_FIELDS = ['updatedAt', 'publishedAt', 'createdAt', 'date'];
+// An engagement write is not a new publication. Prefer the editorial date.
+const DATE_FIELDS = ['publishedAt', 'date', 'updatedAt', 'createdAt'];
 
 const parseDateValue = (value) => {
   if (!value) return null;

@@ -75,7 +75,7 @@ export default function LeaderboardModal({ isOpen, onClose, leaderboard = [] }) 
             <span className="q-eyebrow qa-modal-eyebrow">
               <Trophy size={12} /> Vinh danh đóng góp
             </span>
-            <h2 id="leaderboard-modal-title" className="qa-modal-title">Bảng vàng UEH TCC</h2>
+            <h2 id="leaderboard-modal-title" className="qa-modal-title">Bảng vàng α∫M4A</h2>
             <p className="qa-modal-sub">
               Xếp hạng theo điểm cống hiến tích lũy từ lời giải, bài toán và lượt ghi nhận hữu ích.
             </p>
@@ -106,7 +106,7 @@ export default function LeaderboardModal({ isOpen, onClose, leaderboard = [] }) 
                   </span>
 
                   <span className="podium-name">{member.name}</span>
-                  <UserRankBadge points={member.points} size="small" />
+                  <UserRankBadge points={member.points} isAdmin={Boolean(member.isAdmin)} size="small" />
                   <span className="podium-points q-num">
                     {(member.points || 0).toLocaleString('vi-VN')}
                     <small>điểm</small>
@@ -137,7 +137,7 @@ export default function LeaderboardModal({ isOpen, onClose, leaderboard = [] }) 
                 </Link>
 
                 <span className="qa-rank-tier">
-                  <UserRankBadge points={member.points} size="small" />
+                  <UserRankBadge points={member.points} isAdmin={Boolean(member.isAdmin)} size="small" />
                 </span>
 
                 {/* Score bar makes the gap between ranks readable at a glance */}

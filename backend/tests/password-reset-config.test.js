@@ -6,7 +6,7 @@ import {
   getPasswordResetReadiness,
   getPasswordResetSecret,
   reportPasswordResetReadiness
-} from '../config/passwordResetConfig.js';
+} from '../src/modules/identity/config/passwordResetConfig.js';
 
 test('production password reset requires a stable private secret and email delivery', () => {
   const readiness = getPasswordResetReadiness({ NODE_ENV: 'production' });

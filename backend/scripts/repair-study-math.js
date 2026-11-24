@@ -1,8 +1,8 @@
 import 'dotenv/config';
 import mongoose from 'mongoose';
-import { connectDB } from '../config/db.js';
-import StudyTopic from '../models/StudyTopic.js';
-import { saveStudyContent } from '../services/studyContent.js';
+import { connectDB } from '../src/platform/database/db.js';
+import StudyTopic from '../src/modules/learning/persistence/StudyTopic.js';
+import { saveStudyContent } from '../src/modules/learning/application/studyContent.js';
 import { normalizeStudyMath } from '../../shared/studyMath.mjs';
 try {
   if (!await connectDB()) throw new Error('MongoDB chưa kết nối; không thay đổi dữ liệu.');

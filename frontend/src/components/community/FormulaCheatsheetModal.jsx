@@ -276,7 +276,7 @@ export default function FormulaCheatsheetModal({ isOpen, onClose, onSelectFormul
   const handleCopy = (code, label = '') => {
     navigator.clipboard?.writeText(code);
     setCopiedCode(code);
-    const toastMsg = label ? `Đã chép: ${label}` : 'Đã chép mã LaTeX!';
+    const toastMsg = label ? `Đã chép: ${label}` : 'Đã chép công thức!';
     setActiveQuickToast({ id: code, message: toastMsg });
     setTimeout(() => {
       setCopiedCode('');
@@ -471,7 +471,7 @@ export default function FormulaCheatsheetModal({ isOpen, onClose, onSelectFormul
                               type="button"
                               className={`cs-action-btn ${isCopied ? 'copied' : ''}`}
                               onClick={() => handleCopy(item.code, item.code)}
-                              title="Sao chép mã LaTeX"
+                              title="Sao chép công thức"
                             >
                               {isCopied ? <Check size={13} /> : <Copy size={13} />}
                               <span>{isCopied ? 'Đã chép' : 'Chép'}</span>
@@ -490,7 +490,7 @@ export default function FormulaCheatsheetModal({ isOpen, onClose, onSelectFormul
         {/* Footer */}
         <footer className="modal-footer cheatsheet-footer">
           <span className="cheatsheet-footer-hint">
-            Nhấp trực tiếp vào ký hiệu hoặc nút <strong>Chép</strong> để lấy mã KaTeX gọn gàng, không dính tạp chất.
+            Chọn ký hiệu hoặc nút <strong>Chép</strong> để sao chép công thức.
           </span>
           <div className="cheatsheet-footer-actions">
             <button
@@ -522,7 +522,7 @@ export default function FormulaCheatsheetModal({ isOpen, onClose, onSelectFormul
                 </span>
                 <h3 className="qa-modal-title">Bảng 24 Ký Hiệu Hy Lạp Đầy Đủ</h3>
                 <p className="qa-modal-sub">
-                  Nhấp vào bất kỳ ký hiệu nào để sao chép ngay mã KaTeX chuẩn xác vào bộ nhớ đệm.
+                  Chọn một ký hiệu để sao chép công thức.
                 </p>
               </div>
               <button

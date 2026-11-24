@@ -109,9 +109,9 @@ export default function ReportContentModal({
             <div className="report-success-icon-wrap">
               <CheckCircle2 size={44} className="report-success-icon" />
             </div>
-            <h3 className="report-success-title">Cảm ơn bạn đã gửi báo cáo!</h3>
+            <h3 id="report-modal-title" className="report-success-title">Cảm ơn bạn đã gửi báo cáo!</h3>
             <p className="report-success-desc">
-              Ban Cố vấn & Quản trị viên UEH TCC sẽ kiểm duyệt nội dung này trong thời gian sớm nhất để bảo đảm môi trường học thuật chất lượng.
+              Ban Cố vấn & Quản trị viên α∫M4A sẽ kiểm duyệt nội dung này trong thời gian sớm nhất để bảo đảm môi trường học thuật chất lượng.
             </p>
           </div>
         ) : (

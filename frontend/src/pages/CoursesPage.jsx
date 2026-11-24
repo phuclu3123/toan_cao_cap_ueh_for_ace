@@ -6,16 +6,23 @@ import {
   FileText,
   Mail,
   Phone,
+  Play,
   Users,
   Video
 } from 'lucide-react';
 import { LanguageContext } from '../App';
 import { translations } from '../utils/translations';
-import { coursesData } from '../data/coursesData';
+import useCourseCatalog from '../hooks/useCourseCatalog';
+import KnowledgeSketch from '../components/learning/KnowledgeSketch';
+import CourseLessonPreview from '../components/learning/CourseLessonPreview';
+import { coursePreviewLessons } from '../data/coursePreviewData';
 import '../assets/styles/Home.css';
 import '../assets/styles/Courses.css';
+import '../assets/styles/EditorialType.css';
+import '../assets/styles/LearningCatalog.css';
 
 export default function CoursesPage() {
+  const { courses: coursesData, error: catalogError } = useCourseCatalog();
   const { language } = useContext(LanguageContext);
   const t = translations[language];
 
@@ -40,24 +47,29 @@ export default function CoursesPage() {
       `Thời gian muốn học: ${form.time}`,
       `Ghi chú: ${form.note}`
     ].join('\n');
-    window.location.href = `mailto:luphuc321@gmail.com?subject=${encodeURIComponent('Đăng ký tư vấn UEH TCC')}&body=${encodeURIComponent(body)}`;
+    window.location.href = `mailto:luphuc321@gmail.com?subject=${encodeURIComponent('Đăng ký tư vấn α∫M4A')}&body=${encodeURIComponent(body)}`;
   };
 
   const benefits = t.coursesPage.benefits;
+  const sampleLessons = [0,3,5,7].map(index=>coursePreviewLessons[index]).filter(lesson=>lesson && !lesson.isLocked);
 
   return (
-    <div className="home-page courses-page">
+    <div className="home-page courses-page designed-courses">
       {/* Hero Section */}
       <section className="courses-hero">
         <div className="container">
+          <div>
           <span className="courses-hero-badge">
             <Video size={15} /> {t.coursesPage.kicker || 'KHÓA HỌC E-LEARNING'}
           </span>
-          <h1>{t.coursesPage.title || 'Hệ Thống Khóa Học E-Learning UEH TCC'}</h1>
+          <h1>{language === 'vi' ? <>Học từ gốc.<br/><em>Vững từng bài.</em></> : t.coursesPage.title}</h1>
           <p>
-            {t.coursesPage.desc ||
-              'Học trực tuyến chủ động 24/7 với lộ trình bài giảng video chuẩn HD sắc nét, bài tập thực hành doanh nghiệp và kho tài liệu phong phú.'}
+            {language === 'vi' ? 'Bài giảng theo chương, bài tập và lời giải. Chọn phần kiến thức bạn cần học.' : t.coursesPage.desc}
           </p>
+          <div className="course-hero-links"><a href="#catalog" className="btn btn-primary">Xem khóa học <ArrowRight size={16} /></a><a href="#enroll" className="btn btn-secondary">Hỏi về lộ trình</a></div>
+          <div className="course-learning-signals"><span><Play size={14}/> Xem bài giảng thật</span><span><FileText size={14}/> Học theo chủ đề</span><span><CheckCircle size={14}/> Xem thử trước</span></div>
+          </div>
+          <CourseLessonPreview/>
         </div>
       </section>
 
@@ -67,44 +79,48 @@ export default function CoursesPage() {
           <div className="section-title section-title-split" style={{ marginBottom: '32px' }}>
             <div>
               <span className="section-subtitle">DANH MỤC KHÓA HỌC</span>
-              <h2>Các Khóa Học Đang Mở Đăng Ký</h2>
+              <h2>Chọn khóa học.</h2>
             </div>
-            <p>Chọn khóa học phù hợp với định hướng học tập của bạn để bắt đầu trải nghiệm e-learning ngay hôm nay.</p>
+            <p>Học từ nền tảng hoặc luyện theo bộ đề. Xem nội dung trước khi đăng ký.</p>
           </div>
 
+          {catalogError && <p className="catalog-load-note" role="status">{catalogError}</p>}
           <div className="course-cards-container">
             {coursesData.map((course) => (
-              <article className="elearning-card" key={course.id}>
+              <article className="elearning-card paper-surface" data-paper={['lavender','sky','sun','mint'][coursesData.indexOf(course)%4]} key={course.id}>
                 <div className="elearning-card-cover">
                   <img src={course.image} alt={course.title} />
-                  <span className="status-tag-pill">{course.badge}</span>
+                  <span className="status-tag-pill" data-availability={course.isClosed ? 'closed' : 'open'}>{course.badge}</span>
                 </div>
                 <div className="elearning-card-body">
                   <div>
                     <h3 className="elearning-card-title">{course.title}</h3>
+                    <p className="course-catalog-description">{course.desc}</p>
                     <div className="elearning-meta-row">
                       <span className="elearning-meta-item">
-                        <FileText size={15} /> {course.lessonsCount} BÀI
+                        <FileText size={15} /> {Number.isInteger(course.lessonsCount) ? `${course.lessonsCount} bài học` : 'Đang chuẩn bị'}
                       </span>
-                      <span className="elearning-meta-item">
-                        <Users size={15} /> {course.studentsCount} HỌC VIÊN
-                      </span>
+                      {Number.isInteger(course.studentsCount) && <span className="elearning-meta-item">
+                        <Users size={15} /> {course.studentsCount} học viên
+                      </span>}
                     </div>
                   </div>
 
                   <div className="elearning-card-footer">
                     <div className="elearning-price-block">
-                      {course.isFree ? (
+                      {course.isClosed ? (
+                        <span className="course-closed-label">Chưa nhận đăng ký</span>
+                      ) : course.isFree ? (
                         <span className="price-free-tag">Miễn phí</span>
                       ) : (
                         <>
-                          <span className="original-price-crossed">{course.originalPrice}</span>
+                          {course.originalPrice !== course.discountPrice && <span className="original-price-crossed">{course.originalPrice}</span>}
                           <span className="current-price-tag">{course.discountPrice}</span>
                         </>
                       )}
                     </div>
                     <Link to={`/course/${course.id}`} className="btn-course-detail">
-                      CHI TIẾT <ArrowRight size={15} />
+                      Xem khóa học <ArrowRight size={15} />
                     </Link>
                   </div>
                 </div>
@@ -114,10 +130,15 @@ export default function CoursesPage() {
         </div>
       </section>
 
+      <section className="course-sample-section"><div className="container">
+        <header><div><span className="section-subtitle">MỘT GÓC TRONG LỘ TRÌNH</span><h2>Từ một ý hiểu,<br/><em>đến một bài tự giải.</em></h2></div><p>Nhìn trước những chủ đề đang có trong khóa Toán cao cấp. Mở danh sách bài giảng để chọn đúng phần bạn cần.</p></header>
+        <div className="course-sample-grid">{sampleLessons.map((lesson,index)=><Link to="/course/tu-hoc-toan-cao-cap#curriculum" className="course-sample-note paper-surface" data-paper={['mint','peach','sky','sun'][index]} key={lesson.id}><div className="course-sample-note-top"><span>{lesson.title.split('|')[0].trim()}</span><span>{lesson.duration}</span></div><KnowledgeSketch kind={['matrix','curve','optimize','matrix'][index]} step={1}/><h3>{lesson.title.split('|').slice(1).join('|').trim()}</h3><span className="course-sample-link">Xem trong lộ trình <ArrowRight size={16}/></span></Link>)}</div>
+      </div></section>
+
       {/* Enrollment Consultation Form */}
-      <section id="enroll" className="section" style={{ background: 'var(--course-paper)' }}>
+      <section id="enroll" className="course-consultation paper-surface" data-paper="peach">
         <div className="container">
-          <div className="enroll-panel glass-panel">
+          <div className="enroll-panel">
             <div className="enroll-copy">
               <span className="section-subtitle">{t.coursesPage.formSubtitle}</span>
               <h2>{t.coursesPage.formTitle}</h2>
@@ -136,6 +157,7 @@ export default function CoursesPage() {
             </div>
 
             <form className="enroll-form" onSubmit={handleSubmit}>
+              <label><span>Họ và tên</span>
               <input
                 className="form-input"
                 placeholder={t.coursesPage.placeholderName}
@@ -143,6 +165,8 @@ export default function CoursesPage() {
                 onChange={(event) => updateField('name', event.target.value)}
                 required
               />
+              </label>
+              <label><span>Thông tin liên hệ</span>
               <input
                 className="form-input"
                 placeholder={t.coursesPage.placeholderContact}
@@ -150,6 +174,8 @@ export default function CoursesPage() {
                 onChange={(event) => updateField('contact', event.target.value)}
                 required
               />
+              </label>
+              <label><span>Mục tiêu học</span>
               <select
                 className="form-input"
                 value={form.goal}
@@ -165,6 +191,8 @@ export default function CoursesPage() {
                   </option>
                 ))}
               </select>
+              </label>
+              <label><span>Thời gian dự kiến</span>
               <select
                 className="form-input"
                 value={form.time}
@@ -180,6 +208,8 @@ export default function CoursesPage() {
                   </option>
                 ))}
               </select>
+              </label>
+              <label className="course-form-note"><span>Bạn muốn chia sẻ thêm?</span>
               <textarea
                 className="form-input text-area"
                 rows="4"
@@ -187,7 +217,8 @@ export default function CoursesPage() {
                 value={form.note}
                 onChange={(event) => updateField('note', event.target.value)}
               />
-              <button className="btn btn-primary consult-red" type="submit">
+              </label>
+              <button className="btn course-consult-submit" type="submit">
                 {t.coursesPage.btnSubmit}
               </button>
             </form>

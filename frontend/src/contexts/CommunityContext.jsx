@@ -16,7 +16,7 @@ export function CommunityProvider({ children }) {
   const activeSort = searchParams.get('sort') || 'newest';
   const searchQuery = searchParams.get('q') || '';
   const activeTag = searchParams.get('tag') || '';
-  const currentPage = parseInt(searchParams.get('page') || '1', 10);
+  const currentPage = Math.max(1, parseInt(searchParams.get('page') || '1', 10) || 1);
 
   // States
   const [posts, setPosts] = useState([]);
@@ -24,6 +24,14 @@ export function CommunityProvider({ children }) {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [sessionActionError, setSessionActionError] = useState('');
+  useEffect(() => {
+    const handleAuthError = () => setSessionActionError('Phiên đăng nhập đã hết hạn. Nội dung chưa được lưu. Vui lòng đăng nhập lại để tiếp tục.');
+    window.addEventListener('ueh-tcc-community-session-expired', handleAuthError);
+    return () => window.removeEventListener('ueh-tcc-community-session-expired', handleAuthError);
+  }, []);
+  const [degraded, setDegraded] = useState(false);
+  const [metadataError, setMetadataError] = useState(false);
   const refreshRequestIdRef = useRef(0);
   const metadataRequestIdRef = useRef(0);
 
@@ -75,6 +83,11 @@ export function CommunityProvider({ children }) {
     updateUrlParams({ sort: srt, page: 1 });
   }, [updateUrlParams]);
 
+  // Commit compound filter changes once so sort cannot overwrite status.
+  const setView = useCallback((view) => {
+    updateUrlParams({ ...view, page: 1 });
+  }, [updateUrlParams]);
+
   const setSearchQuery = useCallback((q) => {
     updateUrlParams({ q, page: 1 });
   }, [updateUrlParams]);
@@ -118,7 +131,8 @@ export function CommunityProvider({ children }) {
       });
 
       if (requestId === refreshRequestIdRef.current) {
-        setPosts(res.posts);
+        setPosts(res.posts.filter(post => !communityService.getHiddenPostIds().includes(post.id)));
+        setDegraded(res.degraded);
         setTotalPosts(res.total);
         setTotalPages(res.totalPages);
         setLoading(false);
@@ -137,12 +151,14 @@ export function CommunityProvider({ children }) {
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     refreshPosts();
+    return () => { refreshRequestIdRef.current += 1; };
   }, [refreshPosts]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
   const refreshMetadata = useCallback(async () => {
     const requestId = metadataRequestIdRef.current + 1;
     metadataRequestIdRef.current = requestId;
+    setSavedPostIds([]);
     const [statsResult, leaderboardResult, hotResult, savedResult] = await Promise.allSettled([
       communityService.fetchCommunityStats(),
       communityService.fetchLeaderboard(),
@@ -150,6 +166,7 @@ export function CommunityProvider({ children }) {
       currentUser ? communityService.fetchSavedPostIds() : Promise.resolve([])
     ]);
     if (requestId !== metadataRequestIdRef.current) return;
+    setMetadataError([statsResult, leaderboardResult, hotResult].some(result => result.status === 'rejected'));
     if (statsResult.status === 'fulfilled') {
       setStats(statsResult.value);
       setTrendingTags(Array.isArray(statsResult.value.trendingTags) ? statsResult.value.trendingTags : []);
@@ -158,12 +175,13 @@ export function CommunityProvider({ children }) {
     if (hotResult.status === 'fulfilled') {
       setHotQuestions(hotResult.value.posts);
     }
-    if (savedResult.status === 'fulfilled') setSavedPostIds(savedResult.value);
+    setSavedPostIds(savedResult.status === 'fulfilled' ? savedResult.value : []);
   }, [currentUser]);
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     refreshMetadata();
+    return () => { metadataRequestIdRef.current += 1; };
   }, [refreshMetadata]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
@@ -172,11 +190,10 @@ export function CommunityProvider({ children }) {
     const { isSaved, savedPostIds: nextSaved } = await communityService.toggleSavePost(postId);
     setSavedPostIds([...nextSaved]);
     if (!isSaved && activeStatus === 'saved') {
-      setPosts((previous) => previous.filter((post) => post.id !== postId));
-      setTotalPosts((previous) => Math.max(0, previous - 1));
+      await refreshPosts();
     }
     return isSaved;
-  }, [activeStatus]);
+  }, [activeStatus, refreshPosts]);
 
   // Mark visited
   const markVisited = useCallback((postId) => {
@@ -190,6 +207,12 @@ export function CommunityProvider({ children }) {
     setHiddenPostIds([...nextHidden]);
     setPosts(prev => prev.filter(p => p.id !== postId));
   }, []);
+
+  const restoreHiddenPosts = useCallback(() => {
+    communityService.clearHiddenPosts();
+    setHiddenPostIds([]);
+    refreshPosts();
+  }, [refreshPosts]);
 
   // Report post
   const reportPost = useCallback(async (data) => {
@@ -291,13 +314,12 @@ export function CommunityProvider({ children }) {
   // Add Answer
   const handleAddAnswer = useCallback(async (postId, content) => {
     const result = await communityService.addAnswer(postId, {
-      content,
-      author: currentUser || { name: 'Sinh viên UEH', cohort: 'K50 UEH', points: 65 }
+      ...(typeof content === 'string' ? { content } : content)
     });
 
     await Promise.all([refreshPosts(), refreshMetadata()]);
     return result;
-  }, [currentUser, refreshMetadata, refreshPosts]);
+  }, [refreshMetadata, refreshPosts]);
 
   // Accept Answer
   const handleAcceptAnswer = useCallback(async (postId, answerId, isInstructor = false) => {
@@ -314,6 +336,11 @@ export function CommunityProvider({ children }) {
     totalPages,
     loading,
     error,
+    sessionActionError,
+    clearSessionActionError: () => setSessionActionError(''),
+    degraded,
+    metadataError,
+    refreshMetadata,
     stats,
     leaderboard,
     hotQuestions,
@@ -331,6 +358,7 @@ export function CommunityProvider({ children }) {
     setDifficulty,
     setStatus,
     setSort,
+    setView,
     setSearchQuery,
     setTag,
     setPage,
@@ -344,6 +372,7 @@ export function CommunityProvider({ children }) {
     toggleSavePost,
     markVisited,
     hidePost,
+    restoreHiddenPosts,
     reportPost,
 
     // Actions
@@ -372,7 +401,13 @@ export function CommunityProvider({ children }) {
     setIsMobileFilterOpen,
 
     openCreateModal: () => { setEditingPost(null); setIsCreateModalOpen(true); },
-    openEditModal: (post) => { setEditingPost(post); setIsCreateModalOpen(true); },
+    openEditModal: async (post) => {
+      // Feed entries contain excerpts; load the complete post before editing.
+      const fullPost = await communityService.getPostById(post.id, { recordView: false });
+      if (!fullPost) throw new Error('Chưa tải được nội dung bài để chỉnh sửa.');
+      setEditingPost(fullPost);
+      setIsCreateModalOpen(true);
+    },
     closeCreateModal: () => { setIsCreateModalOpen(false); setEditingPost(null); }
   };
 

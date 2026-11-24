@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import User from '../models/User.js';
+import User from '../src/modules/identity/persistence/User.js';
 import {
   attachExternalIdentity,
   providerSubjectOnUser,
   resolveExternalIdentityOwner,
   seedMissingProfileFromExternalIdentity
-} from '../services/externalIdentityService.js';
+} from '../src/modules/identity/application/externalIdentityService.js';
 
 test('a verified GitHub email links to the existing Firebase user without replacing legacy uid', () => {
   const existingUser = {
@@ -164,6 +164,17 @@ test('provider profile defaults respect canonical field length limits', () => {
 
   assert.equal(user.name, 'N'.repeat(120));
   assert.equal(user.phoneNumber, '1'.repeat(32));
+});
+
+test('verified provider photo only fills an absent avatar and never overwrites a custom photo', () => {
+  const user = { avatar: '' };
+  seedMissingProfileFromExternalIdentity(user, { avatar: 'https://lh3.googleusercontent.com/profile-photo' });
+  assert.equal(user.avatar, 'https://lh3.googleusercontent.com/profile-photo');
+  seedMissingProfileFromExternalIdentity(user, { avatar: 'https://example.test/another.png' });
+  assert.equal(user.avatar, 'https://lh3.googleusercontent.com/profile-photo');
+  const empty = { avatar: '' };
+  seedMissingProfileFromExternalIdentity(empty, { avatar: 'javascript:alert(1)' });
+  assert.equal(empty.avatar, '');
 });
 
 test('a password account keeps one canonical profile while linking Firebase and GitHub', () => {

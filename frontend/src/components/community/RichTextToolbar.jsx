@@ -310,7 +310,7 @@ export default function RichTextToolbar({
 
       {/* 4. Math Quick Insert Buttons */}
       <div className="rich-toolbar-math-group">
-        <span className="rich-math-label">KaTeX:</span>
+        <span className="rich-math-label">Công thức:</span>
         {mathButtons.map((btn, idx) => (
           <button
             key={idx}

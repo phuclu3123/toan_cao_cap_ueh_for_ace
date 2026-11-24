@@ -9,8 +9,8 @@ export default function AboutPage() {
   const texts = {
     vi: {
       subtitle: 'NỀN TẢNG HỌC TẬP CHUYÊN SÂU',
-      title: 'Giới Thiệu UEH TCC',
-      description: 'UEH TCC là nền tảng học tập chuyên khảo về Toán Cao Cấp, Thống Kê và Định Lượng Tài Chính dành cho sinh viên Đại học Kinh tế TP. Hồ Chí Minh.',
+      title: 'Giới Thiệu α∫M4A',
+      description: 'α∫M4A là nền tảng học tập chuyên khảo về Toán Cao Cấp, Thống Kê và Định Lượng Tài Chính dành cho sinh viên Đại học Kinh tế TP. Hồ Chí Minh.',
       missionTitle: 'Sứ Mệnh Học Thuật',
       missionDesc: 'Cung cấp phương pháp tư duy toán học chuẩn xác, bài giảng chuyên sâu và kho đề thi tương tác chất lượng cao, giúp sinh viên làm chủ kiến thức và áp dụng vào phân tích kinh tế thực tế.',
       pillar1Title: 'Chuẩn Mực Học Thuật',
@@ -22,8 +22,8 @@ export default function AboutPage() {
     },
     en: {
       subtitle: 'ADVANCED LEARNING PLATFORM',
-      title: 'About UEH TCC',
-      description: 'UEH TCC is an editorial academic platform for Advanced Calculus, Applied Statistics, and Quantitative Finance.',
+      title: 'About α∫M4A',
+      description: 'α∫M4A is an editorial academic platform for Advanced Calculus, Applied Statistics, and Quantitative Finance.',
       missionTitle: 'Academic Mission',
       missionDesc: 'Providing rigorous mathematical methodologies, deep articles, and interactive exam environments to master quantitative finance.',
       pillar1Title: 'Academic Rigor',

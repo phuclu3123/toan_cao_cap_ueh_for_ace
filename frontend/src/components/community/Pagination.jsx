@@ -1,4 +1,5 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { paginationPages } from '../../utils/pagination';
 import '../../assets/styles/community.css';
 
 /**
@@ -7,10 +8,7 @@ import '../../assets/styles/community.css';
 export default function Pagination({ currentPage = 1, totalPages = 1, onPageChange }) {
   if (totalPages <= 1) return null;
 
-  const pages = [];
-  for (let i = 1; i <= totalPages; i++) {
-    pages.push(i);
-  }
+  const pages = paginationPages(currentPage, totalPages);
 
   return (
     <nav className="pagination-container" aria-label="Điều hướng phân trang bài viết">
@@ -26,7 +24,7 @@ export default function Pagination({ currentPage = 1, totalPages = 1, onPageChan
       </button>
 
       <div className="pagination-pages-list">
-        {pages.map((p) => (
+        {pages.map((p, index) => p === '…' ? <span key={`gap-${index}`} className="pagination-gap" aria-hidden="true">…</span> : (
           <button
             key={p}
             type="button"

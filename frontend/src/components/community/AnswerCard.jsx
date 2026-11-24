@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import CommunityMemberLink from './CommunityMemberLink';
+import CommunityAvatar from './CommunityAvatar';
+import CommentThread from './CommentThread';
 import {
   ChevronUp,
   ChevronDown,
@@ -7,7 +9,6 @@ import {
   Check,
   Maximize2,
   Minimize2,
-  Trash2,
   Pencil
 } from 'lucide-react';
 import MathRenderer from '../MathRenderer';
@@ -32,25 +33,21 @@ export default function AnswerCard({
   onAddComment,
   onEditComment,
   onDeleteComment,
+  onReactComment,
   onQuote,
   onEditAnswer,
   onDeleteAnswer,
   onReport,
   onOpenCheatsheet
 }) {
-  const [showCommentForm, setShowCommentForm] = useState(false);
-  const [commentText, setCommentText] = useState('');
-  const [isSubmittingComment, setIsSubmittingComment] = useState(false);
-  const [editingCommentId, setEditingCommentId] = useState(null);
-  const [editingCommentText, setEditingCommentText] = useState('');
-  const [isSavingCommentEdit, setIsSavingCommentEdit] = useState(false);
-  const [commentToDelete, setCommentToDelete] = useState(null);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showAcceptConfirm, setShowAcceptConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isAcceptingAnswer, setIsAcceptingAnswer] = useState(false);
   const [isDeletingAnswer, setIsDeletingAnswer] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
+  const [actionError, setActionError] = useState('');
+  const [isVoting, setIsVoting] = useState(false);
 
   // Edit Answer state
   const [isEditingAnswer, setIsEditingAnswer] = useState(false);
@@ -60,74 +57,27 @@ export default function AnswerCard({
   const isAccepted = Boolean(answer.isAccepted);
   const currentUserId = currentUser?.id || currentUser?.uid || '';
   const isVerified = Boolean(answer.instructorVerified || answer.isInstructorVerified);
-  const isAnswerAuthor = currentUser && (currentUser.uid === answer.author?.id || currentUser.id === answer.author?.id);
+  const isAnswerAuthor = currentUser && (answer.canManage || currentUser.uid === answer.author?.id || currentUser.id === answer.author?.id);
   const hasUpvoted = Boolean(currentUserId && answer.upvotedBy && answer.upvotedBy.includes(currentUserId));
   const hasDownvoted = Boolean(currentUserId && answer.downvotedBy && answer.downvotedBy.includes(currentUserId));
 
-  const handleShareLink = () => {
+  const handleShareLink = async () => {
     const url = `${window.location.origin}/community/${postId}#${answer.id}`;
-    navigator.clipboard?.writeText(url);
+    try {
+    if (!navigator.clipboard) throw new Error('Trình duyệt chưa hỗ trợ sao chép liên kết.');
+    await navigator.clipboard.writeText(url);
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2000);
+    } catch (error) { setActionError(error.message); }
   };
 
-  const handleCommentSubmit = async (e) => {
-    e.preventDefault();
-    if (!currentUser) {
-      onRequireLogin?.();
-      return;
-    }
-    const clean = commentText.replace(/<[^>]*>/g, '').trim();
-    if (!clean && !commentText.includes('$')) return;
-
-    setIsSubmittingComment(true);
-    try {
-      await onAddComment(postId, answer.id, commentText.trim());
-      setCommentText('');
-      setShowCommentForm(false);
-    } catch (err) {
-      console.error('Lỗi khi gửi bình luận:', err);
-    } finally {
-      setIsSubmittingComment(false);
-    }
-  };
-
-  const handleStartComment = () => {
-    if (!currentUser) {
-      onRequireLogin?.();
-      return;
-    }
-    setShowCommentForm(true);
-  };
-
-  const handleStartEditComment = (cmt) => {
-    setEditingCommentId(cmt.id);
-    setEditingCommentText(cmt.content);
-  };
-
-  const handleSaveCommentEdit = async (cmtId) => {
-    const clean = editingCommentText.replace(/<[^>]*>/g, '').trim();
-    if (!clean && !editingCommentText.includes('$')) return;
-    setIsSavingCommentEdit(true);
-    try {
-      await onEditComment?.(postId, answer.id, cmtId, editingCommentText.trim());
-      setEditingCommentId(null);
-      setEditingCommentText('');
-    } catch (err) {
-      console.error('Lỗi cập nhật bình luận:', err);
-    } finally {
-      setIsSavingCommentEdit(false);
-    }
-  };
-
-  const handleDeleteCommentConfirm = async () => {
-    if (!commentToDelete) return;
-    try {
-      await onDeleteComment?.(postId, answer.id, commentToDelete.id);
-      setCommentToDelete(null);
-    } catch (err) {
-      console.error('Lỗi khi xóa bình luận:', err);
-    }
+  const handleVote = async (action) => {
+    if (!currentUser) return onRequireLogin?.();
+    if (isVoting) return;
+    setIsVoting(true); setActionError('');
+    try { await action?.(postId, answer.id); }
+    catch (error) { setActionError(error.message || 'Chưa thể bình chọn. Vui lòng thử lại.'); }
+    finally { setIsVoting(false); }
   };
 
   const handleStartEditAnswer = () => {
@@ -143,6 +93,7 @@ export default function AnswerCard({
       await onEditAnswer?.(postId, answer.id, editAnswerText.trim());
       setIsEditingAnswer(false);
     } catch (err) {
+      setActionError(err.message || 'Please retry.');
       console.error('Lỗi khi lưu chỉnh sửa lời giải:', err);
     } finally {
       setIsSavingAnswerEdit(false);
@@ -155,6 +106,7 @@ export default function AnswerCard({
       await onAcceptAnswer?.(postId, answer.id, isInstructor);
       setShowAcceptConfirm(false);
     } catch (err) {
+      setActionError(err.message || 'Please retry.');
       console.error('Lỗi khi cập nhật lời giải được chấp nhận:', err);
     } finally {
       setIsAcceptingAnswer(false);
@@ -167,6 +119,7 @@ export default function AnswerCard({
       await onDeleteAnswer?.(postId, answer.id);
       setShowDeleteConfirm(false);
     } catch (err) {
+      setActionError(err.message || 'Please retry.');
       console.error('Lỗi khi xóa lời giải:', err);
     } finally {
       setIsDeletingAnswer(false);
@@ -188,10 +141,11 @@ export default function AnswerCard({
               onRequireLogin?.();
               return;
             }
-            onUpvote?.(postId, answer.id);
+            handleVote(onUpvote);
           }}
           title="Lời giải này hữu ích và chuẩn xác"
-          aria-label="Upvote answer"
+          aria-label="Bình chọn lời giải hữu ích"
+          disabled={isVoting}
         >
           <ChevronUp size={28} />
         </button>
@@ -206,10 +160,11 @@ export default function AnswerCard({
               onRequireLogin?.();
               return;
             }
-            onDownvote?.(postId, answer.id);
+            handleVote(onDownvote);
           }}
           title="Lời giải chưa hữu ích hoặc không chính xác"
-          aria-label="Downvote answer"
+          aria-label="Bình chọn lời giải chưa hữu ích"
+          disabled={isVoting}
         >
           <ChevronDown size={28} />
         </button>
@@ -224,6 +179,7 @@ export default function AnswerCard({
 
       {/* 2. Main Answer Body Column */}
       <div className="se-detail-post-body-col">
+        {actionError && <p className="qa-action-feedback is-error" role="alert">{actionError}</p>}
         {/* Top bar with Collapse Toggle Button */}
         <div className="se-answer-top-toolbar">
           {isVerified && !isAccepted && (
@@ -265,7 +221,7 @@ export default function AnswerCard({
             <WYSIWYGMathEditor
               value={editAnswerText}
               onChange={setEditAnswerText}
-              placeholder="Chỉnh sửa nội dung lời giải (hỗ trợ KaTeX, bảng, hộp Bổ đề/Định lý)..."
+              placeholder="Chỉnh sửa lời giải, công thức hoặc hình minh họa…"
               onOpenCheatsheet={onOpenCheatsheet}
               minHeight="180px"
             />
@@ -292,6 +248,7 @@ export default function AnswerCard({
           <div className={`se-detail-math-wrapper ${isCollapsed ? 'is-faded-collapsed' : ''}`}>
             <div className="se-detail-math-content">
               <MathRenderer text={answer.content} />
+              {answer.image && <figure className="qa-answer-attachment"><img src={answer.image} alt={answer.altText || 'Ảnh lời giải đính kèm'} loading="lazy" />{answer.altText && <figcaption>{answer.altText}</figcaption>}</figure>}
             </div>
 
             {isCollapsed && (
@@ -359,7 +316,7 @@ export default function AnswerCard({
           {/* Answer Author Card */}
           <div className="se-author-card-box is-answer-author">
             <span className="author-card-time">
-              answered {formatRelativeTime(answer.createdAt)}
+              {answer.origin === 'curated' ? 'Lời giải biên soạn' : 'Trả lời'} {formatRelativeTime(answer.createdAt)}
               {answer.updatedAt && (
                 <span className="se-comment-edited-badge" title={`Chỉnh sửa ${formatRelativeTime(answer.updatedAt)}`}>
                   {' '}(đã sửa)
@@ -367,152 +324,25 @@ export default function AnswerCard({
               )}
             </span>
             <div className="author-card-user-row">
-              <Link to={`/community/user/${answer.author?.id}`} className="author-card-avatar">
-                {answer.author?.avatar ? (
-                  <img src={answer.author.avatar} alt={answer.author.name} />
-                ) : (
-                  <span>{(answer.author?.name || 'U').charAt(0).toUpperCase()}</span>
-                )}
-              </Link>
+              <CommunityMemberLink author={answer.author} className="author-card-avatar">
+                <CommunityAvatar src={answer.author?.avatar} name={answer.author?.name} />
+              </CommunityMemberLink>
               <div className="author-card-meta">
-                <Link to={`/community/user/${answer.author?.id}`} className="author-card-name">
+                <CommunityMemberLink author={answer.author} className="author-card-name">
                   {answer.author?.name || 'Sinh viên UEH'}
-                </Link>
+                </CommunityMemberLink>
                 <span className="author-card-rep">
-                  {answer.author?.points || 0} pts
+                  {answer.origin === 'curated' ? 'α∫M4A' : `${answer.author?.points || 0} \u0111i\u1ec3m`}
                 </span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* 3. Threaded Comments Section */}
-        <div className="se-comments-thread">
-          <div className="se-comments-list">
-            {(answer.comments || []).map((cmt) => {
-              const isCmtAuthor = currentUser && (
-                currentUser.uid === cmt.author?.id ||
-                currentUser.id === cmt.author?.id ||
-                currentUser.email === cmt.author?.email ||
-                currentUser.isAdmin
-              );
-              const isEditing = editingCommentId === cmt.id;
-
-              if (isEditing) {
-                return (
-                  <div key={cmt.id} className="se-comment-edit-box">
-                    <WYSIWYGMathEditor
-                      value={editingCommentText}
-                      onChange={setEditingCommentText}
-                      placeholder="Chỉnh sửa bình luận..."
-                      onOpenCheatsheet={onOpenCheatsheet}
-                      minHeight="60px"
-                      compact={true}
-                    />
-                    <div className="se-comment-edit-actions">
-                      <button
-                        type="button"
-                        className="se-comment-cancel-btn"
-                        onClick={() => setEditingCommentId(null)}
-                      >
-                        Hủy
-                      </button>
-                      <button
-                        type="button"
-                        className="se-comment-save-btn"
-                        onClick={() => handleSaveCommentEdit(cmt.id)}
-                        disabled={isSavingCommentEdit || !editingCommentText.replace(/<[^>]*>/g, '').trim()}
-                      >
-                        {isSavingCommentEdit ? 'Đang lưu...' : 'Lưu thay đổi'}
-                      </button>
-                    </div>
-                  </div>
-                );
-              }
-
-              return (
-                <div key={cmt.id} className="se-comment-item group-hover-actions">
-                  <div className="se-comment-body">
-                    <MathRenderer text={cmt.content} inline />
-                    <span className="se-comment-meta-byline">
-                      {' – '}
-                      <Link to={`/community/user/${cmt.author?.id || 'guest'}`} className="se-comment-author">
-                        {cmt.author?.name || 'Sinh viên UEH'}
-                      </Link>{' '}
-                      <span className="se-comment-date">{formatRelativeTime(cmt.createdAt)}</span>
-                      {cmt.updatedAt && (
-                        <span className="se-comment-edited-badge" title={`Chỉnh sửa ${formatRelativeTime(cmt.updatedAt)}`}>
-                          (đã sửa)
-                        </span>
-                      )}
-                    </span>
-                  </div>
-
-                  {isCmtAuthor && (
-                    <div className="se-comment-action-btns">
-                      <button
-                        type="button"
-                        className="se-comment-action-btn edit"
-                        onClick={() => handleStartEditComment(cmt)}
-                        title="Chỉnh sửa bình luận này"
-                        aria-label="Edit comment"
-                      >
-                        <Pencil size={12} />
-                      </button>
-                      <button
-                        type="button"
-                        className="se-comment-action-btn delete"
-                        onClick={() => setCommentToDelete(cmt)}
-                        title="Xóa bình luận này"
-                        aria-label="Delete comment"
-                      >
-                        <Trash2 size={12} />
-                      </button>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Add a comment trigger or Rich form */}
-          {!showCommentForm ? (
-            <button
-              type="button"
-              className="se-add-comment-btn"
-              onClick={handleStartComment}
-            >
-              Thêm bình luận trao đổi...
-            </button>
-          ) : (
-            <form onSubmit={handleCommentSubmit} className="se-inline-comment-form">
-              <WYSIWYGMathEditor
-                value={commentText}
-                onChange={setCommentText}
-                placeholder="Nhập nhận xét hoặc đặt câu hỏi (hỗ trợ in đậm B, nghiêng I, màu sắc, KaTeX)..."
-                onOpenCheatsheet={onOpenCheatsheet}
-                minHeight="70px"
-                compact={true}
-              />
-              <div className="se-comment-form-actions">
-                <button
-                  type="button"
-                  className="se-comment-cancel-btn"
-                  onClick={() => setShowCommentForm(false)}
-                >
-                  Hủy
-                </button>
-                <button
-                  type="submit"
-                  className="se-comment-submit-btn"
-                  disabled={isSubmittingComment || !commentText.replace(/<[^>]*>/g, '').trim()}
-                >
-                  Gửi bình luận
-                </button>
-              </div>
-            </form>
-          )}
-        </div>
+        <CommentThread key={`${answer.id}:${currentUser?.id || currentUser?.uid || 'guest'}`}
+          comments={answer.comments || []} currentUser={currentUser} postId={postId} answerId={answer.id}
+          onRequireLogin={onRequireLogin} onAddComment={onAddComment} onEditComment={onEditComment}
+          onDeleteComment={onDeleteComment} onReactComment={onReactComment} onOpenCheatsheet={onOpenCheatsheet} />
       </div>
 
       {/* Confirm Dialogs */}
@@ -542,16 +372,6 @@ export default function AnswerCard({
         variant="danger"
       />
 
-      {/* Comment Delete Confirm Dialog */}
-      <ConfirmDialog
-        isOpen={Boolean(commentToDelete)}
-        onClose={() => setCommentToDelete(null)}
-        onConfirm={handleDeleteCommentConfirm}
-        title="Xác nhận xóa bình luận?"
-        message="Bình luận này sẽ bị xóa vĩnh viễn khỏi câu trả lời. Bạn có chắc chắn muốn tiếp tục?"
-        confirmLabel="Xóa bình luận"
-        variant="danger"
-      />
     </article>
   );
 }

@@ -1,0 +1,117 @@
+import assert from 'node:assert/strict';
+import { chromium } from '@playwright/test';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+const output=new URL('../../artifacts/color-refinement/experience/',import.meta.url);
+await mkdir(output,{recursive:true});
+const browser=await chromium.launch({channel:'msedge',headless:true});
+const context=await browser.newContext({viewport:{width:1440,height:1100}});
+await context.addInitScript(()=>localStorage.setItem('ueh_tcc_consent_v1',JSON.stringify({version:1,necessary:true,preferences:false})));
+await context.route(/\/api\/(?:contact|subscribe)(?:\?|$)/,route=>route.abort());
+const page=await context.newPage(),report={checks:[],errors:[]};
+page.on('pageerror',error=>report.errors.push(error.message));
+const shot=async(name,selector)=>page.locator(selector).screenshot({path:fileURLToPath(new URL(`${name}.png`,output))});
+try {
+  await page.goto('http://localhost:5174');
+  await page.locator('.home-article-deck').waitFor();await page.evaluate(()=>document.fonts.ready);
+  await page.waitForFunction(()=>[...document.querySelectorAll('.hp-books img')].every(image=>image.complete&&image.naturalWidth>0));
+  const deck=page.locator('.article-deck-stage');
+  const stageTop=await deck.evaluate(node=>node.getBoundingClientRect().top+scrollY);
+  await page.evaluate(top=>scrollTo({top:top-innerHeight*.75,behavior:'instant'}),stageTop);await page.waitForTimeout(100);
+  const entering=await deck.evaluate(node=>parseFloat(node.style.getPropertyValue('--deck-entry')));assert.ok(entering>0);
+  await page.evaluate(top=>scrollTo({top:top-innerHeight*.2,behavior:'instant'}),stageTop);await page.waitForTimeout(100);
+  assert.ok(await deck.evaluate(node=>parseFloat(node.style.getPropertyValue('--deck-entry')))>0,'Arrival must glide instead of snapping.');
+  await page.waitForFunction(()=>document.querySelector('.article-deck-stage')?.dataset.arrivalState==='settled',null,{timeout:5000});
+  assert.equal(await deck.evaluate(node=>parseFloat(node.style.getPropertyValue('--deck-entry'))),0);
+  const watermark=page.locator('.article-deck-watermark');
+  const watermarkTop=await watermark.evaluate(node=>node.getBoundingClientRect().top+scrollY);
+  await page.evaluate(top=>scrollTo({top:top-innerHeight*.35,behavior:'instant'}),watermarkTop);await page.waitForTimeout(100);
+  assert.ok(await watermark.evaluate(node=>parseFloat(node.style.getPropertyValue('--watermark-entry')))>0);
+  await page.waitForFunction(()=>document.querySelector('.article-deck-watermark')?.dataset.arrivalState==='settled',null,{timeout:5000});
+  await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));
+  await page.waitForFunction(()=>document.querySelector('.article-deck-stage')?.dataset.arrivalState==='armed');
+  assert.ok(await deck.evaluate(node=>parseFloat(node.style.getPropertyValue('--deck-entry')))>0);
+  assert.ok(await watermark.evaluate(node=>parseFloat(node.style.getPropertyValue('--watermark-entry')))>0);
+  const separation=await page.evaluate(()=>document.querySelector('.hp-math-lab').getBoundingClientRect().top-document.querySelector('.hp-learning').getBoundingClientRect().bottom);assert.ok(separation>=180);
+  assert.equal(await page.locator('.hp-consult-grid.is-revealed').count(),0);
+  report.checks.push('Cards and watermark glide slowly from the right, settle, then both re-arm on return to top.','A separate neutral band leaves at least 180px between the two pastel panels on desktop.');
+  const title=()=>page.locator('.article-deck-card.is-current h3').innerText();
+  const initial=await title();
+  await page.getByRole('button',{name:'Bài viết tiếp theo',exact:true}).click();assert.notEqual(await title(),initial);
+  await page.getByRole('button',{name:'Bài viết trước',exact:true}).click();assert.equal(await title(),initial);
+  await deck.focus();await page.keyboard.press('End');assert.match(await page.locator('.article-deck-status').innerText(),/07 \/ 07/);
+  await page.keyboard.press('ArrowRight');assert.equal(await title(),initial);
+  await page.waitForTimeout(550);
+  const before=await title(),bounds=await page.locator('.article-deck-card.is-current .article-deck-image').boundingBox();
+  const x=bounds.x+bounds.width/2,y=bounds.y+bounds.height/2;
+  await page.mouse.move(x,y);await page.mouse.down();await page.mouse.move(x-130,y,{steps:12});await page.mouse.up();assert.notEqual(await title(),before);
+  const current=page.locator('.article-deck-card.is-current');
+  assert.ok((await current.locator('.article-deck-read').getAttribute('href')).startsWith('/blog/'));
+  assert.equal(await page.locator('.article-deck-card:not(.is-current) .article-deck-card-content:not([inert])').count(),0);
+  report.checks.push('Seven real articles; previous/next, wraparound, keyboard, drag, correct links and inactive focus isolation.');
+  await page.getByRole('button',{name:'Bài 1:',exact:false}).click();await page.waitForTimeout(550);
+  for(const width of [390,768,1440,2560]) {
+    await page.setViewportSize({width,height:1100});await page.waitForTimeout(250);
+    const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);assert.ok(overflow<=1,`overflow ${width}: ${overflow}`);
+    await shot(`deck-${width}`,'.home-article-deck');
+    report.checks.push(`Article deck at ${width}px: no horizontal document overflow.`);
+  }
+  await page.setViewportSize({width:1440,height:1000});
+  await page.locator('.hp-learning-options').scrollIntoViewIfNeeded();await page.waitForTimeout(700);
+  assert.deepEqual(await page.locator('.hp-path-action').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('href'))),['/courses','/exams','/community']);
+  assert.equal(await page.locator('.hp-path-card').count(),3);
+  assert.equal(await page.locator('.hp-stage-tabs,.hp-learning-desk').count(),0);
+  assert.equal(await page.locator('.hp-pdf-sheet img').count(),3);
+  assert.equal(await page.locator('.hp-real-media img').count(),2);
+  await page.waitForFunction(()=>[...document.querySelectorAll('.hp-path-preview img')].every(image=>image.complete&&image.naturalWidth>0));
+  assert.equal(await page.locator('.hp-real-video a').getAttribute('href'),'/course/tu-hoc-toan-cao-cap');
+  assert.deepEqual(await page.locator('.hp-pdf-sheet').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('href'))),['/exam/k51-354','/exam/k51-118','/exam/k51-204']);
+  assert.equal(await page.locator('.hp-real-discussion a').getAttribute('href'),'/community/ueh-pnta-lagrange-cobb-douglas');
+  await shot('learning-options','.hp-learning');
+  await page.locator('.hp-consult').scrollIntoViewIfNeeded();await page.waitForTimeout(650);
+  assert.equal(await page.locator('.hp-consult-grid.is-revealed').count(),1);
+  const animation=await page.locator('.hp-chat-line:nth-child(2)').evaluate(node=>getComputedStyle(node).animationName);assert.equal(animation,'hp-panel-in');
+  report.checks.push('Three independent pastel learning cards show distinct previews and correct links, without an outer colored box or tabs; signup reveals and chat animation runs.');
+  for(let cycle=1;cycle<=3;cycle++) {
+    // Include a focused carousel: returning to top must still re-arm off-screen content.
+    await deck.focus();
+    await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));
+    await page.waitForFunction(()=>document.querySelector('.article-deck-stage')?.dataset.arrivalState==='armed');
+    assert.equal(await page.locator('.hp-consult-grid.is-revealed').count(),0);
+    assert.equal(await page.locator('.hp-path-card.is-revealed').count(),0);
+    assert.ok(await watermark.evaluate(node=>parseFloat(node.style.getPropertyValue('--watermark-entry')))>0);
+    await page.locator('.hp-learning-options').scrollIntoViewIfNeeded();
+    await page.waitForFunction(()=>document.querySelectorAll('.hp-path-card.is-revealed').length===3);
+    await page.evaluate(()=>{
+      const top=document.querySelector('.article-deck-stage').getBoundingClientRect().top+scrollY;
+      scrollTo({top:top-innerHeight*.2,behavior:'instant'});
+    });
+    await page.waitForTimeout(100);
+    assert.ok(await deck.evaluate(node=>parseFloat(node.style.getPropertyValue('--deck-entry')))>0,`Replay ${cycle} must animate.`);
+    await page.waitForFunction(()=>document.querySelector('.article-deck-stage')?.dataset.arrivalState==='settled',null,{timeout:5000});
+    await page.evaluate(()=>{
+      const top=document.querySelector('.article-deck-watermark').getBoundingClientRect().top+scrollY;
+      scrollTo({top:top-innerHeight*.35,behavior:'instant'});
+    });
+    await page.waitForFunction(()=>document.querySelector('.article-deck-watermark')?.dataset.arrivalState==='settled',null,{timeout:5000});
+    await page.locator('.hp-consult').scrollIntoViewIfNeeded();
+    await page.waitForFunction(()=>document.querySelector('.hp-consult-grid')?.classList.contains('is-revealed'));
+  }
+  report.checks.push('Three further top-to-bottom cycles replay cards, watermark and signup reveal, including after carousel focus.');
+  await page.evaluate(()=>scrollTo({top:document.querySelector('.hp-learning').getBoundingClientRect().bottom+scrollY-160,behavior:'instant'}));
+  await page.screenshot({path:fileURLToPath(new URL('panel-separation.png',output))});
+  assert.equal(await page.locator('.footer-verification').count(),0);
+  await page.locator('#footer-newsletter-email').focus();assert.equal(await page.locator('.footer-verification').count(),1);
+  report.checks.push('Newsletter verification mounts on interaction, without a subscription request.');
+  await page.locator('.footer-support').click();await page.locator('.support-dialog').waitFor();
+  assert.equal(await page.locator('.support-dialog').evaluate(node=>node.open),true);
+  await page.getByRole('button',{name:'Đóng cửa sổ ủng hộ',exact:true}).click();
+  await shot('footer-light','#footer');await shot('material-close','.hp-learning');
+  await page.locator('.nav-controls .theme-toggle-btn').click();await page.waitForTimeout(350);
+  await shot('footer-dark','#footer');await shot('deck-dark','.home-article-deck');
+  await page.emulateMedia({reducedMotion:'reduce'});
+  const duration=await page.locator('.article-deck-card').first().evaluate(node=>getComputedStyle(node).transitionDuration);assert.ok(parseFloat(duration)<=.001);
+  report.checks.push('Reduced motion removes deck transitions.');
+  assert.deepEqual(report.errors,[]);report.status='passed';
+} catch(error) {report.status='failed';report.failure=error.stack;report.arrival=await page.locator('.article-deck-stage').evaluate(node=>({state:node.dataset.arrivalState,entry:node.style.getPropertyValue('--deck-entry'),top:node.getBoundingClientRect().top,viewport:innerHeight}));process.exitCode=1;await page.screenshot({path:fileURLToPath(new URL('failure.png',output))});}
+finally {await writeFile(new URL('report.json',output),JSON.stringify(report,null,2));await browser.close();console.log(JSON.stringify(report,null,2));}

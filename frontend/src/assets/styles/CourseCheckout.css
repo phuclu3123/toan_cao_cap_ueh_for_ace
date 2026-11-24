@@ -1,0 +1,215 @@
+.enrollment-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100200;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: rgb(16 28 23 / 46%);
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
+}
+body.enrollment-modal-open .mobile-drawer[aria-hidden='true'] { display: none; }
+.enrollment-modal-overlay *, .enrollment-modal-overlay *::before, .enrollment-modal-overlay *::after { box-sizing: border-box; }
+.enrollment-modal {
+  --checkout-ink: #1e3028;
+  --checkout-muted: #627168;
+  --checkout-line: #dfe6e0;
+  --checkout-surface: #fdfefc;
+  --checkout-field: #fff;
+  --checkout-accent: #2e6853;
+  --checkout-link: #2e6853;
+  position: relative;
+  width: min(880px, 100%);
+  max-height: calc(100dvh - 48px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  color: var(--checkout-ink);
+  border: 1px solid rgb(255 255 255 / 70%);
+  border-radius: 24px;
+  background: rgb(249 252 248 / 96%);
+  box-shadow: 0 28px 90px rgb(9 24 17 / 23%);
+  scrollbar-width: thin;
+  outline: none;
+}
+.enrollment-modal :is(button, input, a) { font: inherit; }
+.enrollment-modal :is(button, input, a):focus-visible { outline: 2px solid var(--checkout-accent); outline-offset: 3px; }
+.enrollment-modal button { cursor: pointer; }
+.enrollment-modal button:disabled { cursor: wait; opacity: .6; }
+/* 880px sheet: 272px receipt + 608px workspace, with 32px inner gutters. */
+.enrollment-layout { display: grid; grid-template-columns: 272px minmax(0, 1fr); padding: 8px; }
+.checkout-summary { display: flex; flex-direction: column; padding: 28px 24px 22px; border-radius: 17px 0 0 17px; background: #edf2ec; }
+.checkout-brand { display: flex; align-items: center; gap: 5px; color: #1c2a25; font-size: 20px; font-weight: 800; letter-spacing: -.06em; }
+.checkout-brand::before { content: ''; width: 5px; height: 25px; margin-right: 4px; border-radius: 5px; background: #46735d; }
+.checkout-brand span { color: #367767; }
+.checkout-summary__course { display: flex; align-items: flex-start; gap: 12px; margin-top: 36px; }
+.checkout-summary__course img, .enrollment-modal__image-fallback { flex-shrink: 0; display: grid; place-items: center; width: 48px; height: 57px; border-radius: 7px; object-fit: cover; }
+.checkout-summary__course > div { min-width: 0; }
+.checkout-summary__course > div > span { display: block; margin-bottom: 5px; color: var(--checkout-muted); font-size: 12px; }
+.checkout-summary__course h3 { margin: 0; font-size: 17px; font-weight: 650; line-height: 1.45; letter-spacing: -.025em; text-wrap: balance; }
+.checkout-summary__benefits { display: grid; gap: 13px; list-style: none; margin: 28px 0 0; padding: 0; }
+.checkout-summary__benefits li { display: flex; align-items: flex-start; gap: 9px; color: #52675a; font-size: 12px; line-height: 1.6; }
+.checkout-summary__benefits svg { flex-shrink: 0; margin-top: 1px; color: #568269; }
+.checkout-summary__total { display: grid; gap: 6px; margin-top: 32px; padding-top: 24px; border-top: 1px solid #d6dfd5; }
+.checkout-summary__total > span { color: var(--checkout-muted); font-size: 13px; }
+.checkout-summary__total strong { color: var(--checkout-ink); font-size: 32px; line-height: 1.2; font-weight: 650; letter-spacing: -.055em; font-variant-numeric: tabular-nums; }
+.checkout-summary__total small { color: var(--checkout-muted); font-size: 12px; }
+.checkout-summary__secure { display: flex; align-items: center; gap: 7px; margin: auto 0 0; padding-top: 28px; color: #52675a; font-size: 12px; }
+.enrollment-main { min-width: 0; padding: 28px 32px 24px; border-radius: 0 17px 17px 0; background: var(--checkout-surface); }
+.enrollment-modal__close { position: absolute; top: 17px; right: 17px; z-index: 2; display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 50%; color: var(--checkout-muted); background: transparent; transition: background-color 150ms; }
+.enrollment-modal__close:hover { background: rgb(107 128 112 / 10%); color: var(--checkout-ink); }
+.enrollment-modal__header { padding-right: 24px; }
+.enrollment-modal__eyebrow { display: block; color: var(--checkout-muted); font-size: 12px; font-weight: 500; }
+.enrollment-modal__header h2 { margin: 11px 0 8px; color: var(--checkout-ink); font-size: clamp(22px, 2.4vw, 27px); line-height: 1.3; font-weight: 650; letter-spacing: -.04em; text-wrap: balance; }
+.enrollment-modal__header p { margin: 0; color: var(--checkout-muted); font-size: 13px; line-height: 1.6; }
+.enrollment-progress { display: flex; align-items: center; justify-content: space-between; gap: 12px; list-style: none; margin: 26px 0 27px; padding: 0 0 20px; border-bottom: 1px solid var(--checkout-line); }
+.enrollment-progress li { display: flex; align-items: center; gap: 7px; white-space: nowrap; color: #78817b; font-size: 12px; }
+.enrollment-progress li > span { display: grid; place-items: center; width: 21px; height: 21px; border-radius: 50%; background: #edf0ec; color: #66746a; font-size: 11px; font-variant-numeric: tabular-nums; }
+.enrollment-progress li.is-active { color: var(--checkout-ink); font-weight: 650; }
+.enrollment-progress li.is-active > span { color: #fff; background: var(--checkout-accent); }
+.enrollment-progress li.is-done > span { color: var(--checkout-accent); background: #e7eee8; }
+.enrollment-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 14px; }
+.enrollment-fields label { display: grid; align-content: start; gap: 9px; color: var(--checkout-ink); font-size: 13px; font-weight: 550; }
+.enrollment-fields input { min-width: 0; width: 100%; height: 47px; padding: 0 13px; border: 1px solid #d8e0d9; border-radius: 9px; color: var(--checkout-ink); background: var(--checkout-field); font-size: 14px; font-weight: 450; transition: border-color 150ms; }
+.enrollment-fields input:hover:not([readonly]) { border-color: #9aafa0; }
+.enrollment-field--wide { grid-column: 1 / -1; }
+.enrollment-account input { background: #f4f6f2; color: #506156; text-overflow: ellipsis; }
+.enrollment-account small { display: flex; align-items: center; gap: 5px; color: var(--checkout-muted); font-size: 12px; font-weight: 400; line-height: 1.5; }
+.enrollment-primary-action, .payos-open-link { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 48px; padding: 12px 16px; border: 0; border-radius: 10px; color: #fff; background: var(--checkout-accent); font-size: 14px !important; font-weight: 600 !important; text-decoration: none; transition: background-color 150ms; }
+.enrollment-primary-action { margin-top: 27px; }
+.enrollment-primary-action:hover:not(:disabled), .payos-open-link:hover { color: #fff; background: #23523f; }
+.checkout-form-note { display: flex; align-items: center; justify-content: center; gap: 6px; color: var(--checkout-muted); margin: 13px 0 0; font-size: 12px; line-height: 1.5; }
+.enrollment-error { padding: 11px 13px; margin: 16px 0 0; border-radius: 8px; background: #fff0ec; color: #943f30; font-size: 13px; line-height: 1.6; }
+.payos-status { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 20px; margin: -7px 0 16px; color: var(--checkout-muted); font-size: 13px; }
+.payos-status__dot { flex-shrink: 0; width: 7px; height: 7px; border-radius: 50%; background: #70947f; }
+.payos-status__dot.is-warning { background: #ad7740; }
+.payos-qr { display: grid; place-items: center; width: 218px; min-height: 218px; margin: 0 auto; padding: 10px; border: 1px solid var(--checkout-line); border-radius: 14px; background: #fff; }
+.payos-qr img { display: block; width: 196px; height: 196px; }
+.payos-qr__fallback { display: grid; justify-items: center; gap: 12px; color: #65756b; font-size: 12px; max-width: 170px; text-align: center; }
+.payos-instructions > p { max-width: 38ch; margin: 15px auto 0; text-align: center; color: var(--checkout-muted); font-size: 12px; line-height: 1.7; }
+.payos-order-reference { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 7px; margin: 13px 0 17px; font-size: 12px; color: var(--checkout-muted); }
+.payos-order-reference strong { color: var(--checkout-ink); font-size: 12px; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-weight: 500; overflow-wrap: anywhere; }
+.payos-payment__footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-top: 14px; padding-top: 9px; border-top: 1px solid var(--checkout-line); }
+.payos-payment__footer > span { display: flex; align-items: center; gap: 6px; color: var(--checkout-muted); font-size: 11px; }
+.payos-payment__footer button { min-height: 44px; padding: 7px 0 7px 10px; border: 0; background: transparent; color: var(--checkout-link); font-size: 12px; font-weight: 600; }
+.payos-payment__footer button:hover { text-decoration: underline; text-underline-offset: 3px; }
+.enrollment-complete, .free-enrollment { text-align: center; }
+.free-enrollment__icon, .enrollment-complete__icon { display: grid; place-items: center; color: var(--checkout-accent); margin: 24px auto 20px; }
+.enrollment-complete h3, .free-enrollment h3 { margin: 8px 0; font-size: 22px; letter-spacing: -.03em; color: var(--checkout-ink); }
+.enrollment-complete p, .free-enrollment p { color: var(--checkout-muted); font-size: 13px; line-height: 1.7; }
+.free-enrollment__benefits { display: grid; gap: 10px; padding: 0; margin: 20px 0; list-style: none; font-size: 13px; text-align: left; }
+.free-enrollment__benefits li, .free-enrollment__account { display: flex; align-items: center; gap: 9px; }
+.free-enrollment__account > span { display: grid; gap: 3px; text-align: left; font-size: 12px; }
+body.dark-mode .enrollment-modal, [data-theme='dark'] .enrollment-modal { --checkout-ink: #e9efe9; --checkout-muted: #aab7ad; --checkout-line: #3c4a40; --checkout-surface: #222c25; --checkout-field: #29362d; --checkout-accent: #32775d; border-color: #465749; background: #253129; }
+body.dark-mode .checkout-summary, [data-theme='dark'] .checkout-summary { background: #2c3930; }
+body.dark-mode .checkout-brand, [data-theme='dark'] .checkout-brand { color: #f4f8f3; }
+body.dark-mode .checkout-brand span, [data-theme='dark'] .checkout-brand span { color: #a7d0be; }
+body.dark-mode :is(.checkout-summary__benefits li, .checkout-summary__secure), [data-theme='dark'] :is(.checkout-summary__benefits li, .checkout-summary__secure) { color: #b7c9ba; }
+body.dark-mode .checkout-summary__total, [data-theme='dark'] .checkout-summary__total { border-color: #455547; }
+body.dark-mode .enrollment-account input, [data-theme='dark'] .enrollment-account input { color: #bdcebf; background: #29362d; }
+body.dark-mode .enrollment-fields input, [data-theme='dark'] .enrollment-fields input { border-color: #485a4b; }
+body.dark-mode .enrollment-error, [data-theme='dark'] .enrollment-error { background: #492f29; color: #ffbfaf; }
+body.dark-mode .enrollment-modal, [data-theme='dark'] .enrollment-modal { --checkout-link: #a8d2be; }
+body.dark-mode .enrollment-progress li:not(.is-active), [data-theme='dark'] .enrollment-progress li:not(.is-active) { color: #aab7ad; }
+@media (max-width: 720px) {
+  .enrollment-modal-overlay { padding: 12px; }
+  .enrollment-modal { max-height: calc(100dvh - 24px); border-radius: 21px; }
+  .enrollment-layout { grid-template-columns: minmax(0, 1fr); padding: 6px; }
+  .checkout-summary { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 14px; padding: 22px 48px 20px 17px; border-radius: 15px 15px 0 0; }
+  .checkout-brand, .checkout-summary__benefits, .checkout-summary__secure, .checkout-summary__total small { display: none; }
+  .checkout-summary__course { margin: 0; gap: 10px; align-items: center; }
+  .checkout-summary__course img { width: 36px; height: 44px; border-radius: 5px; }
+  .checkout-summary__course > div > span { font-size: 11px; margin-bottom: 3px; }
+  .checkout-summary__course h3 { font-size: 14px; line-height: 1.4; }
+  .checkout-summary__total { margin: 0; padding: 0; border: 0; text-align: right; gap: 3px; }
+  .checkout-summary__total > span { font-size: 11px; }
+  .checkout-summary__total strong { font-size: 23px; }
+  .enrollment-main { padding: 24px 19px 22px; border-radius: 0 0 15px 15px; }
+  .enrollment-modal__close { top: 15px; right: 9px; }
+  .enrollment-modal__header { padding: 0; }
+  .enrollment-modal__header h2 { margin-top: 7px; font-size: 23px; }
+  .enrollment-modal__eyebrow { display: none; }
+  .enrollment-progress { margin: 21px 0 23px; padding-bottom: 17px; gap: 8px; }
+  .enrollment-progress li { gap: 5px; font-size: 11px; }
+  .enrollment-fields { gap: 17px; }
+  .enrollment-fields input { font-size: 16px; }
+  .enrollment-primary-action { margin-top: 23px; }
+  .payos-qr { width: 202px; min-height: 202px; }
+  .payos-qr img { width: 180px; height: 180px; }
+  .payos-payment__footer { gap: 2px; }
+}
+@media (max-width: 390px) {
+  .checkout-summary { grid-template-columns: minmax(0, 1fr); gap: 12px; padding-right: 44px; }
+  .checkout-summary__total { display: flex; align-items: baseline; justify-content: space-between; }
+  .checkout-summary__course img { display: none; }
+  .enrollment-fields { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .enrollment-field--wide { grid-column: auto; }
+}
+@media (prefers-reduced-motion: reduce) { .enrollment-modal *, .enrollment-modal *::before, .enrollment-modal *::after { transition: none !important; scroll-behavior: auto !important; } }
+.checkout-price-breakdown { display: grid; gap: 7px; margin-top: 28px; font-size: 13px; }
+.checkout-price-breakdown > span { display: flex; justify-content: space-between; gap: 15px; }
+.checkout-price-breakdown small { opacity: .7; }
+.checkout-coupon { padding: 18px; margin: 0 0 24px; border: 1px solid var(--checkout-line); border-radius: 12px; background: color-mix(in srgb, var(--checkout-accent) 5%, var(--checkout-surface)); }
+.checkout-coupon__heading { display: flex; gap: 11px; align-items: flex-start; margin-bottom: 14px; }
+.checkout-coupon__heading > svg { color: var(--checkout-link); flex-shrink: 0; margin-top: 2px; }
+.checkout-coupon__heading label { font-weight: 700; font-size: 14px; color: var(--checkout-ink); cursor: text; }
+.checkout-coupon__heading p { margin: 3px 0 0; font-size: 12px; line-height: 1.55; color: var(--checkout-muted); }
+.checkout-coupon__input { display: flex; gap: 9px; }
+.checkout-coupon input, .checkout-consent input:not([type=checkbox]) { width: 100%; min-width: 0; border: 1px solid var(--checkout-line, #dce2d9); border-radius: 9px; background: var(--checkout-field, #fff); color: var(--checkout-ink, #20342b); font: inherit; min-height: 43px; padding: 10px 12px; }
+.checkout-coupon button, .checkout-receipt, .checkout-retry { border: 1px solid var(--checkout-line, #dce2d9); border-radius: 8px; min-height: 44px; padding: 10px 12px; background: transparent; color: inherit; font: inherit; font-size: 12px; cursor: pointer; white-space: nowrap; }
+.checkout-coupon__input > button { color: var(--checkout-link); font-weight: 700; background: var(--checkout-field); flex-shrink: 0; }
+.checkout-coupon__success, .checkout-coupon__error, .checkout-coupon__hint { margin: 12px 0 0; font-size: 12px; line-height: 1.6; }
+.checkout-coupon__success { display: flex; gap: 8px; align-items: flex-start; color: var(--checkout-link); }
+.checkout-coupon__success > svg { flex-shrink: 0; margin-top: 2px; }
+.checkout-coupon__success small { display: block; margin-top: 3px; color: var(--checkout-muted); }
+.checkout-coupon__success > button { margin: -8px -8px -8px auto; border: 0; display: grid; place-items: center; width: 44px; padding: 0; }
+.checkout-coupon__error { color: #a63d31; }
+.checkout-coupon__hint { color: var(--checkout-muted); }
+.checkout-pending, .checkout-existing-order { padding: 18px; margin-bottom: 22px; background: color-mix(in srgb, #b5823f 8%, var(--checkout-surface)); border: 1px solid color-mix(in srgb, #b5823f 35%, var(--checkout-line)); border-radius: 12px; font-size: 12px; line-height: 1.7; }
+.checkout-pending__eyebrow { display: flex; gap: 7px; align-items: center; color: var(--checkout-muted); font-size: 11px; }
+.checkout-pending h3 { font-size: 16px; margin: 8px 0; color: var(--checkout-ink); }
+.checkout-pending p, .checkout-existing-order p { margin: 7px 0; color: var(--checkout-muted); }
+.checkout-pending strong, .checkout-existing-order strong { color: var(--checkout-ink); }
+.checkout-pending > div { display: grid; gap: 9px; margin-top: 15px; }
+.checkout-pending button, .checkout-existing-order button { font: inherit; border-radius: 8px; min-height: 44px; padding: 10px 12px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; cursor: pointer; }
+.checkout-pending__replace { color: #fff; background: var(--checkout-accent); border: 1px solid var(--checkout-accent); font-weight: 650 !important; }
+.checkout-pending__resume, .checkout-existing-order button { color: var(--checkout-link); border: 1px solid var(--checkout-line); background: var(--checkout-field); }
+.checkout-existing-order button { margin-top: 6px; width: 100%; }
+.checkout-existing-order small { display: block; color: var(--checkout-muted); font-size: 11px; margin-top: 7px; }
+.checkout-notice { padding: 12px 15px; border-radius: 9px; background: color-mix(in srgb, var(--checkout-accent) 8%, var(--checkout-surface)); color: var(--checkout-link); font-size: 12px; line-height: 1.65; margin: 0 0 20px; }
+.checkout-consent { padding: 18px 0; margin: 18px 0; border-block: 1px solid var(--border-color, #dce2d9); font-size: 12px; line-height: 1.65; }
+.checkout-consent summary { cursor: pointer; font-weight: 700; margin-bottom: 14px; }
+.checkout-terms-text { max-height: 240px; overflow-y: auto; padding: 0 10px 16px 0; margin-bottom: 14px; }
+.checkout-terms-text h4 { font-size: 13px; margin-bottom: 5px; }
+.checkout-terms-text p { margin-top: 0; }
+.checkout-consent .checkout-agree { display: flex; flex-direction: row; align-items: flex-start; gap: 10px; font-weight: 400; margin-bottom: 16px; cursor: pointer; }
+.checkout-agree input[type=checkbox] { appearance: auto; flex: 0 0 17px; width: 17px; height: 17px; min-height: 0; margin: 3px 0 0; accent-color: #316b58; }
+.checkout-consent > label:last-child { display: grid; gap: 7px; }
+.checkout-consent > label:last-child strong { display: inline; }
+.checkout-receipt { display: block; margin: 18px auto 0; white-space: normal; text-decoration: underline; border: 0; }
+.enrollment-modal { overflow: hidden; padding: 8px; }
+.enrollment-layout { padding: 0; }
+.enrollment-scroll { max-height: calc(100dvh - 66px); overflow-y: auto; overscroll-behavior: contain; border-radius: 18px; scrollbar-width: thin; scrollbar-color: #a5b5aa transparent; }
+.enrollment-scroll::-webkit-scrollbar, .checkout-terms-text::-webkit-scrollbar { width: 6px; }
+.enrollment-scroll::-webkit-scrollbar-track, .checkout-terms-text::-webkit-scrollbar-track { background: transparent; margin-block: 18px; }
+.enrollment-scroll::-webkit-scrollbar-thumb, .checkout-terms-text::-webkit-scrollbar-thumb { border: 1px solid transparent; background-clip: padding-box; background-color: #a5b5aa; border-radius: 10px; }
+.enrollment-scroll::-webkit-scrollbar-button, .checkout-terms-text::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+.checkout-terms-text { padding-right: 16px; line-height: 1.85; scrollbar-width: thin; scrollbar-color: #a5b5aa transparent; }
+.checkout-terms-text section { margin-bottom: 22px; }
+.checkout-terms-text h4 { margin: 12px 0 9px; line-height: 1.6; }
+.checkout-terms-text p { margin: 0 0 12px; }
+.checkout-agree span { line-height: 1.85; }
+.enrollment-modal__header h2:focus { outline: none; }
+.checkout-deadline { display: flex; flex-wrap: wrap; gap: 9px; align-items: center; margin: 0 0 20px; padding: 12px 14px; border: 1px solid var(--checkout-line); border-radius: 10px; background: color-mix(in srgb, var(--checkout-accent) 5%, var(--checkout-surface)); color: var(--checkout-link); }
+.checkout-deadline > div { display: flex; flex: 1; align-items: center; justify-content: space-between; gap: 12px; font-size: 12px; }
+.checkout-deadline strong { font-size: 22px; line-height: 1.3; font-variant-numeric: tabular-nums; letter-spacing: .03em; }
+.checkout-deadline small { width: 100%; padding-left: 27px; font-size: 11px; color: var(--checkout-muted); line-height: 1.6; }
+.checkout-deadline.is-urgent { border-color: #b58a4f; color: #926021; background: color-mix(in srgb, #be944f 9%, var(--checkout-surface)); }
+body.dark-mode .checkout-deadline.is-urgent, [data-theme=dark] .checkout-deadline.is-urgent { color: #f0ce92; }
+@media (max-width: 720px) { .enrollment-modal { padding: 6px; } .enrollment-scroll { max-height: calc(100dvh - 38px); border-radius: 15px; } .enrollment-layout { padding: 0; } }
+.checkout-coupon button:disabled { opacity: .5; cursor: not-allowed; }
+.checkout-consent :is(input, summary, a):focus-visible, .checkout-coupon :is(input, button):focus-visible { outline: 2px solid #50866e; outline-offset: 3px; }
+[data-theme=dark] .checkout-coupon__error { color: #f1ad9c; }
+@media (max-width: 600px) { .checkout-coupon, .checkout-pending, .checkout-existing-order { padding: 15px; } .checkout-coupon input { font-size: 16px; } .checkout-coupon__input > button { padding-inline: 12px; } .checkout-price-breakdown { grid-column: 1 / -1; margin: 0; font-size: 12px; } }

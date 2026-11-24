@@ -17,6 +17,12 @@ export const mergeResourceItems = (apiItems = [], localItems = []) => {
       }
     });
 
+    // A known mismatched bundled source must not be restored by a stale API entry.
+    if (localItem.sourceStatus === 'pending') {
+      merged.pdf = null;
+      merged.sourceStatus = 'pending';
+      merged.desc = localItem.desc;
+    }
     return merged;
   });
 

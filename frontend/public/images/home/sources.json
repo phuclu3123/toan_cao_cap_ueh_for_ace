@@ -1,0 +1,66 @@
+{
+  "sources": [
+    {
+      "asset": "exam-k51-204.webp",
+      "pdf": "/docs/K51_2_dot.pdf",
+      "page": 5,
+      "crop_points": [
+        48.0,
+        55.0,
+        547.0,
+        376.7806396484375
+      ],
+      "sha256": "b0ed317d4cb92f3f446d27a87791d0851a21b57710db78846917e67fc678b0dc"
+    },
+    {
+      "asset": "exam-k51-118.webp",
+      "pdf": "/docs/K51_2_dot.pdf",
+      "page": 8,
+      "crop_points": [
+        48.0,
+        55.0,
+        547.0,
+        419.1408386230469
+      ],
+      "sha256": "b0ed317d4cb92f3f446d27a87791d0851a21b57710db78846917e67fc678b0dc"
+    },
+    {
+      "asset": "exam-k51-354.webp",
+      "pdf": "/docs/K51_2_dot.pdf",
+      "page": 11,
+      "crop_points": [
+        48.0,
+        55.0,
+        547.0,
+        328.23687744140625
+      ],
+      "sha256": "b0ed317d4cb92f3f446d27a87791d0851a21b57710db78846917e67fc678b0dc"
+    },
+    {
+      "asset": "lesson-matrix-video.webp",
+      "video": "https://www.youtube.com/watch?v=ut-WxyDjtPQ",
+      "seconds": 240,
+      "crop_pixels": [
+        200,
+        155,
+        795,
+        535
+      ],
+      "original_size": [
+        1100,
+        619
+      ]
+    },
+    {
+      "asset": "community-lagrange.webp",
+      "page": "/community/ueh-pnta-lagrange-cobb-douglas",
+      "selector": ".se-detail-header-block and #question-section",
+      "crop_pixels": [
+        0,
+        0,
+        770,
+        589
+      ]
+    }
+  ]
+}

@@ -34,13 +34,13 @@ export default function CookieConsent() {
       <div className="cookie-copy"><ShieldCheck size={22} aria-hidden="true" /><div>
         <p className="cookie-eyebrow">Cookie & quyền riêng tư</p>
         <h2>Cho phép lưu dữ liệu học tập?</h2>
-        <p>UEH TCC dùng cookie cần thiết để duy trì đăng nhập và bảo mật. Khi bạn cho phép, tiến độ học và thẻ tự tạo sẽ được lưu trên thiết bị này.</p>
+        <p>α∫M4A dùng cookie cần thiết để duy trì đăng nhập và bảo mật. Khi bạn cho phép, tiến độ học và thẻ tự tạo sẽ được lưu trên thiết bị này.</p>
         <button className="privacy-link" onClick={() => setSettings(true)}>Chi tiết và tùy chỉnh <ChevronRight size={14} aria-hidden="true" /></button>
       </div></div>
       <div className="cookie-actions"><button onClick={() => handleSave(false)}>Chỉ dùng cần thiết</button><button className="privacy-primary" onClick={() => handleSave(true)}>Cho phép lưu</button></div>
     </section>}
     {settings && <dialog className="cookie-dialog privacy-ui" ref={dialogRef} aria-labelledby="cookie-title" onCancel={() => setSettings(false)}>
-      <div className="cookie-dialog-heading"><div><p className="privacy-caption">UEH TCC · Quyền riêng tư</p><h2 id="cookie-title">Tùy chọn cookie và lưu trữ</h2></div><button className="privacy-icon" onClick={() => setSettings(false)} aria-label="Đóng tùy chọn cookie"><X size={20} /></button></div>
+      <div className="cookie-dialog-heading"><div><p className="privacy-caption">α∫M4A · Quyền riêng tư</p><h2 id="cookie-title">Tùy chọn cookie và lưu trữ</h2></div><button className="privacy-icon" onClick={() => setSettings(false)} aria-label="Đóng tùy chọn cookie"><X size={20} /></button></div>
       <p>Bạn quyết định dữ liệu nào được ghi nhớ trên trình duyệt. Có thể thay đổi bất cứ lúc nào tại “Cài đặt cookie” ở cuối trang.</p>
       <div className="cookie-category"><div><h3>Cần thiết</h3><p>Duy trì phiên đăng nhập, bảo vệ yêu cầu xác thực và lưu lựa chọn cookie. Không thể tắt trong trang này.</p></div><span className="privacy-status">Luôn bật</span></div>
       <div className="cookie-category"><div><h3>Lưu dữ liệu học tập trên thiết bị</h3><p>Lưu thẻ tự tạo, đánh dấu và lịch ôn tập giữa các lần truy cập. Nếu tắt, bạn vẫn học được trong phiên hiện tại; bản lưu trên thiết bị sẽ bị xóa. Hãy xuất thẻ trước khi tắt nếu cần giữ lại.</p></div><label className="cookie-switch"><input type="checkbox" checked={preferences} onChange={event => setPreferences(event.target.checked)} /><span aria-hidden="true" /><span className="privacy-sr">Cho phép lưu dữ liệu học tập</span></label></div>

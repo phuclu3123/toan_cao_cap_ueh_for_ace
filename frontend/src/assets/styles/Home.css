@@ -2210,15 +2210,15 @@
    ========================================================================== */
 
 .enterprise-home {
-  --home-ink: #10211b;
-  --home-ink-soft: #526159;
-  --home-pine: #0b2a23;
-  --home-pine-deep: #061b17;
-  --home-teal: #187568;
-  --home-teal-strong: #0f6257;
-  --home-champagne: #bd9555;
-  --home-ivory: #f5f2ea;
-  --home-paper: #fffdf8;
+  --home-ink: var(--ui-ink);
+  --home-ink-soft: var(--ui-muted);
+  --home-pine: var(--ui-accent);
+  --home-pine-deep: var(--ui-accent-hover);
+  --home-teal: var(--ui-accent);
+  --home-teal-strong: var(--ui-accent-hover);
+  --home-champagne: var(--ui-copper);
+  --home-ivory: var(--ui-canvas);
+  --home-paper: var(--ui-paper);
   --home-line: rgba(16, 46, 38, 0.14);
   width: 100%;
   overflow: clip;
@@ -2233,7 +2233,7 @@
   overflow: hidden;
   color: var(--home-ink);
   background:
-    linear-gradient(124deg, #f9f7f1 0%, #f4f1e9 54%, #e7eee9 100%);
+    var(--ui-hero);
   isolation: isolate;
 }
 
@@ -2244,16 +2244,16 @@
   bottom: -48%;
   width: min(58vw, 820px);
   height: min(58vw, 820px);
-  border: 1px solid rgba(20, 101, 88, 0.16);
+  border: 1px solid color-mix(in srgb,var(--ui-accent) 12%,transparent);
   border-radius: 50%;
   content: '';
   background:
     radial-gradient(
       circle,
       transparent 0 48%,
-      rgba(20, 101, 88, 0.08) 48.2% 48.45%,
+      color-mix(in srgb,var(--ui-accent) 7%,transparent) 48.2% 48.45%,
       transparent 48.65% 61%,
-      rgba(189, 149, 85, 0.13) 61.2% 61.45%,
+      color-mix(in srgb,var(--ui-copper) 12%,transparent) 61.2% 61.45%,
       transparent 61.65%
     );
 }
@@ -2266,8 +2266,8 @@
   opacity: 0.76;
   pointer-events: none;
   background-image:
-    linear-gradient(rgba(20, 78, 67, 0.055) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(20, 78, 67, 0.055) 1px, transparent 1px);
+    linear-gradient(var(--ui-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--ui-grid) 1px, transparent 1px);
   background-size: 72px 72px;
   mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.76), transparent 88%);
 }
@@ -2275,7 +2275,7 @@
 .enterprise-home .hero-coordinate-grid span {
   position: absolute;
   display: block;
-  border: 1px solid rgba(22, 108, 94, 0.14);
+  border: 1px solid color-mix(in srgb,var(--ui-blue) 10%,transparent);
   transform: rotate(45deg);
 }
 
@@ -2298,7 +2298,7 @@
   left: 42%;
   width: 62px;
   height: 62px;
-  border-color: rgba(165, 119, 48, 0.28);
+  border-color: color-mix(in srgb,var(--ui-copper) 22%,transparent);
 }
 
 .enterprise-home .enterprise-hero-grid {
@@ -2319,7 +2319,7 @@
   width: 54px;
   height: 2px;
   top: -28px;
-  background: linear-gradient(90deg, var(--home-champagne), #78c7b4);
+  background: var(--ui-copper);
 }
 
 .enterprise-home .enterprise-hero .hero-badge {
@@ -2352,7 +2352,7 @@
 }
 
 .enterprise-home .hero-title-brand {
-  color: #936b2e;
+  color: var(--ui-copper);
   font-family: var(--font-body);
   font-size: 0.78rem;
   font-weight: 760;
@@ -2369,7 +2369,7 @@
 .enterprise-home .enterprise-copy > p {
   max-width: 610px;
   margin: 27px 0 0;
-  color: #526159;
+  color: var(--ui-muted);
   font-size: clamp(1rem, 1.25vw, 1.09rem);
   line-height: 1.75;
 }
@@ -2653,7 +2653,7 @@
 }
 
 .enterprise-home .publication-showcase-footer > div strong {
-  color: #526159;
+  color: var(--ui-muted);
   font-size: 0.76rem;
   font-weight: 620;
   letter-spacing: 0;
@@ -2861,7 +2861,7 @@
 .enterprise-home .operating-model {
   position: relative;
   color: var(--home-ink);
-  background: #e9eee9;
+  background: var(--ui-field);
 }
 
 .enterprise-home .operating-model::before {
@@ -2933,7 +2933,7 @@
 
 .enterprise-home .operating-model .flow-step > strong {
   grid-row: auto;
-  color: #936b2e;
+  color: var(--ui-copper);
   font-size: 0.77rem;
   font-weight: 740;
   letter-spacing: 0.08em;
@@ -3078,7 +3078,7 @@
 
 .enterprise-home .enterprise-cta {
   padding-block: clamp(72px, 8vw, 112px);
-  background: #edf1ec;
+  background: var(--ui-soft);
 }
 
 .enterprise-home .enterprise-cta .consult-form-container {
@@ -3101,7 +3101,7 @@
 }
 
 :root[data-theme='dark'] .enterprise-home .operating-model {
-  color: #f2f8f5;
+  color: var(--ui-ink);
   background: var(--home-pine);
 }
 
@@ -3112,12 +3112,12 @@
 }
 
 :root[data-theme='dark'] .enterprise-home .operating-model .section-subtitle {
-  color: #8fd7c4;
+  color: var(--ui-accent);
 }
 
 :root[data-theme='dark'] .enterprise-home .operating-model .operating-panel h2,
 :root[data-theme='dark'] .enterprise-home .operating-model .flow-step h3 {
-  color: #f6faf8;
+  color: var(--ui-ink);
 }
 
 :root[data-theme='dark'] .enterprise-home .operating-model .operating-panel > p,
@@ -3127,7 +3127,7 @@
 
 :root[data-theme='dark'] .enterprise-home .operating-model .flow-step {
   border-top-color: rgba(220, 239, 232, 0.15);
-  color: #f4faf7;
+  color: var(--ui-ink);
 }
 
 :root[data-theme='dark'] .enterprise-home .operating-model .flow-step:last-child {
@@ -3479,9 +3479,9 @@
   min-width: 36px;
   height: 36px;
   padding: 0 10px;
-  border: 1px solid #d4ddd9;
+  border: 1px solid var(--ui-line);
   border-radius: 8px;
-  color: #4f5a54;
+  color: var(--ui-muted);
   background: #ffffff;
   font-size: 0.95rem;
   font-weight: 600;
@@ -3490,15 +3490,15 @@
 }
 
 .btn-page:hover:not(:disabled) {
-  border-color: #176b52;
-  color: #176b52;
-  background: #e6f0eb;
+  border-color: var(--ui-accent);
+  color: var(--ui-accent);
+  background: var(--ui-accent-soft);
 }
 
 .btn-page.active {
-  border-color: #176b52;
+  border-color: var(--ui-accent);
   color: #ffffff;
-  background: #176b52;
+  background: var(--ui-accent);
 }
 
 .btn-page:disabled {

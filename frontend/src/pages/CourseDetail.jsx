@@ -1,13 +1,16 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
 import { Link, useParams } from 'react-router-dom';
 import {
-  ArrowLeft, ArrowRight, BookOpen, Check, CheckCircle2, ChevronDown, Clock, Clock3, Eye, FileText, FolderOpen, GripVertical, GraduationCap, Library, Loader2, LockKeyhole, Maximize2, Minimize2, Play, ShieldCheck, Users, Video
+  ArrowLeft, ArrowRight, BookOpen, Check, CheckCircle2, ChevronDown, Clock3, Eye, FileText, FolderOpen, GraduationCap, Library, Loader2, LockKeyhole, Play, RefreshCw, ShieldCheck, Users, Video
 } from 'lucide-react';
-import CourseEnrollmentModal from '../components/modals/CourseEnrollmentModal';
+import CourseUnlockModal from '../components/modals/CourseUnlockModal';
+import useCourseCatalog from '../hooks/useCourseCatalog';
+import { useAuth } from '../contexts/AuthContext';
+import { COURSE_ACCESS_EVENT } from '../services/courseAccessService';
+import CourseStudyDock from '../components/CourseStudyDock';
+import CourseContinueWatching from '../components/CourseContinueWatching';
 import { useGlobalPlayer } from '../contexts/GlobalPlayerContext';
-import { getCourseById } from '../data/coursesData';
-import { apiFetch } from '../utils/apiClient';
+import { apiFetch, readApiJson } from '../utils/apiClient';
 import NotFoundPage from './NotFoundPage';
 import '../assets/styles/Courses.css';
 
@@ -20,32 +23,30 @@ const COURSE_TONES = Object.freeze({
 
 export default function CourseDetail() {
   const { slug } = useParams();
-  const course = getCourseById(slug);
+  const { courses } = useCourseCatalog();
+  const course = courses.find(row => row.id === slug);
 
   if (!course) return <NotFoundPage />;
   return <CourseDetailContent key={course.id} course={course} />;
 }
 
 function CourseDetailContent({ course }) {
-  const { playLesson, setAccessDeniedStatus } = useGlobalPlayer();
+  const { playLesson } = useGlobalPlayer();
+  const { currentUser, loading: authLoading, syncUserFromBackend } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [accessLoading, setAccessLoading] = useState(true);
-  const [accessStatus, setAccessStatus] = useState(null);
+  const [accessError, setAccessError] = useState('');
   const [expandedChapters, setExpandedChapters] = useState(() => (
     Object.fromEntries(course.chapters.map((chapter) => [chapter.id, true]))
   ));
   const [loadingLessonId, setLoadingLessonId] = useState(null);
   const [notice, setNotice] = useState('');
   const [showEnrollment, setShowEnrollment] = useState(false);
+  const [unlockMethod, setUnlockMethod] = useState('payment');
 
-  // Floating Study Timer States
-  const [isTimerCollapsed, setIsTimerCollapsed] = useState(false);
-  const [customPos, setCustomPos] = useState(null);
-  const [totalStudySeconds, setTotalStudySeconds] = useState(0);
-  const timerRef = useRef(null);
-  const dragState = useRef({ isDragging: false, startX: 0, startY: 0, initialLeft: 0, initialTop: 0 });
   const accessRequestIdRef = useRef(0);
+  const accessIdentityRef = useRef(null);
   const lessonRequestIdRef = useRef(0);
 
   const allLessons = useMemo(
@@ -55,35 +56,58 @@ function CourseDetailContent({ course }) {
   const firstLesson = allLessons[0];
   const hasCourseAccess = isAdmin || isEnrolled;
   const courseTone = COURSE_TONES[course.id] || 'emerald';
+  const userId = currentUser?.id || '';
 
   const refreshCourseAccess = useCallback(async () => {
-    const requestId = accessRequestIdRef.current + 1;
-    accessRequestIdRef.current = requestId;
+    const requestId = ++accessRequestIdRef.current;
+    const identity = userId || null;
+    if (identity !== accessIdentityRef.current) {
+      accessIdentityRef.current = identity;
+      setIsAdmin(false);
+      setIsEnrolled(false);
+    }
+    if (authLoading || !userId) {
+      setIsAdmin(false);
+      setIsEnrolled(false);
+      setAccessError('');
+      setAccessLoading(authLoading);
+      return;
+    }
     setAccessLoading(true);
     try {
-      const response = await apiFetch(`/api/courses/${encodeURIComponent(course.id)}/access`);
-      const payload = await response.json().catch(() => ({}));
+      const response = await apiFetch(`/api/courses/${encodeURIComponent(course.id)}/access`, { signal: AbortSignal.timeout(12_000) });
+      if (response.status === 401) { await syncUserFromBackend(); throw new Error('COURSE_ACCESS_UNAVAILABLE'); }
+      const payload = response.ok ? await readApiJson(response) : null;
+      if (!response.ok && response.status !== 401 && response.status !== 403) throw new Error('COURSE_ACCESS_UNAVAILABLE');
       const access = response.ok ? payload.data : null;
+      if (response.ok && typeof access?.allowed !== 'boolean') throw new Error('COURSE_ACCESS_UNAVAILABLE');
       if (requestId === accessRequestIdRef.current) {
+        setAccessError('');
         setIsAdmin(access?.reason === 'OWNER');
         setIsEnrolled(Boolean(access?.allowed));
-        setAccessStatus(response.ok ? null : response.status);
       }
     } catch {
-      if (requestId === accessRequestIdRef.current) {
-        setIsAdmin(false);
-        setIsEnrolled(false);
-        setAccessStatus(null);
-      }
+      // Keep the last confirmed UI state during a temporary outage so newly
+      // issued keys are not discarded. Every content/admin request still checks
+      // the server; identity changes above always clear the previous rights.
+      if (requestId === accessRequestIdRef.current) setAccessError('Chưa kết nối được hệ thống quyền học. Bạn vẫn có thể xem thử; đăng ký và kích hoạt sẽ tiếp tục khi kết nối ổn định.');
     } finally {
       if (requestId === accessRequestIdRef.current) setAccessLoading(false);
     }
-  }, [course.id]);
+  }, [course.id, userId, authLoading, syncUserFromBackend]);
 
   useEffect(() => {
     const initialCheck = window.setTimeout(refreshCourseAccess, 0);
     return () => window.clearTimeout(initialCheck);
   }, [refreshCourseAccess]);
+
+  useEffect(() => {
+    const handleChanged = (event) => { if (!event.detail?.courseId || event.detail.courseId === course.id) refreshCourseAccess(); };
+    const handleFocus = () => refreshCourseAccess();
+    window.addEventListener(COURSE_ACCESS_EVENT, handleChanged);
+    window.addEventListener('focus', handleFocus);
+    return () => { window.removeEventListener(COURSE_ACCESS_EVENT, handleChanged); window.removeEventListener('focus', handleFocus); };
+  }, [course.id, refreshCourseAccess]);
 
   useEffect(() => {
     const handleSessionChanged = () => {
@@ -101,190 +125,26 @@ function CourseDetailContent({ course }) {
   }, [refreshCourseAccess]);
 
   const openLesson = async (lesson) => {
-    const requestId = lessonRequestIdRef.current + 1;
-    lessonRequestIdRef.current = requestId;
-    setLoadingLessonId(null);
-    setNotice('');
-
-    if (lesson.isLocked && !accessLoading && !hasCourseAccess) {
-      setAccessDeniedStatus({
-        isDenied: true,
-        reason: accessStatus === 401 ? 'AUTH_REQUIRED' : 'ENROLLMENT_REQUIRED'
-      });
-      return;
-    }
-
+    if (course.isClosed && !hasCourseAccess) return;
+    const requestId = ++lessonRequestIdRef.current;
     setLoadingLessonId(lesson.id);
-
+    setNotice('');
     try {
-      const response = await apiFetch(`/api/courses/${encodeURIComponent(course.id)}/lessons/${encodeURIComponent(lesson.id)}/content`);
-      const payload = await response.json().catch(() => ({}));
-
-      if (requestId !== lessonRequestIdRef.current) return;
-
-      if (response.status === 401 || response.status === 403) {
-        setIsAdmin(false);
-        setIsEnrolled(false);
-        setAccessStatus(response.status);
-        setAccessDeniedStatus({
-          isDenied: true,
-          reason: response.status === 401 ? 'AUTH_REQUIRED' : 'ENROLLMENT_REQUIRED'
-        });
-        return;
-      }
-
-      const content = payload.data;
-      if (
-        !response.ok
-        || !content
-        || content.courseId !== course.id
-        || content.lessonId !== lesson.id
-        || content.type !== lesson.type
-        || (lesson.type === 'video' && !content.media)
-      ) {
-        throw new Error(payload.message || 'Nội dung bài học chưa sẵn sàng.');
-      }
-
-      playLesson(course, {
-        ...lesson,
-        ...(content.media ? { media: content.media } : {}),
-        ...(content.type === 'text' ? { content: content.content } : {})
-      }, allLessons, courseTone);
-    } catch (error) {
-      if (requestId === lessonRequestIdRef.current && error.name !== 'AbortError') {
-        setNotice(error.message || 'Không thể mở bài học lúc này. Vui lòng thử lại.');
-      }
-    } finally {
-      if (requestId === lessonRequestIdRef.current) setLoadingLessonId(null);
-    }
+      const result = await playLesson(course, lesson, allLessons, courseTone, { accessAllowed: hasCourseAccess });
+      if (requestId === lessonRequestIdRef.current && result?.message) setNotice(result.message);
+      if (result?.opened && lesson.isLocked) refreshCourseAccess();
+    } finally { if (requestId === lessonRequestIdRef.current) setLoadingLessonId(null); }
   };
-
 
   const handleEnrollmentSuccess = (_courseId, entitlement) => {
     if (!entitlement?.allowed) return;
     setIsEnrolled(true);
-    setAccessStatus(null);
     refreshCourseAccess();
   };
 
-  const handleTimerPointerDown = (e) => {
-    if (e.target.closest('.btn-timer-collapse')) return;
-
-    if (window.getComputedStyle(timerRef.current).position !== 'fixed') {
-        const rect = timerRef.current.getBoundingClientRect();
-        timerRef.current.style.position = 'fixed';
-        timerRef.current.style.left = `${rect.left}px`;
-        timerRef.current.style.top = `${rect.top}px`;
-        timerRef.current.style.zIndex = 99999;
-    }
-
-    const currentLeft = parseInt(timerRef.current.style.left) || 10;
-    const currentTop = parseInt(timerRef.current.style.top) || 10;
-
-    dragState.current = {
-      isDragging: true,
-      startX: e.clientX,
-      startY: e.clientY,
-      initialLeft: currentLeft,
-      initialTop: currentTop
-    };
-
-    const handlePointerMove = (moveEvent) => {
-      moveEvent.preventDefault();
-      if (!dragState.current.isDragging) return;
-
-      const dx = moveEvent.clientX - dragState.current.startX;
-      const dy = moveEvent.clientY - dragState.current.startY;
-
-      let newX = dragState.current.initialLeft + dx;
-      let newY = dragState.current.initialTop + dy;
-
-      newX = Math.max(10, Math.min(window.innerWidth - timerRef.current.offsetWidth - 10, newX));
-      newY = Math.max(10, Math.min(window.innerHeight - timerRef.current.offsetHeight - 10, newY));
-
-      timerRef.current.style.left = `${newX}px`;
-      timerRef.current.style.top = `${newY}px`;
-    };
-
-    const handlePointerUp = () => {
-      dragState.current.isDragging = false;
-      window.removeEventListener('pointermove', handlePointerMove);
-      window.removeEventListener('pointerup', handlePointerUp);
-
-      const finalX = parseInt(timerRef.current.style.left);
-      const finalY = parseInt(timerRef.current.style.top);
-      if (!isNaN(finalX) && !isNaN(finalY)) {
-         setCustomPos({ x: finalX, y: finalY });
-      }
-    };
-
-    window.addEventListener('pointermove', handlePointerMove, { passive: false });
-    window.addEventListener('pointerup', handlePointerUp);
-  };
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTotalStudySeconds((prev) => prev + 1);
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const renderStudyTimerWidget = (isModalContext = false) => {
-    const styleProp = customPos
-      ? { position: 'fixed', left: `${customPos.x}px`, top: `${customPos.y}px`, zIndex: 99999, transform: 'none' }
-      : { zIndex: 99999 };
-
-    const classNameProp = `floating-study-widget ${!customPos ? (isModalContext ? 'under-video-anchor' : 'top-right-anchor') : ''} ${isTimerCollapsed ? 'collapsed' : ''}`;
-    const progressPercent = allLessons.length > 0 ? Math.round((0 / allLessons.length) * 100) : 0;
-
-    return (
-      <div
-        ref={timerRef}
-        className={classNameProp}
-        style={{ touchAction: 'none', ...styleProp }}
-        onPointerDown={handleTimerPointerDown}
-      >
-        <div className="timer-drag-handle" title="Kéo thả để di chuyển vị trí">
-          <GripVertical size={16} />
-        </div>
-
-        {!isTimerCollapsed ? (
-          <>
-            <div className="timer-badge-active">
-              <Clock size={16} />
-              <span>Đã học: {Math.floor(totalStudySeconds / 60)} phút {totalStudySeconds % 60}s</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span>Tiến độ: {progressPercent}%</span>
-              <div className="progress-widget-bar">
-                <div className="progress-widget-fill" style={{ width: `${progressPercent}%` }} />
-              </div>
-            </div>
-            <button type="button" className="btn-timer-collapse" onClick={(e) => { e.stopPropagation(); setIsTimerCollapsed(true); }}>
-              <Minimize2 size={12} />
-            </button>
-          </>
-        ) : (
-          <>
-            <div className="timer-badge-active">
-              <Clock size={15} />
-              <span>{Math.floor(totalStudySeconds / 60)}m {totalStudySeconds % 60}s ({progressPercent}%)</span>
-            </div>
-            <button type="button" className="btn-timer-collapse" onClick={(e) => { e.stopPropagation(); setIsTimerCollapsed(false); }}>
-              <Maximize2 size={12} />
-            </button>
-          </>
-        )}
-      </div>
-    );
-  };
-
-
-
-
   return (
     <div className={`course-detail-page cd-tone-${courseTone}`}>
-      {createPortal(renderStudyTimerWidget(false), document.body)}
+      <CourseStudyDock courseId={course.id} tone={courseTone} />
       <header className="cd-hero">
         <div className="container cd-hero__inner">
           <Link to="/courses" className="cd-back-link">
@@ -302,10 +162,10 @@ function CourseDetailContent({ course }) {
               <p>{course.desc}</p>
 
               <div className="cd-meta-grid" aria-label="Thông tin khóa học">
-                <span><BookOpen size={18} /> {allLessons.length} bài hiện có</span>
-                <span><FolderOpen size={18} /> {course.sectionsCount} phần</span>
+                <span><BookOpen size={18} /> {Number.isInteger(course.lessonsCount) ? `${course.lessonsCount} bài hiện có` : 'Nội dung đang chuẩn bị'}</span>
+                {Number.isInteger(course.sectionsCount) && <span><FolderOpen size={18} /> {course.sectionsCount} phần</span>}
                 <span><Clock3 size={18} /> {course.duration}</span>
-                <span><Users size={18} /> {course.studentsCount} học viên</span>
+                {Number.isInteger(course.studentsCount) && <span><Users size={18} /> {course.studentsCount} học viên</span>}
               </div>
 
               <div className="cd-hero__actions">
@@ -314,12 +174,12 @@ function CourseDetailContent({ course }) {
                     type="button"
                     className="cd-button cd-button--primary"
                     onClick={() => openLesson(firstLesson)}
-                    disabled={loadingLessonId === firstLesson.id}
+                    disabled={(course.isClosed && !hasCourseAccess) || loadingLessonId === firstLesson.id}
                   >
                     {loadingLessonId === firstLesson.id
                       ? <Loader2 size={18} className="spinner" />
                       : <Play size={18} fill="currentColor" />}
-                    Xem bài học đầu tiên
+                    {course.isClosed && !hasCourseAccess ? 'Khóa học tạm đóng' : 'Xem bài học đầu tiên'}
                   </button>
                 )}
                 <a href="#curriculum" className="cd-button cd-button--secondary">
@@ -353,7 +213,7 @@ function CourseDetailContent({ course }) {
                 <span className="cd-eyebrow">Lộ trình học</span>
                 <h2 id="curriculum-title">Nội dung khóa học</h2>
               </div>
-              <p>Chọn bài xem thử hoặc đăng nhập đúng tài khoản đã kích hoạt để mở nội dung có khóa.</p>
+              <p>{course.isClosed && !hasCourseAccess ? 'Khóa học đang tạm đóng. Bạn có thể xem trước lộ trình bên dưới.' : course.previewMode ? 'Chọn bài giảng để bắt đầu. Bạn có thể quay lại và tiếp tục đúng đoạn đang xem.' : 'Chọn bài xem thử hoặc đăng nhập đúng tài khoản đã kích hoạt để mở nội dung có khóa.'}</p>
             </div>
 
             {notice && (
@@ -361,7 +221,9 @@ function CourseDetailContent({ course }) {
                 {notice}
               </div>
             )}
+            {accessError && <div className="cd-notice" role="alert"><span>{accessError}</span><button type="button" className="course-unlock-entry" disabled={accessLoading} onClick={refreshCourseAccess}><RefreshCw size={16} className={accessLoading ? 'spinner' : ''} />{accessLoading ? 'Đang kết nối…' : 'Thử lại kết nối'}</button></div>}
 
+            <CourseContinueWatching course={course} onContinue={openLesson} />
             <div className="cd-chapters">
               {course.chapters.map((chapter, chapterIndex) => {
                 const isOpen = expandedChapters[chapter.id] !== false;
@@ -403,7 +265,7 @@ function CourseDetailContent({ course }) {
                               className="cd-lesson"
                               key={lesson.id}
                               onClick={() => openLesson(lesson)}
-                              disabled={isLoading}
+                              disabled={(course.isClosed && !hasCourseAccess) || isLoading}
                             >
                               <span className="cd-lesson__index">
                                 {String(lessonIndex + 1).padStart(2, '0')}
@@ -418,7 +280,9 @@ function CourseDetailContent({ course }) {
                                 <small>{lesson.subtitle} · {lesson.duration}</small>
                               </span>
                               <span className={`cd-lesson__state ${lockedForUser ? 'is-locked' : ''}`}>
-                                {isLoading ? (
+                                {course.isClosed && !hasCourseAccess ? (
+                                  <><LockKeyhole size={15} /> Tạm đóng</>
+                                ) : isLoading ? (
                                   <><Loader2 size={15} className="spinner" /> Đang mở</>
                                 ) : lockedForUser ? (
                                   <><LockKeyhole size={15} /> Cần quyền học</>
@@ -446,7 +310,9 @@ function CourseDetailContent({ course }) {
             </div>
 
             <div className="cd-enrollment__body">
-              {hasCourseAccess ? (
+              {course.isClosed && !hasCourseAccess ? (
+                <span className="cd-enrollment__eyebrow">Khóa học tạm đóng</span>
+              ) : hasCourseAccess ? (
                 <div className="cd-access-badge">
                   <CheckCircle2 size={18} />
                   {isAdmin ? 'Quyền chủ sở hữu' : 'Khóa học đã kích hoạt'}
@@ -456,11 +322,13 @@ function CourseDetailContent({ course }) {
               )}
 
               <div className="cd-price">
-                {course.isFree ? (
+                {course.isClosed ? (
+                  <strong>{course.discountPrice}</strong>
+                ) : course.isFree ? (
                   <strong>Miễn phí</strong>
                 ) : (
                   <>
-                    <span>{course.originalPrice}</span>
+                    {course.originalPrice !== course.discountPrice && <span>{course.originalPrice}</span>}
                     <strong>{course.discountPrice}</strong>
                   </>
                 )}
@@ -478,16 +346,20 @@ function CourseDetailContent({ course }) {
               <button
                 type="button"
                 className="cd-button cd-button--primary cd-button--full"
-                disabled={accessLoading}
+                disabled={(course.isClosed && !hasCourseAccess) || accessLoading}
                 onClick={() => {
+                  if (course.isClosed && !hasCourseAccess) return;
                   if (hasCourseAccess && firstLesson) {
                     openLesson(firstLesson);
                   } else {
+                    setUnlockMethod('payment');
                     setShowEnrollment(true);
                   }
                 }}
               >
-                {accessLoading ? (
+                {course.isClosed && !hasCourseAccess ? (
+                  <><LockKeyhole size={18} /> Tạm đóng đăng ký</>
+                ) : accessLoading ? (
                   <><Loader2 size={18} className="spinner" /> Đang kiểm tra quyền</>
                 ) : hasCourseAccess ? (
                   <><Play size={18} fill="currentColor" /> Vào học ngay</>
@@ -499,8 +371,10 @@ function CourseDetailContent({ course }) {
               </button>
 
               <p className="cd-enrollment__trust">
-                Quyền học được xác nhận từ máy chủ và gắn với tài khoản của bạn.
+                {hasCourseAccess ? 'Quyền học đã được máy chủ xác nhận cho tài khoản này.' : course.isClosed ? 'Tạm đóng thanh toán. Key đã được cấp vẫn có thể kích hoạt.' : 'Mở khóa bằng thanh toán PayOS hoặc key do admin cấp.'}
               </p>
+              {!hasCourseAccess && <button type="button" className="course-unlock-entry" onClick={() => { setUnlockMethod('key'); setShowEnrollment(true); }}><LockKeyhole size={16} /> Tôi có mã kích hoạt</button>}
+              {isAdmin && <Link to={`/admin/courses?course=${course.id}`} className="course-unlock-entry"><ShieldCheck size={16} /> Quản trị khóa học</Link>}
 
               <Link to="/resources" className="cd-resource-link">
                 <Library size={17} />
@@ -520,11 +394,12 @@ function CourseDetailContent({ course }) {
 
 
 
-\n      <CourseEnrollmentModal
+      <CourseUnlockModal
         isOpen={showEnrollment}
+        initialMethod={unlockMethod}
         onClose={() => setShowEnrollment(false)}
         course={course}
-        onEnrollSuccess={handleEnrollmentSuccess}
+        onUnlocked={(_courseId, access) => { handleEnrollmentSuccess(_courseId, access); setShowEnrollment(false); }}
       />
     </div>
   );

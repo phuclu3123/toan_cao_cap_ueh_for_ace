@@ -1,0 +1,35 @@
+/* One floating navigation treatment for the current light design pass. */
+:root[data-theme='light'] .app-container.capsule-route .header-wrapper { position: sticky; top: 16px; width: min(1200px,calc(100% - 64px)); height: 72px; margin: 16px auto 0; background: transparent; border: 0; box-shadow: none; }
+:root[data-theme='light'] .app-container.capsule-route .header-wrapper .navbar { height: 72px; border: 1px solid #ffffffc9; border-radius: 999px; background: #fffefdef; box-shadow: 0 8px 32px #25211b12,inset 0 1px 0 #fff9; backdrop-filter: blur(24px); }
+:root[data-theme='light'] .app-container.capsule-route .navbar-container { width: 100%; max-width: none; gap: 10px; padding: 0 18px; }
+:root[data-theme='light'] .app-container.capsule-route .navbar-logo { font-size: 20px; padding-left: 12px; }
+:root[data-theme='light'] .app-container.capsule-route .nav-links { gap: 2px; }
+:root[data-theme='light'] .app-container.capsule-route .nav-link-item { display: flex; align-items: center; justify-content: center; font-size: 12px; padding: 11px 12px; border-radius: 999px; font-weight: 550; min-height: 40px; }
+:root[data-theme='light'] .app-container.capsule-route .nav-link-item.active,:root[data-theme='light'] .app-container.capsule-route .nav-link-item.active:hover { background: #191918 !important; color: #fff !important; }
+:root[data-theme='light'] .app-container .header-wrapper .navbar .nav-link-item.active,
+:root[data-theme='light'] .app-container .header-wrapper .navbar .nav-link-item.active:hover,
+:root[data-theme='light'] .app-container .mobile-link-item.active { background: #191918 !important; color: #fff !important; }
+:root[data-theme='light'] .app-container.capsule-route .nav-link-item:hover { background: #f0eeeb !important; }
+:root[data-theme='light'] .app-container.capsule-route .nav-link-item::after { display: none; }
+:root[data-theme='light'] .app-container.capsule-route .nav-controls { gap: 6px; padding-left: 12px; }
+:root[data-theme='light'] .app-container.capsule-route .nav-controls :is(.control-btn,.notif-trigger-btn) { border-radius: 50%; background: #ffffff6b; border: 1px solid #19191812; }
+@media (max-width:1280px) {
+  :root[data-theme='light'] .app-container.capsule-route :is(.nav-links,.nav-controls,.auth-action) { display: none; }
+  :root[data-theme='light'] .app-container.capsule-route .mobile-toggle { display: inline-flex; }
+  :root[data-theme='light'] .app-container.capsule-route .mobile-drawer { display: block; }
+  :root[data-theme='light'] .app-container.capsule-route .navbar-container { justify-content: space-between; }
+  :root[data-theme='light'] .app-container.capsule-route .mobile-notification { display: block; margin-left: auto; }
+  :root[data-theme='light'] .app-container.capsule-route .mobile-notification .notif-trigger-btn { width: 40px; height: 40px; border-radius: 50%; }
+  :root[data-theme='light'] .app-container.capsule-route .mobile-notification .notif-dropdown-popover { right: -50px; width: min(360px,calc(100vw - 32px)); max-width: none; }
+}
+@media (max-width:1100px) {
+  :root[data-theme='light'] .app-container.capsule-route .header-wrapper { width: calc(100% - 32px); top: 10px; margin-top: 10px; height: 64px; }
+  :root[data-theme='light'] .app-container.capsule-route .header-wrapper .navbar { height: 64px; }
+  :root[data-theme='light'] .app-container.capsule-route .navbar-container { padding-inline: 16px; }
+}
+@media (max-width:600px) {
+  :root[data-theme='light'] .app-container.capsule-route .header-wrapper { width: calc(100% - 20px); }
+  :root[data-theme='light'] .app-container.capsule-route .navbar-logo { padding-left: 4px; font-size: 19px; }
+  :root[data-theme='light'] .app-container.capsule-route .navbar-container { padding-inline: 12px; }
+  :root[data-theme='light'] .app-container.capsule-route .mobile-toggle { border-radius: 50%; }
+}

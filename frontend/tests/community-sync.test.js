@@ -58,9 +58,9 @@ test('answer deletion has one backend-backed implementation', () => {
 });
 
 test('production community reads do not silently replace backend data with fixtures', () => {
-  assert.match(source, /VITE_ENABLE_COMMUNITY_LOCAL_FALLBACK/);
-  assert.match(source, /if \(ENABLE_LOCAL_COMMUNITY_FALLBACK\)/);
-  assert.doesNotMatch(source, /console\.warn\('Không thể tải diễn đàn từ backend, dùng bộ nhớ cục bộ/);
+  assert.doesNotMatch(source, /UEH_CURRICULUM_POSTS|UEH_LEADERBOARD_USERS|ENABLE_LOCAL_COMMUNITY_FALLBACK/);
+  assert.doesNotMatch(source, /getUserProfile\(userId\)|getLeaderboard\(\)/);
+  assert.match(source, /degraded: Boolean\(data.degraded\)/);
 });
 
 test('community identity and image payloads use server-compatible values', () => {
@@ -72,7 +72,7 @@ test('community identity and image payloads use server-compatible values', () =>
 });
 
 test('community sidebar renders hot questions supplied by the backend feed', () => {
-  assert.match(sidebarSource, /hotQuestions\.map/);
+  assert.match(sidebarSource, /hotQuestions\.slice\(0, 2\)\.map/);
   assert.doesNotMatch(sidebarSource, /const HOT_QUESTIONS/);
 });
 

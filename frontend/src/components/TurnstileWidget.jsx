@@ -16,6 +16,7 @@ export default function TurnstileWidget({ action, ref }) {
     },
     reset() {
       tokenRef.current = '';
+      if(enabled) setStatus('Đang xác minh lại chống bot…');
       if (widgetRef.current !== null) window.turnstile?.reset(widgetRef.current);
     }
   }), [enabled]);

@@ -1,10 +1,15 @@
 import { useState } from 'react';
+import { Compass, Users, BookOpen } from 'lucide-react';
+import CommunityPanel from '../components/community/CommunityPanel';
+import MathMarginArtwork from '../components/community/MathMarginArtwork';
+import { useSearchParams } from 'react-router-dom';
 import { useCommunity } from '../contexts/CommunityContext';
 import { useAuth } from '../contexts/AuthContext';
 import CommunityNavSidebar from '../components/community/CommunityNavSidebar';
 import PostFilterBar from '../components/community/PostFilterBar';
 import PostCard from '../components/community/PostCard';
 import CommunitySidebar from '../components/community/CommunitySidebar';
+import CommunityTagsDialog from '../components/community/CommunityTagsDialog';
 import MobileFilterDrawer from '../components/community/MobileFilterDrawer';
 import Pagination from '../components/community/Pagination';
 import LoadingSkeleton from '../components/ui/LoadingSkeleton';
@@ -16,11 +21,14 @@ import CreatePostModal from '../components/community/CreatePostModal';
 import ReportContentModal from '../components/community/ReportContentModal';
 import AuthModal from '../components/modals/AuthModal';
 import '../assets/styles/community.css';
+import '../assets/styles/community-workspace.css';
+import '../assets/styles/community-discussion.css';
 
 /**
  * CommunityPage: Clean Mathematics 3-Column Workspace (No clunky top banner)
  */
 export default function CommunityPage() {
+  const [urlParams, setUrlParams] = useSearchParams();
   const { currentUser } = useAuth();
   const {
     posts,
@@ -28,6 +36,11 @@ export default function CommunityPage() {
     totalPages,
     loading,
     error,
+    sessionActionError,
+    clearSessionActionError,
+    degraded,
+    metadataError,
+    refreshMetadata,
     stats,
     leaderboard,
     hotQuestions,
@@ -43,6 +56,7 @@ export default function CommunityPage() {
     setDifficulty,
     setStatus,
     setSort,
+    setView,
     setSearchQuery,
     setTag,
     setPage,
@@ -52,6 +66,8 @@ export default function CommunityPage() {
     visitedPostIds,
     toggleSavePost,
     hidePost,
+    hiddenPostIds,
+    restoreHiddenPosts,
     handleUpvotePost,
     handleCreatePost,
     handleUpdatePost,
@@ -72,7 +88,8 @@ export default function CommunityPage() {
 
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [reportTarget, setReportTarget] = useState(null);
-  const [activeNav, setActiveNav] = useState('questions');
+  const [showTags, setShowTags] = useState(false);
+  const closeTags = () => { setShowTags(false); if (urlParams.has('browse')) setUrlParams(prev => { const next = new URLSearchParams(prev); next.delete('browse'); return next; }, { replace: true }); };
 
   const currentUserId = currentUser?.id || currentUser?.uid || null;
 
@@ -88,38 +105,35 @@ export default function CommunityPage() {
   };
 
   const handleNavSelect = (navKey) => {
-    setActiveNav(navKey);
     if (navKey === 'questions') {
-      setStatus('all');
-      setSort('newest');
+      clearAllFilters();
     } else if (navKey === 'unanswered') {
-      setStatus('unsolved');
-      setSort('newest');
+      setView({ status: 'unsolved', sort: 'newest' });
     } else if (navKey === 'saved') {
-      setStatus('saved');
+      if (!currentUser) return handleRequireLogin();
+      setView({ status: 'saved' });
     } else if (navKey === 'tags') {
-      setTag('');
+      setShowTags(true);
     }
   };
 
   return (
-    <div className="qa-math-site-wrapper">
+    <div className="qa-math-site-wrapper qa-community-workspace qa-focused-feed">
+      <MathMarginArtwork />
       {/* 3-Column Mathematics StackExchange Layout */}
-      <div className="qa-main-container" style={{ paddingTop: '28px' }}>
+      <div className="qa-main-container">
+        <div className="qa-workspace-tools">
+          <CommunityPanel title="Khám phá cộng đồng" label="Khám phá" icon={Compass}>{({ close }) => <CommunityNavSidebar activeStatus={activeStatus} totalUnanswered={stats?.openCount || 0} savedCount={savedPostIds.length}
+            onSelectNav={key => { close(); handleNavSelect(key); }} onOpenLeaderboard={() => { close(); setIsLeaderboardOpen(true); }} onOpenCheatsheet={() => { close(); setIsCheatsheetOpen(true); }} />}</CommunityPanel>
+          <div className="qa-workspace-tools-end">
+            <button type="button" className="qa-tools-trigger" onClick={() => setIsCheatsheetOpen(true)}><BookOpen size={17} />Sổ tay của Phúc</button>
+            <CommunityPanel title="Cộng đồng" icon={Users}>{({ close }) => <CommunitySidebar leaderboard={leaderboard} hotQuestions={hotQuestions} metadataError={metadataError} onRetry={refreshMetadata}
+              onOpenLeaderboard={() => { close(); setIsLeaderboardOpen(true); }} onOpenCheatsheet={() => { close(); setIsCheatsheetOpen(true); }} />}</CommunityPanel>
+          </div>
+        </div>
         <div className="qa-3col-layout">
           {/* Left Column: Navigation Sidebar */}
-          <aside className="qa-left-col">
-            <CommunityNavSidebar
-              activeNav={activeNav}
-              activeStatus={activeStatus}
-              onSelectNav={handleNavSelect}
-              onOpenLeaderboard={() => setIsLeaderboardOpen(true)}
-              onOpenCheatsheet={() => setIsCheatsheetOpen(true)}
-              onOpenCreate={currentUser ? openCreateModal : handleRequireLogin}
-              totalUnanswered={stats?.openCount || 0}
-              savedCount={savedPostIds.length}
-            />
-          </aside>
+
 
           {/* Center Column: Questions Feed */}
           <main className="qa-center-col" id="qa-feed-main">
@@ -141,7 +155,18 @@ export default function CommunityPage() {
               onClearFilters={clearAllFilters}
               onOpenMobileFilters={() => setIsMobileFilterOpen(true)}
               onOpenCreate={currentUser ? openCreateModal : handleRequireLogin}
+              stats={stats}
+              trendingTags={trendingTags}
+              onOpenTags={() => setShowTags(true)}
+              onViewChange={view => {
+                if (view.status === 'saved' && !currentUser) return handleRequireLogin();
+                setView(view);
+              }}
             />
+
+            {sessionActionError && <div className="qa-inline-notice qa-action-feedback is-error" role="alert">{sessionActionError} <button type="button" onClick={() => { clearSessionActionError(); handleRequireLogin(); }}>Đăng nhập lại</button></div>}
+            {degraded && <div className="qa-inline-notice" role="status">Đang xem dữ liệu dự phòng. Kết nối máy chủ trước khi đăng hoặc cập nhật nội dung.</div>}
+            {hiddenPostIds.length > 0 && <div className="qa-hidden-notice"><span>{hiddenPostIds.length} bài đã ẩn trên thiết bị này</span><button type="button" onClick={restoreHiddenPosts}>Hiện lại</button></div>}
 
             {/* Content States */}
             {loading ? (
@@ -163,7 +188,7 @@ export default function CommunityPage() {
                   searchQuery || activeSubject !== 'all' || activeTag
                     ? clearAllFilters
                     : activeStatus === 'saved'
-                    ? () => { setStatus('all'); setActiveNav('questions'); }
+                    ? () => setStatus('all')
                     : currentUser
                     ? openCreateModal
                     : handleRequireLogin
@@ -202,19 +227,12 @@ export default function CommunityPage() {
           </main>
 
           {/* Right Column: Widgets Sidebar */}
-          <aside className="qa-right-col">
-            <CommunitySidebar
-              leaderboard={leaderboard}
-              hotQuestions={hotQuestions}
-              trendingTags={trendingTags}
-              onOpenLeaderboard={() => setIsLeaderboardOpen(true)}
-              onOpenCheatsheet={() => setIsCheatsheetOpen(true)}
-            />
-          </aside>
+
         </div>
       </div>
 
       {/* Modals & Drawers */}
+      <CommunityTagsDialog isOpen={showTags || urlParams.get('browse') === 'tags'} onClose={closeTags} tags={trendingTags} onSelect={tag => { setView({ tag, browse: '' }); setShowTags(false); }} />
       <CreatePostModal
         isOpen={isCreateModalOpen}
         onClose={closeCreateModal}

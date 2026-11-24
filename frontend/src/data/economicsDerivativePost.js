@@ -2,6 +2,7 @@ const math = String.raw;
 
 export const economicsDerivativePost = {
   slug: 'ung-dung-vi-mo-vi-mo-trong-toan-ung-dung-k51',
+  shortTitle: 'Đạo hàm trong kinh tế',
   title: 'Đạo hàm kinh tế: Đại lượng biên, co giãn và lời giải đề K46–K51',
   category: 'Chuyên khảo · Chương 5',
   date: '23/07/2026',

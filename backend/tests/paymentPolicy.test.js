@@ -14,9 +14,9 @@ import {
   shouldReconcilePayment,
   validatePayOSCreateResponse,
   verifyPayOSDataSignature
-} from '../controllers/paymentController.js';
-import { getCourseOffering } from '../config/courseCatalog.js';
-import { getPaidEnrollmentRepairAction } from '../services/enrollmentService.js';
+} from '../src/modules/commerce/payments/http/paymentController.js';
+import { getCourseOffering } from '../src/modules/learning/config/courseCatalog.js';
+import { getPaidEnrollmentRepairAction } from '../src/modules/access/application/enrollmentService.js';
 
 test('a non-paid or out-of-order webhook never downgrades PAID', () => {
   assert.equal(resolvePaymentStatus('PAID', false), 'PAID');
@@ -29,8 +29,9 @@ test('a non-paid or out-of-order webhook never downgrades PAID', () => {
 test('the server course catalog is the authority for payment amounts', () => {
   assert.equal(getCourseOffering('tu-hoc-toan-cao-cap').amount, 349000);
   assert.equal(getCourseOffering('lop-tu-hoc-sql').amount, 0);
-  assert.equal(getCourseOffering('thuc-chien-k46-k50').amount, 4100000);
-  assert.equal(getCourseOffering('thuc-chien-k51').amount, 3900000);
+  assert.equal(getCourseOffering('thuc-chien-k46-k50').amount, 0);
+  assert.equal(getCourseOffering('thuc-chien-k51').amount, 0);
+  for (const id of ['lop-tu-hoc-sql', 'thuc-chien-k46-k50', 'thuc-chien-k51']) assert.equal(getCourseOffering(id).isClosed, true);
   assert.equal(getCourseOffering('unknown-course'), null);
 });
 

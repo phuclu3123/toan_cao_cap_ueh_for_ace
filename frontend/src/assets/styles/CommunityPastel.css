@@ -1,0 +1,54 @@
+/* Pastel landmarks around a quiet, readable discussion lane. */
+.qa-focused-feed.qa-community-workspace .qa-explore-row { padding: 28px 30px; border-radius: 24px; gap: 24px; margin-bottom: 5px; }
+.qa-focused-feed .qa-explore-intro { min-width: 0; }
+.qa-focused-feed.qa-community-workspace .qa-explore-heading { color: #191918; font-size: clamp(1.5rem,2.2vw,2rem); line-height: 1.6; }
+.qa-focused-feed .qa-explore-intro p { color: #474941; font-size: 13px; line-height: 1.8; margin: 7px 0 0; }
+.qa-focused-feed.qa-community-workspace .qa-explore-count-pill { background: #fffefd99; color: #474941; border-radius: 999px; padding: 5px 10px; font-size: 11px; white-space: nowrap; }
+.qa-focused-feed.qa-community-workspace .qa-ask-question-btn { background: var(--ui-pastel-sun); color: #191918; border: 1px solid #1919181a; box-shadow: 0 3px 0 #19191812; border-radius: 12px; }
+.qa-focused-feed.qa-community-workspace .qa-ask-question-btn:hover { background: #ffe9a0; color: #191918; }
+.qa-focused-feed .qa-workspace-tools > .qa-tools-trigger { background: var(--ui-pastel-lavender); color: #191918; border-color: #19191815; }
+.qa-focused-feed .qa-workspace-tools-end > .qa-tools-trigger { background: var(--ui-pastel-sun); color: #191918; border-color: #19191815; }
+.qa-focused-feed .qa-workspace-tools-end > .qa-tools-trigger:nth-of-type(2) { background: var(--ui-pastel-mint); }
+.qa-focused-feed.qa-community-workspace .qa-feed-search-form { border-radius: 12px; }
+.qa-focused-feed.qa-community-workspace .qa-tags-scroll-wrap { gap: 8px; flex-wrap: wrap; }
+.qa-focused-feed.qa-community-workspace .qa-math-tag-pill { padding: 5px 11px; border-radius: 7px; background: var(--ui-pastel-mint); color: #303c30; }
+.qa-focused-feed.qa-community-workspace .qa-math-tag-pill:nth-of-type(2) { background: var(--ui-pastel-peach); color: #543a2c; }
+.qa-focused-feed.qa-community-workspace .qa-math-tag-pill:nth-of-type(3) { background: var(--ui-pastel-lavender); color: #33394e; }
+.qa-focused-feed.qa-community-workspace .qa-math-tag-pill.is-selected { outline: 1px solid currentColor; outline-offset: 2px; }
+.qa-focused-feed.qa-community-workspace .qa-filter-tabs-group { gap: 8px; }
+.qa-focused-feed.qa-community-workspace .qa-ftab-btn { padding: 8px 12px 11px; border-radius: 9px 9px 0 0; }
+.qa-focused-feed.qa-community-workspace .qa-ftab-btn.is-active { background: var(--ui-pastel-lavender); color: #191918; border-bottom-color: #191918; }
+.qa-focused-feed.qa-community-workspace .qa-ftab-btn:nth-child(2).is-active { background: var(--ui-pastel-peach); }
+.qa-focused-feed.qa-community-workspace .qa-ftab-btn:nth-child(3).is-active { background: var(--ui-pastel-mint); }
+.qa-focused-feed.qa-community-workspace .qa-ftab-btn:nth-child(4).is-active { background: var(--ui-pastel-sun); }
+.qa-focused-feed.qa-community-workspace .qa-questions-stream { border: 0; display: grid; gap: 18px; background: transparent; }
+.qa-focused-feed.qa-community-workspace .qa-questions-stream > .se-question-item { border: 1px solid var(--se-border); border-radius: 16px; padding: 26px; background: var(--se-surface); }
+.qa-focused-feed .qa-question-category { background: var(--ui-pastel-lavender); color: #33394e; padding: 5px 10px; border-radius: 7px; }
+.qa-focused-feed .qa-question-category[data-subject='calc1'],.qa-focused-feed .qa-question-category[data-subject='calc2'] { background: var(--ui-pastel-sky); color: #2c4650; }
+.qa-focused-feed .qa-question-category[data-subject='econ_models'],.qa-focused-feed .qa-question-category[data-subject='prob_stats'] { background: var(--ui-pastel-mint); color: #303c30; }
+.qa-focused-feed .qa-question-category[data-subject='exam_prep'] { background: var(--ui-pastel-sun); color: #55451c; }
+.qa-focused-feed .qa-question-category[data-subject='method_tips'] { background: var(--ui-pastel-peach); color: #543a2c; }
+.qa-focused-feed .qa-source-seal { background: var(--ui-pastel-lavender); color: #33394e; border-color: transparent; }
+.community-route .qa-tools-panel .qa-nav-item.is-active { background: var(--ui-pastel-lavender); color: #191918; }
+.community-route .qa-tools-panel .qa-notebook { background: color-mix(in srgb,var(--ui-pastel-sun) 84%,white); color: #191918; border: 0; }
+.community-route .qa-notebook :is(h2,p,button) { color: #191918; }
+.community-route .qa-comment-bubble { background: color-mix(in srgb,var(--ui-pastel-sky) 22%,var(--se-surface)); }
+.community-route .qa-comment.is-reply .qa-comment-bubble { background: color-mix(in srgb,var(--ui-pastel-lavender) 22%,var(--se-surface)); }
+@media (min-width:1500px) {
+  .qa-margin-art .qa-geometry-toy[data-toy-kind]:is([data-toy-kind='ronaldo'],[data-toy-kind='faker'],[data-toy-kind='rambo'],[data-toy-kind='jupiter'],[data-toy-kind='lexus']) { width: 160px; height: 190px; left: calc(50% - 80px); color: #727a83; opacity: .85; }
+  .qa-margin-art .qa-geometry-toy[data-toy-kind]:is([data-toy-kind='ronaldo'],[data-toy-kind='faker'],[data-toy-kind='rambo'],[data-toy-kind='jupiter'],[data-toy-kind='lexus']) > svg { width: 160px; height: 160px; margin-left: 0; }
+  .qa-focused-feed .qa-geometry-toy,.qa-thread-workspace .qa-geometry-toy { color: #6f9d79; opacity: .65; }
+  .qa-focused-feed .qa-geometry-toy.tone-gold,.qa-thread-workspace .qa-geometry-toy.tone-gold { color: #b58b38; }
+  .qa-focused-feed .qa-geometry-toy.tone-blue,.qa-thread-workspace .qa-geometry-toy.tone-blue { color: #728ec5; }
+  .qa-focused-feed .qa-geometry-toy.tone-rose,.qa-thread-workspace .qa-geometry-toy.tone-rose { color: #c57e96; }
+  .qa-focused-feed .qa-geometry-orbits,.qa-thread-workspace .qa-geometry-orbits { color: #8e9ec8; }
+}
+@media (max-width:600px) {
+  .qa-focused-feed.qa-community-workspace .qa-explore-row { padding: 23px 20px; flex-wrap: wrap; gap: 18px; border-radius: 20px; }
+  .qa-focused-feed.qa-community-workspace .qa-explore-title-group { display: flex; flex-wrap: wrap; gap: 8px; }
+  .qa-focused-feed.qa-community-workspace .qa-explore-heading { font-size: 23px; }
+  .qa-focused-feed .qa-explore-intro p { font-size: 12px; }
+  .qa-focused-feed.qa-community-workspace .qa-ftab-btn { padding-inline: 10px; }
+  .qa-focused-feed.qa-community-workspace .qa-questions-stream > .se-question-item { padding: 21px 18px; }
+  .qa-focused-feed .qa-entry-byline .qa-question-category { max-width: 116px; }
+}

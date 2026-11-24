@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import process from 'node:process';
 import { existsSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
-import { getSessionCookieOptions, SESSION_COOKIE_NAME } from '../../backend/services/sessionService.js';
+import { getSessionCookieOptions, SESSION_COOKIE_NAME } from '../../backend/src/modules/identity/application/sessionService.js';
 
 const backendRequire = createRequire(new URL('../../backend/package.json', import.meta.url));
 const { serialize } = backendRequire('cookie');
@@ -37,6 +37,7 @@ const localSessionCookie = () => {
 for (const scenario of ['login', 'repair', 'email-error']) {
 test(`Google ${scenario}: opens a normal tab and preserves the correct account/session`, async ({ page, context }, testInfo) => {
   let exchangeCount = 0;
+  let callbackSessionReads = 0;
   const sessionCookie = localSessionCookie();
   const user = { id: 'google-tab-test-user', username: 'tab-test@example.test', name: 'Google Tab Test', role: 'Student' };
   let activeUser = scenario === 'login' ? null : { ...user, username: 'firebase-012345678901234567890123@users.invalid' };
@@ -57,6 +58,7 @@ test(`Google ${scenario}: opens a normal tab and preserves the correct account/s
       activeUser = user;
       await route.fulfill({ headers: { 'set-cookie': sessionCookie }, json: { success: true, user } });
     } else if (path === '/api/auth/me') {
+      if (new URL(route.request().frame().url()).pathname === '/auth/google') callbackSessionReads += 1;
       const authenticated = (await route.request().allHeaders()).cookie?.includes(`${SESSION_COOKIE_NAME}=${sessionToken}`);
       await route.fulfill(authenticated && activeUser
         ? { json: { success: true, user: activeUser, enrollments: [] } }
@@ -107,7 +109,11 @@ test(`Google ${scenario}: opens a normal tab and preserves the correct account/s
   await page.goto(scenario === 'login' ? '/' : '/account?tab=profile');
   const essentialCookies = page.getByRole('button', { name: 'Chỉ dùng cần thiết', exact: true });
   if (await essentialCookies.isVisible()) await essentialCookies.click();
-  if (scenario === 'login') await page.locator('.btn-login-nav').first().click();
+  if (scenario === 'login') {
+    const login=page.locator('.btn-login-nav:visible').first();
+    if(await login.count()) await login.click();
+    else {await page.getByRole('button',{name:'Mở menu',exact:true}).click();await page.getByRole('button',{name:'Đăng Nhập',exact:true}).last().click();}
+  }
   else {
     await expect(page.locator('.profile-email-notice')).toBeVisible();
     await expect(page.locator('.profile-identity-copy')).not.toContainText('@users.invalid');
@@ -137,6 +143,7 @@ test(`Google ${scenario}: opens a normal tab and preserves the correct account/s
   }
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('ueh_tcc_user') || 'null')?.id)).toBe(user.id);
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('ueh_tcc_user') || 'null')?.username)).toBe(user.username);
+  expect(callbackSessionReads).toBe(0);
   expect(await page.evaluate(() => window.__authTabOpenArguments)).toHaveLength(2);
   expect(await page.evaluate(() => window.__authTabOpenArguments[1])).toBe('_blank');
   expect(exchangeCount).toBe(1);

@@ -55,7 +55,7 @@ export default function EmptyState({
     'no-activity': {
       icon: HelpCircle,
       title: 'Chưa có hoạt động gần đây',
-      desc: 'Hãy tham gia giải toán, thảo luận và đánh giá bài viết để tích lũy thành tích tại UEH TCC.',
+      desc: 'Hãy tham gia giải toán, thảo luận và đánh giá bài viết để tích lũy thành tích tại α∫M4A.',
       action: 'Khám phá diễn đàn',
       actionIcon: Compass
     }

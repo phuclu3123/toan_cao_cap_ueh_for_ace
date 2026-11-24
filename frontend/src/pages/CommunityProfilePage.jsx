@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
   Award,
   HelpCircle,
@@ -30,7 +30,6 @@ import { useAuth } from '../contexts/AuthContext';
 import { useCommunity } from '../contexts/CommunityContext';
 import { getTierProgress, getTierByPoints, SPECIALTY_BADGES, BADGE_CATEGORIES } from '../services/reputationService';
 import { communityService } from '../services/communityService';
-import { isAdminIdentity, getAdminBadgeIds } from '../services/adminService';
 import { apiFetch, readApiJson } from '../utils/apiClient';
 import UserRankBadge from '../components/community/UserRankBadge';
 import PostCard from '../components/community/PostCard';
@@ -40,6 +39,7 @@ import EmptyState from '../components/ui/EmptyState';
 import ErrorState from '../components/ui/ErrorState';
 import LoadingSkeleton from '../components/ui/LoadingSkeleton';
 import '../assets/styles/community.css';
+import '../assets/styles/community-workspace.css';
 
 /** Map string icon keys to Lucide icons */
 const BADGE_ICON_MAP = {
@@ -61,37 +61,19 @@ const BADGE_ICON_MAP = {
   Crown
 };
 
-/** Badges a member has earned, derived from their activity. */
-function resolveBadges(profile) {
-  if (!profile) return [];
-  if (profile.isAdmin) return getAdminBadgeIds();
-
-  const earned = [];
-  const pts = profile.points || 0;
-  const solved = profile.solvedCount || 0;
-  const answers = profile.answersCount || 0;
-  const posts = profile.postsCount || 0;
-
-  SPECIALTY_BADGES.forEach(b => {
-    if (pts >= b.pointsReq) {
-      earned.push(b.id);
-    } else if (b.id === 'community-first-solver' && solved >= 1) {
-      earned.push(b.id);
-    } else if (b.id === 'algebra-hpt-matrix' && answers >= 1) {
-      earned.push(b.id);
-    } else if (b.id === 'calc-lagrange-multivar' && solved >= 2) {
-      earned.push(b.id);
-    } else if (b.id === 'community-problem-setter' && posts >= 2) {
-      earned.push(b.id);
-    }
-  });
-
-  return earned;
-}
+// Only publish achievements backed by actual server-side activity.
+const BADGE_RULES = {
+  'community-problem-setter': { metric: 'postsCount', target: 2, unit: 'câu hỏi' },
+  'community-enthusiast': { metric: 'answersCount', target: 5, unit: 'lời giải' },
+  'community-first-solver': { metric: 'firstSolverCount', target: 1, unit: 'lời giải đầu tiên được chấp nhận' }
+};
+const AVAILABLE_BADGES = SPECIALTY_BADGES.filter(badge => BADGE_RULES[badge.id]);
+function resolveBadges(profile) { return (profile?.earnedBadges || []).filter(id => BADGE_RULES[id]); }
 
 export default function CommunityProfilePage({ defaultTab = 'posts' }) {
   const { id } = useParams();
-  const { currentUser } = useAuth();
+  const navigate = useNavigate();
+  const { currentUser, syncUserFromBackend } = useAuth();
   const {
     savedPostIds,
     toggleSavePost,
@@ -118,6 +100,7 @@ export default function CommunityProfilePage({ defaultTab = 'posts' }) {
   const [loadError, setLoadError] = useState(null);
   const [reloadNonce, setReloadNonce] = useState(0);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [copyError, setCopyError] = useState('');
   const [showAvatarCropModal, setShowAvatarCropModal] = useState(false);
 
   const handlePostSubmit = async (data) => {
@@ -166,23 +149,23 @@ export default function CommunityProfilePage({ defaultTab = 'posts' }) {
     return isSaved;
   };
 
-  const handleCopyProfileLink = () => {
-    navigator.clipboard?.writeText(window.location.href);
-    setCopiedLink(true);
-    setTimeout(() => setCopiedLink(false), 2000);
+  const handleCopyProfileLink = async () => {
+    setCopyError('');
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
+      await navigator.clipboard.writeText(window.location.href);
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2000);
+    } catch {
+      setCopiedLink(false);
+      setCopyError('Chưa sao chép được. Bạn có thể sao chép liên kết trên thanh địa chỉ.');
+    }
   };
 
   const handleSaveCroppedAvatar = async (croppedBase64) => {
     try {
-      let localUser = null;
-      try {
-        const raw = localStorage.getItem('ueh_tcc_user');
-        if (raw) localUser = JSON.parse(raw);
-      } catch {
-        // Ignore malformed legacy profile cache.
-      }
-      const authUser = currentUser || localUser;
-      const username = authUser?.username || authUser?.email;
+      if (!currentUser || !isMe) throw new Error('Vui lòng đăng nhập để cập nhật hồ sơ của bạn.');
+      const username = currentUser.username || currentUser.email;
 
       await readApiJson(await apiFetch('/api/auth/update-profile', {
         method: 'POST',
@@ -193,20 +176,13 @@ export default function CommunityProfilePage({ defaultTab = 'posts' }) {
         })
       }));
 
-      const stored = localStorage.getItem('ueh_tcc_user');
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          localStorage.setItem('ueh_tcc_user', JSON.stringify({ ...parsed, avatar: croppedBase64, photoURL: croppedBase64 }));
-        } catch {
-          // Ignore malformed legacy profile cache.
-        }
-      }
+      await syncUserFromBackend({ force: true });
 
       setProfile(prev => ({ ...prev, avatar: croppedBase64 }));
       window.dispatchEvent(new Event('ueh-tcc-session-changed'));
     } catch (err) {
       console.error('Chưa thể lưu ảnh đại diện:', err);
+      throw err;
     }
   };
 
@@ -237,25 +213,20 @@ export default function CommunityProfilePage({ defaultTab = 'posts' }) {
         const { profile: resolved, posts } = communityProfile;
 
         if (cancelled) return;
+        if (!isSelfRoute && resolved.id && resolved.id !== targetId) {
+          navigate('/community/user/' + encodeURIComponent(resolved.id), { replace: true });
+          return;
+        }
 
         // The signed-in owner keeps their auth identity on top of forum data
         const merged = { ...resolved };
 
-        let localUser = null;
-        try {
-          const raw = localStorage.getItem('ueh_tcc_user');
-          if (raw) localUser = JSON.parse(raw);
-        } catch {
-          // Ignore malformed legacy profile cache.
-        }
-
-        const authUser = currentUser || localUser;
-
-        if (isMe || (authUser && (authUser.id === targetId || authUser.username === targetId || (isAdminIdentity(merged) && isAdminIdentity(authUser))))) {
+        const authUser = currentUser;
+        if (isMe) {
           if (authUser) {
-            merged.name = authUser.displayName || authUser.name || merged.name;
+            merged.name = authUser.name || authUser.displayName || merged.name;
             if (authUser.photoURL || authUser.avatar) {
-              merged.avatar = authUser.photoURL || authUser.avatar;
+              merged.avatar = authUser.avatar || authUser.photoURL;
             }
             merged.cohort = authUser.cohort || merged.cohort;
             merged.email = authUser.email || merged.email;
@@ -290,7 +261,7 @@ export default function CommunityProfilePage({ defaultTab = 'posts' }) {
       cancelled = true;
       window.removeEventListener('ueh-tcc-session-changed', load);
     };
-  }, [targetId, isMe, currentUser, reloadNonce]);
+  }, [targetId, isMe, isSelfRoute, currentUser, reloadNonce, navigate]);
 
   const points = profile?.points || 0;
   const tier = getTierByPoints(points);
@@ -298,14 +269,14 @@ export default function CommunityProfilePage({ defaultTab = 'posts' }) {
   const earnedBadges = useMemo(() => resolveBadges(profile), [profile]);
 
   const filteredBadges = useMemo(() => {
-    if (badgeCategory === 'all') return SPECIALTY_BADGES;
-    return SPECIALTY_BADGES.filter(b => b.category === badgeCategory);
+    if (badgeCategory === 'all') return AVAILABLE_BADGES;
+    return AVAILABLE_BADGES.filter(b => b.category === badgeCategory);
   }, [badgeCategory]);
 
   const tabs = [
     { id: 'posts', label: 'Bài toán đã đăng', icon: HelpCircle, count: userPosts.length },
     ...(isMe ? [{ id: 'saved', label: 'Bài đã lưu', icon: Bookmark, count: savedPosts.length }] : []),
-    { id: 'badges', label: 'Danh hiệu & Cột mốc', icon: Award, count: `${earnedBadges.length}/${SPECIALTY_BADGES.length}` }
+    { id: 'badges', label: 'Danh hiệu & Cột mốc', icon: Award, count: `${earnedBadges.length}/${AVAILABLE_BADGES.length}` }
   ];
   const displayedTab = activeTab === 'saved' && !isMe ? 'posts' : activeTab;
 
@@ -321,6 +292,7 @@ export default function CommunityProfilePage({ defaultTab = 'posts' }) {
           </div>
           <ErrorState
             variant={loadError.variant}
+            title={loadError.variant === 'not-found' ? 'Không tìm thấy hồ sơ thành viên' : undefined}
             message={loadError.message}
             onRetry={targetId ? () => setReloadNonce((value) => value + 1) : undefined}
           />
@@ -361,6 +333,7 @@ export default function CommunityProfilePage({ defaultTab = 'posts' }) {
           </div>
         </div>
 
+        {copyError && <p className="qa-action-feedback is-error" role="alert">{copyError}</p>}
         {/* 2-Column Asymmetrical Portfolio-Inspired Layout */}
         <div className="qa-profile-2col-layout">
           
@@ -390,7 +363,7 @@ export default function CommunityProfilePage({ defaultTab = 'posts' }) {
                   </button>
                 )}
                 {profile?.isAdmin && (
-                  <span className="qa-profile-crown-badge" title="Quản trị viên & Cố vấn Trưởng">
+                  <span className="qa-profile-crown-badge" title="Quản trị viên">
                     <Crown size={12} />
                   </span>
                 )}
@@ -398,22 +371,21 @@ export default function CommunityProfilePage({ defaultTab = 'posts' }) {
 
               <div className="qa-profile-id-info">
                 <div className="qa-profile-title-group">
-                  <h1 className="qa-profile-user-name">{profile?.name || 'Sinh viên UEH'}</h1>
-                  <span className="qa-cohort-badge">{profile?.cohort || 'K50 UEH'}</span>
+                  <h1 className="qa-profile-user-name">{profile?.name || 'Thành viên'}</h1>
+                  {profile?.cohort && <span className="qa-cohort-badge">{profile.cohort}</span>}
                 </div>
 
                 <div className="qa-profile-rank-pills">
                   <UserRankBadge
                     points={points}
+                    isAdmin={Boolean(profile?.isAdmin)}
                     isInstructor={Boolean(profile?.isInstructor)}
                     size="normal"
                   />
                 </div>
 
                 <p className="qa-profile-bio-text">
-                  {profile?.bio || (profile?.isAdmin
-                    ? 'Người sáng lập và quản trị nền tảng UEH TCC — biên soạn tài liệu, kiểm duyệt lời giải và đồng hành cùng sinh viên trong từng bài toán.'
-                    : 'Thành viên cộng đồng Toán Cao Cấp UEH — cùng thảo luận kiến thức, chia sẻ lời giải và học tập giải tích & đại số.')}
+                  {profile?.bio || 'Chưa thêm giới thiệu.'}
                 </p>
               </div>
 
@@ -421,11 +393,11 @@ export default function CommunityProfilePage({ defaultTab = 'posts' }) {
               <div className="qa-profile-affil-footer">
                 <div className="qa-affil-item">
                   <Building2 size={13} className="qa-affil-icon" />
-                  <span>{profile?.school || 'Đại học Kinh tế TP.HCM (UEH)'}</span>
+                  <span>{profile?.school || 'Chưa cập nhật trường'}</span>
                 </div>
                 <div className="qa-affil-item">
                   <UserCheck size={13} className="qa-affil-icon" />
-                  <span>{profile?.isAdmin ? 'Ban Cố vấn Học thuật TCC' : 'Thành viên Cộng đồng'}</span>
+                  <span>{profile?.isAdmin ? 'Quản trị viên' : 'Thành viên cộng đồng'}</span>
                 </div>
               </div>
 
@@ -645,7 +617,7 @@ export default function CommunityProfilePage({ defaultTab = 'posts' }) {
                 <div className="qa-profile-badges-container">
                   {/* Category Filter Pills */}
                   <div className="qa-badge-category-filter">
-                    {BADGE_CATEGORIES.map(cat => (
+                    {BADGE_CATEGORIES.filter(cat => cat.id === 'all' || AVAILABLE_BADGES.some(badge => badge.category === cat.id)).map(cat => (
                       <button
                         key={cat.id}
                         type="button"
@@ -664,7 +636,7 @@ export default function CommunityProfilePage({ defaultTab = 'posts' }) {
                       const IconComponent = BADGE_ICON_MAP[badge.icon] || Award;
                       const progressPct = unlocked
                         ? 100
-                        : Math.min(100, Math.round((points / (badge.pointsReq || 1)) * 100));
+                        : Math.min(100, Math.round(((profile?.[BADGE_RULES[badge.id].metric] || 0) / BADGE_RULES[badge.id].target) * 100));
 
                       return (
                         <div
@@ -682,7 +654,7 @@ export default function CommunityProfilePage({ defaultTab = 'posts' }) {
                                   <span>Đã đạt</span>
                                 </>
                               ) : (
-                                <span>Cần {badge.pointsReq} pts</span>
+                                <span>{profile?.[BADGE_RULES[badge.id].metric] || 0}/{BADGE_RULES[badge.id].target} {BADGE_RULES[badge.id].unit}</span>
                               )}
                             </span>
                           </div>

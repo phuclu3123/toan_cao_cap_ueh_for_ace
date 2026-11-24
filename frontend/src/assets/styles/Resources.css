@@ -7,7 +7,7 @@
   --library-line: var(--color-border, rgba(16, 46, 38, 0.14));
   --library-teal: var(--color-brand, #187568);
   --library-teal-strong: var(--color-brand-hover, #0f6257);
-  --library-pine: #0b2a23;
+  --library-pine: var(--ui-accent);
   --library-champagne: var(--color-champagne, #bd9555);
   min-height: 100vh;
   padding-bottom: clamp(72px, 8vw, 112px);
@@ -161,7 +161,7 @@
   border: 1px solid var(--library-line);
   border-radius: 14px;
   color: var(--library-ink);
-  background: var(--library-paper);
+  background-color: var(--library-paper);
   box-shadow: var(--shadow-level-1);
 }
 
@@ -343,7 +343,7 @@
 .resources-page .highlight-exam-tab {
   margin-left: auto;
   border-color: var(--library-pine);
-  color: #f4faf7;
+  color: var(--ui-on-accent);
   background: var(--library-pine);
 }
 

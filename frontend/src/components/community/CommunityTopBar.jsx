@@ -52,9 +52,9 @@ export default function CommunityTopBar({ onOpenCreate, onOpenCheatsheet, onOpen
       <div className="se-topbar-inner">
         {/* Left: Brand + Back to Portal Link */}
         <div className="se-topbar-left">
-          <Link to="/" className="se-back-to-portal" title="Quay lại trang chủ UEH TCC">
+          <Link to="/" className="se-back-to-portal" title="Quay lại trang chủ α∫M4A">
             <ArrowLeft size={14} />
-            <span>UEH TCC Hub</span>
+            <span>α∫M4A Hub</span>
           </Link>
 
           <Link to="/community" className="se-brand-logo-group">

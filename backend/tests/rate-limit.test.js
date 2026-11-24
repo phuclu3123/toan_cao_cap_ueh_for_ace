@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createRateLimit } from '../middleware/rateLimit.js';
+import { createRateLimit } from '../src/platform/http/rateLimit.js';
 
 const createResponse = () => {
   const headers = new Map();

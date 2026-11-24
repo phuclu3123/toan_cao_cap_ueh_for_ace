@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { findCourseLessonContent } from '../config/courseContentCatalog.js';
-import { getCourseLessonContent } from '../controllers/courseContentController.js';
-import { getCourseAccess } from '../services/enrollmentService.js';
+import { findCourseLessonContent } from '../src/modules/learning/config/courseContentCatalog.js';
+import { getCourseLessonContent } from '../src/modules/learning/http/courseContentController.js';
+import { getCourseAccess } from '../src/modules/access/application/enrollmentService.js';
 
 const createResponse = () => {
   const headers = new Map();

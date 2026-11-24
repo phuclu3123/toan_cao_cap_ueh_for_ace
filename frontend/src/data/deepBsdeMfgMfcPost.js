@@ -3,6 +3,7 @@ const code = String.raw;
 
 export const deepBsdeMfgMfcPost = {
   slug: 'deep-bsde-fbsde-mfg-mfc-quant-finance',
+  shortTitle: 'Deep BSDE & mô hình Mean Field',
   title: 'Deep BSDE, FBSDE và Mean Field: nền tảng xây dựng mô hình Quant Finance số chiều cao',
   category: 'Chuyên khảo · Stochastic Control',
   date: '23/07/2026',

@@ -1,0 +1,11 @@
+/* Official destinations supplied by the owner; TikTok has no destination yet. */
+.brand-socials { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 24px; }
+.brand-social { display: inline-flex; align-items: center; justify-content: center; width: 42px; height: 42px; border-radius: 50%; color: white; flex-shrink: 0; transition: transform .18s ease; }
+.brand-social svg { display: block; width: 34px; height: 34px; }
+.brand-social--facebook { background: #3576ef; }
+.brand-social--youtube { background: #ee3025; }
+.brand-social--tiktok { background: #080a0b; }
+.brand-social--zalo { background: #368be3; }
+.brand-socials a:hover { transform: translateY(-3px); }
+.brand-socials a:focus-visible { outline: 3px solid var(--accent-teal); outline-offset: 4px; }
+@media (prefers-reduced-motion: reduce) { .brand-social { transition: none; } }

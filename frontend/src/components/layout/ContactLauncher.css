@@ -1,4 +1,6 @@
 .contact-launcher-container {
+  --launcher-size: 54px;
+  --launcher-shift: 66px;
   position: fixed;
   bottom: 24px;
   right: 24px;
@@ -6,21 +8,31 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+  width: var(--launcher-size);
+  height: var(--launcher-size);
 }
 
+.contact-launcher-chat { position: relative; width: var(--launcher-size); transition: transform 420ms cubic-bezier(.22,.8,.22,1); }
+.has-back-to-top .contact-launcher-chat { transform: translateX(calc(-1 * var(--launcher-shift))); }
+.back-to-top-trigger { position: absolute; inset: 0; display: grid; place-items: center; width: var(--launcher-size); height: var(--launcher-size); padding: 0; border: 1px solid var(--ui-line); border-radius: 50%; background: var(--ui-paper); color: var(--ui-ink); box-shadow: 0 5px 18px var(--ui-shadow); cursor: pointer; opacity: 0; visibility: hidden; pointer-events: none; transform: translateX(12px) scale(.94); transition: opacity 160ms linear,transform 240ms cubic-bezier(.22,.8,.22,1),visibility 0s 240ms; }
+.has-back-to-top .back-to-top-trigger { opacity: 1; visibility: visible; pointer-events: auto; transform: translateX(0) scale(1); transition: opacity 220ms linear 80ms,transform 360ms cubic-bezier(.22,.8,.22,1) 60ms,visibility 0s; }
+.back-to-top-trigger:hover { background: var(--ui-soft); }
+.back-to-top-trigger:active { transform: scale(.96); }
+.contact-launcher-container button:focus-visible,.contact-launcher-container a:focus-visible { outline: 2px solid var(--ui-ink); outline-offset: 4px; }
+
 .contact-launcher-trigger {
-  width: 54px;
-  height: 54px;
+  width: var(--launcher-size);
+  height: var(--launcher-size);
   border-radius: 50%;
   background: var(--color-brand, #10b981);
-  color: #ffffff;
+  color: var(--color-on-brand);
   border: none;
-  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.35);
+  box-shadow: 0 6px 18px var(--ui-shadow);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease;
+  transition: transform 220ms cubic-bezier(.22,.8,.22,1), background-color 160ms linear;
 }
 
 .contact-launcher-trigger:hover {
@@ -35,16 +47,19 @@
 }
 
 .contact-launcher-menu {
+  position: absolute;
+  right: 0;
+  bottom: calc(var(--launcher-size) + 12px);
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-bottom: 12px;
+  margin-bottom: 0;
   background: var(--color-surface, #1e293b);
   border: 1px solid var(--color-border, #334155);
   padding: 8px;
   border-radius: 16px;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
-  animation: launcher-fade-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: launcher-fade-in 180ms cubic-bezier(.22,.8,.22,1);
   min-width: 220px;
 }
 
@@ -84,6 +99,8 @@
 
 @media (max-width: 640px) {
   .contact-launcher-container {
+    --launcher-size: 48px;
+    --launcher-shift: 59px;
     bottom: 16px;
     right: 16px;
   }
@@ -92,3 +109,5 @@
     height: 48px;
   }
 }
+
+@media (prefers-reduced-motion: reduce) { .contact-launcher-chat,.contact-launcher-trigger,.back-to-top-trigger { transition: none !important; }.contact-launcher-menu { animation: none; } }

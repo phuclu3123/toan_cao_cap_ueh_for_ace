@@ -1,0 +1,30 @@
+{
+  "source": "proposed_methodology.png",
+  "source_size": [
+    3792,
+    1592
+  ],
+  "sha256": "866c077c50f613cce21abe83515dd414a2a30b03e859d2a91f24eef935f030a7",
+  "assets": [
+    {
+      "file": "methodology-overview.webp",
+      "size": [
+        2200,
+        924
+      ]
+    },
+    {
+      "file": "methodology-ac-detail.webp",
+      "crop_pixels": [
+        1720,
+        420,
+        2810,
+        770
+      ],
+      "size": [
+        1090,
+        350
+      ]
+    }
+  ]
+}

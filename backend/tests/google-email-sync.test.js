@@ -3,15 +3,16 @@ import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import { OAuth2Client } from 'google-auth-library';
 import mongoose from 'mongoose';
-import User from '../models/User.js';
-import Session from '../models/Session.js';
-import { resolveSessionUser } from '../services/sessionService.js';
-import { resolveFirebaseLogin } from '../controllers/authController.js';
-import { getConfiguredFirebaseProjectId } from '../services/firebaseTokenService.js';
+import User from '../src/modules/identity/persistence/User.js';
+import Session from '../src/modules/identity/persistence/Session.js';
+import { resolveSessionUser } from '../src/modules/identity/application/sessionService.js';
+import { resolveFirebaseLogin, refreshFirebaseSession } from '../src/modules/identity/http/authController.js';
+import { getConfiguredFirebaseProjectId } from '../src/modules/identity/application/firebaseTokenService.js';
 
 const originalFind = User.findOne;
 const originalCreate = User.create;
 const originalFetch = globalThis.fetch;
+const originalSessionUpdate = Session.updateOne;
 const originalSessionFind = Session.findOne;
 const originalSessionDelete = Session.deleteOne;
 const originalGoogleCerts = OAuth2Client.prototype.getFederatedSignonCertsAsync;
@@ -51,6 +52,7 @@ beforeEach(() => {
 });
 afterEach(() => {
   User.findOne = originalFind; User.create = originalCreate; globalThis.fetch = originalFetch;
+  Session.updateOne = originalSessionUpdate;
   Session.findOne = originalSessionFind; Session.deleteOne = originalSessionDelete;
   OAuth2Client.prototype.getFederatedSignonCertsAsync = originalGoogleCerts;
   for (const [key, value] of Object.entries({ GOOGLE_CLIENT_ID: originalGoogleClientId, GOOGLE_CLIENT_IDS: originalGoogleClientIds, VITE_GOOGLE_CLIENT_ID: originalViteGoogleClientId })) {
@@ -235,4 +237,41 @@ test('missing Google audience configuration fails before mutating a placeholder'
   const user = existing('firebase-012345678901234567890123@users.invalid');
   await assert.rejects(sync({}, googleToken()), error => error.code === 'GOOGLE_AUTH_NOT_CONFIGURED');
   assert.match(user.username, /@users\.invalid$/); assert.equal(saves, 0); assert.equal(creates, 0);
+});
+
+for (const matched of [true, false]) test(`Firebase refresh preserves the same opaque session and does not revive logout (matched=${matched})`, async () => {
+  rows = [{ id: 'stable-original-account', uid: 'legacy-uid', firebaseUid: subject, username: email, name: 'Original profile', sessionVersion: 3 }];
+  const before = JSON.stringify(rows);
+  let filter; let update; let cookie;
+  Session.updateOne = async (f, u) => { filter = f; update = u; return { matchedCount: matched ? 1 : 0 }; };
+  const res = { statusCode: 200, status(code) { this.statusCode = code; return this; }, json(body) { this.body = body; return this; }, setHeader() {}, cookie(...args) { cookie = args; } };
+  await refreshFirebaseSession({ body: { idToken: token() }, headers: { cookie: `ueh_tcc_session=${'a'.repeat(43)}` }, authUser: { id: rows[0].id }, authSession: { sessionVersion: 3 } }, res);
+  assert.equal(res.statusCode, matched ? 200 : 401);
+  assert.equal(filter.userId, rows[0].id);
+  assert.equal(filter.sessionVersion, 3);
+  assert.ok(update.$max.expiresAt > new Date());
+  assert.equal(cookie?.[1], matched ? 'a'.repeat(43) : undefined);
+  assert.equal(JSON.stringify(rows), before);
+  assert.equal(creates, 0); assert.equal(saves, 0);
+});
+
+test('background refresh cannot replace an account with another cached Firebase identity', async () => {
+  rows = [{ id: 'firebase-account', firebaseUid: subject, username: email }];
+  Session.updateOne = async () => { throw new Error('Must not change another session'); };
+  const res = { statusCode: 200, status(code) { this.statusCode = code; return this; }, json(body) { this.body = body; return this; } };
+  await refreshFirebaseSession({ body: { idToken: token() }, authUser: { id: 'different-password-account' } }, res);
+  assert.equal(res.statusCode, 409); assert.equal(res.body.code, 'SESSION_IDENTITY_MISMATCH');
+  assert.equal(creates, 0); assert.equal(saves, 0);
+});
+
+test('matching cached Firebase identity does not shorten an existing longer password session', async () => {
+  rows = [{ id: 'original-account', firebaseUid: subject, username: email }];
+  Session.updateOne = async () => ({ matchedCount: 1 });
+  let options;
+  const res = { status(code) { this.statusCode = code; return this; }, json(body) { this.body = body; return this; }, setHeader() {}, cookie(_name, _value, value) { options = value; } };
+  const remaining = 7 * 24 * 60 * 60 * 1000;
+  await refreshFirebaseSession({ body: { idToken: token() }, headers: { cookie: `ueh_tcc_session=${'b'.repeat(43)}` }, authUser: { id: rows[0].id }, authSession: { sessionVersion: 0, expiresAt: new Date(Date.now() + remaining) } }, res);
+  assert.equal(res.body.success, true);
+  assert.ok(options.maxAge > remaining - 10000);
+  assert.equal(creates, 0); assert.equal(saves, 0);
 });

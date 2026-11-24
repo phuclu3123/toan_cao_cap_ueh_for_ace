@@ -50,13 +50,14 @@ test('authenticated API calls always include the session cookie', () => {
 test('premium playback sources and paid text are redacted from the frontend catalog', () => {
   const catalog = readSource('data/coursesData.js');
   const courseDetail = readSource('pages/CourseDetail.jsx');
-  const globalPlayer = readSource('components/GlobalPlayer.jsx');
+  const globalPlayer = readSource('components/learning/LearningPlayer.jsx');
   const playerContext = readSource('contexts/GlobalPlayerContext.jsx');
 
   assert.doesNotMatch(catalog, /videoUrl|commondatastorage|youtu\.be|78djtj2N9QI|WDSHTnrv8JI/);
   assert.doesNotMatch(catalog, /Bộ tài liệu đính kèm gồm/);
-  assert.match(courseDetail, /\/api\/courses\/\$\{encodeURIComponent\(course\.id\)\}\/lessons\//);
-  assert.match(globalPlayer, /activeLesson\.media\?\.provider === 'youtube'/);
+  assert.match(courseDetail, /await playLesson\(course, lesson/);
+  assert.match(playerContext, /\/api\/courses\/\$\{encodeURIComponent\(course\.id\)\}\/lessons\//);
+  assert.match(globalPlayer, /lesson\.media\?\.provider === 'youtube'/);
   assert.doesNotMatch(globalPlayer, /activeLesson\.videoUrl/);
   assert.doesNotMatch(playerContext, /nextLesson\.videoUrl/);
 });
@@ -97,7 +98,7 @@ test('Firebase sync sends a verified ID token and has no fabricated users', () =
   assert.doesNotMatch(navbar, /response_type=token/);
   assert.doesNotMatch(navbar, /signInWithPopup/);
   assert.match(googleTab, /authFlowType: 'CODE_FLOW'/);
-  assert.match(googleTab, /syncFirebaseIdTokenWithBackend\(payload\.idToken\)/);
+  assert.match(googleTab, /syncFirebaseIdTokenWithBackend\(payload\.idToken, \{ googleIdToken: payload\.oauthIdToken \}\)/);
   assert.doesNotMatch(navbar, /if \(sessionReady && isFirebaseConfigured/);
   assert.doesNotMatch(authModal, /githubProvider/);
   assert.match(authModal, /await beginGoogleTabSignIn\(/);
@@ -118,8 +119,8 @@ test('Firebase sync sends a verified ID token and has no fabricated users', () =
   assert.match(navbar, /GITHUB_OAUTH_RESULT_MESSAGE/);
   assert.match(navbar, /window\.opener\.postMessage\(/);
   assert.match(navbar, /githubPopupPollTimerRef/);
-  assert.match(authService, /firebaseUser\.getIdToken\(\)/);
-  assert.match(authService, /JSON\.stringify\(\{ idToken \}\)/);
+  assert.match(authService, /firebaseUser\.getIdToken\(Boolean\(googleIdToken\)\)/);
+  assert.match(authService, /JSON\.stringify\(\{ idToken, \.\.\.\(googleIdToken \? \{ googleIdToken \} : \{\}\) \}\)/);
   assert.doesNotMatch(navbar, /google-user-|github-user-|mockFirebaseUser/);
   assert.doesNotMatch(authService, /google-user-|github-user-|mockFirebaseUser/);
 });

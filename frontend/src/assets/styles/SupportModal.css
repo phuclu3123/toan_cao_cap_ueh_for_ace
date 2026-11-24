@@ -1,0 +1,48 @@
+.support-dialog { position: fixed; inset: 0; margin: auto; width: min(850px,calc(100vw - 40px)); max-height: calc(100dvh - 40px); padding: 0; border: 1px solid var(--ui-line); border-radius: 25px; color: var(--ui-ink); background: var(--ui-paper); box-shadow: 0 24px 80px #0003; overflow: auto; }
+.support-dialog::backdrop { background: #19191870; backdrop-filter: blur(4px); }
+.support-layout { display: grid; grid-template-columns: .9fr 1.1fr; }
+.support-aside { padding: 34px; display: flex; flex-direction: column; align-items: start; min-width: 0; }
+.support-eyebrow { font-size: .6rem; line-height: 1.7; letter-spacing: .09em; font-weight: 650; }
+.support-heart { display: grid; place-items: center; width: 94px; height: 94px; background: #fffefa80; border: 1px solid #ffffff75; border-radius: 25px; margin: 52px 0 28px; transform: rotate(-8deg); }
+.support-aside h2 { font-size: 2rem; font-weight: 600; line-height: 1.35; letter-spacing: -.04em; margin: 0 0 17px; color: #191918; }
+.support-aside p { font-size: .83rem; line-height: 1.85; color: #43483f; margin: 0 0 40px; }
+.support-secure { display: flex; align-items: center; gap: 8px; margin-top: auto; font-size: .73rem; }
+.support-main { position: relative; min-width: 0; padding: 40px 34px 30px; }
+.support-close { position: absolute; right: 16px; top: 14px; width: 32px; height: 32px; display: grid; place-items: center; color: var(--ui-muted); background: transparent; border: 0; border-radius: 50%; cursor: pointer; }
+.support-close:hover { background: var(--ui-soft); color: var(--ui-ink); }
+.support-main h3 { margin: 14px 0 9px; font-size: 1.5rem; font-weight: 600; line-height: 1.4; letter-spacing: -.035em; }
+.support-main #support-description { margin: 0 0 26px; color: var(--ui-muted); font-size: .8rem; line-height: 1.8; }
+.support-main fieldset { border: 0; padding: 0; margin: 0; }
+.support-amounts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.support-amounts button { display: flex; gap: 8px; align-items: center; justify-content: center; padding: 14px 10px; border: 1px solid var(--ui-line); border-radius: 9px; background: transparent; color: var(--ui-ink); font: 550 .86rem var(--font-body); cursor: pointer; }
+.support-amounts [aria-pressed='true'] { border-color: var(--ui-ink); background: var(--ui-soft); box-shadow: inset 0 0 0 1px var(--ui-ink); }
+.support-custom { display: grid; gap: 9px; margin: 20px 0; font-size: .76rem; font-weight: 550; }
+.support-custom > span { display: flex; align-items: center; border: 1px solid var(--ui-line); border-radius: 9px; overflow: hidden; padding-right: 14px; }
+.support-custom input { width: 100%; min-width: 0; padding: 13px; background: transparent; color: var(--ui-ink); border: 0; outline: none; font: 1rem var(--font-body); }
+.support-custom > span:focus-within { outline: 2px solid var(--ui-focus); outline-offset: 2px; }
+.support-custom > span > span { font-size: .67rem; color: var(--ui-muted); }
+.support-primary { display: flex; width: 100%; align-items: center; justify-content: center; gap: 10px; min-height: 47px; border: 0; border-radius: 9px; background: var(--ui-accent); color: var(--ui-on-accent); font: 600 .83rem var(--font-body); cursor: pointer; text-decoration: none; }
+.support-primary:hover { background: var(--ui-accent-hover); }
+.support-primary:disabled { cursor: wait; opacity: .65; }
+.support-note { color: var(--ui-muted); font-size: .68rem; line-height: 1.8; margin: 12px 0 0; }
+.support-error { color: var(--ui-danger); background: var(--ui-danger-soft); padding: 11px 13px; border-radius: 9px; font-size: .75rem; line-height: 1.7; margin: 16px 0 0; }
+.support-payment-state { display: flex; align-items: center; gap: 8px; font-size: .73rem; color: var(--ui-muted); }
+.support-payment-state > span { width: 6px; height: 6px; background: currentColor; border-radius: 50%; }
+.support-total { display: block; margin-top: 12px; font-size: 1.9rem; line-height: 1.5; font-weight: 650; letter-spacing: -.04em; }
+.support-qr { display: grid; place-items: center; background: white; border-radius: 12px; margin: 13px 0; border: 1px solid #e5e2dc; }
+.support-qr img { display: block; width: min(100%,245px); height: auto; border-radius: 12px; }
+.support-qr > div { display: grid; place-items: center; align-content: center; min-height: 210px; gap: 16px; color: #55554d; font-size: .75rem; text-align: center; }
+.support-payment .support-primary { margin-top: 17px; }
+.support-payment-actions { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 15px; margin-top: 16px; }
+.support-payment-actions button,.support-text-button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 0; color: var(--ui-muted); background: transparent; border: 0; font: .71rem var(--font-body); cursor: pointer; }
+.support-payment-actions button:disabled { opacity: .5; cursor: wait; }
+.support-complete { display: grid; justify-items: center; gap: 18px; text-align: center; padding-top: 20px; }
+.support-complete > svg { color: var(--ui-success); }
+.support-complete > strong { font-size: 2.1rem; letter-spacing: -.04em; }
+.support-complete > p { font-size: .77rem; line-height: 1.8; color: var(--ui-muted); overflow-wrap: anywhere; }
+.support-dialog :is(button,a):focus-visible { outline: 2px solid var(--ui-accent); outline-offset: 3px; }
+.support-sr-only { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); overflow: hidden; }
+.support-spinner { animation: support-spin .9s linear infinite; }
+@keyframes support-spin { to { transform: rotate(360deg); } }
+@media (max-width:650px) { .support-dialog { width: calc(100vw - 24px); max-height: calc(100dvh - 24px); border-radius: 20px; }.support-layout { grid-template-columns: 1fr; }.support-aside { padding: 23px 25px; }.support-heart { display: none; }.support-aside h2 { font-size: 1.55rem; margin: 13px 0 10px; }.support-aside h2 br { display: none; }.support-aside p { margin: 0; font-size: .76rem; }.support-secure { display: none; }.support-main { padding: 34px 25px 25px; }.support-main h3 { font-size: 1.35rem; }.support-main #support-description { margin-bottom: 20px; }.support-close { top: 10px; right: 10px; }.support-dialog .support-qr img { width: 210px; } }
+@media (prefers-reduced-motion:reduce) { .support-spinner { animation: none; } }

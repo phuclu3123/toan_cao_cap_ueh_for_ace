@@ -33,7 +33,7 @@ export const translations = {
       subscribeTitle: "Nhận Bài Viết Mới",
       subscribeDesc: "Điền email của bạn để tự động nhận lời giải chi tiết và bài viết hướng dẫn mới nhất:",
       subscribePlaceholder: "Địa chỉ email của bạn...",
-      copyright: "UEH TCC - Hỗ Trợ Học Tập Toán Cao Cấp. All Rights Reserved.",
+      copyright: "α∫M4A - Hỗ Trợ Học Tập Toán Cao Cấp. All Rights Reserved.",
       credits: "Phát triển bởi "
     },
     exam: {
@@ -53,7 +53,7 @@ export const translations = {
       progressLabel: "Tiến độ bài làm",
       rulesTitle: "Quy chế làm bài",
       rule1: "Không tải lại trang khi đang làm bài.",
-      rule2: "Hệ thống tự động lưu tiến trình cục bộ.",
+      rule2: "Đáp án được giữ trong lượt làm bài hiện tại.",
       rule3: "Đánh dấu câu hỏi để xem lại sau.",
       rule4: "Khi hết giờ, hệ thống sẽ tự nộp bài.",
       prev: "Câu trước",
@@ -179,8 +179,8 @@ export const translations = {
       pageNext: "Trang sau"
     },
     home: {
-      "heroKicker": "UEH TCC Learning Hub",
-      "heroTitle": "UEH TCC",
+      "heroKicker": "α∫M4A Learning Hub",
+      "heroTitle": "α∫M4A",
       "heroDesc": "Học Toán Cao Cấp theo lộ trình rõ, có khóa học đăng ký, thư viện PDF, đề luyện và blog hướng dẫn. Mỗi phần được tách thành trang riêng để bạn vào đúng thứ mình cần.",
       "btnEnroll": "Đăng ký học thử",
       "btnSearch": "Tìm học liệu",
@@ -317,7 +317,7 @@ export const translations = {
       "btnViewSolution": "Xem Đề & Lời Giải"
 },
     blogPage: {
-      "kicker": "UEH TCC Blog",
+      "kicker": "α∫M4A Blog",
       "title": "Bài viết",
       "desc": "Chuyên mục hướng dẫn học Toán Cao Cấp, chọn tài liệu và luyện đề theo từng giai đoạn.",
       "searchPlaceholder": "Tìm bài viết, dạng bài, tài liệu...",
@@ -387,7 +387,7 @@ export const translations = {
       subscribeTitle: "Get New Articles",
       subscribeDesc: "Enter your email to automatically receive detailed answers and the latest tutorials:",
       subscribePlaceholder: "Your email address...",
-      copyright: "UEH TCC - Advanced Calculus Learning Support. All Rights Reserved.",
+      copyright: "α∫M4A - Advanced Calculus Learning Support. All Rights Reserved.",
       credits: "Developed by "
     },
     exam: {
@@ -407,7 +407,7 @@ export const translations = {
       progressLabel: "Exam Progress",
       rulesTitle: "Exam Rules",
       rule1: "Do not reload the page during the exam.",
-      rule2: "The system automatically saves local progress.",
+      rule2: "Answers are kept during the current practice attempt.",
       rule3: "Flag questions to review them later.",
       rule4: "The exam will auto-submit when the timer ends.",
       prev: "Previous",
@@ -535,8 +535,8 @@ export const translations = {
       pageNext: "Next Page"
     },
     home: {
-      "heroKicker": "UEH TCC Learning Hub",
-      "heroTitle": "UEH TCC",
+      "heroKicker": "α∫M4A Learning Hub",
+      "heroTitle": "α∫M4A",
       "heroDesc": "Study Advanced Calculus with a clear roadmap, register for video courses, access PDF library, practice exams, and tutorial blogs. Each section is separated into its own page so you can find exactly what you need.",
       "btnEnroll": "Try Free Lesson",
       "btnSearch": "Find Study Material",
@@ -673,7 +673,7 @@ export const translations = {
       "btnViewSolution": "View Exam & Solution"
 },
     blogPage: {
-      "kicker": "UEH TCC Blog",
+      "kicker": "α∫M4A Blog",
       "title": "Blog Articles",
       "desc": "Calculus study guides, material selection advice, and revision strategies for every learning stage.",
       "searchPlaceholder": "Search articles, topics, resources...",
@@ -743,7 +743,7 @@ export const translations = {
       subscribeTitle: "最新記事を購読する",
       subscribeDesc: "メールアドレスを入力して、詳細な解説や最新のガイド記事を自動で受け取ります:",
       subscribePlaceholder: "メールアドレスを入力...",
-      copyright: "UEH TCC - 高等数学学習支援. All Rights Reserved.",
+      copyright: "α∫M4A - 高等数学学習支援. All Rights Reserved.",
       credits: "開発者: "
     },
     exam: {
@@ -763,7 +763,7 @@ export const translations = {
       progressLabel: "試験進捗",
       rulesTitle: "試験規則",
       rule1: "試験中はページを再読み込みしないでください。",
-      rule2: "システムはローカルの進行状況を自動保存します。",
+      rule2: "回答は現在の練習中に保持されます。",
       rule3: "後で確認するために質問にマークを付けます。",
       rule4: "制限時間になると自動的に提出されます。",
       prev: "前の問題",
@@ -891,8 +891,8 @@ export const translations = {
       pageNext: "次のページ"
     },
     home: {
-      "heroKicker": "UEH TCC ラーニングハブ",
-      "heroTitle": "UEH TCC",
+      "heroKicker": "α∫M4A ラーニングハブ",
+      "heroTitle": "α∫M4A",
       "heroDesc": "明確な学習ルート、登録制のビデオコース、PDFライブラリ、練習用模擬試験、解説ブログなどを提供します。各機能が独立したページになっており、必要な情報へすぐにアクセスできます。",
       "btnEnroll": "無料体験登録",
       "btnSearch": "学習資料を探す",
@@ -1029,7 +1029,7 @@ export const translations = {
       "btnViewSolution": "問題と解答を見る"
 },
     blogPage: {
-      "kicker": "UEH TCC ブログ",
+      "kicker": "α∫M4A ブログ",
       "title": "記事一覧",
       "desc": "高等数学の学習ガイド、教材の選び方、時期に応じた模試対策のアドバイスをお届けします。",
       "searchPlaceholder": "記事、テーマ、資料を検索...",
@@ -1099,7 +1099,7 @@ export const translations = {
       subscribeTitle: "订阅最新推送",
       subscribeDesc: "输入您的邮箱，我们将定期发送最新真题详解和复习指南：",
       subscribePlaceholder: "请输入电子邮箱地址...",
-      copyright: "UEH TCC - 高等数学备考支持. 保留所有权利.",
+      copyright: "α∫M4A - 高等数学备考支持. 保留所有权利.",
       credits: "技术开发： "
     },
     exam: {
@@ -1119,7 +1119,7 @@ export const translations = {
       progressLabel: "答题进度",
       rulesTitle: "考场规则",
       rule1: "考试过程中请勿刷新页面。",
-      rule2: "系统会自动保存您的答题进度。",
+      rule2: "答案仅在本次练习期间保留。",
       rule3: "可使用标记功能以供稍后检查。",
       rule4: "考试时间截止时系统将自动提交。",
       prev: "上一题",
@@ -1247,8 +1247,8 @@ export const translations = {
       pageNext: "下一页"
     },
     home: {
-      "heroKicker": "UEH TCC 学习中心",
-      "heroTitle": "UEH TCC",
+      "heroKicker": "α∫M4A 学习中心",
+      "heroTitle": "α∫M4A",
       "heroDesc": "提供明确的备考路线图、视频网课、PDF资料馆、模拟考场和学习指导博客。每个板块均有独立页面，助你快速找到所需内容。",
       "btnEnroll": "注册免费试听",
       "btnSearch": "查找学习资料",
@@ -1385,7 +1385,7 @@ export const translations = {
       "btnViewSolution": "查看试题与解析"
 },
     blogPage: {
-      "kicker": "UEH TCC 备考博客",
+      "kicker": "α∫M4A 备考博客",
       "title": "备考文章",
       "desc": "高等数学备考指导专栏，涵盖教材选配、阶段性模拟题训练以及高分通关策略。",
       "searchPlaceholder": "搜索文章、题型、资料...",

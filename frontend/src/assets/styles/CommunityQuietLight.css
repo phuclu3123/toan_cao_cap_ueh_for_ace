@@ -1,0 +1,24 @@
+﻿/* Preserve the pastel blocks; use content colors by topic, never by list position. */
+:root[data-theme='light'] .qa-focused-feed.qa-community-workspace .qa-math-tag-pill,
+:root[data-theme='light'] .qa-focused-feed.qa-community-workspace .qa-math-tag-pill:nth-of-type(2),
+:root[data-theme='light'] .qa-focused-feed.qa-community-workspace .qa-math-tag-pill:nth-of-type(3) { background: var(--topic-paper,#efeeea); color: #424840; border: 1px solid transparent; }
+:root[data-theme='light'] .qa-focused-feed .qa-math-tag-pill[data-tone='sky'] { --topic-paper: #deedf3; }
+:root[data-theme='light'] .qa-focused-feed .qa-math-tag-pill[data-tone='lavender'] { --topic-paper: #e2e6f4; }
+:root[data-theme='light'] .qa-focused-feed .qa-math-tag-pill[data-tone='mint'] { --topic-paper: #dfeddf; }
+:root[data-theme='light'] .qa-focused-feed .qa-math-tag-pill[data-tone='sun'] { --topic-paper: #f7edc8; }
+:root[data-theme='light'] .qa-focused-feed.qa-community-workspace .qa-math-tag-pill.is-selected { border-color: #8794b1; outline: none; box-shadow: inset 0 0 0 1px #8794b144; }
+:root[data-theme='light'] .qa-focused-feed.qa-community-workspace .qa-ftab-btn.is-active,
+:root[data-theme='light'] .qa-focused-feed.qa-community-workspace .qa-ftab-btn:nth-child(2).is-active,
+:root[data-theme='light'] .qa-focused-feed.qa-community-workspace .qa-ftab-btn:nth-child(3).is-active,
+:root[data-theme='light'] .qa-focused-feed.qa-community-workspace .qa-ftab-btn:nth-child(4).is-active { background: var(--ui-pastel-lavender); color: #30394c; border-bottom-color: #7585a9; }
+:root[data-theme='light'] .qa-focused-feed .qa-question-category[data-subject] { background: #e2e6f4; color: #424840; }
+:root[data-theme='light'] .qa-focused-feed .qa-question-category:is([data-subject='calc1'],[data-subject='calc2']) { background: #deedf3; }
+:root[data-theme='light'] .qa-focused-feed .qa-question-category:is([data-subject='econ_models'],[data-subject='prob_stats']) { background: #dfeddf; }
+:root[data-theme='light'] .qa-focused-feed .qa-question-category[data-subject='exam_prep'] { background: #f7edc8; }
+:root[data-theme='light'] .qa-focused-feed .qa-question-category[data-subject='method_tips'] { background: #f3e3da; }
+:root[data-theme='light'] .community-route .qa-comment-bubble,
+:root[data-theme='light'] .community-route .qa-comment.is-reply .qa-comment-bubble { background: #f5f4f1; }
+@media(min-width:1500px) {
+ :root[data-theme='light'] :is(.qa-focused-feed,.qa-thread-workspace) .qa-geometry-toy { opacity: .55; }
+ :root[data-theme='light'] .qa-margin-art .qa-geometry-toy[data-toy-kind]:is([data-toy-kind='ronaldo'],[data-toy-kind='faker'],[data-toy-kind='rambo'],[data-toy-kind='jupiter'],[data-toy-kind='lexus']) { opacity: .7; }
+}

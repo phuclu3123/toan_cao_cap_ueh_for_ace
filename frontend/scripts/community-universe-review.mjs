@@ -1,0 +1,81 @@
+import assert from 'node:assert/strict';
+import { chromium } from '@playwright/test';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+const output = new URL('../../artifacts/community/universe/', import.meta.url);
+await mkdir(output, { recursive: true });
+const browser = await chromium.launch({ channel: 'msedge', headless: true });
+const context = await browser.newContext({ viewport: { width: 1920, height: 1080 }, reducedMotion: 'no-preference' });
+await context.addInitScript(() => localStorage.setItem('ueh_tcc_consent_v1', JSON.stringify({ version: 1, necessary: true, preferences: false })));
+await context.route('https://accounts.google.com/**', route => route.abort());
+const page = await context.newPage(), report = { checks: [], errors: [] };
+page.on('pageerror', error => report.errors.push(error.message));
+try {
+  await page.goto('http://localhost:5174/community');
+  await page.bringToFront();
+  await page.locator('.se-question-item').first().waitFor({ timeout: 30000 });
+  await page.evaluate(() => document.fonts.ready);
+  assert.ok(await page.locator('.qa-geometry-toy').count() > 12);
+  const canvas = await page.locator('.qa-focused-feed').boundingBox(), artwork = await page.locator('.qa-margin-art').boundingBox();
+  assert.ok(Math.abs(canvas.height - artwork.height) < 2);
+  assert.equal(await page.locator('.qa-geometry-pause').count(), 0);
+  const toy = page.locator('.qa-geometry-band.is-left .qa-geometry-toy').first();
+  const other = page.locator('.qa-geometry-band.is-left .qa-geometry-toy').nth(1);
+  const path = toy.locator('svg path').first();
+  const before = await path.getAttribute('d');
+  await page.waitForFunction(previous => document.querySelector('.qa-geometry-band.is-left .qa-geometry-toy svg path')?.getAttribute('d') !== previous, before, { timeout: 8000 });
+  report.checks.push('Artwork follows the full page height, with geometry and playful objects; projected rotation and no pause button.');
+  const initial = await toy.boundingBox();
+  await page.mouse.move(initial.x + initial.width/2, initial.y + 60); await page.waitForFunction(() => document.querySelector('.qa-geometry-band.is-left .qa-geometry-toy').matches(':hover'));
+  await page.waitForTimeout(100);
+  const heldPath = await path.getAttribute('d');
+  await page.waitForTimeout(250);
+  assert.equal(await path.getAttribute('d'), heldPath);
+  report.checks.push('Hover freezes the rotation for precise grabbing.');
+  const a = await toy.boundingBox(), b = await other.boundingBox();
+  await page.mouse.move(a.x + a.width/2, a.y + 60); await page.mouse.down();
+  await page.mouse.move(b.x + b.width/2, b.y + 60, { steps: 24 });
+  assert.ok(await page.locator('.qa-geometry-trail').count() > 0);
+  assert.ok(await toy.getAttribute('data-collision'));
+  assert.ok(await other.getAttribute('data-collision'));
+  await page.screenshot({ path: fileURLToPath(new URL('collision-held.png', output)) });
+  await page.mouse.up(); await page.mouse.move(900, 200); await page.waitForTimeout(1100);
+  assert.equal(await page.locator('.qa-geometry-trail').count(), 0);
+  report.checks.push('Dragging emits fading trails, collides with a neighbour, scatters/reassembles both meshes, and cleans up trails.');
+  await page.screenshot({ path: fileURLToPath(new URL('1920-feed.png', output)) });
+  await page.emulateMedia({ reducedMotion: 'reduce' }); await page.waitForTimeout(100);
+  const still = await path.getAttribute('d'); await page.waitForTimeout(200);
+  assert.equal(await path.getAttribute('d'), still);
+  report.checks.push('Reduced-motion disables ambient movement.');
+  await page.locator('.nav-controls .theme-toggle-btn').click();
+  await page.screenshot({ path: fileURLToPath(new URL('1920-dark.png', output)) });
+  await page.locator('.nav-controls .theme-toggle-btn').click();
+  for (const width of [1440, 1200, 768, 390]) {
+    await page.setViewportSize({ width, height: 960 });
+    await page.screenshot({ path: fileURLToPath(new URL(`${width}-feed.png`, output)) });
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth), 0);
+  }
+  await page.goto('http://localhost:5174/community/hinh-hoc-olympic-tam-ngoai-tiep-doi-xung-oi');
+  await page.locator('.qa-discussion').waitFor();
+  await page.locator('.se-your-answer-card').scrollIntoViewIfNeeded();
+  await page.screenshot({ path: fileURLToPath(new URL('390-composer.png', output)) });
+  const editor = page.locator('.se-your-answer-card .docs-wysiwyg-content');
+  await editor.fill('Ta xét giới hạn $x^2$ tại điểm đang xét.');
+  await page.locator('.se-your-answer-card button[title="Công thức toán"]').click();
+  assert.ok(await page.locator('.se-your-answer-card .docs-math-row').isVisible());
+  await page.locator('.se-your-answer-card button[title="Công cụ định dạng khác"]').click();
+  assert.ok((await editor.innerText()).includes('x^2'));
+  assert.equal(await page.locator('.contact-launcher-container').isVisible(), false);
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({ width, height: 1000 });
+    await page.locator('.se-your-answer-card').scrollIntoViewIfNeeded();
+    await page.screenshot({ path: fileURLToPath(new URL(`${width}-composer-expanded.png`, output)) });
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth), 0);
+  }
+  report.checks.push('Compact composer expands real math/format controls without losing text; focused mobile composer is not covered by contact widget.');
+  await page.locator('.nav-controls .theme-toggle-btn').click();
+  await page.screenshot({ path: fileURLToPath(new URL('1440-composer-dark.png', output)) });
+  assert.equal(report.errors.length, 0);
+  report.passed = true;
+} catch (error) { report.passed = false; report.error = error.message; await page.screenshot({ path: fileURLToPath(new URL('failure.png', output)) }).catch(() => {}); process.exitCode = 1; }
+finally { await writeFile(new URL('report.json', output), JSON.stringify(report, null, 2)); console.log(JSON.stringify(report)); await browser.close(); }

@@ -5,10 +5,12 @@ import { useAuth } from '../../contexts/AuthContext';
 import { loadFlashcardAccess, redeemFlashcardKey } from '../../services/flashcardAccessService';
 import BrandLoader from '../ui/BrandLoader';
 import { needsGoogleEmail } from '../../utils/accountIdentity';
+import MathRenderer from '../MathRenderer';
 import '../../assets/styles/FlashcardAccess.css';
+import '../../assets/styles/EditorialType.css';
 
 export default function FlashcardGate({ children, adminOnly = false }) {
-  const { currentUser, loading } = useAuth();
+  const { currentUser, loading, sessionError, syncUserFromBackend } = useAuth();
   const identity = currentUser?.id || currentUser?.uid || '';
   const [snapshot, setSnapshot] = useState(null);
   const [code, setCode] = useState('');
@@ -16,6 +18,7 @@ export default function FlashcardGate({ children, adminOnly = false }) {
   const [busy, setBusy] = useState(false);
   const [retry, setRetry] = useState(0);
   const [clock, setClock] = useState(Date.now);
+  const [sampleFlipped, setSampleFlipped] = useState(false);
   // Refresh on focus and in visible tabs; backend independently authorizes every read.
   useEffect(() => {
     if (loading || !identity) return undefined;
@@ -28,10 +31,18 @@ export default function FlashcardGate({ children, adminOnly = false }) {
       controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 12000);
       try {
-        const data = await loadFlashcardAccess(controller.signal);
+        let data;
+        try { data = await loadFlashcardAccess(controller.signal); }
+        catch (failure) {
+          if (failure.status !== 401) throw failure;
+          const verified = await syncUserFromBackend();
+          if (!verified || cancelled) throw failure;
+          // Retry only after the shared session has been verified, never bypass access.
+          data = await loadFlashcardAccess(controller.signal);
+        }
         if (!cancelled) setSnapshot({ identity, access: data.access });
-      } catch (error) {
-        if (!cancelled) setSnapshot({ identity, error: error.status === 401 ? '' : 'Chưa kiểm tra được quyền truy cập. Vui lòng thử lại.', access: { allowed: false, status: error.status === 401 ? 'LOGIN' : 'ERROR' } });
+      } catch {
+        if (!cancelled) setSnapshot({ identity, error: 'Chưa kiểm tra được quyền truy cập. Vui lòng thử lại.', access: { allowed: false, status: 'ERROR' } });
       } finally { clearTimeout(timeout); running = false; }
     };
     refresh();
@@ -45,7 +56,7 @@ export default function FlashcardGate({ children, adminOnly = false }) {
       document.removeEventListener('visibilitychange', refresh);
       window.removeEventListener('ueh-tcc-flashcard-access-changed', refresh);
     };
-  }, [identity, loading, retry]);
+  }, [identity, loading, retry, syncUserFromBackend]);
   useEffect(() => {
     const interval = setInterval(() => setClock(Date.now()), 1000);
     return () => clearInterval(interval);
@@ -62,25 +73,26 @@ export default function FlashcardGate({ children, adminOnly = false }) {
   }, [code, identity]);
   // Open the existing authentication flow without losing the current study URL.
   const handleLogin = () => window.dispatchEvent(new Event('ueh-tcc-open-login'));
-  const handleRetry = () => { setSnapshot(null); setRetry(value => value + 1); };
+  const handleRetry = async () => { await syncUserFromBackend(); setSnapshot(null); setRetry(value => value + 1); };
 
   if (loading || (identity && snapshot?.identity !== identity)) return <BrandLoader label="Đang kiểm tra quyền Flashcard…" phase="content" />;
   const access = snapshot?.identity === identity ? snapshot.access : null;
   const allowed = access?.allowed && (!access.expiresAt || new Date(access.expiresAt).getTime() > clock);
   if (allowed && (!adminOnly || access.isAdmin)) return children;
-  const login = !identity || access?.status === 'LOGIN';
+  const login = !identity && !sessionError;
   const revoked = access?.status === 'REVOKED';
-  const unavailable = access?.status === 'ERROR';
-  return <main className="fc-access fc-lock">
+  const unavailable = Boolean(sessionError) || access?.status === 'ERROR';
+  return <main className={`fc-access fc-lock${adminOnly ? '' : ' fc-lock--study'}`}>
+    {!adminOnly && <section className="fc-lock-intro" aria-labelledby="fc-intro-title"><p className="fc-eyebrow">THẺ GHI NHỚ · TOÁN CAO CẤP</p><h2 id="fc-intro-title">Trước khi nhớ,<br/><em>hãy hiểu.</em></h2><p>Gom kiến thức thành từng ý nhỏ. Ôn lại điều kiện áp dụng, lật thẻ để đối chiếu và tự kiểm tra phần bạn đã nắm.</p><div className="fc-learning-modes"><span>Lý thuyết</span><span>Thẻ ghi nhớ</span><span>Tự kiểm tra</span></div><button type="button" className="fc-demo-card paper-surface" data-paper={sampleFlipped ? 'mint' : 'lavender'} aria-pressed={sampleFlipped} onClick={()=>setSampleFlipped(value=>!value)}><span>THẺ MINH HỌA · {sampleFlipped ? 'LỜI GIẢI' : 'CÂU HỎI'}</span><MathRenderer text={sampleFlipped ? "$$f'(x)=2x$$" : '$$f(x)=x^2$$'}/><strong>{sampleFlipped ? 'Đạo hàm cho biết tốc độ thay đổi tại x.' : 'Đạo hàm của hàm số này là gì?'}</strong><small>{sampleFlipped ? 'Lật lại câu hỏi' : 'Chạm để lật thẻ'} <ArrowRight size={15}/></small></button></section>}
     <div className="fc-lock-preview" aria-hidden="true" inert>
       <aside><BookOpen size={22} /><strong>Nội dung học tập</strong>{['Đại số tuyến tính', 'Giải tích một biến', 'Hàm nhiều biến', 'Ứng dụng kinh tế'].map(label => <p key={label}>{label}</p>)}</aside>
       <div><p>THẺ GHI NHỚ · TOÁN CAO CẤP</p><h2>Học từng ý. Nhớ lâu hơn.</h2><div className="fc-preview-card"><span>Câu hỏi mẫu</span><strong>Điều gì giúp bạn nhớ một công thức?</strong><p>Hiểu ý nghĩa và điều kiện áp dụng.</p></div></div>
     </div>
     <section className="fc-lock-panel" aria-labelledby="fc-lock-title">
       <span className="fc-lock-mark"><LockKeyhole size={25} strokeWidth={1.5} /></span>
-      <p className="fc-eyebrow">UEH TCC / Flashcard</p>
-      <h1 id="fc-lock-title">{adminOnly && !login ? 'Khu vực quản trị' : login ? 'Đăng nhập để tiếp tục' : unavailable ? 'Chưa kiểm tra được quyền' : revoked ? 'Quyền truy cập đã thu hồi' : 'Mở không gian ôn tập'}</h1>
-      <p className="fc-muted">{adminOnly && !login ? 'Tài khoản này không có quyền quản trị Flashcard.' : login ? 'Đăng nhập tài khoản đã được cấp quyền hoặc để sử dụng mã kích hoạt.' : unavailable ? snapshot.error : revoked ? 'Vui lòng liên hệ quản trị viên để được khôi phục quyền Flashcard.' : 'Bạn chưa được cấp quyền Flashcard hoặc quyền đã hết hạn. Nhập mã được cung cấp, hoặc liên hệ quản trị viên để cấp qua email đã đăng ký.'}</p>
+      <p className="fc-eyebrow">α∫M4A / Flashcard</p>
+      <h1 id="fc-lock-title">{unavailable ? 'Chưa kiểm tra được quyền' : adminOnly && !login ? 'Khu vực quản trị' : login ? 'Đăng nhập để tiếp tục' : revoked ? 'Quyền truy cập đã thu hồi' : 'Mở không gian ôn tập'}</h1>
+      <p className="fc-muted">{unavailable ? sessionError || snapshot?.error : adminOnly && !login ? 'Tài khoản này không có quyền quản trị Flashcard.' : login ? 'Đăng nhập tài khoản đã được cấp quyền hoặc để sử dụng mã kích hoạt.' : revoked ? 'Vui lòng liên hệ quản trị viên để được khôi phục quyền Flashcard.' : 'Bạn chưa được cấp quyền Flashcard hoặc quyền đã hết hạn. Nhập mã được cung cấp, hoặc liên hệ quản trị viên để cấp qua email đã đăng ký.'}</p>
       {login ? <button className="fc-primary" onClick={handleLogin}>Đăng nhập <ArrowRight size={17} /></button> : unavailable ? <button className="fc-primary" onClick={handleRetry}><RefreshCw size={16} /> Thử lại</button> : !revoked && !adminOnly && <form onSubmit={handleRedeem}>
         <label htmlFor="fc-activation">Mã kích hoạt</label><div className="fc-key-input"><KeyRound size={18} /><input id="fc-activation" value={code} onChange={event => setCode(event.target.value)} maxLength={100} placeholder="TCC-…" autoComplete="off" spellCheck={false} required aria-describedby="fc-key-feedback" disabled={busy} /></div>
         <p id="fc-key-feedback" className="fc-error" role="status">{notice}</p>

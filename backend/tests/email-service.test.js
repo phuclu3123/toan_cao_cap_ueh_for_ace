@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { afterEach, beforeEach, test } from 'node:test';
 
-import { sendOtpEmail } from '../services/emailService.js';
+import { sendOtpEmail } from '../src/modules/identity/integrations/emailService.js';
 
 const ENV_KEYS = [
   'NODE_ENV',

@@ -12,3 +12,12 @@
   flex-direction: column;
   background: var(--bg-primary);
 }
+
+.route-load-error { min-height: 80dvh; width: min(600px, 100%); margin: auto; padding: 64px 24px; display: flex; flex-direction: column; justify-content: center; gap: 20px; color: var(--text-primary, #17251e); }
+.route-load-error-brand { font-weight: 750; color: var(--primary-color, #25654e); }
+.route-load-error h1 { margin: 0; font-size: clamp(26px, 5vw, 36px); line-height: 1.3; }
+.route-load-error p { margin: 0; line-height: 1.8; }
+.route-load-error-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 24px; }
+.route-load-error-actions button { min-height: 44px; }
+.route-load-error details { font-size: 13px; line-height: 1.7; }
+.route-load-error pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; }

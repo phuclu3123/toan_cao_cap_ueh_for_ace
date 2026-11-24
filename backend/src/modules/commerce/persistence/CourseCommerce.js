@@ -1,0 +1,20 @@
+import mongoose from 'mongoose';
+
+const options = { timestamps: true, autoCreate: false, autoIndex: false };
+const offer = new mongoose.Schema({ courseId: { type: String, required: true, unique: true }, amount: { type: Number, required: true, min: 0 }, compareAtAmount: { type: Number, default: 0, min: 0 }, status: { type: String, enum: ['OPEN', 'CLOSED'], default: 'CLOSED' }, version: { type: Number, required: true }, updatedBy: String }, options);
+const promotion = new mongoose.Schema({ courseId: { type: String, required: true, index: true }, code: { type: String, required: true, unique: true }, label: { type: String, required: true }, mode: { type: String, enum: ['CODE', 'AUTO'], required: true }, type: { type: String, enum: ['PERCENT', 'FIXED'], required: true }, value: { type: Number, required: true }, maxDiscount: { type: Number, default: null }, startsAt: { type: Date, default: null }, endsAt: { type: Date, default: null }, maxUses: { type: Number, required: true }, perUserLimit: { type: Number, required: true, default: 1 }, reserved: { type: Number, default: 0 }, used: { type: Number, default: 0 }, active: { type: Boolean, default: true }, version: { type: Number, default: 1 }, createdBy: String }, options);
+promotion.index({ courseId: 1, active: 1, mode: 1 });
+const usage = new mongoose.Schema({ promotionId: { type: mongoose.Schema.Types.ObjectId, required: true }, userId: { type: String, required: true }, used: { type: Number, default: 0 }, reserved: { type: Number, default: 0 } }, options);
+usage.index({ promotionId: 1, userId: 1 }, { unique: true });
+const reservation = new mongoose.Schema({ promotionId: { type: mongoose.Schema.Types.ObjectId, required: true }, userId: { type: String, required: true }, orderCode: { type: Number, required: true, unique: true }, status: { type: String, enum: ['RESERVED', 'CONSUMED', 'RELEASED'], default: 'RESERVED' }, expiresAt: { type: Date, required: true } }, options);
+reservation.index({ status: 1, expiresAt: 1 });
+const audit = new mongoose.Schema({ courseId: String, action: { type: String, required: true }, actorId: { type: String, required: true }, details: mongoose.Schema.Types.Mixed }, options);
+audit.index({ courseId: 1, createdAt: -1 });
+export const CourseOffer = mongoose.model('CourseOffer', offer);
+export const CoursePromotion = mongoose.model('CoursePromotion', promotion);
+export const PromotionUsage = mongoose.model('PromotionUsage', usage);
+export const PromotionReservation = mongoose.model('PromotionReservation', reservation);
+export const CommerceAudit = mongoose.model('CommerceAudit', audit);
+const checkout = new mongoose.Schema({ userId: { type: String, required: true }, courseId: { type: String, required: true }, phase: { type: String, enum: ['DETAILS', 'PAYMENT'], default: 'DETAILS' }, orderCode: { type: Number, default: null }, promotionCode: { type: String, default: '', maxlength: 32 }, draftQuote: mongoose.Schema.Types.Mixed }, options);
+checkout.index({ userId: 1, courseId: 1 }, { unique: true });
+export const CourseCheckoutSession = mongoose.model('CourseCheckoutSession', checkout);

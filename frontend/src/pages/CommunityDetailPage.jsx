@@ -1,15 +1,19 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import {
   ChevronUp,
   ChevronDown,
   Bookmark,
   Plus,
-  Sparkles,
   ListOrdered,
-  X
+  Compass,
+  ArrowLeft
 } from 'lucide-react';
 import { communityService, DIFFICULTY_LEVELS } from '../services/communityService';
+import CommunityMemberLink from '../components/community/CommunityMemberLink';
+import CommunityAvatar from '../components/community/CommunityAvatar';
+import CommunityPanel from '../components/community/CommunityPanel';
+import MathMarginArtwork from '../components/community/MathMarginArtwork';
 import { useAuth } from '../contexts/AuthContext';
 import { useCommunity } from '../contexts/CommunityContext';
 import CommunityNavSidebar from '../components/community/CommunityNavSidebar';
@@ -25,6 +29,8 @@ import FormulaCheatsheetModal from '../components/community/FormulaCheatsheetMod
 import LeaderboardModal from '../components/community/LeaderboardModal';
 import AuthModal from '../components/modals/AuthModal';
 import '../assets/styles/community.css';
+import '../assets/styles/community-workspace.css';
+import '../assets/styles/community-discussion.css';
 
 function formatRelativeTime(dateString) {
   if (!dateString) return 'gần đây';
@@ -49,9 +55,12 @@ function formatRelativeTime(dateString) {
 export default function CommunityDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { hash } = useLocation();
   const { currentUser } = useAuth();
   const {
     savedPostIds,
+    sessionActionError,
+    markVisited,
     toggleSavePost,
     handleUpvotePost,
     handleDownvotePost,
@@ -72,11 +81,12 @@ export default function CommunityDetailPage() {
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [actionError, setActionError] = useState('');
+  const [actionBusy, setActionBusy] = useState(false);
 
   const [answerSort, setAnswerSort] = useState('upvotes'); // 'upvotes' | 'newest' | 'oldest'
   const [quoteText, setQuoteText] = useState('');
   const [isCopied, setIsCopied] = useState(false);
-  const [isTocMinimized, setIsTocMinimized] = useState(false);
 
   // Modals
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -88,12 +98,16 @@ export default function CommunityDetailPage() {
 
   const [activeSection, setActiveSection] = useState('question-section');
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     let isMounted = true;
+    setLoading(true);
+    setError(null);
     communityService.getPostById(id)
       .then(data => {
         if (isMounted) {
           setPost(data);
+          markVisited(data.id);
           setLoading(false);
         }
       })
@@ -107,7 +121,20 @@ export default function CommunityDetailPage() {
     return () => {
       isMounted = false;
     };
-  }, [id]);
+  }, [id, currentUser?.id, currentUser?.uid, markVisited]);
+  /* eslint-enable react-hooks/set-state-in-effect */
+
+  useEffect(() => {
+    if (!post?.id || !hash || loading) return;
+    let active = true;
+    document.fonts.ready.then(() => {
+      if (!active) return;
+      try {
+        document.getElementById(decodeURIComponent(hash.slice(1)))?.scrollIntoView({ behavior: 'auto', block: 'center' });
+      } catch { /* Ignore malformed external fragments. */ }
+    });
+    return () => { active = false; };
+  }, [post?.id, hash, loading]);
 
   // ScrollSpy to highlight TOC section as user scrolls
   useEffect(() => {
@@ -145,7 +172,7 @@ export default function CommunityDetailPage() {
   );
 
   const isPostAuthor = Boolean(
-    isAdmin || (
+    post?.canManage || isAdmin || (
       currentUser && post && post.author && (
         (currentUser.uid && (post.author.id === currentUser.uid || post.author.uid === currentUser.uid)) ||
         (currentUser.id && (post.author.id === currentUser.id || post.author.uid === currentUser.id)) ||
@@ -160,8 +187,18 @@ export default function CommunityDetailPage() {
   const isDownvoted = Boolean(post?.downvotedBy && post.downvotedBy.includes(currentUserId));
   const isSaved = Boolean(post && savedPostIds.includes(post.id));
 
-  const handleShare = () => {
-    navigator.clipboard?.writeText(window.location.href);
+  const handlePostAction = async (action) => {
+    if (actionBusy) return;
+    setActionBusy(true);
+    setActionError('');
+    try { await action(); }
+    catch (error) { setActionError(error.message || 'Thao tác chưa thành công. Vui lòng thử lại.'); }
+    finally { setActionBusy(false); }
+  };
+
+  const handleShare = async () => {
+    if (!navigator.clipboard) throw new Error('Trình duyệt chưa hỗ trợ sao chép liên kết.');
+    await navigator.clipboard.writeText(window.location.href);
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2000);
   };
@@ -251,10 +288,10 @@ export default function CommunityDetailPage() {
     setPost(res.post);
   };
 
-  const handleAnswerComment = async (pId, aId, text) => {
+  const handleAnswerComment = async (pId, aId, text, { parentId = null } = {}) => {
     const res = await communityService.addCommentToAnswer(pId, aId, {
       content: text,
-      author: currentUser || { name: 'Sinh viên UEH', cohort: 'K50 UEH' }
+      parentId
     });
 
     setPost(prev => ({
@@ -287,6 +324,14 @@ export default function CommunityDetailPage() {
     }));
   };
 
+  const handleCommentHeart = async (pId, aId, commentId, liked) => {
+    const comment = await communityService.setCommentHeart(pId, aId, commentId, liked, currentUser?.id || currentUser?.uid);
+    setPost(previous => ({ ...previous, answers: previous.answers.map(answer => answer.id !== aId ? answer : {
+      ...answer, comments: answer.comments.map(item => item.id === commentId ? comment : item)
+    }) }));
+    return comment;
+  };
+
   const handleDeleteAnswerComment = async (pId, aId, cId) => {
     await communityService.deleteComment(pId, aId, cId);
     setPost(prev => ({
@@ -304,13 +349,8 @@ export default function CommunityDetailPage() {
   };
 
   const handleEditAnswer = async (pId, aId, updatedContent) => {
-    await communityService.editAnswer(pId, aId, updatedContent);
-    setPost(prev => ({
-      ...prev,
-      answers: (prev.answers || []).map(a =>
-        a.id === aId ? { ...a, content: updatedContent, updatedAt: new Date().toISOString() } : a
-      )
-    }));
+    const result = await communityService.editAnswer(pId, aId, updatedContent);
+    setPost(result.post);
   };
 
   const handleDeleteAnswer = async (pId, aId) => {
@@ -325,14 +365,14 @@ export default function CommunityDetailPage() {
   };
 
   const handleDeletePostConfirm = async () => {
-    setShowDeleteConfirm(false);
     await handleDeletePost(post.id);
+    setShowDeleteConfirm(false);
     navigate('/community', { replace: true });
   };
 
   if (loading) {
     return (
-      <div className="qa-math-site-wrapper">
+      <div className="qa-math-site-wrapper qa-thread-workspace">
         <div className="qa-main-container" style={{ paddingTop: '24px' }}>
           <LoadingSkeleton variant="post-detail" />
         </div>
@@ -342,7 +382,7 @@ export default function CommunityDetailPage() {
 
   if (error || !post) {
     return (
-      <div className="qa-math-site-wrapper">
+      <div className="qa-math-site-wrapper qa-thread-workspace">
         <div className="qa-main-container" style={{ paddingTop: '60px', maxWidth: '800px' }}>
           <ErrorState
             variant="not-found"
@@ -367,8 +407,21 @@ export default function CommunityDetailPage() {
   });
 
   return (
-    <div className="qa-math-site-wrapper">
+    <div className="qa-math-site-wrapper qa-thread-workspace">
+      <MathMarginArtwork />
       <div className="qa-main-container qa-detail-page-container" style={{ paddingTop: '28px' }}>
+        <div className="qa-workspace-tools">
+          <Link to="/community" className="qa-tools-trigger"><ArrowLeft size={17} />Về hỏi đáp</Link>
+          <div className="qa-workspace-tools-end">
+            <CommunityPanel title="Khám phá cộng đồng" label="Khám phá" icon={Compass}>{({ close }) => <CommunityNavSidebar activeNav="questions" savedCount={savedPostIds.length}
+              onSelectNav={key => { close(); navigate(key === 'unanswered' ? '/community?status=unsolved' : key === 'saved' ? '/community?status=saved' : key === 'tags' ? '/community?browse=tags' : '/community'); }}
+              onOpenLeaderboard={() => { close(); setIsLeaderboardOpen(true); }} onOpenCheatsheet={() => { close(); setIsCheatsheetOpen(true); }} />}</CommunityPanel>
+            <CommunityPanel title="Mục lục bài viết" label="Mục lục" icon={ListOrdered}>{({ close }) => <nav className="qa-thread-contents" aria-label="Mục lục bài toán">
+              {[{ id: 'question-section', title: 'Đề bài & dữ kiện' }, ...sortedAnswers.map((answer, index) => ({ id: answer.id, title: `Lời giải ${index + 1} · ${answer.author?.name || 'Thành viên'}` })), { id: 'answer-composer-section', title: 'Viết lời giải' }].map(section => <a key={section.id} href={'#' + section.id} aria-current={activeSection === section.id ? 'location' : undefined}
+                onClick={event => { event.preventDefault(); close(); document.getElementById(section.id)?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); }}>{section.title}</a>)}
+            </nav>}</CommunityPanel>
+          </div>
+        </div>
         {/* 1. StackExchange Style Question Header */}
         <div className="se-detail-header-block">
           <div className="se-detail-header-top">
@@ -382,43 +435,37 @@ export default function CommunityDetailPage() {
               onClick={currentUser ? openCreateModal : () => setShowAuthModal(true)}
             >
               <Plus size={16} />
-              <span>Ask Question</span>
+              <span>Đặt câu hỏi</span>
             </button>
           </div>
 
           <div className="se-detail-meta-bar">
             <div className="se-meta-item">
-              <span className="se-meta-k">Asked</span>
+              <span className="se-meta-k">Đăng</span>
               <span className="se-meta-v">{formatRelativeTime(post.createdAt)}</span>
             </div>
             {post.updatedAt && (
               <div className="se-meta-item">
-                <span className="se-meta-k">Modified</span>
+                <span className="se-meta-k">Cập nhật</span>
                 <span className="se-meta-v">{formatRelativeTime(post.updatedAt)}</span>
               </div>
             )}
             <div className="se-meta-item">
-              <span className="se-meta-k">Viewed</span>
-              <span className="se-meta-v">{post.views || 1} times</span>
+              <span className="se-meta-k">Lượt xem</span>
+              <span className="se-meta-v">{post.views || 0}</span>
             </div>
           </div>
         </div>
 
         {/* 2. Core 3-Column Layout (Expanded Center Stream) */}
-        <div className="qa-3col-layout qa-detail-expanded-layout">
+        <div className="qa-thread-layout">
           {/* Left Nav */}
-          <aside className="qa-left-col">
-            <CommunityNavSidebar
-              activeNav="questions"
-              onOpenLeaderboard={() => setIsLeaderboardOpen(true)}
-              onOpenCheatsheet={() => setIsCheatsheetOpen(true)}
-              onOpenCreate={currentUser ? openCreateModal : () => setShowAuthModal(true)}
-              savedCount={savedPostIds.length}
-            />
-          </aside>
+
 
           {/* Center Main Stream: Question + Answers + Composer */}
           <main className="qa-center-col">
+            {sessionActionError && <div className="qa-inline-notice qa-action-feedback is-error" role="alert">{sessionActionError}</div>}
+            {actionError && <div className="qa-inline-notice qa-action-feedback is-error" role="alert">{actionError}</div>}
             {/* Main Question Block with Left Vote Rail */}
             <article className="se-detail-post-row" id="question-section">
               {/* Left Vote Rail */}
@@ -426,7 +473,8 @@ export default function CommunityDetailPage() {
                 <button
                   type="button"
                   className={`se-vote-btn up ${isUpvoted ? 'is-active' : ''}`}
-                  onClick={handleUpvote}
+                  disabled={actionBusy}
+                  onClick={() => handlePostAction(handleUpvote)}
                   title="Bài toán có nghiên cứu, rõ ràng và hữu ích"
                   aria-label="Upvote question"
                 >
@@ -438,7 +486,8 @@ export default function CommunityDetailPage() {
                 <button
                   type="button"
                   className={`se-vote-btn down ${isDownvoted ? 'is-active' : ''}`}
-                  onClick={handleDownvote}
+                  disabled={actionBusy}
+                  onClick={() => handlePostAction(handleDownvote)}
                   title="Bài toán chưa rõ ràng hoặc thiếu thông tin"
                   aria-label="Downvote question"
                 >
@@ -448,7 +497,8 @@ export default function CommunityDetailPage() {
                 <button
                   type="button"
                   className={`se-vote-btn bookmark ${isSaved ? 'is-saved' : ''}`}
-                  onClick={handleToggleSave}
+                  disabled={actionBusy}
+                  onClick={() => handlePostAction(handleToggleSave)}
                   title={isSaved ? 'Bỏ lưu bài toán' : 'Lưu bài toán này'}
                   aria-label="Save question"
                 >
@@ -509,7 +559,7 @@ export default function CommunityDetailPage() {
                 {/* Bottom Action strip: links on left, author card on right */}
                 <div className="se-detail-post-bottom-bar">
                   <div className="se-detail-actions-links">
-                    <button type="button" className="se-detail-link-btn" onClick={handleShare}>
+                    <button type="button" className="se-detail-link-btn" onClick={() => handlePostAction(handleShare)}>
                       {isCopied ? 'Đã sao chép link' : 'Chia sẻ'}
                     </button>
                     {isPostAuthor && (
@@ -533,21 +583,17 @@ export default function CommunityDetailPage() {
 
                   {/* Author Card Box */}
                   <div className="se-author-card-box">
-                    <span className="author-card-time">asked {formatRelativeTime(post.createdAt)}</span>
+                    <span className="author-card-time">{post.origin === 'curated' ? 'Bài biên soạn' : 'Đăng'} {formatRelativeTime(post.createdAt)}</span>
                     <div className="author-card-user-row">
-                      <Link to={`/community/user/${post.author?.id}`} className="author-card-avatar">
-                        {post.author?.avatar ? (
-                          <img src={post.author.avatar} alt={post.author.name} />
-                        ) : (
-                          <span>{(post.author?.name || 'U').charAt(0).toUpperCase()}</span>
-                        )}
-                      </Link>
+                      <CommunityMemberLink author={post.author} className="author-card-avatar">
+                        <CommunityAvatar src={post.author?.avatar} name={post.author?.name} />
+                      </CommunityMemberLink>
                       <div className="author-card-meta">
-                        <Link to={`/community/user/${post.author?.id}`} className="author-card-name">
+                        <CommunityMemberLink author={post.author} className="author-card-name">
                           {post.author?.name || 'Sinh viên UEH'}
-                        </Link>
+                        </CommunityMemberLink>
                         <span className="author-card-rep">
-                          {post.author?.points || 1} pts
+                          {post.origin === 'curated' ? 'α∫M4A' : `${post.author?.points || 0} \u0111i\u1ec3m`}
                         </span>
                       </div>
                     </div>
@@ -557,24 +603,24 @@ export default function CommunityDetailPage() {
             </article>
 
             {/* 3. Answers Section */}
-            <div className="se-answers-section-wrap">
+            <div className="se-answers-section-wrap" id="answers-section">
               <div className="se-answers-heading-bar">
                 <h2 className="se-answers-count-title">
-                  {sortedAnswers.length} {sortedAnswers.length === 1 ? 'Answer' : 'Answers'}
+                  {sortedAnswers.length} lời giải
                 </h2>
 
                 {sortedAnswers.length > 1 && (
                   <div className="se-answers-sort-select-wrap">
-                    <label htmlFor="sort-answers-select">Sorted by:</label>
+                    <label htmlFor="sort-answers-select">Sắp xếp:</label>
                     <select
                       id="sort-answers-select"
                       className="se-select-native"
                       value={answerSort}
                       onChange={(e) => setAnswerSort(e.target.value)}
                     >
-                      <option value="upvotes">Highest score (default)</option>
-                      <option value="newest">Newest first</option>
-                      <option value="oldest">Oldest first</option>
+                      <option value="upvotes">Hữu ích nhất</option>
+                      <option value="newest">Mới nhất</option>
+                      <option value="oldest">Cũ nhất</option>
                     </select>
                   </div>
                 )}
@@ -584,9 +630,8 @@ export default function CommunityDetailPage() {
               <div className="se-answers-stream">
                 {sortedAnswers.length === 0 ? (
                   <div className="se-empty-answers-prompt">
-                    <Sparkles size={28} className="prompt-sparkle-icon" />
-                    <h3>Chưa có câu trả lời nào</h3>
-                    <p>Hãy là người đầu tiên giải bài toán này để nhận ngay <strong>+15 điểm First Solver</strong>!</p>
+                    <h3>Chưa có lời giải</h3>
+                    <p>Bạn có cách giải khác? Hãy chia sẻ các bước và cùng trao đổi.</p>
                   </div>
                 ) : (
                   sortedAnswers.map((ans) => (
@@ -604,6 +649,7 @@ export default function CommunityDetailPage() {
                       onAddComment={handleAnswerComment}
                       onEditComment={handleEditAnswerComment}
                       onDeleteComment={handleDeleteAnswerComment}
+                      onReactComment={handleCommentHeart}
                       onEditAnswer={handleEditAnswer}
                       onDeleteAnswer={handleDeleteAnswer}
                       onOpenCheatsheet={() => setIsCheatsheetOpen(true)}
@@ -621,6 +667,8 @@ export default function CommunityDetailPage() {
             {/* 4. Answer Composer (Your Answer) */}
             <div id="answer-composer-section" style={{ marginTop: '32px' }}>
               <AnswerComposer
+                key={`${post.id}:${currentUser?.id || currentUser?.uid || 'guest'}`}
+                postId={post.id}
                 onSubmit={handleCreateAnswerSubmit}
                 currentUser={currentUser}
                 onRequireLogin={() => setShowAuthModal(true)}
@@ -632,82 +680,6 @@ export default function CommunityDetailPage() {
           </main>
         </div>
       </div>
-
-      {/* Right Floating TOC Rail (Mục lục luồng bài toán mờ thị giác luôn chạy theo khi lướt) */}
-      <aside className={`se-floating-thread-sidebar ${isTocMinimized ? 'is-minimized' : ''}`}>
-        {isTocMinimized ? (
-          <button
-            type="button"
-            className="se-toc-expand-pill-btn"
-            onClick={() => setIsTocMinimized(false)}
-            title="Mở Mục lục luồng bài toán"
-          >
-            <ListOrdered size={13} />
-            <span>Mục lục</span>
-          </button>
-        ) : (
-          <div className="se-thread-toc-card glassmorphism-toc">
-            <div className="se-toc-header">
-              <span className="se-toc-header-title">MỤC LỤC BÀI VIẾT</span>
-              <button
-                type="button"
-                className="se-toc-minimize-btn"
-                onClick={() => setIsTocMinimized(true)}
-                title="Thu nhỏ mục lục"
-              >
-                <X size={12} />
-              </button>
-            </div>
-
-            <nav className="se-toc-nav-list" aria-label="Mục lục bài toán">
-              {/* 1. Question item */}
-              <a
-                href="#question-section"
-                className={`se-toc-link ${activeSection === 'question-section' ? 'is-active' : ''}`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  document.getElementById('question-section')?.scrollIntoView({ behavior: 'smooth' });
-                }}
-              >
-                <span className="se-toc-indicator-bar" />
-                <span className="se-toc-title">Đề bài & Dữ kiện</span>
-              </a>
-
-              {/* 2. Answers list */}
-              {sortedAnswers.map((ans, aIdx) => (
-                <a
-                  key={ans.id}
-                  href={`#${ans.id}`}
-                  className={`se-toc-link is-sub ${activeSection === ans.id ? 'is-active' : ''}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    document.getElementById(ans.id)?.scrollIntoView({ behavior: 'smooth' });
-                  }}
-                  title={`Lời giải #${aIdx + 1} của ${ans.author?.name || 'Thành viên'}`}
-                >
-                  <span className="se-toc-indicator-bar" />
-                  <span className="se-toc-title">
-                    Lời giải #{aIdx + 1} {ans.author?.name ? `(${ans.author.name.split(' ').slice(-1)[0]})` : ''}
-                  </span>
-                </a>
-              ))}
-
-              {/* 3. Composer item */}
-              <a
-                href="#answer-composer-section"
-                className={`se-toc-link ${activeSection === 'answer-composer-section' ? 'is-active' : ''}`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  document.getElementById('answer-composer-section')?.scrollIntoView({ behavior: 'smooth' });
-                }}
-              >
-                <span className="se-toc-indicator-bar" />
-                <span className="se-toc-title">Viết lời giải</span>
-              </a>
-            </nav>
-          </div>
-        )}
-      </aside>
 
       {/* Modals */}
       {/* 1. Create New Post Modal */}
@@ -745,7 +717,8 @@ export default function CommunityDetailPage() {
       <ConfirmDialog
         isOpen={showDeleteConfirm}
         onClose={() => setShowDeleteConfirm(false)}
-        onConfirm={handleDeletePostConfirm}
+        onConfirm={() => handlePostAction(handleDeletePostConfirm)}
+        isLoading={actionBusy}
         title="Xóa bài toán này?"
         message="Hành động này không thể hoàn tác. Toàn bộ câu hỏi, lời giải và bình luận liên quan sẽ bị xóa hoàn toàn khỏi diễn đàn."
         confirmLabel="Xóa bài viết"

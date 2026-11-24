@@ -1,0 +1,35 @@
+/* Requested reuse of the Flashcard capsule navigation, scoped to community. */
+.app-container.community-route { background-color: var(--ui-canvas); background-image: linear-gradient(var(--ui-grid) 1px,transparent 1px),linear-gradient(90deg,var(--ui-grid) 1px,transparent 1px); background-size: 28px 28px; }
+.community-route .qa-math-site-wrapper { background: transparent; }
+.community-route .header-wrapper { background: transparent; border: 0; box-shadow: none; }
+.community-route .header-wrapper { position: sticky; top: 16px; width: min(1200px,calc(100% - 64px)); height: 72px; margin: 16px auto 0; }
+.community-route .header-wrapper .navbar,.community-route .header-wrapper.scrolled .navbar { height: 72px; border: 1px solid #ffffffc9; border-radius: 999px; background: color-mix(in srgb,var(--ui-paper) 94%,transparent); box-shadow: 0 8px 32px #1d352616,inset 0 1px 0 #fff9; backdrop-filter: blur(28px) saturate(1.5); }
+.community-route .navbar-container { width: 100%; max-width: none; gap: 10px; padding: 0 18px; }
+.community-route .navbar-logo { font-size: 20px; padding-left: 12px; }
+.community-route .nav-links { gap: 2px; }
+.community-route .nav-link-item { font-size: 12px; padding: 11px 12px; border-radius: 999px; font-weight: 550; min-height: 40px; display: flex; align-items: center; justify-content: center; }
+.community-route .nav-link-item.active,.community-route .nav-link-item.active:hover { background: var(--ui-pastel-lavender) !important; color: #191918 !important; }
+.community-route .nav-link-item:hover { background: #fff9 !important; }
+.community-route .nav-link-item::after { display: none; }
+.community-route .nav-controls { gap: 6px; padding-left: 12px; }
+.community-route .nav-controls :is(.control-btn,.notif-trigger-btn) { border-radius: 50%; background: #ffffff6b; border: 1px solid #ffffff7a; }
+.community-route .main-content { background: transparent; }
+.community-route .notif-dropdown-popover { background: var(--ui-paper) !important; backdrop-filter: none; }
+:root[data-theme='dark'] .community-route .notif-dropdown-popover { background: var(--ui-paper) !important; }
+.mobile-notification { display: none; }
+@media (max-width:1280px) {
+  .community-route .nav-links,.community-route .nav-controls,.community-route .auth-action { display: none; }
+  .community-route .mobile-toggle { display: inline-flex; }
+  .community-route .mobile-drawer { display: block; }
+  .community-route .navbar-container { justify-content: space-between; }
+  .community-route .mobile-notification { display: block; margin-left: auto; }
+  .community-route .mobile-notification .notif-trigger-btn { width: 40px; height: 40px; border-radius: 50%; }
+  .community-route .mobile-notification .notif-dropdown-popover { right: -50px; width: min(360px,calc(100vw - 32px)); max-width: none; }
+}
+:root[data-theme='dark'] .community-route { background-color: var(--ui-canvas); background-image: linear-gradient(var(--ui-grid) 1px,transparent 1px),linear-gradient(90deg,var(--ui-grid) 1px,transparent 1px); }
+:root[data-theme='dark'] .community-route .header-wrapper .navbar,:root[data-theme='dark'] .community-route .header-wrapper.scrolled .navbar { background: color-mix(in srgb,var(--ui-paper) 94%,transparent); border-color: #ffffff26; box-shadow: 0 8px 32px #0003,inset 0 1px 0 #ffffff14; }
+:root[data-theme='dark'] .community-route .nav-link-item.active { background: var(--ui-pastel-lavender) !important; color: #191918 !important; }
+:root[data-theme='dark'] .community-route .nav-controls :is(.control-btn,.notif-trigger-btn) { background: #ffffff0d; border-color: #ffffff1a; }
+@media (max-width:1100px) { .community-route .header-wrapper { width: calc(100% - 32px); top: 10px; margin-top: 10px; height: 64px; }.community-route .header-wrapper .navbar { height: 64px; }.community-route .navbar-container { padding-inline: 16px; } }
+@media (max-width:600px) { .community-route .header-wrapper { width: calc(100% - 20px); }.community-route .navbar-logo { padding-left: 4px; font-size: 19px; }.community-route .navbar-container { padding-inline: 12px; }.community-route .mobile-toggle { border-radius: 50%; } }
+@media (max-width:700px) { .community-route:has(.qa-comment-composer:focus-within,.se-composer-form:focus-within) .contact-launcher-container { visibility: hidden; pointer-events: none; } }

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   BookOpen,
@@ -22,11 +22,14 @@ import {
 } from '../firebase';
 import { getInitials } from '../utils/userInitials';
 import { needsGoogleEmail } from '../utils/accountIdentity';
+import { useAuth } from '../contexts/AuthContext';
 import '../assets/styles/ProfilePage.css';
 
 const DEFAULT_SCHOOL = 'Đại học Kinh tế TP.HCM (UEH)';
 
 export default function ProfilePage() {
+  const { currentUser, syncUserFromBackend } = useAuth();
+  const requestEpoch = useRef(0);
   const location = useLocation();
   const navigate = useNavigate();
   const requestedTab = new URLSearchParams(location.search).get('tab');
@@ -52,9 +55,6 @@ export default function ProfilePage() {
   const applySession = useCallback((payload) => {
     const sessionUser = toClientUser(payload.user);
     setUser(sessionUser);
-    if (sessionUser) {
-      localStorage.setItem('ueh_tcc_user', JSON.stringify(sessionUser));
-    }
     setEnrollments(Array.isArray(payload.enrollments) ? payload.enrollments : []);
     setName(sessionUser?.name || '');
     setPhoneNumber(sessionUser?.phoneNumber || '');
@@ -63,8 +63,10 @@ export default function ProfilePage() {
   }, []);
 
   const refreshSession = useCallback(async () => {
+    const epoch = ++requestEpoch.current;
+    const signal = localStorage.getItem('ueh_tcc_session_signal');
     const payload = await readApiJson(await apiFetch('/api/auth/me'));
-    applySession(payload);
+    if (epoch === requestEpoch.current && signal === localStorage.getItem('ueh_tcc_session_signal')) applySession(payload);
     return payload;
   }, [applySession]);
 
@@ -72,18 +74,18 @@ export default function ProfilePage() {
     let active = true;
 
     const loadSession = async () => {
+      const epoch = ++requestEpoch.current;
+      const signal = localStorage.getItem('ueh_tcc_session_signal');
+      const isCurrent = () => active && epoch === requestEpoch.current
+        && signal === localStorage.getItem('ueh_tcc_session_signal');
       try {
         const payload = await readApiJson(await apiFetch('/api/auth/me'));
-        if (active) applySession(payload);
+        if (isCurrent()) applySession(payload);
       } catch (error) {
-        if (active) {
+        if (isCurrent() && error.status === 401) {
           setUser(null);
           setEnrollments([]);
-          
-          if (error.status === 401 && localStorage.getItem('ueh_tcc_user')) {
-            localStorage.removeItem('ueh_tcc_user');
-            window.dispatchEvent(new Event('ueh-tcc-session-changed'));
-          }
+          await syncUserFromBackend();
         }
       } finally {
         if (active) setSessionLoading(false);
@@ -94,9 +96,10 @@ export default function ProfilePage() {
     window.addEventListener('ueh-tcc-session-changed', loadSession);
     return () => {
       active = false;
+      requestEpoch.current += 1;
       window.removeEventListener('ueh-tcc-session-changed', loadSession);
     };
-  }, [applySession]);
+  }, [applySession, currentUser?.id, syncUserFromBackend]);
 
   const enrolledCourses = useMemo(() => {
     if (user?.role === 'Admin') {
@@ -338,7 +341,7 @@ export default function ProfilePage() {
             </button>
           </div>
           <div className="profile-identity-copy">
-            <strong>{user.name || 'Học viên UEH TCC'}</strong>
+            <strong>{user.name || 'Học viên α∫M4A'}</strong>
             <span>{pendingGoogleEmail ? 'Chưa liên kết email' : identity}</span>
           </div>
           <div className="profile-verified">

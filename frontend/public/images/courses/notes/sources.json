@@ -1,0 +1,60 @@
+{
+  "sources": [
+    {
+      "id": "input-output",
+      "source": "06_3_11_2026_buoi 6_input_output + Bien_HSCD_P2.pdf",
+      "sha256": "0c0362ec975cd40c1ad772afef4185314d0a1d596e49e4d19106984e44a165db",
+      "page": 3,
+      "crop_points": [
+        15,
+        205,
+        825,
+        775
+      ],
+      "preview": "input-output-preview.webp",
+      "full_page": "input-output-page.webp"
+    },
+    {
+      "id": "elasticity",
+      "source": "07_12_11_2026_buoi 7_Bien_HSCD_P2.pdf",
+      "sha256": "d233850a8a010b18139fbff335155409a5a196023044e0e3d980d7f805faa9bd",
+      "page": 2,
+      "crop_points": [
+        15,
+        0,
+        825,
+        550
+      ],
+      "preview": "elasticity-preview.webp",
+      "full_page": "elasticity-page.webp"
+    },
+    {
+      "id": "stationary-points",
+      "source": "11_3_11_2026_Buoi_11_Lagrange.pdf",
+      "sha256": "67a0654e1cb42b56e5f22fa3ded8781d7bb5889b2bc5458fd577b188c7dcce17",
+      "page": 2,
+      "crop_points": [
+        15,
+        320,
+        825,
+        835
+      ],
+      "preview": "stationary-points-preview.webp",
+      "full_page": "stationary-points-page.webp"
+    },
+    {
+      "id": "lagrange",
+      "source": "11_3_11_2026_Buoi_11_Lagrange.pdf",
+      "sha256": "67a0654e1cb42b56e5f22fa3ded8781d7bb5889b2bc5458fd577b188c7dcce17",
+      "page": 5,
+      "crop_points": [
+        10,
+        675,
+        832,
+        1191
+      ],
+      "preview": "lagrange-preview.webp",
+      "full_page": "lagrange-page.webp"
+    }
+  ]
+}

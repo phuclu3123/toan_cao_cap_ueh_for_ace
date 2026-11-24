@@ -1,12 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import mongoose from 'mongoose';
-import '../config/db.js';
-import Access from '../models/FlashcardAccess.js';
-import Key from '../models/FlashcardKey.js';
-import Audit from '../models/FlashcardAudit.js';
-import RateLimit from '../models/FlashcardRateLimit.js';
-import { requireAccessDatabase } from '../services/flashcardAccess.js';
+import '../src/platform/database/db.js';
+import Access from '../src/modules/access/persistence/FlashcardAccess.js';
+import Key from '../src/modules/access/persistence/FlashcardKey.js';
+import Audit from '../src/modules/access/persistence/FlashcardAudit.js';
+import RateLimit from '../src/modules/access/persistence/FlashcardRateLimit.js';
+import { requireAccessDatabase } from '../src/modules/access/application/flashcardAccess.js';
 
 test('flashcard models initialize before connect without issuing collection/index writes', { timeout: 2000 }, async () => {
   assert.equal(mongoose.connection.readyState, 0);

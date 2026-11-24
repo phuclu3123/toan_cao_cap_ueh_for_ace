@@ -13,7 +13,7 @@ export const blogPosts = [
     date: '25/05/2026',
     author: 'UEH TCC',
     keywords: ['lộ trình học', 'Toán Cao Cấp', 'UEH', 'ôn thi'],
-    image: '/images/tccvang.jpg',
+    image: '/images/courses/calculus.svg',
     excerpt: 'Cách học theo thứ tự: nắm nền tảng, ôn dạng bài, rồi chuyển sang luyện đề thử có thời gian.',
     toc: ['Mở đầu', 'Nắm nền tảng', 'Ôn theo dạng bài', 'Luyện đề thử', 'Tài liệu nên dùng'],
     sections: [
@@ -46,7 +46,7 @@ export const blogPosts = [
     date: '24/05/2026',
     author: 'UEH TCC',
     keywords: ['luyện thi', '7 ngày cuối', 'đề thi'],
-    image: '/images/bg.jpg',
+    image: '/images/courses/sql.svg',
     excerpt: 'Gợi ý cách chia thời gian trong tuần cuối để vừa ôn công thức, vừa luyện đề và sửa lỗi.',
     toc: ['Mở đầu', 'Ngày 1-2', 'Ngày 3-5', 'Ngày 6-7'],
     sections: [
@@ -63,7 +63,7 @@ export const blogPosts = [
     date: '23/05/2026',
     author: 'UEH TCC',
     keywords: ['giới hạn', 'hàm nhiều biến', 'phương pháp'],
-    image: '/images/c4678.jpg',
+    image: '/images/courses/practice.svg',
     excerpt: 'Một số tín hiệu trong đề giúp bạn chọn hướng biến đổi, xét đường đi hoặc đổi biến phù hợp.',
     toc: ['Mở đầu', 'Dấu hiệu nhận diện', 'Cách kiểm tra', 'Lỗi thường gặp'],
     sections: [
@@ -80,7 +80,7 @@ export const blogPosts = [
     date: '22/05/2026',
     author: 'UEH TCC',
     keywords: ['tài liệu', 'giáo trình', 'PDF'],
-    image: '/images/c123.jpg',
+    image: '/images/courses/k51.svg',
     excerpt: 'Không phải tài liệu nào cũng nên đọc trước. Bài viết này gợi ý thứ tự dùng tài liệu hiệu quả hơn.',
     toc: ['Mở đầu', 'Giáo trình', 'Bài tập chương', 'Đề thi'],
     sections: [

@@ -1,0 +1,15 @@
+import { mkdir, writeFile } from 'node:fs/promises';
+const directory = new URL('../public/fonts/coiny/', import.meta.url);
+await mkdir(directory, { recursive: true });
+const source = 'https://fonts.googleapis.com/css2?family=Coiny&display=swap&text=M4A';
+const response = await fetch(source, { headers: { 'User-Agent': 'Mozilla/5.0 Chrome/130.0.0.0 Safari/537.36' } });
+if (!response.ok) throw Error(`Font stylesheet ${response.status}`);
+const css = await response.text();
+const url = /url\((https:[^)]+)\)/.exec(css)?.[1];
+if (!url || new URL(url).hostname !== 'fonts.gstatic.com') throw Error('Unexpected font host');
+const [font, license] = await Promise.all([fetch(url), fetch('https://raw.githubusercontent.com/google/fonts/main/ofl/coiny/OFL.txt')]);
+if (!font.ok || !license.ok) throw Error('Font or license unavailable');
+await writeFile(new URL('brand.woff2', directory), new Uint8Array(await font.arrayBuffer()));
+await writeFile(new URL('OFL.txt', directory), await license.text());
+await writeFile(new URL('source.json', directory), JSON.stringify({family:'Coiny',glyphs:'M4A',source,license:'SIL Open Font License 1.1'},null,2));
+console.log('Stored Coiny brand lettering locally with OFL license.');

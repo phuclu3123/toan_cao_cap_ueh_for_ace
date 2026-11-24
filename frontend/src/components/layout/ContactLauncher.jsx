@@ -1,5 +1,5 @@
-import { useState, useContext } from 'react';
-import { MessageSquare, X, Send, PhoneCall, FileText } from 'lucide-react';
+import { useState, useContext, useEffect } from 'react';
+import { MessageSquare, X, Send, PhoneCall, FileText, ArrowUp } from 'lucide-react';
 import { LanguageContext } from '../../App';
 import ConsultationForm from '../ConsultationForm';
 import './ContactLauncher.css';
@@ -7,7 +7,32 @@ import './ContactLauncher.css';
 export default function ContactLauncher() {
   const [isOpen, setIsOpen] = useState(false);
   const [showConsultationModal, setShowConsultationModal] = useState(false);
+  const [showBackToTop, setShowBackToTop] = useState(false);
   const { language } = useContext(LanguageContext);
+
+  // Observe one stable marker instead of updating React on every scroll frame.
+  useEffect(() => {
+    const marker = document.querySelector('[data-scroll-replay-top]');
+    if (!marker) return undefined;
+    const observer = new IntersectionObserver(([entry]) => setShowBackToTop(!entry.isIntersecting), { rootMargin: '480px 0px 0px 0px' });
+    observer.observe(marker);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen) return undefined;
+    const handleEscape = event => { if (event.key === 'Escape') setIsOpen(false); };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [isOpen]);
+
+  // Keep the original chat position as the destination of the return button.
+  const handleBackToTop = event => {
+    setIsOpen(false);
+    document.getElementById('main-content')?.focus({ preventScroll: true });
+    const instant = event.detail === 0 || matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: 0, behavior: instant ? 'instant' : 'smooth' });
+  };
 
   const labels = {
     vi: {
@@ -40,9 +65,10 @@ export default function ContactLauncher() {
 
   return (
     <>
-      <div className="contact-launcher-container">
+      <div className={`contact-launcher-container${showBackToTop ? ' has-back-to-top' : ''}`}>
+        <div className="contact-launcher-chat">
         {isOpen && (
-          <div className="contact-launcher-menu">
+          <div className="contact-launcher-menu" id="contact-launcher-menu">
             <a
               href="https://zalo.me/0833830322"
               target="_blank"
@@ -78,8 +104,14 @@ export default function ContactLauncher() {
           onClick={() => setIsOpen((prev) => !prev)}
           className={`contact-launcher-trigger ${isOpen ? 'active' : ''}`}
           aria-label={t.launcher}
+          aria-expanded={isOpen}
+          aria-controls="contact-launcher-menu"
         >
           {isOpen ? <X size={24} /> : <MessageSquare size={24} />}
+        </button>
+        </div>
+        <button type="button" className="back-to-top-trigger" onClick={handleBackToTop} aria-label={language === 'en' ? 'Back to top' : 'Lên đầu trang'} title={language === 'en' ? 'Back to top' : 'Lên đầu trang'} tabIndex={showBackToTop ? 0 : -1} aria-hidden={!showBackToTop}>
+          <ArrowUp size={22} strokeWidth={1.8}/>
         </button>
       </div>
 

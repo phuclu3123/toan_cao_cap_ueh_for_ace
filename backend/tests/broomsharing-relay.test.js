@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { isBroomSharingOrder, validateRelayDestination, forwardBroomSharingWebhook } from '../services/broomsharingWebhookRelay.js';
+import { isBroomSharingOrder, validateRelayDestination, forwardBroomSharingWebhook } from '../src/modules/commerce/payments/integrations/broomsharingWebhookRelay.js';
 
 const destination = 'https://broomsharing-fixture.trycloudflare.com/api/payos/webhook';
 const body = { code: '00', success: true, signature: 'signed-original', data: { orderCode: 20_000_000_000_000, amount: 2000 } };

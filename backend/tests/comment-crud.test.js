@@ -1,12 +1,13 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+process.env.ALLOW_COMMUNITY_MEMORY_WRITES = 'true';
 
 import {
   addCommentToAnswer,
   updateComment,
   deleteComment,
   SEED_COMMUNITY_POSTS
-} from '../controllers/communityController.js';
+} from '../src/modules/community/http/communityController.js';
 
 const createMockRes = () => ({
   statusCode: 200,

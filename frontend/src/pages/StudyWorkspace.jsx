@@ -88,7 +88,7 @@ function LoadedStudyWorkspace({ topic, version, metadata, onSaved }) {
     try {
       if (file.size > 2_000_000) throw new Error('Tệp tối đa 2 MB.');
       const data = JSON.parse(await file.text());
-      if (data.version !== 1 || !Array.isArray(data.cards) || data.cards.length > 500 || data.cards.some(card => !validatePersonalCard(card, studyTopicIds))) throw new Error('Tệp không đúng định dạng UEH TCC hoặc có trường vượt giới hạn.');
+      if (data.version !== 1 || !Array.isArray(data.cards) || data.cards.length > 500 || data.cards.some(card => !validatePersonalCard(card, studyTopicIds))) throw new Error('Tệp không đúng định dạng α∫M4A hoặc có trường vượt giới hạn.');
       const imported = parseStudy(data, studyTopicIds).cards;
       const merged = new Map(study.cards.map(card => [card.id, card])); imported.forEach(card => merged.set(card.id, card));
       if (merged.size > 500) throw new Error('Sau khi nhập, bộ thẻ vượt giới hạn 500 thẻ.');

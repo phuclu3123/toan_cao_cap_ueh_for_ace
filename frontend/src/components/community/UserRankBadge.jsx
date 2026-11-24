@@ -6,7 +6,7 @@ import {
   User,
   ShieldCheck
 } from 'lucide-react';
-import { getTierByPoints } from '../../services/reputationService';
+import { getTierByPoints, MEMBER_TIERS } from '../../services/reputationService';
 import '../../assets/styles/community.css';
 
 const TIER_ICONS = {
@@ -21,14 +21,14 @@ const TIER_ICONS = {
 /**
  * UserRankBadge component displays AoPS style tier badges and instructor badges with clean Lucide SVG icons.
  */
-export default function UserRankBadge({ points = 0, isInstructor = false, size = 'normal', showPoints = false }) {
-  const tier = getTierByPoints(points);
+export default function UserRankBadge({ points = 0, isAdmin = false, isInstructor = false, size = 'normal', showPoints = false }) {
+  const tier = isAdmin ? MEMBER_TIERS.find(item => item.id === 'owner') : getTierByPoints(points);
   const IconComponent = TIER_ICONS[tier.id] || Sparkles;
 
   return (
     <div className={`user-rank-badge-wrap size-${size}`} title={`${tier.name} (${points} điểm cống hiến)`}>
       {isInstructor && (
-        <span className="instructor-badge" title="Cố vấn học thuật UEH TCC">
+        <span className="instructor-badge" title="Cố vấn học thuật α∫M4A">
           <ShieldCheck size={11} />
           <span>Cố vấn TCC</span>
         </span>

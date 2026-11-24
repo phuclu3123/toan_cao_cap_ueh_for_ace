@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   BookMarked,
+  ArrowRight,
   ChevronLeft,
   ChevronRight,
   ClipboardCheck,
@@ -12,6 +13,8 @@ import {
   Search
 } from 'lucide-react';
 import DocCard from '../components/DocCard';
+import ResourceArtwork from '../components/documents/ResourceArtwork';
+import { resourceTitle } from '../utils/resourceTitle';
 import { documentsData as localDocs } from '../data/documentsData';
 import { API_BASE_URL } from '../config';
 import { formatResourceDate, sortResourcesByNewest } from '../utils/resourceDate';
@@ -20,6 +23,7 @@ import { LanguageContext } from '../App';
 import { translations } from '../utils/translations';
 import BrandLoader from '../components/ui/BrandLoader';
 import '../assets/styles/Resources.css';
+import '../assets/styles/EditorialType.css';
 
 const itemsPerPage = 12;
 
@@ -111,12 +115,12 @@ export default function ResourcesPage() {
 
   const pageCopy = {
     vi: {
-      title: 'Thư Viện Ấn Phẩm & Tài Liệu Học Tập',
+      title: 'Thư viện học liệu.',
       description: 'Tổng hợp giáo trình chuẩn, slide bài giảng giảng viên, tài liệu chuyên đề và bài tập chương Toán Cao Cấp UEH.',
       index: 'Danh mục thư viện',
       formats: 'PDF · Slide · Chuyên đề',
-      groupedTitle: 'Nội dung được gom theo nhu cầu học.',
-      groupedDescription: 'Thư viện ưu tiên tài liệu dùng ngay: giáo trình, bài tập chương, PDF ôn tập và tài liệu giữa kỳ. Các bài luyện thi tương tác được tách sang phòng luyện thi riêng.',
+      groupedTitle: 'Chọn tài liệu.',
+      groupedDescription: 'Giáo trình, bài tập theo chương, slide bài giảng và đề ôn tập. Chọn chủ đề hoặc tìm theo tên tài liệu.',
       allDocs: 'Tất cả tài liệu',
       slides: 'Slide bài giảng',
       support: 'Chuyên đề & bài tập',
@@ -142,27 +146,26 @@ export default function ResourcesPage() {
   return (
     <div className="resources-page">
       <section className="resources-banner" aria-labelledby="resources-page-title">
-        <div className="resources-banner-geometry" aria-hidden="true">
-          <span />
-          <span />
-          <span />
-        </div>
         <div className="container resources-banner-grid">
-          <div className="resources-banner-copy">
+          <div className="resources-banner-copy paper-surface" data-paper="peach">
           <span className="resources-banner-subtitle">{t.resources.bannerSubtitle}</span>
-            <h1 id="resources-page-title" className="resources-banner-title">{copy.title}</h1>
+            <h1 id="resources-page-title" className="resources-banner-title">{language === 'vi' ? <>Mở một trang.<br/><em>Hiểu thêm một chút.</em></> : copy.title}</h1>
             <p className="resources-banner-desc">{copy.description}</p>
+            <a className="library-browse-link" href="#library-resources">Khám phá học liệu <ArrowRight size={17}/></a>
           </div>
-          <aside className="library-index-card" aria-label={copy.index}>
-            <BookMarked size={22} aria-hidden="true" />
-            <span>{copy.index}</span>
-            <strong>{loading ? '—' : docs.length}</strong>
-            <small>{copy.formats}</small>
+          <aside className="library-index-card paper-surface" data-paper="sky" aria-label={copy.index}>
+            <div className="library-research-art">
+              <span className="library-research-label">TỪ PHÁC THẢO NGHIÊN CỨU</span>
+              <div className="library-research-sheets">
+                <img className="library-research-overview" src="/images/library/methodology-overview.webp" alt="Sơ đồ nghiên cứu: dữ liệu VN30 và bốn nhánh phương pháp B1–B4 về điều khiển và Deep BSDE" width="2200" height="924" fetchPriority="high"/>
+              </div>
+            </div>
+            <div className="library-index-meta"><BookMarked size={22} aria-hidden="true"/><span>{copy.index}<small>{copy.formats}</small></span><strong>{loading ? '—' : docs.length}</strong></div>
           </aside>
         </div>
       </section>
 
-      <div className="container resources-control-panel">
+      <div id="library-resources" className="container resources-control-panel">
         <div className="controls-wrapper" role="search">
           <div className="search-and-view-row">
             <div className="search-input-wrapper">
@@ -233,21 +236,15 @@ export default function ResourcesPage() {
                 return item.externalUrl ? (
                   <div key={item.id} className="doc-card glass-panel external-card">
                     <div className="card-image-wrapper">
-                      <img
-                        src={`/images/${item.image || 'tccvang.jpg'}`}
-                        alt={item.title}
-                        className="card-image"
-                        loading="lazy"
-                        onError={(event) => { event.currentTarget.src = '/images/tccvang.jpg'; }}
-                      />
-                      <div className="card-category-tag">{item.displayCategory}</div>
+                      <ResourceArtwork resource={item} />
                     </div>
                     <div className="card-body">
                       <div className="card-meta">
+                        <span className="resource-category">{item.displayCategory}</span>
                         <span>{formatResourceDate(item)}</span>
                       </div>
                       <h3 className="card-title">
-                        <a href={item.externalUrl} target="_blank" rel="noopener noreferrer">{item.title}</a>
+                        <a href={item.externalUrl} target="_blank" rel="noopener noreferrer" title={item.title}>{resourceTitle(item)}</a>
                       </h3>
                       <p className="card-desc">{item.desc}</p>
                       <div className="card-footer">
@@ -265,21 +262,14 @@ export default function ResourcesPage() {
           ) : (
             <div className="resources-list">
               {paginatedItems.map((item) => {
-                const coverImage = item.image ? `/images/${item.image}` : '/images/tccvang.jpg';
                 return (
                   <div key={item.id} className="list-item-card glass-panel">
                     <div className="list-img-wrapper">
-                      <img
-                        src={coverImage}
-                        alt={item.title}
-                        className="list-img"
-                        loading="lazy"
-                        onError={(event) => { event.currentTarget.src = '/images/tccvang.jpg'; }}
-                      />
+                      <ResourceArtwork resource={item} variant="resource-artwork--compact" />
                     </div>
                     <div className="list-info">
                       <span className="list-category-badge">{item.displayCategory || item.categoryLabel}</span>
-                      <h3 className="list-title">{item.title}</h3>
+                      <h3 className="list-title" title={item.title}>{resourceTitle(item)}</h3>
                       <p className="list-desc">{item.desc}</p>
                     </div>
                     <div className="list-action-area">

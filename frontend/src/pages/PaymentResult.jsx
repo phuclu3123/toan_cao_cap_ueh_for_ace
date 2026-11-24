@@ -9,11 +9,22 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import { apiFetch, readApiJson } from '../utils/apiClient';
+import { downloadOrderReceipt } from '../services/courseCommerceService';
+import { useAuth } from '../contexts/AuthContext';
+import { useCheckoutSessions } from '../contexts/CheckoutSessionContext';
+import { notifyCourseAccessChanged } from '../services/courseAccessService';
 
 export default function PaymentResult() {
   const [searchParams] = useSearchParams();
   const orderCode = searchParams.get('orderCode');
   const returnedAsCancelled = searchParams.get('cancelled') === '1';
+  const { currentUser } = useAuth();
+  return <PaymentResultContent key={`${currentUser?.id || 'guest'}:${orderCode}`} orderCode={orderCode} returnedAsCancelled={returnedAsCancelled} />;
+}
+
+function PaymentResultContent({ orderCode, returnedAsCancelled }) {
+  const { syncUserFromBackend } = useAuth();
+  const { trackOrder } = useCheckoutSessions();
   const [payment, setPayment] = useState(null);
   const [viewState, setViewState] = useState(orderCode ? 'checking' : 'invalid');
   const [message, setMessage] = useState('');
@@ -24,13 +35,18 @@ export default function PaymentResult() {
     checkInFlightRef.current = true;
 
     try {
-      const payload = await readApiJson(await apiFetch(`/api/orders/${encodeURIComponent(orderCode)}`));
+      const payload = await readApiJson(await apiFetch(`/api/orders/${encodeURIComponent(orderCode)}`, { signal: AbortSignal.timeout(12_000) }));
       const currentPayment = payload.data || {};
       setPayment(currentPayment);
+      trackOrder(currentPayment);
 
       if (currentPayment.entitlement?.allowed) {
+        notifyCourseAccessChanged(currentPayment.courseId);
         setViewState('success');
         setMessage('');
+      } else if (currentPayment.status === 'PAID' && currentPayment.entitlement?.reason === 'REVOKED') {
+        setViewState('error');
+        setMessage('Đơn đã thanh toán nhưng quyền học đang bị admin thu hồi. Liên hệ luphuc321@gmail.com kèm mã đơn để được xử lý; không cần mua lại.');
       } else if (currentPayment.status === 'FAILED') {
         setViewState('failed');
       } else if (currentPayment.status === 'CANCELLED') {
@@ -40,8 +56,11 @@ export default function PaymentResult() {
       }
     } catch (error) {
       if (error.status === 401) {
-        setViewState('auth');
-        setMessage('Vui lòng đăng nhập đúng tài khoản đã tạo đơn để kiểm tra quyền học.');
+        const verifiedUser = await syncUserFromBackend();
+        setViewState(verifiedUser ? 'error' : 'auth');
+        setMessage(verifiedUser
+          ? 'Chưa xác minh được phiên thanh toán. Vui lòng thử lại.'
+          : 'Vui lòng đăng nhập đúng tài khoản đã tạo đơn để kiểm tra quyền học.');
       } else if (error.status === 403) {
         setViewState('auth');
         setMessage('Đơn hàng này không thuộc tài khoản đang đăng nhập.');
@@ -52,7 +71,7 @@ export default function PaymentResult() {
     } finally {
       checkInFlightRef.current = false;
     }
-  }, [orderCode]);
+  }, [orderCode, syncUserFromBackend, trackOrder]);
 
   useEffect(() => {
     const initialCheck = window.setTimeout(checkPayment, 0);
@@ -169,7 +188,9 @@ export default function PaymentResult() {
           <Link to="/courses" className="btn btn-secondary">
             Xem các khóa học
           </Link>
+          {payment?.orderCode && <button type="button" className="btn btn-secondary" onClick={() => downloadOrderReceipt(payment.orderCode).catch(failure => setMessage(failure.message))}>Tải xác nhận & điều khoản</button>}
         </div>
+        {message && <p role="status" style={{ marginTop: 16, color: '#63716b' }}>{message}</p>}
       </div>
     </div>
   );

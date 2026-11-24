@@ -132,7 +132,7 @@ function BlogDetailContent({ post, slug }) {
   useEffect(() => {
     if (!post) return undefined;
     const previousTitle = document.title;
-    document.title = `${post.title} | UEH TCC`;
+    document.title = `${post.title} | α∫M4A`;
     return () => {
       document.title = previousTitle;
     };

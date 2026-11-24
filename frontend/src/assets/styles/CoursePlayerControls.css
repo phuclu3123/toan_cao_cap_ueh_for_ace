@@ -1,0 +1,75 @@
+/* Scoped to the course player so site-wide buttons and sliders keep their style. */
+.cd-player-dialog .video-overlay-controls {
+  padding: 8px 12px 10px !important;
+  gap: 2px !important;
+  background: rgb(15 18 17 / 94%) !important;
+}
+.cd-player-dialog .video-controls-bottom-bar { gap: 8px; flex-wrap: wrap; }
+.cd-player-dialog .controls-left-group,
+.cd-player-dialog .controls-right-group { gap: 2px !important; }
+.cd-player-dialog .video-overlay-controls button {
+  min-width: 40px;
+  min-height: 44px;
+  justify-content: center;
+  padding: 8px !important;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  font: inherit;
+}
+.cd-player-dialog .video-overlay-controls button:not(:disabled):hover { background: rgb(255 255 255 / 12%) !important; }
+.cd-player-dialog .video-overlay-controls button:focus-visible,
+.cd-player-dialog .video-overlay-controls input:focus-visible { outline: 2px solid #fff; outline-offset: -2px; }
+.cd-player-dialog .video-player-frame:focus-within .video-overlay-controls { opacity: 1 !important; pointer-events: auto !important; }
+.cd-player-dialog .video-overlay-controls button:disabled { opacity: .4; cursor: not-allowed !important; }
+.cd-player-dialog .controls-left-group > span { margin: 0 6px; white-space: nowrap; font-variant-numeric: tabular-nums; font-family: inherit !important; }
+.cd-player-dialog .course-video-seek {
+  display: block;
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  min-height: 24px;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  accent-color: #7fbea7;
+}
+.cd-player-dialog .course-video-seek::-webkit-slider-runnable-track { height: 4px; border-radius: 4px; background: linear-gradient(to right, #7fbea7 var(--seek-percent), #555b57 var(--seek-percent)); }
+.cd-player-dialog .course-video-seek::-moz-range-track { height: 4px; border-radius: 4px; background: #555b57; }
+.cd-player-dialog .course-video-seek::-moz-range-progress { height: 4px; border-radius: 4px; background: #7fbea7; }
+.cd-player-dialog .course-video-seek::-webkit-slider-thumb { appearance: none; -webkit-appearance: none; height: 12px; width: 12px; margin-top: -4px; border: 0; border-radius: 50%; background: #fff; }
+.cd-player-dialog .course-video-seek::-moz-range-thumb { height: 12px; width: 12px; border: 0; border-radius: 50%; background: #fff; }
+.cd-player-dialog .course-video-seek:disabled { cursor: default; opacity: .45; }
+.cd-player-dialog .settings-popover-menu { background: #222624 !important; max-height: min(310px, 55vh); overflow-y: auto; width: 176px; min-width: 0 !important; padding: 8px !important; }
+.cd-player-dialog .settings-popover-menu button { display: flex; width: 100%; color: #fff; border-radius: 4px; }
+.cd-player-dialog .settings-popover-menu button[aria-pressed="true"] { background: #3c4842; }
+.cd-player-dialog .course-player-notice { flex-basis: 100%; margin: 0; color: var(--text-primary); font-size: 13px; }
+.cd-player-dialog__footer { flex-wrap: wrap; gap: 12px; }
+.cd-dialog-backdrop.minimized-player-container .cd-player-dialog { min-width: min(300px, calc(100vw - 24px)); max-width: calc(100vw - 24px); max-height: calc(100dvh - 24px); transform: none; }
+.cd-dialog-backdrop.minimized-player-container .cd-player-dialog__header { min-height: 48px; touch-action: none; }
+.cd-dialog-backdrop.minimized-player-container .cd-player-dialog__header .header-actions { width: auto; margin-left: auto; }
+.cd-dialog-backdrop.minimized-player-container .cd-icon-button { width: 40px; height: 40px; }
+.cd-dialog-backdrop.minimized-player-container .controls-left-group > button:nth-of-type(2),
+.cd-dialog-backdrop.minimized-player-container .controls-left-group > button:nth-of-type(3),
+.cd-dialog-backdrop.minimized-player-container .controls-left-group > button:nth-of-type(4),
+.cd-dialog-backdrop.minimized-player-container .controls-left-group > div,
+.cd-dialog-backdrop.minimized-player-container .controls-right-group > div { display: none !important; }
+.cd-dialog-backdrop.minimized-player-container .controls-left-group { flex: 1; }
+.cd-dialog-backdrop.minimized-player-container .video-canvas-click-overlay { bottom: 80px !important; }
+@media (max-width: 640px) {
+  .cd-player-dialog .video-controls-bottom-bar { flex-wrap: nowrap; gap: 0; }
+  .cd-player-dialog .video-controls-bottom-bar button { min-width: 36px; padding: 6px !important; }
+  .cd-player-dialog .controls-left-group { flex: 1; }
+  .cd-player-dialog .controls-left-group > button:nth-of-type(2),
+  .cd-player-dialog .controls-left-group > button:nth-of-type(3),
+  .cd-player-dialog .controls-left-group > button:nth-of-type(4),
+  .cd-player-dialog .controls-left-group input[type="range"] { display: none; }
+  .cd-player-dialog .controls-left-group > span { font-size: 12px !important; margin: 0 4px; }
+  .cd-player-dialog .video-overlay-controls { padding-inline: 6px !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cd-player-dialog .video-overlay-controls { transition: none !important; }
+}

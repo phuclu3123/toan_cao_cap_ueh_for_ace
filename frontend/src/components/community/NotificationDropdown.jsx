@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, CheckCheck, Trash2, MessageSquare, Heart, CheckCircle2, Sparkles } from 'lucide-react';
+import { Bell, CheckCheck, Trash2, MessageSquare, Heart, CheckCircle2, Sparkles, Clock3, CreditCard } from 'lucide-react';
 import { useNotifications } from '../../contexts/NotificationContext';
+import CommunityAvatar from './CommunityAvatar';
 import '../../assets/styles/community.css';
 
 /**
@@ -26,13 +27,14 @@ function formatNotifTime(dateString) {
  * NotificationDropdown component with real-time updates and deep link scrolling.
  */
 export default function NotificationDropdown() {
-  const { notifications, unreadCount, markAsRead, markAllAsRead, clearAllNotifications } = useNotifications();
+  const { notifications, unreadCount, markAsRead, markAllAsRead, clearAllNotifications, notificationError, notificationBusy, refreshNotifications } = useNotifications();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!isOpen) return;
+    refreshNotifications();
 
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -50,6 +52,8 @@ export default function NotificationDropdown() {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('keydown', handleKeyDown);
     };
+  // The provider owns polling; opening the panel requests one fresh snapshot.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
   const handleItemClick = (notif) => {
@@ -64,7 +68,7 @@ export default function NotificationDropdown() {
         setTimeout(() => {
           const el = document.getElementById(hash);
           if (el) {
-            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            el.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
             el.classList.add('highlight-target-pulse');
             setTimeout(() => el.classList.remove('highlight-target-pulse'), 3000);
           }
@@ -75,9 +79,16 @@ export default function NotificationDropdown() {
 
   const getNotifIcon = (type) => {
     switch (type) {
+      case 'payment_paid':
+        return <CheckCircle2 size={16} className="notif-type-icon icon-accepted" />;
+      case 'payment_expiring':
+        return <Clock3 size={16} className="notif-type-icon" />;
+      case 'payment_closed':
+        return <CreditCard size={16} className="notif-type-icon" />;
       case 'accepted_solution':
         return <CheckCircle2 size={16} className="notif-type-icon icon-accepted" />;
       case 'upvote':
+      case 'comment_reaction':
         return <Heart size={16} className="notif-type-icon icon-heart" />;
       case 'answer':
       case 'comment':
@@ -119,6 +130,7 @@ export default function NotificationDropdown() {
                   type="button"
                   className="notif-text-btn"
                   onClick={markAllAsRead}
+                  disabled={notificationBusy}
                   title="Đánh dấu tất cả là đã đọc"
                 >
                   <CheckCheck size={14} />
@@ -130,6 +142,7 @@ export default function NotificationDropdown() {
                   type="button"
                   className="notif-text-btn btn-clear-all"
                   onClick={clearAllNotifications}
+                  disabled={notificationBusy}
                   title="Xóa toàn bộ thông báo"
                 >
                   <Trash2 size={14} />
@@ -139,10 +152,11 @@ export default function NotificationDropdown() {
           </div>
 
           <div className="notif-popover-list">
+            {notificationError && <div className="qa-notification-error" role="status">Chưa cập nhật được thông báo. <button type="button" onClick={refreshNotifications}>Thử lại</button></div>}
             {notifications.length === 0 ? (
               <div className="notif-empty-state">
                 <Sparkles size={32} className="notif-empty-icon" />
-                <p>Bạn không có thông báo nào</p>
+                <p>{notificationError ? 'Chưa tải được hộp thông báo' : 'Bạn không có thông báo nào'}</p>
               </div>
             ) : (
               notifications.map((n) => (
@@ -152,9 +166,10 @@ export default function NotificationDropdown() {
                   onClick={() => handleItemClick(n)}
                   role="button"
                   tabIndex={0}
+                  onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); handleItemClick(n); } }}
                 >
                   <div className="notif-item-icon-box">
-                    {getNotifIcon(n.type)}
+                    {n.actor?.id ? <CommunityAvatar src={n.actor.avatar} name={n.actor.name} /> : getNotifIcon(n.type)}
                   </div>
 
                   <div className="notif-item-content">

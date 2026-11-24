@@ -6,7 +6,7 @@ import {
   hasOwnerRole,
   isOwnerIdentifier,
   roleForIdentifier
-} from '../utils/roles.js';
+} from '../src/modules/identity/domain/roles.js';
 
 test('only the configured owner email receives the Admin role', () => {
   assert.equal(OWNER_EMAIL, 'luphuc321@gmail.com');

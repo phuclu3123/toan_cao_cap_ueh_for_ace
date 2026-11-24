@@ -1,60 +1,21 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Heart,
   CheckCircle2,
-  Bookmark
+  Bookmark,
+  MessageCircle,
+  Eye
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import MathRenderer from '../MathRenderer';
 import PostActionsMenu from './PostActionsMenu';
-import { formatRelativeTime, DIFFICULTY_LEVELS } from '../../services/communityService';
-import { getInitials } from '../../utils/userInitials';
+import ConfirmDialog from '../ui/ConfirmDialog';
+import { formatRelativeTime } from '../../services/communityService';
+import CommunityAvatar from './CommunityAvatar';
+import CommunityMemberLink from './CommunityMemberLink';
+import { communityExcerpt } from '../../utils/communityExcerpt';
 import '../../assets/styles/community.css';
-
-// Safely extract text snippet without breaking KaTeX $$ or $ math delimiters
-function extractFeedSnippet(content, maxLength = 160) {
-  if (!content) return '';
-  // 1. Strip images and markdown headers
-  let clean = content.replace(/!\[.*?\]\(.*?\)/g, '').replace(/^#+\s+/gm, '');
-
-  // 2. If it contains HTML tags, strip wrapper elements and extract text content while preserving $...$ and $$...$$
-  if (/<[a-z][\s\S]*>/i.test(clean)) {
-    clean = clean
-      .replace(/<br\s*\/?>/gi, ' ')
-      .replace(/<[^>]+>/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim();
-  }
-
-  if (clean.length <= maxLength) return clean;
-
-  const truncated = clean.slice(0, maxLength);
-  const doubleDollars = (truncated.match(/\$\$/g) || []).length;
-  if (doubleDollars % 2 !== 0) {
-    const nextClose = clean.indexOf('$$', maxLength);
-    if (nextClose !== -1 && nextClose - maxLength < 60) {
-      return clean.slice(0, nextClose + 2) + '...';
-    }
-    const lastOpen = truncated.lastIndexOf('$$');
-    if (lastOpen > 20) {
-      return clean.slice(0, lastOpen).trim() + '...';
-    }
-  }
-
-  const singleDollars = (truncated.match(/(?<!\$)\$(?!\$)/g) || []).length;
-  if (singleDollars % 2 !== 0) {
-    const nextClose = clean.indexOf('$', maxLength);
-    if (nextClose !== -1 && nextClose - maxLength < 30) {
-      return clean.slice(0, nextClose + 1) + '...';
-    }
-    const lastOpen = truncated.lastIndexOf('$');
-    if (lastOpen > 20) {
-      return clean.slice(0, lastOpen).trim() + '...';
-    }
-  }
-
-  return truncated.trim() + '...';
-}
 
 function formatNumber(num) {
   if (!num) return '0';
@@ -80,8 +41,10 @@ export default function PostCard({
   onReport
 }) {
   const { currentUser } = useAuth();
+  const [busy, setBusy] = useState(false);
+  const [feedback, setFeedback] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const isSolved = Boolean(post.isSolved || post.isAccepted);
-  const diffConfig = DIFFICULTY_LEVELS.find((d) => d.id === post.difficulty) || DIFFICULTY_LEVELS[1];
   const answersCount = post.answersCount ?? (post.answers || []).length ?? 0;
   const isUpvoted = currentUserId ? (post.upvotedBy || []).includes(currentUserId) : false;
 
@@ -93,7 +56,7 @@ export default function PostCard({
   );
 
   const isAuthor = Boolean(
-    isAdmin || (
+    post.canManage || isAdmin || (
       currentUser && post.author && (
         (currentUser.uid && (post.author.id === currentUser.uid || post.author.uid === currentUser.uid)) ||
         (currentUser.id && (post.author.id === currentUser.id || post.author.uid === currentUser.id)) ||
@@ -104,179 +67,67 @@ export default function PostCard({
     )
   );
 
-  const authorHref = `/community/user/${post.author?.id || 'guest'}`;
 
-  const snippet = extractFeedSnippet(post.content);
+  const snippet = communityExcerpt(post.content, 180);
 
-  const handleShare = () => {
-    const url = `${window.location.origin}/community/${post.id}`;
-    if (navigator.clipboard) navigator.clipboard.writeText(url);
+  const handleAction = async (action) => {
+    if (busy) return;
+    setBusy(true);
+    setFeedback(null);
+    try { await action(); }
+    catch (error) { setFeedback({ error: true, message: error.message || 'Chưa thể hoàn tất. Vui lòng thử lại.' }); }
+    finally { setBusy(false); }
   };
 
+  const handleShare = () => handleAction(async () => {
+    const url = `${window.location.origin}/community/${post.id}`;
+    if (!navigator.clipboard) throw new Error('Trình duyệt chưa hỗ trợ sao chép. Bạn có thể sao chép đường dẫn khi mở bài.');
+    await navigator.clipboard.writeText(url);
+    setFeedback({ message: 'Đã sao chép liên kết.' });
+  });
+
+  const category = { algebra: 'Đại số tuyến tính', calc1: 'Vi tích phân 1', calc2: 'Vi tích phân 2', econ_models: 'Toán kinh tế', prob_stats: 'Xác suất thống kê', exam_prep: 'Ôn luyện & đề thi', method_tips: 'Phương pháp học' }[post.subject] || post.subjectLabel;
   return (
-    <article
-      className={`se-question-item ${isVisited ? 'is-visited' : ''} ${isSolved ? 'is-solved' : ''}`}
-      id={`post-${post.id}`}
-    >
-      {/* 1. Left Stats Rail (Votes, Answers box, Views) */}
-      <div className="se-stats-rail">
-        {/* Votes */}
-        <div className={`se-stat-box se-votes-box ${post.upvotes > 0 ? 'has-votes' : ''}`}>
-          <span className="se-stat-value">{post.upvotes || 0}</span>
-          <span className="se-stat-label">votes</span>
-        </div>
-
-        {/* Answers */}
-        <div
-          className={`se-stat-box se-answers-box ${
-            isSolved
-              ? 'is-accepted-answers'
-              : answersCount > 0
-              ? 'has-answers'
-              : 'no-answers'
-          }`}
-          title={
-            isSolved
-              ? 'Bài toán đã có lời giải chuẩn xác'
-              : answersCount > 0
-              ? `${answersCount} câu trả lời`
-              : 'Chưa có câu trả lời'
-          }
-        >
-          {isSolved && <CheckCircle2 size={12} className="se-check-icon" />}
-          <span className="se-stat-value">{answersCount}</span>
-          <span className="se-stat-label">
-            {answersCount === 1 ? 'answer' : 'answers'}
-          </span>
-        </div>
-
-        {/* Views */}
-        <div className="se-stat-box se-views-box">
-          <span className="se-stat-value">{formatNumber(post.views || 0)}</span>
-          <span className="se-stat-label">views</span>
-        </div>
-      </div>
-
-      {/* 2. Main Question Details */}
+    <article className={`se-question-item ${isSolved ? 'is-solved' : ''} ${isVisited ? 'is-visited' : ''}`} id={'post-' + post.id}>
       <div className="se-question-main">
-        {/* Question Title with KaTeX */}
-        <h3 className="se-question-title">
-          <Link to={`/community/${post.id}`}>
-            <MathRenderer text={post.title} inline />
-          </Link>
-        </h3>
-
-        {/* Question Excerpt Snippet */}
-        {snippet && (
-          <div className="se-question-excerpt">
-            <MathRenderer text={snippet} />
+        <header className="qa-entry-byline">
+          <div className="se-user-signature">
+            {post.origin === 'curated' ? <span className="qa-source-seal" aria-hidden="true">TCC</span> : <CommunityMemberLink author={post.author} className="se-user-avatar-wrap"><CommunityAvatar src={post.author?.avatar} name={post.author?.name} imageClassName="se-user-avatar" fallbackClassName="se-user-avatar-fallback" /></CommunityMemberLink>}
+            <div className="se-user-info-text"><CommunityMemberLink author={post.author} className="se-user-name">{post.author?.name || 'Thành viên'}</CommunityMemberLink><div className="se-user-time">{post.origin === 'curated' && <span>Bài biên soạn · </span>}{formatRelativeTime(post.createdAt)}</div></div>
           </div>
-        )}
-
-        {/* Bottom Bar: Tags on left, User byline & Action tools on right */}
-        <div className="se-question-footer">
-          {/* Tags */}
-          <div className="se-tags-list">
-            {post.subjectLabel && (
-              <span className="se-subject-badge">
-                {post.subjectLabel}
-              </span>
-            )}
-
-            {(post.tags || []).map((tag, idx) => {
-              const cleanTag = tag.replace('#', '');
-              return (
-                <Link
-                  key={idx}
-                  to={`/community?tag=${encodeURIComponent(cleanTag)}`}
-                  className="se-tag-pill"
-                >
-                  {cleanTag}
-                </Link>
-              );
-            })}
-
-            {post.difficulty && (
-              <span
-                className="se-difficulty-pill"
-                style={{ color: diffConfig.color, borderColor: `${diffConfig.color}40` }}
-              >
-                {diffConfig.label.split(' ')[0]}
-              </span>
-            )}
-          </div>
-
-          {/* User Byline & Quick Actions */}
-          <div className="se-user-meta-right">
-            {/* Quick Actions (Bookmark, Like) */}
-            <div className="se-quick-actions">
-              {onToggleSave && (
-                <button
-                  type="button"
-                  className={`se-action-icon-btn ${isSaved ? 'is-saved' : ''}`}
-                  onClick={() => onToggleSave(post.id)}
-                  title={isSaved ? 'Bỏ lưu câu hỏi' : 'Lưu câu hỏi'}
-                  aria-pressed={isSaved}
-                >
-                  <Bookmark size={13} fill={isSaved ? 'currentColor' : 'none'} />
-                </button>
-              )}
-
-              <button
-                type="button"
-                className={`se-action-icon-btn ${isUpvoted ? 'is-liked' : ''}`}
-                onClick={() => onUpvote?.(post.id)}
-                title={isUpvoted ? 'Bỏ thích' : 'Thích bài toán'}
-                aria-pressed={isUpvoted}
-              >
-                <Heart size={13} fill={isUpvoted ? 'currentColor' : 'none'} />
-              </button>
-
-              <PostActionsMenu
-                isAuthor={isAuthor}
-                isSaved={isSaved}
-                onEdit={isAuthor && onEdit ? () => onEdit(post) : undefined}
-                onDelete={isAuthor && onDelete ? () => onDelete(post) : undefined}
-                onShare={handleShare}
-                onToggleSave={onToggleSave ? () => onToggleSave(post.id) : undefined}
-                onHide={onHide ? () => onHide(post.id) : undefined}
-                onReport={onReport ? () => onReport(post) : undefined}
-              />
-            </div>
-
-            {/* User Signature Card */}
-            <div className="se-user-signature">
-              <Link to={authorHref} className="se-user-avatar-wrap">
-                {post.author?.avatar ? (
-                  <img
-                    src={post.author.avatar}
-                    alt={post.author.name}
-                    className="se-user-avatar"
-                  />
-                ) : (
-                  <span className="se-user-avatar-fallback">
-                    {getInitials(post.author?.name || 'U')}
-                  </span>
-                )}
-              </Link>
-
-              <div className="se-user-info-text">
-                <div className="se-user-name-line">
-                  <Link to={authorHref} className="se-user-name">
-                    {post.author?.name || 'Thành viên UEH'}
-                  </Link>
-                  <span className="se-user-rep">
-                    {formatNumber(post.author?.points || 1)}
-                  </span>
-                </div>
-                <div className="se-user-time">
-                  <span>{post.answersCount > 0 ? 'answered' : 'asked'} {formatRelativeTime(post.createdAt)}</span>
-                </div>
-              </div>
-            </div>
-          </div>
+          {category && <Link className="qa-question-category" data-subject={post.subject} title={post.subjectLabel} to={'/community?subject=' + encodeURIComponent(post.subject)}>{category}</Link>}
+        </header>
+        <h2 className="se-question-title"><Link to={'/community/' + post.id}><MathRenderer text={post.title} inline /></Link></h2>
+        {snippet && <div className="se-question-excerpt"><MathRenderer text={snippet} inline /></div>}
+        <div className="se-tags-list qa-entry-tags">
+          {(post.tags || []).slice(0, 2).map(tag => <Link key={tag} to={'/community?tag=' + encodeURIComponent(tag.replace(/^#/, ''))} className="se-tag-pill">{tag.replace(/^#/, '')}</Link>)}
+          {(post.tags || []).length > 2 && <Link to={'/community/' + post.id} className="qa-more-tags">+{post.tags.length - 2} chủ đề</Link>}
         </div>
+        <footer className="qa-entry-footer">
+          <div className="qa-entry-interactions">
+            <button type="button" className={'qa-entry-vote' + (isUpvoted ? ' is-liked' : '')} disabled={busy || !onUpvote}
+              aria-label={isUpvoted ? 'Bỏ bình chọn' : 'Bình chọn câu hỏi'} title="Câu hỏi hữu ích" aria-pressed={isUpvoted}
+              onClick={() => handleAction(() => onUpvote?.(post.id))}><Heart size={16} fill={isUpvoted ? 'currentColor' : 'none'} /><span>{formatNumber(post.upvotes || 0)}</span></button>
+            <Link className={'qa-entry-answers' + (isSolved ? ' is-solved' : '')} to={'/community/' + post.id + '#answers-section'} title={isSolved ? 'Có lời giải được chấp nhận' : 'Xem lời giải'}>
+              {isSolved ? <CheckCircle2 size={16} /> : <MessageCircle size={16} />}<span>{answersCount} lời giải</span>
+            </Link>
+            <span className="qa-entry-views" aria-label={(post.views || 0) + ' lượt xem'} title={(post.views || 0) + ' lượt mở bài'}><Eye size={16} />{formatNumber(post.views || 0)}</span>
+            <span className="qa-entry-action-divider" aria-hidden="true" />
+            {onToggleSave && <button type="button" className={'se-action-icon-btn' + (isSaved ? ' is-saved' : '')} disabled={busy}
+              aria-label={isSaved ? 'Bỏ lưu câu hỏi' : 'Lưu câu hỏi'} title={isSaved ? 'Bỏ lưu câu hỏi' : 'Lưu câu hỏi'} aria-pressed={isSaved}
+              onClick={() => handleAction(() => onToggleSave(post.id))}><Bookmark size={16} fill={isSaved ? 'currentColor' : 'none'} /></button>}
+            <PostActionsMenu isAuthor={isAuthor} isSaved={isSaved}
+              onEdit={isAuthor && onEdit ? () => handleAction(() => onEdit(post)) : undefined}
+              onDelete={isAuthor && onDelete ? () => setConfirmDelete(true) : undefined}
+              onShare={handleShare} onToggleSave={onToggleSave ? () => handleAction(() => onToggleSave(post.id)) : undefined}
+              onHide={onHide ? () => onHide(post.id) : undefined} onReport={onReport ? () => onReport(post) : undefined} />
+          </div>
+        </footer>
+        {feedback && <p className={feedback.error ? 'qa-action-feedback is-error' : 'qa-action-feedback'} role={feedback.error ? 'alert' : 'status'}>{feedback.message}</p>}
       </div>
+      <ConfirmDialog isOpen={confirmDelete} onClose={() => setConfirmDelete(false)} title="Xóa câu hỏi?"
+        message={'Bài “' + post.title + '” và các lời giải sẽ bị xóa. Thao tác này không thể hoàn tác.'} confirmLabel="Xóa câu hỏi" isLoading={busy}
+        onConfirm={() => handleAction(async () => { await onDelete(post); setConfirmDelete(false); })} />
     </article>
   );
 }

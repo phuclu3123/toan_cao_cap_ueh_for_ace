@@ -5,18 +5,18 @@ import test from 'node:test';
 import {
   getSessionCookieOptions,
   isSessionVersionCurrent
-} from '../services/sessionService.js';
+} from '../src/modules/identity/application/sessionService.js';
 import {
   hashPassword,
   needsPasswordRehash,
   verifyPassword
-} from '../utils/passwordHelper.js';
-import { getPublicAuthProviders } from '../controllers/authController.js';
+} from '../src/modules/identity/domain/passwordHelper.js';
+import { getPublicAuthProviders } from '../src/modules/identity/http/authController.js';
 import {
   DEFAULT_FIREBASE_PROJECT_ID,
   getConfiguredFirebaseProjectId,
   verifyFirebaseIdToken
-} from '../services/firebaseTokenService.js';
+} from '../src/modules/identity/application/firebaseTokenService.js';
 
 test('session cookies are HttpOnly and production-safe', () => {
   const previousNodeEnv = process.env.NODE_ENV;
@@ -78,7 +78,7 @@ test('password changes invalidate every session issued under an older version', 
 
 test('legacy password rehash uses compare-and-set instead of saving a stale user', async () => {
   const source = await readFile(
-    new URL('../controllers/authController.js', import.meta.url),
+    new URL('../src/modules/identity/http/authController.js', import.meta.url),
     'utf8'
   );
 
@@ -89,8 +89,8 @@ test('legacy password rehash uses compare-and-set instead of saving a stale user
 
 test('Firebase sessions rotate and cannot outlive the verified ID token', async () => {
   const [authSource, tokenSource] = await Promise.all([
-    readFile(new URL('../controllers/authController.js', import.meta.url), 'utf8'),
-    readFile(new URL('../services/firebaseTokenService.js', import.meta.url), 'utf8')
+    readFile(new URL('../src/modules/identity/http/authController.js', import.meta.url), 'utf8'),
+    readFile(new URL('../src/modules/identity/application/firebaseTokenService.js', import.meta.url), 'utf8')
   ]);
 
   assert.match(tokenSource, /expiresAt: payload\.exp \* 1000/);

@@ -3,14 +3,11 @@ import {
   Home,
   HelpCircle,
   Clock,
-  Sparkles,
   Tag,
   Trophy,
   BookOpen,
-  Users,
   Bookmark,
-  Layers,
-  ArrowRight
+  Layers
 } from 'lucide-react';
 import '../../assets/styles/community.css';
 
@@ -23,7 +20,6 @@ export default function CommunityNavSidebar({
   onSelectNav,
   onOpenLeaderboard,
   onOpenCheatsheet,
-  onOpenCreate,
   totalUnanswered = 0,
   savedCount = 0
 }) {
@@ -51,7 +47,7 @@ export default function CommunityNavSidebar({
 
         {/* Public Q&A Section */}
         <div className="qa-nav-group">
-          <div className="qa-nav-heading">KHÁM PHÁ TOÁN HỌC</div>
+          <div className="qa-nav-heading">Khám phá toán học</div>
 
           <Link
             to="/community"
@@ -98,7 +94,7 @@ export default function CommunityNavSidebar({
 
         {/* Learning Tools & Hub */}
         <div className="qa-nav-group">
-          <div className="qa-nav-heading">CÔNG CỤ & CỘNG ĐỒNG</div>
+          <div className="qa-nav-heading">Công cụ học tập</div>
 
           <button
             type="button"
@@ -106,7 +102,7 @@ export default function CommunityNavSidebar({
             onClick={onOpenCheatsheet}
           >
             <BookOpen size={16} />
-            <span>Sổ tay công thức của Phúc</span>
+            <span>Sổ tay của Phúc</span>
           </button>
 
           <button
@@ -118,15 +114,6 @@ export default function CommunityNavSidebar({
             <span>Bảng vàng tích cực</span>
           </button>
 
-          <button
-            type="button"
-            className="qa-nav-item"
-            onClick={onOpenLeaderboard}
-          >
-            <Users size={16} />
-            <span>Thành viên UEH</span>
-          </button>
-
           <Link
             to="/resources"
             className="qa-nav-item"
@@ -136,24 +123,7 @@ export default function CommunityNavSidebar({
           </Link>
         </div>
 
-        {/* Stack / Community Internal Card */}
-        <div className="qa-internal-card">
-          <div className="internal-badge">
-            <Sparkles size={13} />
-            <span>UEH MATH HUB</span>
-          </div>
-          <p className="internal-desc">
-            Không gian học thuật Toán Cao Cấp UEH. Hỏi đúng trọng tâm, gõ KaTeX chuẩn mực, nhận lời giải chất lượng.
-          </p>
-          <button
-            type="button"
-            className="internal-action-btn"
-            onClick={onOpenCreate}
-          >
-            <span>Đặt câu hỏi ngay</span>
-            <ArrowRight size={13} />
-          </button>
-        </div>
+
       </div>
     </nav>
   );

@@ -460,7 +460,7 @@ export default function AuthModal({
         ? isOtpSent
           ? 'Nhập mã OTP gồm 6 chữ số vừa được gửi đến điện thoại.'
           : 'Dùng số điện thoại đã liên kết với tài khoản của bạn.'
-        : 'Tiếp tục hành trình học Toán Cao Cấp trên UEH TCC.';
+        : 'Tiếp tục hành trình học Toán Cao Cấp trên α∫M4A.';
 
   // Share token handling between standalone dialogs and Navbar callbacks.
   const handleProtectedSubmit = async (event, handler) => {

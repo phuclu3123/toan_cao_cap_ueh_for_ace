@@ -366,8 +366,9 @@ export const midtermExams = [
     professor: 'ndt',
     professorName: 'Thầy Nguyễn Đình Tuấn',
     image: 'ndt.png',
-    pdf: 'BT_NTV.pdf',
-    desc: 'Hệ thống câu hỏi trắc nghiệm giữa kỳ môn Toán Cao Cấp của thầy Nguyễn Đình Tuấn, giúp rèn luyện phản xạ tính toán nhanh dưới áp lực thời gian.'
+    pdf: null,
+    sourceStatus: 'pending',
+    desc: 'Tài liệu của thầy Nguyễn Đình Tuấn đang được đối chiếu và bổ sung bản gốc.'
   },
   {
     id: 'ntv',
