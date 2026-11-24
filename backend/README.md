@@ -11,6 +11,8 @@ npm.cmd run dev
 
 Use the existing backend environment configuration. No new authentication secret or Firebase setting is required.
 
+For Render, installation runs `postinstall` to compile the Nest shell into `dist` before a direct `node server.js` start. The local `.npmrc` includes build dependencies even with `NODE_ENV=production`. Recommended build command: `npm ci`; start command: `node server.js` (or `npm start`). Do not use `--ignore-scripts` for the install step.
+
 Run one backend dev process at a time. If port 5000 is already occupied, `dev` exits before initializing MongoDB or starting workers. Background reconciliation starts only after the HTTP listener succeeds, and stops when that listener closes. A failed startup disconnects its database connection.
 
 Course and donation requests share a serialized PayOS client and honor merchant `Retry-After`. Maintenance backs off per order and stops a batch on HTTP 429. These failures do not prove that an already sent payment request failed; signed provider confirmation is still required to settle an order.
