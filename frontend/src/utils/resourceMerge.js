@@ -5,6 +5,9 @@ export const mergeResourceItems = (apiItems = [], localItems = []) => {
   const mergedApiItems = apiItems.map((apiItem) => {
     seenIds.add(apiItem.id);
     const localItem = localById.get(apiItem.id) || {};
+    // Curated source imports are authoritative; an old database row must not
+    // restore a placeholder, wrong lecturer PDF or incomplete file list.
+    if(localItem.sourceRevision) return {...apiItem,...localItem,views:apiItem.views ?? localItem.views ?? 0};
     const merged = { ...localItem };
 
     Object.entries(apiItem).forEach(([key, value]) => {

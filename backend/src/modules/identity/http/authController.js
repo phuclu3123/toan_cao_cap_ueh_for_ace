@@ -132,7 +132,7 @@ const findUserByIdentifier = async (identifier, { includeSecrets = false } = {})
 
   if (mongoose.connection.readyState === 1) {
     const exactIdentifier = new RegExp(`^${escapeRegex(normalized)}$`, 'i');
-    let query = User.findOne({ username: exactIdentifier });
+    let query = User.findOne({ username: exactIdentifier }).select('+notificationEvents');
     if (includeSecrets) query = query.select(secretSelection);
     return query;
   }
@@ -158,7 +158,7 @@ const findUserByExternalIdentity = async (
         { [providerField]: normalizedSubject },
         { uid: legacyUid }
       ]
-    });
+    }).select('+notificationEvents');
     if (includeSecrets) query = query.select(secretSelection);
     return query;
   }
@@ -295,8 +295,10 @@ export const upsertExternalUser = async ({
   const legacyUid = legacyUidForExternalIdentity(provider, normalizedSubject);
 
   const linkIdentity = async (user) => {
+    const previousEmail=user.username;
     attachExternalIdentity(user, { provider, subject: normalizedSubject });
     reconcileExternalEmail(user, { email: normalizedEmail, emailVerified, requireVerifiedEmail });
+    if(previousEmail!==user.username) { if(!user.notificationEvents) user.notificationEvents=[]; user.notificationEvents.push({id:crypto.randomUUID(),kind:'email_changed',at:new Date(),previousEmail}); }
     seedMissingProfileFromExternalIdentity(user, { name, phoneNumber, avatar });
     user.role = roleForIdentifier(user.username);
     return persistUser(user);
@@ -432,6 +434,7 @@ const consumePasswordReset = async ({ email, otpCode, newPassword }) => {
       },
       {
         $set: { password: passwordHash, otpAttempts: 0 },
+        $push: {notificationEvents:{id:crypto.randomUUID(),kind:'password_changed',at:new Date()}},
         $inc: { sessionVersion: 1 },
         $unset: { otpHash: 1, otpExpiresAt: 1, otpCode: 1 }
       },

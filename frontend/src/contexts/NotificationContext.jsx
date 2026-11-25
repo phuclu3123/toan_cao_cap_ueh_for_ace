@@ -9,7 +9,7 @@ const empty = ownerId => ({ ownerId, local: [], remote: [], unread: 0, asOf: nul
 const readLocal = owner => {
   try {
     const entries = JSON.parse(safeLocalStorage.getItem(storageKey(owner)) || '[]');
-    return Array.isArray(entries) ? entries.filter(item => item.recipientId === owner).slice(0, 200) : [];
+    return Array.isArray(entries) ? entries.filter(item => item.recipientId === owner && !['payment_paid','payment_closed'].includes(item.type)).slice(0, 200) : [];
   } catch { return []; }
 };
 

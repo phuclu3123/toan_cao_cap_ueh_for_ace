@@ -1,21 +1,14 @@
-import { lazy, Suspense, useState, useContext, useEffect, useRef } from 'react';
+import { lazy, Suspense, useState, useContext, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { AlertCircle, ArrowRight, CheckCircle, Heart, Mail, Phone } from 'lucide-react';
-import TurnstileWidget from './TurnstileWidget';
+import { ArrowRight, Heart, Mail, Phone } from 'lucide-react';
 import SocialLinks from './ui/SocialLinks';
 import { LanguageContext } from '../App';
 import { translations } from '../utils/translations';
-import { API_BASE_URL } from '../config';
 import { openCookieSettings } from '../utils/cookieConsent';
 import '../assets/styles/Footer.css';
 const SupportModal=lazy(()=>import('./modals/SupportModal'));
 
 export default function Footer() {
-  const turnstileRef = useRef(null);
-  const [email, setEmail] = useState('');
-  const [newsletterActive, setNewsletterActive] = useState(false);
-  const [status, setStatus] = useState('idle');
-  const [message, setMessage] = useState('');
   const [supportOpen,setSupportOpen]=useState(false);
   const [searchParams,setSearchParams]=useSearchParams();
   const returnedOrder=searchParams.get('supportOrder');
@@ -30,34 +23,6 @@ export default function Footer() {
   const handleCloseSupport=()=>{
     setSupportOpen(false);
     if(returnedOrder) {const next=new URLSearchParams(searchParams);next.delete('supportOrder');next.delete('supportCancelled');setSearchParams(next,{replace:true});}
-  };
-
-  // Mount verification when the visitor starts subscribing, before any request.
-  const handleSubscribeSubmit = async event => {
-    event.preventDefault();
-    if (!email) return;
-    if (!newsletterActive) { setNewsletterActive(true); return; }
-    setStatus('loading');
-    setMessage('');
-    try {
-      const turnstileToken = turnstileRef.current?.getToken() || '';
-      const response = await fetch(`${API_BASE_URL}/api/subscribe`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, 'cf-turnstile-response': turnstileToken })
-      });
-      const data = await response.json();
-      if (response.ok && data.success) {
-        setStatus('success');
-        setMessage(data.message || (vi ? 'Đã đăng ký nhận bài viết mới.' : 'Successfully subscribed.'));
-        setEmail('');
-      } else {
-        setStatus('error');
-        setMessage(data.message || (vi ? 'Chưa thể đăng ký. Vui lòng thử lại.' : 'Subscription failed.'));
-      }
-    } catch (error) {
-      setStatus('error');
-      setMessage(error.message || (vi ? 'Vui lòng thử lại hoặc liên hệ Zalo 0833830322.' : 'Could not connect. Please try again.'));
-    } finally { turnstileRef.current?.reset(); }
   };
 
   return <footer id="footer" className="footer">
@@ -76,14 +41,9 @@ export default function Footer() {
         </nav>
         <div className="footer-newsletter paper-surface" data-paper="sun">
           <span className="footer-kicker">{vi ? 'MỘT CHÚT KIẾN THỨC MỚI' : 'SOMETHING NEW TO LEARN'}</span>
-          <h4>{vi ? 'Hẹn bạn ở bài viết tới.' : 'See you in the next article.'}</h4>
-          <p className="newsletter-desc">{vi ? 'Nhận bài viết và lời giải mới qua email.' : 'New articles and solutions, delivered to your inbox.'}</p>
-          <form onSubmit={handleSubscribeSubmit} className="newsletter-form">
-            <label className="footer-sr-only" htmlFor="footer-newsletter-email">Email</label>
-            <div className="input-group"><input id="footer-newsletter-email" type="email" placeholder={vi ? 'Email của bạn' : 'Your email'} value={email} onFocus={()=>setNewsletterActive(true)} onChange={event=>setEmail(event.target.value)} disabled={status==='loading'} autoComplete="email" required/><button type="submit" className="btn-send" disabled={status==='loading'} aria-label={vi ? 'Đăng ký nhận bài viết' : 'Subscribe'}><ArrowRight size={20}/></button></div>
-            {newsletterActive && <div className="footer-verification"><TurnstileWidget ref={turnstileRef} action="subscribe"/></div>}
-          </form>
-          <div aria-live="polite">{status==='loading' && <p className="status-msg">{vi ? 'Đang gửi…' : 'Sending…'}</p>}{status==='success' && <p className="status-msg success"><CheckCircle size={15}/>{message}</p>}{status==='error' && <p className="status-msg error"><AlertCircle size={15}/>{message}</p>}</div>
+          <h4>{vi ? 'Hẹn bạn ở điều mới.' : 'Keep discovering.'}</h4>
+          <p className="newsletter-desc">{vi ? 'Bài viết và trao đổi mới ở thông báo trên web. Email giới thiệu khóa học chỉ gửi khi bạn bật nhận.' : 'Find new articles and replies in your web inbox. Course emails are opt-in.'}</p>
+          <Link to="/notifications/settings" className="footer-notification-settings">{vi ? 'Chọn cách nhận thông báo' : 'Notification preferences'} <ArrowRight size={20}/></Link>
         </div>
       </div>
       <button type="button" className="footer-support" onClick={()=>setSupportOpen(true)}><span><Heart size={17}/>{vi ? 'Cùng duy trì học liệu mở' : 'Support open learning resources'}</span><span>{vi ? 'Ủng hộ qua PayOS' : 'Support via PayOS'} <ArrowRight size={17}/></span></button>

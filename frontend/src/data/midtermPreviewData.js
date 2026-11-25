@@ -1,11 +1,60 @@
-// Generated from bundled document sources; ndt is awaiting source correction.
+// Generated from the curated midterm catalog and bundled source files.
 export const midtermPreviewData = {
+  "ndt": {
+    "image": "/images/exams/midterm/ndt.webp",
+    "source": "/docs/midterm/ndt/dinh-chinh-m-4.pdf",
+    "page": 1,
+    "pages": 11,
+    "sha256": "2ce1bcb4556d571a9f446622a0a0480f601b964159e8612c0beeb8b37666125c"
+  },
+  "ntv": {
+    "image": "/images/exams/midterm/ntv.webp",
+    "source": "/docs/midterm/ntv/k51.pdf",
+    "page": 1,
+    "pages": 4,
+    "sha256": "8ee13590c58c0f82095e1854702232cd1487cf6d092a4a52f76cfaee3531c142"
+  },
   "pnta": {
     "image": "/images/exams/midterm/pnta.webp",
-    "source": "/docs/pnta.pdf",
+    "source": "/docs/midterm/pnta/k51.pdf",
     "page": 1,
     "pages": 6,
-    "sha256": "55c0100e9cc1b9d6f894154dabb8b2efc2599418c215e3d9f8b39d89ad4e7de5"
+    "sha256": "d638492b4e192b892c61bd9d010e68a7a49b3c924f1aa68f97f5d5cc2576d507"
+  },
+  "ntvv": {
+    "image": "/images/exams/midterm/ntvv.webp",
+    "source": "/docs/midterm/thanh-van/anh-van.pdf",
+    "page": 1,
+    "pages": 5,
+    "sha256": "2410c2fe7c37e3d79c3cf7c8dfa5cc124627f9f325284b47dd8a4397efa95c4f"
+  },
+  "gk-lxt": {
+    "image": "/images/exams/midterm/gk-lxt.webp",
+    "source": "/docs/midterm/lxt/gk.pdf",
+    "page": 1,
+    "pages": 8,
+    "sha256": "08ebd029b6e0585f35a467e5bd23a34167adfb71e18401a00fd09e4e3a1b5de4"
+  },
+  "gk-nhan": {
+    "image": "/images/exams/midterm/gk-nhan.webp",
+    "source": "/docs/midterm/nhan/giua-ky.pdf",
+    "page": 1,
+    "pages": 1,
+    "sha256": "c98d9023249dad97d166777b828b36c0a7f28be22b3602a9bb3cdcd3450cba00"
+  },
+  "gk-ngoc-y": {
+    "image": "/images/exams/midterm/gk-ngoc-y.webp",
+    "source": "/docs/midterm/ngoc-y/giua-ky.pdf",
+    "page": 1,
+    "pages": 2,
+    "sha256": "a5b39209f0cde9f9249e7a10711ba4bd67d506b6e9846496443ff088fa70edef"
+  },
+  "gk-tgt": {
+    "image": "/images/exams/midterm/gk-tgt.webp",
+    "source": "/docs/midterm/tgt/loi-giai-viet-tay.pdf",
+    "page": 1,
+    "pages": 5,
+    "sha256": "44fa4a01555c2e5cf6e2635676a964206a6c30dcb1fb89f5721c1a4a8df6a942"
   },
   "gk-dna": {
     "image": "/images/exams/midterm/gk-dna.webp",
@@ -13,19 +62,5 @@ export const midtermPreviewData = {
     "page": 1,
     "pages": null,
     "sha256": "7928c7dc07d660682b8ae1bdfef9e70a48785b73e8add16778ffc10093101a50"
-  },
-  "ntv": {
-    "image": "/images/exams/midterm/ntv.webp",
-    "source": "/docs/c123.pdf",
-    "page": 1,
-    "pages": 7,
-    "sha256": "0f4a36c8f748fbab9e449960d212c72492037d738624f579fe0536508aa93bda"
-  },
-  "ntvv": {
-    "image": "/images/exams/midterm/ntvv.webp",
-    "source": "/docs/BT_NTV.pdf",
-    "page": 2,
-    "pages": 56,
-    "sha256": "9c7074ab2b33f0cfd52ce082c670800a15f36f480c121206709448dc963f2960"
   }
 };

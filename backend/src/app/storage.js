@@ -9,15 +9,20 @@ import { seedStudyContent } from '../modules/learning/index.js';
 import { startCommerceMaintenance } from '../modules/commerce/index.js';
 import { initializeSupportPayments } from '../modules/commerce/index.js';
 import { commerceReady } from '../modules/commerce/index.js';
+import { initializeNotificationDelivery,startNotificationDelivery } from '../modules/notifications/index.js';
+import { notificationSources,expandNotificationCampaigns,generateStudyReminders,initializeNotificationSources,validateNotificationDelivery } from './notification-sources.js';
 
 let initialization;
 let maintenanceStop;
+let notificationStop;
 // Called explicitly before listen; importing a module never connects or seeds DB.
 export function initializeStorage() {
  if (!initialization) initialization = (async () => {
      reportPasswordResetReadiness();
     const connected = await connectDB(runAutoMigration);
     if (connected) {
+      try { await initializeNotificationDelivery(); await initializeNotificationSources(); console.log('[Notifications] Stores ready.'); }
+      catch(error) { console.error('[Notifications] Initialization deferred:',error.code || error.name); }
       try { await initializeSupportPayments(); console.log('[Support payments] Indexes ready.'); }
       catch (error) { console.error('[Support payments] Initialization failed:', error.code || error.name); }
       try {
@@ -44,7 +49,8 @@ export function initializeStorage() {
  })().catch(error => { initialization = undefined; throw error; });
  return initialization;
 }
-export function stopBackgroundWork() { maintenanceStop?.(); maintenanceStop = undefined; }
+export function stopBackgroundWork() { maintenanceStop?.(); maintenanceStop = undefined; notificationStop?.(); notificationStop=undefined; }
 export function startBackgroundWork() {
+  if(!notificationStop) notificationStop=startNotificationDelivery({sources:notificationSources,expandCampaigns:expandNotificationCampaigns,reminders:generateStudyReminders,prepareSources:initializeNotificationSources,validateDelivery:validateNotificationDelivery});
   if (!maintenanceStop && commerceReady()) maintenanceStop = startCommerceMaintenance();
 }

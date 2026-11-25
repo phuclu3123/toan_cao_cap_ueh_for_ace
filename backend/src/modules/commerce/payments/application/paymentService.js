@@ -461,6 +461,14 @@ export const paidAmountIsValid = (payment, providerData) => {
 };
 
 
+export const recordVerifiedPayment = async payment => {
+  if (!payment || payment.status === 'PAID') return;
+  // Kept on the business record, outside the entitlement transaction. Email
+  // infrastructure never participates in or blocks payment reconciliation.
+  await Payment.updateOne({orderCode:payment.orderCode,verifiedPaidAt:{$exists:false}},
+    {$set:{verifiedPaidAt:new Date(),verifiedPaidAmount:payment.amount}});
+};
+
 export const activatePaidOrder = async (orderCode, providerData, mongoSession = null) => {
   let query = Payment.findOne({ orderCode });
   if (mongoSession) query = query.session(mongoSession);
@@ -520,6 +528,7 @@ export const reconcileOrder = async (payment) => {
   const nextStatus = providerStatus(providerData.status, payment.status);
 
   if (nextStatus === 'PAID') {
+    if(paidAmountIsValid(payment,providerData)) await recordVerifiedPayment(payment);
     const activated = await runTransaction(
       (session) => activatePaidOrder(payment.orderCode, providerData, session)
     );

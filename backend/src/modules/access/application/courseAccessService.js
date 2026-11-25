@@ -96,12 +96,12 @@ export async function grantCourseEmail(courseId, email, restore, actor) {
   });
 }
 
-export async function revokeCourseMember(courseId, userId, actor) {
+export async function revokeCourseMember(courseId, userId, actor, reason='') {
   if (typeof userId !== 'string' || !userId || userId.length > 150) throw fail(422, 'INVALID_USER', 'Tài khoản không hợp lệ.');
   return transaction(async (session) => {
     const member = await Enrollment.findOneAndUpdate({ courseId, userId, status: 'ACTIVE' }, { $set: { status: 'REVOKED', revokedAt: new Date() } }, { session, returnDocument: 'after' }).lean();
     if (!member) throw fail(409, 'NO_ACTIVE_ACCESS', 'Tài khoản không có quyền đang hoạt động.');
-    await audit(session, { courseId, action: 'REVOKE', actorId: actor.id, userId, email: member.username });
+    await audit(session, { courseId, action: 'REVOKE', actorId: actor.id, userId, email: member.username,reason:String(reason).trim().slice(0,500) });
   });
 }
 

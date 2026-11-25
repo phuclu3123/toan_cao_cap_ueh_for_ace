@@ -41,11 +41,11 @@ export default function ExamsPage() {
       {!exams.length && <div className="exam-empty"><h3>Chưa có đề phù hợp.</h3><p>Thử một mã đề hoặc khóa khác.</p><button type="button" onClick={() => { setQuery(''); setCohort('all'); }}>Xem tất cả đề</button></div>}
     </div></section>
     <StudyWelcome current="exams" />
-    <section className="exam-midterm-section"><div className="container"><header className="exam-section-heading"><div><span className="catalog-eyebrow">ÔN THEO LỚP CỦA BẠN</span><h2>Giữa kỳ,<br/><em>chuẩn bị từng phần.</em></h2></div><p>Đề thi và học liệu theo giảng viên. Xem trang gốc trước khi chọn tài liệu để ôn.</p></header><div className="exam-midterm-grid">{midtermExams.map((exam,index) => {
+    <section className="exam-midterm-section" id="midterm-exams"><div className="container"><header className="exam-section-heading"><div><span className="catalog-eyebrow">ÔN THEO LỚP CỦA BẠN</span><h2>Giữa kỳ,<br/><em>chuẩn bị từng phần.</em></h2></div><p>Đề và lời giải được xếp theo giảng viên. Mở một bộ để chọn tài liệu cần ôn, đọc PDF hoặc tải bản gốc.</p></header><div className="exam-midterm-grid">{midtermExams.map((exam,index) => {
       const source = midtermPreviewData[exam.id];
-      return <Link className="exam-teacher-note paper-surface" data-paper={['lavender','sun','peach','sky','mint'][index]} to={`/document/${exam.id}`} key={exam.id}>
+      return <Link className="exam-teacher-note paper-surface" data-paper={['lavender','sun','peach','sky','mint'][index % 5]} to={`/document/${exam.id}`} key={exam.id}>
         <div className={`exam-note-art${source ? '' : ' is-pending'}`}>{source ? <img src={source.image} alt={`Trích trang ${source.page} từ học liệu của ${exam.professorName}`} loading="lazy"/> : <><img src={`/images/${exam.image}`} alt={exam.professorName} loading="lazy"/><span>Đang đối chiếu bản gốc</span></>}</div>
-        <div className="exam-note-copy"><span>{source ? `${source.pages ? `PDF · ${source.pages} trang` : 'ẢNH ĐỀ GỐC'}` : 'ĐANG BỔ SUNG'}</span><h3>{exam.professorName}</h3><p>{exam.sourceStatus === 'pending' ? 'Bổ sung đúng tài liệu trước khi mở đọc.' : exam.id === 'ntvv' ? 'Bài tập theo chương, kèm các bước giải để ôn lại kiến thức.' : 'Mở học liệu và xem nội dung trực tiếp trên trang.'}</p><span className="exam-note-link">{source ? 'Mở học liệu' : 'Xem trạng thái'} <ArrowUpRight size={17}/></span></div>
+        <div className="exam-note-copy"><span>{exam.attachments?.length ? `${exam.attachments.length} TÀI LIỆU` : source?.pages ? `PDF · ${source.pages} trang` : 'ẢNH ĐỀ GỐC'}</span><h3>{exam.professorName}</h3><p>{exam.desc}</p><span className="exam-note-link">Mở đề và lời giải <ArrowUpRight size={17}/></span></div>
       </Link>;
     })}</div></div></section>
     {preview && <ExamPdfPreview exam={preview} onClose={()=>setPreview(null)}/>}

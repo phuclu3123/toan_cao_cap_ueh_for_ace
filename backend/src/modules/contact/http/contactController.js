@@ -61,10 +61,14 @@ export const subscribe = async (req, res) => {
 export const submitContact = async (req, res) => {
   const name = cleanSingleLine(req.body?.name, 120);
   const email = normalizeEmail(req.body?.email);
+  const phone = cleanSingleLine(req.body?.phone, 32);
+  const submissionKey = req.body?.submissionKey;
+  if(submissionKey!==undefined && (typeof submissionKey!=='string' || !/^[a-f0-9-]{36}$/.test(submissionKey))) return res.status(400).json({success:false,message:'Mã yêu cầu không hợp lệ.'});
   const subject = cleanSingleLine(req.body?.subject, 200) || 'Liên hệ từ website';
   const message = cleanMessage(req.body?.message, 5000);
 
-  if (name.length < 2 || !EMAIL_PATTERN.test(email) || message.length < 5) {
+  const validPhone = /^\+?[\d ()-]{8,32}$/.test(phone) && phone.replace(/\D/g, '').length >= 8;
+  if (name.length < 2 || (email && !EMAIL_PATTERN.test(email)) || (!email && !validPhone) || message.length < 5) {
     return res.status(400).json({
       success: false,
       message: 'Vui lòng điền đầy đủ và đúng định dạng các thông tin bắt buộc!'
@@ -74,13 +78,16 @@ export const submitContact = async (req, res) => {
   if (mongoose.connection.readyState !== 1) return databaseUnavailable(res);
 
   try {
-    await Message.create({
+    const data={
       id: randomUUID(),
       name,
       email,
+      phone,
       subject,
       message
-    });
+    };
+    if(submissionKey) await Message.findOneAndUpdate({submissionKey},{$setOnInsert:{...data,submissionKey}},{upsert:true,runValidators:true});
+    else await Message.create(data);
     return res.status(201).json({
       success: true,
       message: 'Tin nhắn của bạn đã được gửi thành công! Chúng tôi sẽ phản hồi sớm.'

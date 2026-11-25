@@ -57,6 +57,7 @@ const mergeResources = (databaseItems = []) => {
     const catalogItems = bundledResources[type].map((item) => ({
       ...item,
       ...(databaseById.get(item.id) || {}),
+      ...(item.sourceRevision ? item : {}),
       views: databaseById.get(item.id)?.views ?? inMemoryViews.get(item.id) ?? item.views ?? 0
     }));
     return [type, [...uploadedItems, ...catalogItems]];

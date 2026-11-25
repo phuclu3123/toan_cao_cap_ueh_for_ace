@@ -1,0 +1,327 @@
+[
+  {
+    "id": "ndt",
+    "title": "Đề giữa kỳ — Thầy Nguyễn Đình Tuấn",
+    "professor": "ndt",
+    "professorName": "Thầy Nguyễn Đình Tuấn",
+    "image": "ndt.png",
+    "pdf": "midterm/ndt/dinh-chinh-m-4.pdf",
+    "desc": "Các đề giữa kỳ, bài sửa và bản đính chính bài m = 4.",
+    "category": "midterm",
+    "categoryLabel": "Đề giữa kỳ",
+    "date": "25/11/2026",
+    "sourceStatus": "ready",
+    "sourceRevision": "20261125",
+    "attachments": [
+      {
+        "id": "ndt-dinh-chinh-m-4",
+        "title": "Đính chính lời giải bài m = 4",
+        "pdf": "midterm/ndt/dinh-chinh-m-4.pdf",
+        "pages": 11,
+        "kind": "solution",
+        "original": "midterm/ndt/dinh-chinh-m-4.docx"
+      },
+      {
+        "id": "ndt-de-02-04",
+        "title": "Đề mới thi 02/04 và gợi ý giải",
+        "pdf": "midterm/ndt/de-02-04.pdf",
+        "pages": 1,
+        "kind": "exam",
+        "original": "midterm/ndt/de-02-04.docx",
+        "note": "Gợi ý giải tham khảo được giữ nguyên theo tài liệu nguồn."
+      },
+      {
+        "id": "ndt-de-toan-gk",
+        "title": "Đề toán giữa kỳ thầy Tuấn",
+        "pdf": "midterm/ndt/de-toan-gk.pdf",
+        "pages": 6,
+        "kind": "exam"
+      },
+      {
+        "id": "ndt-de-3",
+        "title": "Đề 3 giữa kỳ",
+        "pdf": "midterm/ndt/de-3.pdf",
+        "pages": 3,
+        "kind": "exam"
+      },
+      {
+        "id": "ndt-de-4",
+        "title": "Đề 4 giữa kỳ",
+        "pdf": "midterm/ndt/de-4.pdf",
+        "pages": 5,
+        "kind": "exam"
+      },
+      {
+        "id": "ndt-giua-ky-linhhh",
+        "title": "Đề và ghi chép giữa kỳ — LINHHH",
+        "pdf": "midterm/ndt/giua-ky-linhhh.pdf",
+        "pages": 17,
+        "kind": "exam"
+      },
+      {
+        "id": "ndt-them-de",
+        "title": "Đề bổ sung",
+        "pdf": "midterm/ndt/them-de.pdf",
+        "pages": 1,
+        "kind": "exam",
+        "original": "midterm/ndt/them-de.docx"
+      },
+      {
+        "id": "ndt-cau-he-phuong-trinh",
+        "title": "Câu hệ phương trình — đề cuối",
+        "pdf": "midterm/ndt/cau-he-phuong-trinh.pdf",
+        "pages": 2,
+        "kind": "solution",
+        "original": "midterm/ndt/cau-he-phuong-trinh.docx",
+        "note": "Tài liệu nguồn có bản đính chính riêng cho bài m = 4. Khi đối chiếu lời giải, ưu tiên bản đính chính trong bộ này."
+      }
+    ],
+    "note": "Tài liệu nguồn có bản đính chính riêng cho bài m = 4. Khi đối chiếu lời giải, ưu tiên bản đính chính trong bộ này."
+  },
+  {
+    "id": "ntv",
+    "title": "Đề giữa kỳ — Thầy Ngô Trấn Vũ",
+    "professor": "ntv",
+    "professorName": "Thầy Ngô Trấn Vũ",
+    "image": "ntv.jpg",
+    "pdf": "midterm/ntv/k51.pdf",
+    "desc": "Đề K50, K51 và các câu bổ sung K52, kèm phần lời giải có trong nguồn.",
+    "category": "midterm",
+    "categoryLabel": "Đề giữa kỳ",
+    "date": "25/11/2026",
+    "sourceStatus": "ready",
+    "sourceRevision": "20261125",
+    "attachments": [
+      {
+        "id": "ntv-k51",
+        "title": "Đề K51 và ghi chú đáp án",
+        "pdf": "midterm/ntv/k51.pdf",
+        "pages": 4,
+        "kind": "exam",
+        "original": "midterm/ntv/k51.docx",
+        "cohort": "K51",
+        "note": "Nguồn ghi rõ câu 7 chưa có đáp án. Giữ nguyên ghi chú này; không bổ sung đáp án suy đoán."
+      },
+      {
+        "id": "ntv-k50",
+        "title": "Đề K50 và ghi chú đáp án",
+        "pdf": "midterm/ntv/k50.pdf",
+        "pages": 5,
+        "kind": "exam",
+        "original": "midterm/ntv/k50.docx",
+        "cohort": "K50"
+      },
+      {
+        "id": "ntv-k52-02-11",
+        "title": "Hai câu bổ sung K52 — 02/11 và lời giải",
+        "pdf": "midterm/ntv/k52-02-11.pdf",
+        "pages": 2,
+        "kind": "exam",
+        "original": "midterm/ntv/k52-02-11.docx",
+        "cohort": "K52"
+      },
+      {
+        "id": "ntv-k52-10-11-2026",
+        "title": "Câu 7 — K52, 10/11/2026",
+        "pdf": "midterm/ntv/k52-10-11-2026.pdf",
+        "pages": 1,
+        "kind": "exam",
+        "original": "midterm/ntv/k52-10-11-2026.docx",
+        "cohort": "K52",
+        "note": "Bản nguồn chỉ có ảnh câu 7, không phải toàn bộ đề."
+      }
+    ]
+  },
+  {
+    "id": "pnta",
+    "title": "Đề giữa kỳ — Thầy Phan Ngô Tuấn Anh",
+    "professor": "pnta",
+    "professorName": "Thầy Phan Ngô Tuấn Anh",
+    "image": "pnta.jpg",
+    "pdf": "midterm/pnta/k51.pdf",
+    "desc": "Đề mới K51 và bộ đề giữa kỳ đang có.",
+    "category": "midterm",
+    "categoryLabel": "Đề giữa kỳ",
+    "date": "25/11/2026",
+    "sourceStatus": "ready",
+    "sourceRevision": "20261125",
+    "attachments": [
+      {
+        "id": "pnta-k51",
+        "title": "Đề mới K51",
+        "pdf": "midterm/pnta/k51.pdf",
+        "pages": 6,
+        "kind": "exam",
+        "original": "midterm/pnta/k51.docx",
+        "cohort": "K51"
+      },
+      {
+        "id": "pnta-bo-de",
+        "title": "Bộ đề giữa kỳ",
+        "pdf": "pnta.pdf",
+        "pages": 6,
+        "kind": "exam"
+      }
+    ]
+  },
+  {
+    "id": "ntvv",
+    "title": "Đề giữa kỳ — Thầy Thanh Vân",
+    "professor": "ntvv",
+    "professorName": "Thầy Thanh Vân",
+    "image": "ntvv.jpg",
+    "pdf": "midterm/thanh-van/anh-van.pdf",
+    "desc": "Tài liệu giữa kỳ được bổ sung và bài tập theo chương để ôn thêm.",
+    "category": "midterm",
+    "categoryLabel": "Đề giữa kỳ",
+    "date": "25/11/2026",
+    "sourceStatus": "ready",
+    "sourceRevision": "20261125",
+    "attachments": [
+      {
+        "id": "thanh-van-anh-van",
+        "title": "Tài liệu giữa kỳ — Anh Vân",
+        "pdf": "midterm/thanh-van/anh-van.pdf",
+        "pages": 5,
+        "kind": "exam",
+        "original": "midterm/thanh-van/anh-van.docx"
+      },
+      {
+        "id": "thanh-van-bai-tap",
+        "title": "Bài tập theo chương (tài liệu đã có)",
+        "pdf": "BT_NTV.pdf",
+        "pages": 56,
+        "kind": "practice"
+      }
+    ]
+  },
+  {
+    "id": "gk-lxt",
+    "title": "Đề giữa kỳ — Thầy Lê Xuân Trường",
+    "professor": "gk-lxt",
+    "professorName": "Thầy Lê Xuân Trường",
+    "image": "c123.jpg",
+    "pdf": "midterm/lxt/gk.pdf",
+    "desc": "Hai tài liệu giữa kỳ từ bộ đề được cung cấp.",
+    "category": "midterm",
+    "categoryLabel": "Đề giữa kỳ",
+    "date": "25/11/2026",
+    "sourceStatus": "ready",
+    "sourceRevision": "20261125",
+    "attachments": [
+      {
+        "id": "lxt-gk",
+        "title": "Tài liệu giữa kỳ — GK",
+        "pdf": "midterm/lxt/gk.pdf",
+        "pages": 8,
+        "kind": "exam"
+      },
+      {
+        "id": "lxt-lxt",
+        "title": "Đề giữa kỳ — LXT",
+        "pdf": "GK/Le_Xuan_Truong.pdf",
+        "pages": 2,
+        "kind": "exam"
+      }
+    ]
+  },
+  {
+    "id": "gk-nhan",
+    "title": "Đề giữa kỳ — Thầy Nhân",
+    "professor": "gk-nhan",
+    "professorName": "Thầy Nhân",
+    "image": "c123.jpg",
+    "pdf": "midterm/nhan/giua-ky.pdf",
+    "desc": "Tài liệu giữa kỳ được giữ nguyên từ bản Word cung cấp.",
+    "category": "midterm",
+    "categoryLabel": "Đề giữa kỳ",
+    "date": "25/11/2026",
+    "sourceStatus": "ready",
+    "sourceRevision": "20261125",
+    "attachments": [
+      {
+        "id": "nhan-giua-ky",
+        "title": "Tài liệu giữa kỳ — Thầy Nhân",
+        "pdf": "midterm/nhan/giua-ky.pdf",
+        "pages": 1,
+        "kind": "exam",
+        "original": "midterm/nhan/giua-ky.docx"
+      }
+    ]
+  },
+  {
+    "id": "gk-ngoc-y",
+    "title": "Đề giữa kỳ — Thầy Ngọc Ý",
+    "professor": "gk-ngoc-y",
+    "professorName": "Thầy Ngọc Ý",
+    "image": "c123.jpg",
+    "pdf": "midterm/ngoc-y/giua-ky.pdf",
+    "desc": "Tài liệu giữa kỳ được giữ nguyên từ bản Word cung cấp.",
+    "category": "midterm",
+    "categoryLabel": "Đề giữa kỳ",
+    "date": "25/11/2026",
+    "sourceStatus": "ready",
+    "sourceRevision": "20261125",
+    "attachments": [
+      {
+        "id": "ngoc-y-giua-ky",
+        "title": "Tài liệu giữa kỳ — Thầy Ngọc Ý",
+        "pdf": "midterm/ngoc-y/giua-ky.pdf",
+        "pages": 2,
+        "kind": "exam",
+        "original": "midterm/ngoc-y/giua-ky.docx"
+      }
+    ]
+  },
+  {
+    "id": "gk-tgt",
+    "title": "Đề giữa kỳ — Thầy Trần Gia Tùng",
+    "professor": "gk-tgt",
+    "professorName": "Thầy Trần Gia Tùng",
+    "image": "c123.jpg",
+    "pdf": "midterm/tgt/loi-giai-viet-tay.pdf",
+    "desc": "Năm trang ảnh ghi chép lời giải viết tay, sắp theo thứ tự câu 1–6.",
+    "category": "midterm",
+    "categoryLabel": "Đề giữa kỳ",
+    "date": "25/11/2026",
+    "sourceStatus": "ready",
+    "sourceRevision": "20261125",
+    "attachments": [
+      {
+        "id": "tgt-loi-giai",
+        "title": "Ghi chép lời giải viết tay — câu 1–6",
+        "pdf": "midterm/tgt/loi-giai-viet-tay.pdf",
+        "pages": 5,
+        "kind": "solution"
+      }
+    ]
+  },
+  {
+    "id": "gk-dna",
+    "title": "Đề giữa kỳ — Thầy Sáng",
+    "professor": "gk-dna",
+    "professorName": "Thầy Sáng",
+    "image": "c123.jpg",
+    "pdf": "GK_DNA/1c90828a-976e-4a2d-9e5a-c8c79000ce75.jpg",
+    "desc": "Hai ảnh đề giữa kỳ đã có trong thư viện.",
+    "category": "midterm",
+    "categoryLabel": "Đề giữa kỳ",
+    "date": "25/11/2026",
+    "sourceStatus": "ready",
+    "sourceRevision": "20261125",
+    "attachments": [
+      {
+        "id": "sang-1",
+        "title": "Ảnh đề giữa kỳ — trang 1",
+        "pdf": "GK_DNA/1c90828a-976e-4a2d-9e5a-c8c79000ce75.jpg",
+        "kind": "exam"
+      },
+      {
+        "id": "sang-2",
+        "title": "Ảnh đề giữa kỳ — trang 2",
+        "pdf": "GK_DNA/7263a874-0e17-4652-8e86-500a3dac4c13.jpg",
+        "kind": "exam"
+      }
+    ]
+  }
+]

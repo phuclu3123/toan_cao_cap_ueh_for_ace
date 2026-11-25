@@ -8,7 +8,8 @@ from PIL import Image
 frontend = Path(__file__).resolve().parents[1]
 output = frontend / 'public/images/exams/midterm'
 output.mkdir(parents=True, exist_ok=True)
-sources = [('pnta', 'pnta.pdf', 1), ('gk-dna', 'GK_DNA/1c90828a-976e-4a2d-9e5a-c8c79000ce75.jpg', 1), ('ntv', 'c123.pdf', 1), ('ntvv', 'BT_NTV.pdf', 2)]
+catalog = json.loads((frontend / 'src/data/midtermCatalog.json').read_text(encoding='utf-8'))
+sources = [(item['id'], item['pdf'], 1) for item in catalog]
 metadata = {}
 for identifier, filename, number in sources:
     source = frontend / 'public/docs' / filename
@@ -32,6 +33,6 @@ for identifier, filename, number in sources:
 (output / 'sources.json').write_text(json.dumps(metadata,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
 target = frontend / 'src/data/midtermPreviewData.js'
 temporary = target.with_suffix('.tmp')
-temporary.write_text('// Generated from bundled document sources; ndt is awaiting source correction.\nexport const midtermPreviewData = '+json.dumps(metadata,ensure_ascii=False,indent=2)+';\n',encoding='utf-8')
+temporary.write_text('// Generated from the curated midterm catalog and bundled source files.\nexport const midtermPreviewData = '+json.dumps(metadata,ensure_ascii=False,indent=2)+';\n',encoding='utf-8')
 temporary.replace(target)
 print(json.dumps({'previews':len(metadata),'bytes':sum(p.stat().st_size for p in output.glob('*.webp'))}))

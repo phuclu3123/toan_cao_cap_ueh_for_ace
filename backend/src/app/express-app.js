@@ -9,6 +9,7 @@ import blogEngagementRoutes from '../modules/blog/http/blogEngagementRoutes.js';
 import enrollmentRoutes from '../modules/access/http/enrollmentRoutes.js';
 import communityRoutes from '../modules/community/http/communityRoutes.js';
 import notificationRoutes from '../modules/notifications/http/notificationRoutes.js';
+import notificationDeliveryRoutes from '../modules/notifications/http/deliveryRoutes.js';
 import courseContentRoutes from '../modules/learning/http/courseContentRoutes.js';
 import studyContentRoutes from '../modules/learning/http/studyContentRoutes.js';
 import flashcardAccessRoutes from '../modules/access/http/flashcardAccessRoutes.js';
@@ -57,7 +58,7 @@ const allowedOrigins = new Set([
   ...(process.env.NODE_ENV === 'production' ? [] : developmentOrigins)
 ]);
 
-app.use(cors({
+const applicationCors=cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (mobile apps, curl, server-to-server) or listed origins
     if (!origin || allowedOrigins.has(origin) || process.env.NODE_ENV !== 'production') {
@@ -69,13 +70,17 @@ app.use(cors({
     }
   },
   credentials: true
-}));
+});
+// Public signed unsubscribe works from email clients and same-origin HTML
+// forms on the API host; it never reads session credentials or personal data.
+app.use((req,res,next)=>req.path==='/api/notification-email/unsubscribe'?next():applicationCors(req,res,next));
 
 // Cookie-authenticated state changes must originate from the configured web
 // app. CORS alone does not stop cross-site HTML forms when SameSite=None is
 // required for a separately hosted frontend.
 app.use((req, res, next) => {
   if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return next();
+  if(req.method==='POST' && req.path==='/api/notification-email/unsubscribe') return next(); // Signed, scope-limited one-click unsubscribe.
 
   const hasSessionCookie = String(req.headers.cookie || '')
     .split(';')
@@ -116,6 +121,7 @@ app.use('/api', blogEngagementRoutes);
 app.use('/api', enrollmentRoutes);
 app.use('/api', communityRoutes);
 app.use('/api', notificationRoutes);
+app.use('/api', notificationDeliveryRoutes);
 app.use('/api', courseContentRoutes);
 app.use('/api', studyContentRoutes);
 app.use('/api', flashcardAccessRoutes);

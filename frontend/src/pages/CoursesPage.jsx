@@ -1,6 +1,6 @@
 import StudyWelcome from '../components/learning/StudyWelcome';
 import { StudyIcon } from '../components/learning/StudyDoodles';
-import { useState, useContext } from 'react';
+import { useState, useContext, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowRight,
@@ -15,6 +15,8 @@ import {
 import { LanguageContext } from '../App';
 import { translations } from '../utils/translations';
 import useCourseCatalog from '../hooks/useCourseCatalog';
+import TurnstileWidget from '../components/TurnstileWidget';
+import { apiFetch, readApiJson } from '../utils/apiClient';
 import KnowledgeSketch from '../components/learning/KnowledgeSketch';
 import CourseLessonPreview from '../components/learning/CourseLessonPreview';
 import { coursePreviewLessons } from '../data/coursePreviewData';
@@ -27,6 +29,9 @@ export default function CoursesPage() {
   const { courses: coursesData, error: catalogError } = useCourseCatalog();
   const { language } = useContext(LanguageContext);
   const t = translations[language];
+  const turnstileRef = useRef(null), submittingRef = useRef(false), submissionKey=useRef(crypto.randomUUID());
+  const [submitting,setSubmitting] = useState(false);
+  const [formResult,setFormResult] = useState(null);
 
   const [form, setForm] = useState({
     name: '',
@@ -37,19 +42,24 @@ export default function CoursesPage() {
   });
 
   const updateField = (field, value) => {
+    submissionKey.current=crypto.randomUUID();
     setForm((current) => ({ ...current, [field]: value }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    const body = [
-      `Họ tên: ${form.name}`,
-      `Liên hệ: ${form.contact}`,
-      `Mục tiêu: ${form.goal}`,
-      `Thời gian muốn học: ${form.time}`,
-      `Ghi chú: ${form.note}`
-    ].join('\n');
-    window.location.href = `mailto:luphuc321@gmail.com?subject=${encodeURIComponent('Đăng ký tư vấn α∫M4A')}&body=${encodeURIComponent(body)}`;
+    if(submittingRef.current) return;
+    submittingRef.current=true;setSubmitting(true);setFormResult(null);
+    try {
+      const token=turnstileRef.current?.getToken() || '';
+      const isEmail=form.contact.includes('@');
+      const message=[`Mục tiêu: ${form.goal}`,`Thời gian muốn học: ${form.time}`,`Ghi chú: ${form.note}`].join('\n');
+      await readApiJson(await apiFetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({submissionKey:submissionKey.current,name:form.name,email:isEmail?form.contact:'',phone:isEmail?'':form.contact,subject:'Tư vấn lộ trình khóa học',message,'cf-turnstile-response':token})}));
+      setFormResult({success:true,message:'Đã nhận yêu cầu tư vấn. Chúng mình sẽ liên hệ qua thông tin bạn cung cấp.'});
+      setForm({name:'',contact:'',goal:'',time:'',note:''});
+      submissionKey.current=crypto.randomUUID();
+    } catch(error) {setFormResult({success:false,message:error.message || 'Chưa lưu được yêu cầu. Vui lòng thử lại.'});}
+    finally {submittingRef.current=false;setSubmitting(false);turnstileRef.current?.reset();}
   };
 
   const benefits = t.coursesPage.benefits;
@@ -167,6 +177,8 @@ export default function CoursesPage() {
                 className="form-input"
                 placeholder={t.coursesPage.placeholderName}
                 value={form.name}
+                disabled={submitting}
+                maxLength={120}
                 onChange={(event) => updateField('name', event.target.value)}
                 required
               />
@@ -176,6 +188,8 @@ export default function CoursesPage() {
                 className="form-input"
                 placeholder={t.coursesPage.placeholderContact}
                 value={form.contact}
+                disabled={submitting}
+                maxLength={254}
                 onChange={(event) => updateField('contact', event.target.value)}
                 required
               />
@@ -184,6 +198,7 @@ export default function CoursesPage() {
               <select
                 className="form-input"
                 value={form.goal}
+                disabled={submitting}
                 onChange={(event) => updateField('goal', event.target.value)}
                 required
               >
@@ -201,6 +216,7 @@ export default function CoursesPage() {
               <select
                 className="form-input"
                 value={form.time}
+                disabled={submitting}
                 onChange={(event) => updateField('time', event.target.value)}
                 required
               >
@@ -220,11 +236,14 @@ export default function CoursesPage() {
                 rows="4"
                 placeholder={t.coursesPage.placeholderNote}
                 value={form.note}
+                disabled={submitting}
+                maxLength={5000}
                 onChange={(event) => updateField('note', event.target.value)}
               />
               </label>
-              <button className="btn course-consult-submit" type="submit">
-                {t.coursesPage.btnSubmit}
+              <div className="course-form-note"><TurnstileWidget ref={turnstileRef} action="contact"/>{formResult && <p role={formResult.success?'status':'alert'}>{formResult.message}</p>}</div>
+              <button className="btn course-consult-submit" type="submit" disabled={submitting}>
+                {submitting?'Đang gửi…':t.coursesPage.btnSubmit}
               </button>
             </form>
 

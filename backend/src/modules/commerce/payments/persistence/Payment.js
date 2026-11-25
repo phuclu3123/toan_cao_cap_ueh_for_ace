@@ -26,6 +26,9 @@ const paymentSchema = new mongoose.Schema({
   qrCode: { type: String, default: null },
   reference: { type: String, default: null },
   paidAt: { type: String, default: null },
+  // Provider proof survives a later entitlement transaction rollback.
+  verifiedPaidAt: { type: Date, default: undefined },
+  verifiedPaidAmount: { type: Number, default: undefined },
   providerStatusCheckedAt: { type: Date, default: null },
   maintenanceRetryAt: { type: Date, default: undefined },
   maintenanceFailures: { type: Number, min: 0, default: undefined },

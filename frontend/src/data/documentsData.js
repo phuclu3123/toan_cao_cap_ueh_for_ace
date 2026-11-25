@@ -1,3 +1,5 @@
+import midtermCatalog from './midtermCatalog.json';
+
 export const documentsData = [
   {
     id: 'k51-2-dot',
@@ -341,54 +343,7 @@ export const documentsData = [
   }
 ];
 
-export const midtermExams = [
-  {
-    id: 'pnta',
-    title: 'Đề Thi Giữa Kỳ - Thầy Phan Ngô Tuấn Anh',
-    professor: 'pnta',
-    professorName: 'Thầy Phan Ngô Tuấn Anh',
-    image: 'pnta.jpg',
-    pdf: 'pnta.pdf',
-    desc: 'Tuyển tập đề thi giữa kỳ đầy đủ các mã đề của lớp thầy Phan Ngô Tuấn Anh tại UEH, đi kèm lời giải tự luận chi tiết từng bước.'
-  },
-  {
-    id: 'gk-dna',
-    title: 'Đề Thi Giữa Kỳ - Thầy Sáng (GK_DNA)',
-    professor: 'sang',
-    professorName: 'Thầy Sáng',
-    image: 'c123.jpg',
-    pdf: 'GK_DNA/1c90828a-976e-4a2d-9e5a-c8c79000ce75.jpg',
-    desc: 'Bộ đề thi giữa kỳ môn Toán Cao Cấp cập nhật mới nhất từ lớp Thầy Sáng (GK_DNA).'
-  },
-  {
-    id: 'ndt',
-    title: 'Đề Thi Giữa Kỳ - Thầy Nguyễn Đình Tuấn',
-    professor: 'ndt',
-    professorName: 'Thầy Nguyễn Đình Tuấn',
-    image: 'ndt.png',
-    pdf: null,
-    sourceStatus: 'pending',
-    desc: 'Tài liệu của thầy Nguyễn Đình Tuấn đang được đối chiếu và bổ sung bản gốc.'
-  },
-  {
-    id: 'ntv',
-    title: 'Đề Thi Giữa Kỳ - Thầy Ngô Trấn Vũ',
-    professor: 'ntv',
-    professorName: 'Thầy Ngô Trấn Vũ',
-    image: 'ntv.jpg',
-    pdf: 'c123.pdf',
-    desc: 'Đề thi kiểm tra giữa kỳ lý thuyết và bài tập tổng hợp lớp thầy Ngô Trấn Vũ, tập trung khảo sát các dạng bài hệ phương trình và không gian vectơ.'
-  },
-  {
-    id: 'ntvv',
-    title: 'Đề Thi Giữa Kỳ - Thầy Nguyễn Thanh Vân',
-    professor: 'ntvv',
-    professorName: 'Thầy Nguyễn Thanh Vân',
-    image: 'ntvv.jpg',
-    pdf: 'BT_NTV.pdf',
-    desc: 'Đề kiểm tra giữa kỳ nâng cao dành cho sinh viên lớp thầy Nguyễn Thanh Vân, tập trung vào cực trị hàm nhiều biến và ứng dụng kinh tế.'
-  }
-];
+export const midtermExams = midtermCatalog;
 
 export const finalExams = [
   { id: 'k51-204', title: 'Toán Cao Cấp K51 Mã Đề 204', date: 'MAIN K51', hasDetailRoute: true, desc: 'Đề K51 mới nhất mã 204 từ main.pdf, làm bài trong 30 phút với chấm điểm tự động, cắm cờ câu khó và thống kê sau khi nộp.' },

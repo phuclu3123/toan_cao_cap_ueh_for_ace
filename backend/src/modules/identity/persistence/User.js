@@ -23,6 +23,7 @@ const userSchema = new mongoose.Schema({
   school: { type: String, trim: true, maxlength: 160 },
   bio: { type: String, trim: true, maxlength: 2_000 },
   sessionVersion: { type: Number, default: 0, min: 0 },
+  notificationEvents: { type:[new mongoose.Schema({id:String,kind:String,at:Date,previousEmail:String},{_id:false})],default:undefined,select:false },
   otpHash: { type: String, select: false },
   otpExpiresAt: { type: Date, select: false },
   otpAttempts: { type: Number, default: 0, select: false }

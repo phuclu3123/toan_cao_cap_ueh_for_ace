@@ -61,7 +61,10 @@ export default function CourseAdminPanel({ course }) {
   const handleAction = (action, row) => {
     const prompt = action === 'revoke' ? `Thu hồi quyền khóa học của ${row.username}?` : action === 'restore' ? `Khôi phục quyền khóa học cho ${row.username}?` : 'Vô hiệu hóa key chưa sử dụng này?';
     if (!window.confirm(prompt)) return;
-    handleWork(() => action === 'revoke' ? revokeCourseMember(course.id, row.userId) : action === 'restore' ? grantCourseEmail(course.id, { email: row.username, restore: true }) : disableCourseKey(course.id, row._id), 'Đã cập nhật quyền khóa học.');
+    const reason=action==='revoke'?window.prompt('Lý do thu hồi (sẽ ghi trong email gửi học viên):',''):'';
+    if(reason===null) return;
+    if(action==='revoke' && reason.trim().length<5) {setError('Vui lòng ghi rõ lý do thu hồi, tối thiểu 5 ký tự.');return;}
+    handleWork(() => action === 'revoke' ? revokeCourseMember(course.id, row.userId,reason) : action === 'restore' ? grantCourseEmail(course.id, { email: row.username, restore: true }) : disableCourseKey(course.id, row._id), 'Đã cập nhật quyền khóa học.');
   };
   const handleDownload = () => {
     const url = URL.createObjectURL(new Blob([codes.join('\n')], { type: 'text/plain;charset=utf-8' }));

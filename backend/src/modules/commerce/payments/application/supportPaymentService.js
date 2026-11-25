@@ -39,7 +39,7 @@ export function createSupportStoreInitializer(model=SupportPayment) {
 }
 export const initializeSupportPayments=createSupportStoreInitializer();
 
-async function reserveSupportPayment(tokenHash,amount) {
+async function reserveSupportPayment(tokenHash,amount,receipt={}) {
   await initializeSupportPayments();
   const existing=await SupportPayment.findOne({tokenHash});
   if(existing) return {payment:existing,reused:true};
@@ -47,7 +47,7 @@ async function reserveSupportPayment(tokenHash,amount) {
     // Reserved prefix 8 avoids the existing timestamp-prefixed course orders.
     const orderCode=8000000000000000+Date.now()*100+crypto.randomInt(100);
     try {
-      const payment=await SupportPayment.create({orderCode,tokenHash,amount,description:`UH${String(orderCode).slice(-7)}`,expiresAt:new Date(Date.now()+30*60*1000)});
+      const payment=await SupportPayment.create({orderCode,tokenHash,amount,...receipt,description:`UH${String(orderCode).slice(-7)}`,expiresAt:new Date(Date.now()+30*60*1000)});
       return {payment,reused:false};
     } catch(error) {
       if(error.code!==11000) throw error;
@@ -60,7 +60,13 @@ async function reserveSupportPayment(tokenHash,amount) {
 export async function createSupportPayment(req) {
   const amount=validateSupportAmount(req.body?.amount),tokenHash=supportTokenHash(req.get('x-support-token'));
   requireDatabase();getPayOSConfig();
-  const reserved=await reserveSupportPayment(tokenHash,amount);
+  const receipt=req.authUser?.id?{userId:req.authUser.id}:{};
+  if(req.body?.emailReceipt===true) {
+    const email=String(req.authUser?.username || '').trim().toLowerCase();
+    if(!req.authUser?.id || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.endsWith('.invalid')) throw httpError(400,'RECEIPT_ACCOUNT_REQUIRED','Đăng nhập bằng email hợp lệ để nhận thư cảm ơn.');
+    receipt.receiptEmail=email;receipt.userId=req.authUser.id;
+  }
+  const reserved=await reserveSupportPayment(tokenHash,amount,receipt);
   let payment=reserved.payment;
   if(payment.amount!==amount) throw httpError(409,'SUPPORT_AMOUNT_CHANGED','Phiên này đã có số tiền khác. Hãy đóng phiên thanh toán trước khi đổi số tiền.');
   if(reserved.reused) return normalizePaymentResponse(payment);

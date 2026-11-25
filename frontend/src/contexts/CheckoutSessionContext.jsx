@@ -99,9 +99,8 @@ export function CheckoutSessionProvider({ children }) {
       if (!order) continue;
       const seconds = paymentSecondsLeft(order, now);
       let event = ''; let title = ''; let message = '';
-      if (order.status === 'PAID') { event = 'paid'; title = 'Thanh toán đã được xác nhận'; message = `Đơn #${order.orderCode} đã được xác nhận thanh toán. Mở giao dịch để xem quyền học.`; }
-      else if (['CANCELLED', 'FAILED'].includes(order.status)) { event = 'closed'; title = order.status === 'FAILED' ? 'Thanh toán chưa thành công' : 'Phiên thanh toán đã đóng'; message = `Đơn #${order.orderCode} đã ${order.status === 'FAILED' ? 'không thành công' : 'hủy hoặc hết hạn'}. Bạn có thể đăng ký lại nếu còn nhu cầu.`; }
-      else if (waiting(order) && seconds !== null && seconds > 0 && seconds <= 120) { event = 'expiring'; title = 'Phiên thanh toán sắp hết hạn'; message = `Đơn #${order.orderCode} còn dưới 2 phút. Mở lại QR để kiểm tra và tiếp tục thanh toán.`; }
+      // Terminal notifications are persisted by the backend.
+      if (waiting(order) && seconds !== null && seconds > 0 && seconds <= 120) { event = 'expiring'; title = 'Phiên thanh toán sắp hết hạn'; message = `Đơn #${order.orderCode} còn dưới 2 phút. Mở lại QR để kiểm tra và tiếp tục thanh toán.`; }
       const key = `${userId}:${order.orderCode}:${event}`;
       if (!event || emittedRef.current.has(key)) continue;
       emittedRef.current.add(key);

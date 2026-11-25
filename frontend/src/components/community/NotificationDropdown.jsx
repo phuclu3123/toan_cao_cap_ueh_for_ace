@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, CheckCheck, Trash2, MessageSquare, Heart, CheckCircle2, Sparkles, Clock3, CreditCard } from 'lucide-react';
+import { Bell, CheckCheck, Trash2, MessageSquare, Heart, CheckCircle2, Sparkles, Clock3, CreditCard,BookOpen,ShieldCheck,FileText } from 'lucide-react';
 import { useNotifications } from '../../contexts/NotificationContext';
 import CommunityAvatar from './CommunityAvatar';
 import '../../assets/styles/community.css';
@@ -80,11 +80,28 @@ export default function NotificationDropdown() {
   const getNotifIcon = (type) => {
     switch (type) {
       case 'payment_paid':
+      case 'enrollment_granted':
+      case 'enrollment_restored':
         return <CheckCircle2 size={16} className="notif-type-icon icon-accepted" />;
       case 'payment_expiring':
+      case 'payment_pending_access':
+      case 'study_reminder':
         return <Clock3 size={16} className="notif-type-icon" />;
       case 'payment_closed':
+      case 'refund_confirmed':
         return <CreditCard size={16} className="notif-type-icon" />;
+      case 'password_changed':
+      case 'email_changed':
+      case 'enrollment_revoked':
+      case 'access_changed':
+        return <ShieldCheck size={16} className="notif-type-icon" />;
+      case 'course_update':
+      case 'weekly_summary':
+        return <BookOpen size={16} className="notif-type-icon" />;
+      case 'new_article':
+        return <FileText size={16} className="notif-type-icon" />;
+      case 'support_paid':
+        return <Heart size={16} className="notif-type-icon icon-heart" />;
       case 'accepted_solution':
         return <CheckCircle2 size={16} className="notif-type-icon icon-accepted" />;
       case 'upvote':
@@ -152,6 +169,7 @@ export default function NotificationDropdown() {
           </div>
 
           <div className="notif-popover-list">
+            <button type="button" className="notif-text-btn" onClick={()=>{setIsOpen(false);navigate('/notifications/settings');}}>Cài đặt nhận thông báo →</button>
             {notificationError && <div className="qa-notification-error" role="status">Chưa cập nhật được thông báo. <button type="button" onClick={refreshNotifications}>Thử lại</button></div>}
             {notifications.length === 0 ? (
               <div className="notif-empty-state">

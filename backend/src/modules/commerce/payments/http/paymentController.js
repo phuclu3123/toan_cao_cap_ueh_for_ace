@@ -9,7 +9,7 @@ import { getCourseAccess, grantEnrollment } from '../../../access/index.js';
 import { normalizeIdentifier } from '../../../identity/index.js';
 import { validatePurchaseConsent } from '../../config/purchaseTerms.js';
 import { getSellableOffering, quoteCheckout, releaseFailedPromotion } from '../../application/courseCommerceService.js';
-import { IDEMPOTENCY_KEY_PATTERN, EMAIL_PATTERN, httpError, cleanSingleLine, requireDatabase, getPayOSConfig, createPayOSSignature, verifyPayOSDataSignature, verifyPayOSWebhookSignature, normalizePaymentResponse, parseOrderCode, paymentResultUrls, fetchPayOS, fetchPayOSPayment, providerStatus, shouldReconcilePayment, acquireReconciliationLease, resolveBuyerEmail, validatePayOSCreateResponse, classifyPayOSWebhook, paymentBelongsToUser, reserveOrder, persistPayOSCreateResult, runTransaction, activatePaidOrder, ensurePaidEnrollment, reconcileOrder, shouldMarkCreateFailure, safeCompareText, providerTransactions } from '../application/paymentService.js';
+import { IDEMPOTENCY_KEY_PATTERN, EMAIL_PATTERN, httpError, cleanSingleLine, requireDatabase, getPayOSConfig, createPayOSSignature, verifyPayOSDataSignature, verifyPayOSWebhookSignature, normalizePaymentResponse, parseOrderCode, paymentResultUrls, fetchPayOS, fetchPayOSPayment, providerStatus, shouldReconcilePayment, acquireReconciliationLease, resolveBuyerEmail, validatePayOSCreateResponse, classifyPayOSWebhook, paymentBelongsToUser, reserveOrder, persistPayOSCreateResult, runTransaction, recordVerifiedPayment, activatePaidOrder, ensurePaidEnrollment, reconcileOrder, shouldMarkCreateFailure, safeCompareText, providerTransactions } from '../application/paymentService.js';
 
 
 const sendPaymentError = (res, error, fallbackMessage) => {
@@ -233,6 +233,8 @@ export const handleWebhook = async (req, res) => {
       .update(`${req.body.signature}:${JSON.stringify(data)}`)
       .digest('hex');
     let outcome = { duplicate: false, rejected: false, reason: null };
+    const verifiedOrder=await Payment.findOne({orderCode});
+    if(classifyPayOSWebhook(req.body,verifiedOrder).accepted) await recordVerifiedPayment(verifiedOrder);
 
     try {
       outcome = await runTransaction(async (session) => {
@@ -378,6 +380,7 @@ export const claimLegacyOrder = async (req, res) => {
         existing.userId = req.authUser.id;
         existing.username = normalizeIdentifier(req.authUser.username);
         existing.courseId = course.id;
+        if(!existing.verifiedPaidAt) { existing.verifiedPaidAt=new Date(); existing.verifiedPaidAmount=course.amount; }
         existing.status = 'PAID';
         existing.amount = course.amount;
         existing.reference = reference;
@@ -390,6 +393,7 @@ export const claimLegacyOrder = async (req, res) => {
           username: normalizeIdentifier(req.authUser.username),
           courseId: course.id,
           idempotencyKey: `legacy:${orderCode}`,
+          verifiedPaidAt:new Date(), verifiedPaidAmount:course.amount,
           amount: course.amount,
           description: `TCC${String(orderCode).slice(-6)}`,
           status: 'PAID',

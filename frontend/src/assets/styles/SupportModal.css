@@ -46,3 +46,5 @@
 @keyframes support-spin { to { transform: rotate(360deg); } }
 @media (max-width:650px) { .support-dialog { width: calc(100vw - 24px); max-height: calc(100dvh - 24px); border-radius: 20px; }.support-layout { grid-template-columns: 1fr; }.support-aside { padding: 23px 25px; }.support-heart { display: none; }.support-aside h2 { font-size: 1.55rem; margin: 13px 0 10px; }.support-aside h2 br { display: none; }.support-aside p { margin: 0; font-size: .76rem; }.support-secure { display: none; }.support-main { padding: 34px 25px 25px; }.support-main h3 { font-size: 1.35rem; }.support-main #support-description { margin-bottom: 20px; }.support-close { top: 10px; right: 10px; }.support-dialog .support-qr img { width: 210px; } }
 @media (prefers-reduced-motion:reduce) { .support-spinner { animation: none; } }
+.support-receipt-choice {display:flex;align-items:flex-start;gap:10px;font-size:13px;line-height:1.7;margin:18px 0;color:var(--text-secondary,#526458);cursor:pointer;}
+.support-receipt-choice input {width:18px;height:18px;min-height:0;flex:0 0 18px;margin-top:3px;accent-color:#356548;}

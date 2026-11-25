@@ -18,6 +18,7 @@ export default function DocDetail() {
   const { language } = useContext(LanguageContext);
   const { id } = useParams();
   const [resource, setResource] = useState({ id: '', doc: null, related: [] });
+  const [selection, setSelection] = useState({ resourceId: '', fileId: '' });
   useEffect(() => {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 8000);
@@ -50,20 +51,27 @@ export default function DocDetail() {
   if (resource.id !== id) return <BrandLoader label={language === 'vi' ? 'Đang mở tài liệu' : 'Opening document'} />;
   if (!resource.doc) return <NotFoundPage />;
   const { doc, related } = resource;
-  const hasFile = Boolean(doc.pdf || doc.externalUrl) && doc.sourceStatus !== 'pending';
-  const url = doc.externalUrl || encodeURI(`/docs/${doc.pdf}`);
-  const extension = (doc.pdf || '').split('.').pop()?.toUpperCase() || 'PDF';
+  const files = doc.attachments || [];
+  const file = files.find(item => selection.resourceId === id && item.id === selection.fileId) || files[0] || doc;
+  const hasFile = Boolean(file.pdf || file.externalUrl) && doc.sourceStatus !== 'pending';
+  const url = file.externalUrl || encodeURI(`/docs/${file.pdf}`);
+  const extension = (file.pdf || '').split('.').pop()?.toUpperCase() || 'PDF';
+  const title = file.title || doc.title;
+  const isImage = ['JPG', 'JPEG', 'PNG', 'WEBP'].includes(extension);
 
   return <div className="document-workspace">
     <header className="document-heading">
-      <Link to="/resources?category=all" className="document-back"><ArrowLeft size={17} /> {language === 'vi' ? 'Thư viện' : 'Library'}</Link>
+      <Link to={files.length?'/exams#midterm-exams':'/resources?category=all'} className="document-back"><ArrowLeft size={17} /> {files.length?'Đề giữa kỳ':language === 'vi' ? 'Thư viện' : 'Library'}</Link>
       <div className="document-title-row">
         <div><span className="document-eyebrow">α∫M4A / {extension}</span><h1 title={doc.title}>{resourceTitle(doc)}</h1></div>
-        {hasFile && <a href={url} download className="document-download"><Download size={17} /> {language === 'vi' ? 'Tải bản gốc' : 'Download'}</a>}
+        {hasFile && <a href={url} download className="document-download"><Download size={17} /> {language === 'vi' ? `Tải ${extension}` : 'Download'}</a>}
       </div>
       <div className="document-meta"><span><Calendar size={14} /> {formatResourceDate(doc)}</span>{doc.categoryLabel && <span>{doc.categoryLabel}</span>}{Number.isSafeInteger(resource.views) && <span>{formatViewCount(resource.views)} lượt mở</span>}</div>
     </header>
-    {extension === 'PDF' && doc.pdf ? <Suspense fallback={<div className="document-reader-loading" role="status">Đang mở trình đọc…</div>}><PdfReader key={id} url={url} title={doc.title} /></Suspense> : <div className="document-file"><FileText size={42} /><h2>{doc.sourceStatus === 'pending' ? 'Đang bổ sung bản gốc' : doc.title}</h2><p>{doc.desc}</p>{hasFile && <a href={url} target="_blank" rel="noopener noreferrer" className="btn btn-primary">Mở tài liệu <ArrowUpRight size={18} /></a>}</div>}
+    {files.length>0 && <section className="document-collection" aria-label="Chọn đề và lời giải"><header><h2>{files.length} tài liệu trong bộ</h2><p>Chọn một đề hoặc lời giải để mở ngay bên dưới.</p></header><div className="document-file-list">{files.map((item,index)=><button type="button" key={item.id} aria-pressed={item.id===file.id} onClick={()=>setSelection({resourceId:id,fileId:item.id})}><span>{String(index+1).padStart(2,'0')}</span><span><strong>{item.title}</strong><small>{item.kind==='solution'?'Lời giải / đính chính':item.kind==='practice'?'Bài tập tham khảo':'Đề và tài liệu ôn tập'}{item.pages?` · ${item.pages} trang`:''}{item.cohort?` · ${item.cohort}`:''}</small></span><ArrowUpRight size={17}/></button>)}</div></section>}
+    {files.length>0 && <div className="document-active-file"><h2>{title}</h2>{file.original && <a href={encodeURI(`/docs/${file.original}`)} download><Download size={15}/> Tải Word gốc</a>}</div>}
+    {(file.note || doc.note) && <p className="document-source-note">{file.note || doc.note}</p>}
+    {extension === 'PDF' && file.pdf ? <Suspense fallback={<div className="document-reader-loading" role="status">Đang mở trình đọc…</div>}><PdfReader key={`${id}:${file.id || 'main'}`} url={url} title={title} /></Suspense> : isImage && hasFile ? <figure className="document-source-image"><img src={url} alt={title} /><figcaption>{title}</figcaption></figure> : <div className="document-file"><FileText size={42} /><h2>{doc.sourceStatus === 'pending' ? 'Đang bổ sung bản gốc' : title}</h2><p>{doc.desc}</p>{hasFile && <a href={url} target="_blank" rel="noopener noreferrer" className="btn btn-primary">Mở tài liệu <ArrowUpRight size={18} /></a>}</div>}
     {related.length > 0 && <section className="document-related" aria-label="Tài liệu khác">
       <h2>{language === 'vi' ? 'Đọc tiếp' : 'More to read'}</h2>
       <div>{related.map(item => <Link key={item.id} to={`/document/${item.id}`} title={item.title}><FileText size={21} /><span>{resourceTitle(item)}</span><ArrowUpRight size={16} /></Link>)}</div>

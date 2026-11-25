@@ -1,0 +1,199 @@
+{
+  "archive": "ĐỀ GIỮA KỲ MỘT SỐ THẦY-20261125T093951Z-1-001.zip",
+  "importedOn": "2026-11-25",
+  "excluded": "Both MP4 files and the DOCX containing only a video link, as requested by the owner.",
+  "sources": [
+    {
+      "source": "ĐỀ GIỮA KỲ MỘT SỐ THẦY/Thầy Nguyễn Đình Tuấn/Các đề và bài sửa/Lưu ý - Bài giải m = 4 - xem đáp án trong file này - file kia giải sai do nhẩm nhanh.pdf",
+      "sourceSha256": "2ce1bcb4556d571a9f446622a0a0480f601b964159e8612c0beeb8b37666125c",
+      "published": "midterm/ndt/dinh-chinh-m-4.pdf",
+      "publishedSha256": "2ce1bcb4556d571a9f446622a0a0480f601b964159e8612c0beeb8b37666125c",
+      "conversion": "Original PDF",
+      "originalWordSource": "ĐỀ GIỮA KỲ MỘT SỐ THẦY/Thầy Nguyễn Đình Tuấn/Các đề và bài sửa/Lưu ý - Bài giải m = 4 - xem đáp án trong file này - file kia giải sai do nhẩm nhanh.docx",
+      "originalWord": "midterm/ndt/dinh-chinh-m-4.docx"
+    },
+    {
+      "source": "ĐỀ GIỮA KỲ MỘT SỐ THẦY/Thầy Nguyễn Đình Tuấn/Đề mới thi 2_4.docx",
+      "sourceSha256": "344b59fc88ca1a358db7c8e92b433a55ceacb198f62fd5430ae06e9963972837",
+      "published": "midterm/ndt/de-02-04.pdf",
+      "publishedSha256": "6d55d63ca804dee7edc9a5373ff9314f29c8bc7ed316b6ca88a9d08a87f1940d",
+      "conversion": "Word to PDF",
+      "originalWordSource": "ĐỀ GIỮA KỲ MỘT SỐ THẦY/Thầy Nguyễn Đình Tuấn/Đề mới thi 2_4.docx",
+      "originalWord": "midterm/ndt/de-02-04.docx"
+    },
+    {
+      "source": "ĐỀ GIỮA KỲ MỘT SỐ THẦY/Thầy Nguyễn Đình Tuấn/Các đề và bài sửa/Đề toán gk thầy Tuấn.pdf",
+      "sourceSha256": "3208dd6f2d6e35c3b09f2fc9aa39fc4af7906f9608a57da44c2bf8b4493afa95",
+      "published": "midterm/ndt/de-toan-gk.pdf",
+      "publishedSha256": "3208dd6f2d6e35c3b09f2fc9aa39fc4af7906f9608a57da44c2bf8b4493afa95",
+      "conversion": "Original PDF"
+    },
+    {
+      "source": "ĐỀ GIỮA KỲ MỘT SỐ THẦY/Thầy Nguyễn Đình Tuấn/Các đề và bài sửa/Đề 3 giữa kỳ NDT.pdf",
+      "sourceSha256": "b16d9d99008bdc64e01bd3ba3f9e4169c3d15de740ca0aec337c31298fffa7a5",
+      "published": "midterm/ndt/de-3.pdf",
+      "publishedSha256": "b16d9d99008bdc64e01bd3ba3f9e4169c3d15de740ca0aec337c31298fffa7a5",
+      "conversion": "Original PDF"
+    },
+    {
+      "source": "ĐỀ GIỮA KỲ MỘT SỐ THẦY/Thầy Nguyễn Đình Tuấn/Các đề và bài sửa/Đề 4 giữa kỳ NDT.pdf",
+      "sourceSha256": "265bc8f0b696c8eee98d4e2f5c389d8b2a0785813e61caa649887915ed0c7ca1",
+      "published": "midterm/ndt/de-4.pdf",
+      "publishedSha256": "265bc8f0b696c8eee98d4e2f5c389d8b2a0785813e61caa649887915ed0c7ca1",
+      "conversion": "Original PDF"
+    },
+    {
+      "source": "ĐỀ GIỮA KỲ MỘT SỐ THẦY/Thầy Nguyễn Đình Tuấn/Các đề và bài sửa/GIUA_KY_LINHHH.pdf",
+      "sourceSha256": "74adb4fbacaad50d8ea342b51cf6399ee478d0e93e624bd29ce17ba73601b3da",
+      "published": "midterm/ndt/giua-ky-linhhh.pdf",
+      "publishedSha256": "74adb4fbacaad50d8ea342b51cf6399ee478d0e93e624bd29ce17ba73601b3da",
+      "conversion": "Original PDF"
+    },
+    {
+      "source": "ĐỀ GIỮA KỲ MỘT SỐ THẦY/Thầy Nguyễn Đình Tuấn/Các đề và bài sửa/Thêm đề.docx",
+      "sourceSha256": "e514376252da4545553392f221671b0bdfe9aae263b00ccefc37127d3f640bcd",
+      "published": "midterm/ndt/them-de.pdf",
+      "publishedSha256": "7d0db7f24337d4ced29e2c188e8806a6e160425a5c9c9f6ae7afa3cea4ceca9f",
+      "conversion": "Word to PDF",
+      "originalWordSource": "ĐỀ GIỮA KỲ MỘT SỐ THẦY/Thầy Nguyễn Đình Tuấn/Các đề và bài sửa/Thêm đề.docx",
+      "originalWord": "midterm/ndt/them-de.docx"
+    },
+    {
+      "source": "ĐỀ GIỮA KỲ MỘT SỐ THẦY/Thầy Nguyễn Đình Tuấn/Các đề và bài sửa/Câu HPT đề cuối_.docx",
+      "sourceSha256": "7e4df0d01285a746bb23f24335ff91cf47316e8bfcd6b1f9a436ce86d8a3487d",
+      "published": "midterm/ndt/cau-he-phuong-trinh.pdf",
+      "publishedSha256": "a0fc35f68fb976c096e47f1eb1932c00c1e1e2a5f02b5721ddb04ce1626385e4",
+      "conversion": "Word to PDF",
+      "originalWordSource": "ĐỀ GIỮA KỲ MỘT SỐ THẦY/Thầy Nguyễn Đình Tuấn/Các đề và bài sửa/Câu HPT đề cuối_.docx",
+      "originalWord": "midterm/ndt/cau-he-phuong-trinh.docx"
+    },
+    {
+      "source": "ĐỀ GIỮA KỲ MỘT SỐ THẦY/Thầy Ngô Trấn Vũ/Đề k51 - Mới.docx",
+      "sourceSha256": "107db40230e924b7e9f890fc1f70061ccbd99d2228102207a667ee539fd4c87d",
+      "published": "midterm/ntv/k51.pdf",
+      "publishedSha256": "8ee13590c58c0f82095e1854702232cd1487cf6d092a4a52f76cfaee3531c142",
+      "conversion": "Word to PDF",
+      "originalWordSource": "ĐỀ GIỮA KỲ MỘT SỐ THẦY/Thầy Ngô Trấn Vũ/Đề k51 - Mới.docx",
+      "originalWord": "midterm/ntv/k51.docx"
+    },
+    {
+      "source": "ĐỀ GIỮA KỲ MỘT SỐ THẦY/Thầy Ngô Trấn Vũ/Đề k50 - Cũ.docx",
+      "sourceSha256": "fa872a848fe2e0e57707fd6ca88c82658852a7b2209ecf8dc656af44fbfbdd5a",
+      "published": "midterm/ntv/k50.pdf",
+      "publishedSha256": "d42d55dd93708aa572e8c21a2c0c40516835c3ccc1086e9392961b575212ddc8",
+      "conversion": "Word to PDF",
+      "originalWordSource": "ĐỀ GIỮA KỲ MỘT SỐ THẦY/Thầy Ngô Trấn Vũ/Đề k50 - Cũ.docx",
+      "originalWord": "midterm/ntv/k50.docx"
+    },
+    {
+      "source": "ĐỀ GIỮA KỲ MỘT SỐ THẦY/Thầy Ngô Trấn Vũ/K52 mới thi 02_11.docx",
+      "sourceSha256": "5574da0140460ebb0321bcfe5bda4d157ab9c739af518b1257ed7e92e4b48556",
+      "published": "midterm/ntv/k52-02-11.pdf",
+      "publishedSha256": "fd2821d024be1f5ebc1bcc7fbc2dcc65474c438a1b6d337bbf47f5b4bcaff081",
+      "conversion": "Word to PDF",
+      "originalWordSource": "ĐỀ GIỮA KỲ MỘT SỐ THẦY/Thầy Ngô Trấn Vũ/K52 mới thi 02_11.docx",
+      "originalWord": "midterm/ntv/k52-02-11.docx"
+    },
+    {
+      "source": "ĐỀ GIỮA KỲ MỘT SỐ THẦY/Thầy Ngô Trấn Vũ/k52 10_11_2026.docx",
+      "sourceSha256": "d251d1f52132de5981307c2c833d2763e81be664f94f0ce83152d6036c8c89da",
+      "published": "midterm/ntv/k52-10-11-2026.pdf",
+      "publishedSha256": "23f262c10820095e1d18324c132969c4ab7ee784ace7904b7b627ebe9c185d0c",
+      "conversion": "Word to PDF",
+      "originalWordSource": "ĐỀ GIỮA KỲ MỘT SỐ THẦY/Thầy Ngô Trấn Vũ/k52 10_11_2026.docx",
+      "originalWord": "midterm/ntv/k52-10-11-2026.docx"
+    },
+    {
+      "source": "ĐỀ GIỮA KỲ MỘT SỐ THẦY/Thầy Phan Ngô Tuấn Anh/Đề mới k51.docx",
+      "sourceSha256": "866e06b2d52384393ebe273780f2a2401ae3d9b0d68f25dc3a25a5f7aa2902d6",
+      "published": "midterm/pnta/k51.pdf",
+      "publishedSha256": "d638492b4e192b892c61bd9d010e68a7a49b3c924f1aa68f97f5d5cc2576d507",
+      "conversion": "Word to PDF",
+      "originalWordSource": "ĐỀ GIỮA KỲ MỘT SỐ THẦY/Thầy Phan Ngô Tuấn Anh/Đề mới k51.docx",
+      "originalWord": "midterm/pnta/k51.docx"
+    },
+    {
+      "source": "ĐỀ GIỮA KỲ MỘT SỐ THẦY/Thầy Phan Ngô Tuấn Anh/Thầy Phan Ngô Tuấn Anh.pdf",
+      "sourceSha256": "55c0100e9cc1b9d6f894154dabb8b2efc2599418c215e3d9f8b39d89ad4e7de5",
+      "published": "pnta.pdf",
+      "publishedSha256": "55c0100e9cc1b9d6f894154dabb8b2efc2599418c215e3d9f8b39d89ad4e7de5",
+      "conversion": "Original PDF"
+    },
+    {
+      "source": "ĐỀ GIỮA KỲ MỘT SỐ THẦY/Thầy Thanh Vân/Anh Vân.docx",
+      "sourceSha256": "0e0a510dabe41541bc39ed459b06b1bbee202cce024c015e29bef46635ed8fdd",
+      "published": "midterm/thanh-van/anh-van.pdf",
+      "publishedSha256": "2410c2fe7c37e3d79c3cf7c8dfa5cc124627f9f325284b47dd8a4397efa95c4f",
+      "conversion": "Word to PDF",
+      "originalWordSource": "ĐỀ GIỮA KỲ MỘT SỐ THẦY/Thầy Thanh Vân/Anh Vân.docx",
+      "originalWord": "midterm/thanh-van/anh-van.docx"
+    },
+    {
+      "source": "ĐỀ GIỮA KỲ MỘT SỐ THẦY/Thầy Lê Xuân Trường/GK.pdf",
+      "sourceSha256": "08ebd029b6e0585f35a467e5bd23a34167adfb71e18401a00fd09e4e3a1b5de4",
+      "published": "midterm/lxt/gk.pdf",
+      "publishedSha256": "08ebd029b6e0585f35a467e5bd23a34167adfb71e18401a00fd09e4e3a1b5de4",
+      "conversion": "Original PDF"
+    },
+    {
+      "source": "ĐỀ GIỮA KỲ MỘT SỐ THẦY/Thầy Lê Xuân Trường/LXT.pdf",
+      "sourceSha256": "cec11942c6fb036b5b0ffba6c722e36bbe429cf5388b41587c018e3402652490",
+      "published": "GK/Le_Xuan_Truong.pdf",
+      "publishedSha256": "cec11942c6fb036b5b0ffba6c722e36bbe429cf5388b41587c018e3402652490",
+      "conversion": "Original PDF"
+    },
+    {
+      "source": "ĐỀ GIỮA KỲ MỘT SỐ THẦY/Thầy Nhân/Thầy Nhân.docx",
+      "sourceSha256": "6cf7f3f5df71cc9df9e3ac17501bdb93ee304e78738ca24ebdb03a81c2c4ca5a",
+      "published": "midterm/nhan/giua-ky.pdf",
+      "publishedSha256": "c98d9023249dad97d166777b828b36c0a7f28be22b3602a9bb3cdcd3450cba00",
+      "conversion": "Word to PDF",
+      "originalWordSource": "ĐỀ GIỮA KỲ MỘT SỐ THẦY/Thầy Nhân/Thầy Nhân.docx",
+      "originalWord": "midterm/nhan/giua-ky.docx"
+    },
+    {
+      "source": "ĐỀ GIỮA KỲ MỘT SỐ THẦY/Thầy Ngọc Ý /Tài liệu không có tiêu đề.docx",
+      "sourceSha256": "e46fd158c4693541d148995dae252304ec773a06c989bf70387c70bf810c2c26",
+      "published": "midterm/ngoc-y/giua-ky.pdf",
+      "publishedSha256": "a5b39209f0cde9f9249e7a10711ba4bd67d506b6e9846496443ff088fa70edef",
+      "conversion": "Word to PDF",
+      "originalWordSource": "ĐỀ GIỮA KỲ MỘT SỐ THẦY/Thầy Ngọc Ý /Tài liệu không có tiêu đề.docx",
+      "originalWord": "midterm/ngoc-y/giua-ky.docx"
+    },
+    {
+      "source": "ĐỀ GIỮA KỲ MỘT SỐ THẦY/Thầy Trần Gia Tùng/462581904_577420091291232_4131181758413138737_n (1).jpg",
+      "sourceSha256": "4162d8c18df2b774875093dee052cdb76876117ecc5238052b0d63ab03f7c268",
+      "published": "midterm/tgt/loi-giai-viet-tay.pdf",
+      "page": 1,
+      "conversion": "Original image placed on PDF page without cropping"
+    },
+    {
+      "source": "ĐỀ GIỮA KỲ MỘT SỐ THẦY/Thầy Trần Gia Tùng/462557006_1072823137276650_5022703219021029277_n (1).jpg",
+      "sourceSha256": "98317de078db8a0960b069dfed2081ffacb7b84ca8b5518bbdf29aa52cffece0",
+      "published": "midterm/tgt/loi-giai-viet-tay.pdf",
+      "page": 2,
+      "conversion": "Original image placed on PDF page without cropping"
+    },
+    {
+      "source": "ĐỀ GIỮA KỲ MỘT SỐ THẦY/Thầy Trần Gia Tùng/462570072_457507330154943_6117290494781631038_n (1).jpg",
+      "sourceSha256": "9c36462e0af4a6cba3e41a6722e5681e0d0407cc17f4a934adc464e6c385f6b6",
+      "published": "midterm/tgt/loi-giai-viet-tay.pdf",
+      "page": 3,
+      "conversion": "Original image placed on PDF page without cropping"
+    },
+    {
+      "source": "ĐỀ GIỮA KỲ MỘT SỐ THẦY/Thầy Trần Gia Tùng/462541942_8308562322598983_3884201461874330862_n (1).jpg",
+      "sourceSha256": "9eff883b1182746a6ad4ee9ccb3cf88a4c21721d8bd29485f796e416f224d34d",
+      "published": "midterm/tgt/loi-giai-viet-tay.pdf",
+      "page": 4,
+      "conversion": "Original image placed on PDF page without cropping"
+    },
+    {
+      "source": "ĐỀ GIỮA KỲ MỘT SỐ THẦY/Thầy Trần Gia Tùng/462535880_1320395722652315_2156745541114414428_n (1).jpg",
+      "sourceSha256": "aebf136d551bc970cad16c1d34f4e61bc9f5dbb1156fa4c6e14a6abf8a62f23c",
+      "published": "midterm/tgt/loi-giai-viet-tay.pdf",
+      "page": 5,
+      "conversion": "Original image placed on PDF page without cropping"
+    }
+  ]
+}

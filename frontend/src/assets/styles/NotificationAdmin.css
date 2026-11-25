@@ -1,0 +1,11 @@
+.notification-admin {padding-top:130px;}
+.notification-admin > .admin-sheet {margin-top:24px;}
+.notification-admin .admin-form fieldset {border:0;padding:0;margin:22px 0 0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px;}
+.notification-admin .admin-form textarea {width:100%;min-height:140px;resize:vertical;padding:12px;border:1px solid var(--adm-line);border-radius:8px;background:var(--adm-bg);color:var(--adm-ink);font:inherit;line-height:1.7;}
+.notification-admin .admin-form label:has(textarea),.notification-admin .admin-form label:has(input[type=checkbox]) {grid-column:1/-1;}
+.notification-admin .admin-form label:has(input[type=checkbox]) {flex-direction:row;align-items:flex-start;font-weight:400;}
+.notification-admin input[type=checkbox] {width:20px;min-height:20px;height:20px;flex-shrink:0;accent-color:var(--adm-green);}
+.notification-admin .admin-actions {display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;margin-top:24px;}
+.notification-admin .admin-actions button,.notification-admin td button {border:1px solid var(--adm-line);border-radius:8px;padding:10px 14px;background:var(--adm-bg);color:var(--adm-ink);cursor:pointer;}
+.notification-admin .admin-section-heading select {width:auto;max-width:240px;}
+@media(max-width:650px){.notification-admin{padding-top:115px}.notification-admin .admin-form fieldset{grid-template-columns:1fr}.notification-admin .admin-section-heading{flex-direction:column}.notification-admin table{min-width:650px}.notification-admin .admin-heading>.admin-button{font-size:13px}}

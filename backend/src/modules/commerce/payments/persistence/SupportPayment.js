@@ -5,6 +5,8 @@ const schema = new mongoose.Schema({
   tokenHash: { type: String, required: true, unique: true, select: false },
   amount: { type: Number, required: true, min: 5000, max: 10000000 },
   description: { type: String, required: true },
+  receiptEmail:{type:String,maxlength:254},
+  userId:{type:String},
   status: { type: String, enum: ['CREATING','PENDING','PAID','CANCELLED','FAILED'], default: 'CREATING' },
   expiresAt: { type: Date, required: true },
   paymentLinkId: String,

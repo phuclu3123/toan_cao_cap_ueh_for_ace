@@ -1,4 +1,5 @@
 import express from 'express';
+import { optionalAuth } from '../../../identity/index.js';
 import { createRateLimit } from '../../../../platform/http/rateLimit.js';
 import { requireTurnstile } from '../../../../platform/http/turnstile.js';
 import { normalizePaymentResponse } from '../application/paymentService.js';
@@ -19,7 +20,7 @@ const handle=work=>async(req,res)=>{
   }
 };
 router.get('/api/support/payments/config',(_req,res)=>res.json({success:true,data:{minimum:MIN_SUPPORT_AMOUNT,maximum:MAX_SUPPORT_AMOUNT,configured:Boolean(process.env.PAYOS_CLIENT_ID && process.env.PAYOS_API_KEY && process.env.PAYOS_CHECKSUM_KEY)}}));
-router.post('/api/support/payments',writeLimit,requireTurnstile('support'),handle(createSupportPayment));
+router.post('/api/support/payments',writeLimit,optionalAuth,requireTurnstile('support'),handle(createSupportPayment));
 router.get('/api/support/payments/:orderCode',readLimit,handle(async req=>normalizePaymentResponse(await reconcileSupportPayment(await findSupportPayment(req)))));
 router.post('/api/support/payments/:orderCode/cancel',writeLimit,handle(async req=>normalizePaymentResponse(await cancelSupportPayment(await findSupportPayment(req)))));
 export default router;

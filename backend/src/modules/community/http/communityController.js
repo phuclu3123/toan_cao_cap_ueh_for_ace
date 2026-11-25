@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 import CommunityPost from '../persistence/CommunityPost.js';
 import CommunityReport from '../persistence/CommunityReport.js';
 import { prepareNotificationStore, recordCommentHeart } from '../../notifications/index.js';
+import { appendCommunityNotification } from '../application/notificationEvents.js';
 import { findPublicAccountsByAliases, findPublicAccountByAliases } from '../../identity/index.js';
 import { hasOwnerRole } from '../../identity/index.js';
 
@@ -357,7 +358,7 @@ const communityStoreError = (cause) => {
 const loadPostForMutation = async (id) => {
   if (mongoose.connection.readyState === 1) {
     try {
-      const databasePost = await CommunityPost.findOne({ id });
+      const databasePost = await CommunityPost.findOne({ id }).select('+notificationEvents');
       if (databasePost) return { post: databasePost, persistent: true };
       if (!degradedReadOnlyEnabled()) return null;
       const memoryPost = findMemoryPost(id);
@@ -367,7 +368,7 @@ const loadPostForMutation = async (id) => {
           return { post: createdPost, persistent: true };
         } catch (error) {
           if (error?.code === 11000) {
-            const concurrentlyCreatedPost = await CommunityPost.findOne({ id });
+            const concurrentlyCreatedPost = await CommunityPost.findOne({ id }).select('+notificationEvents');
             if (concurrentlyCreatedPost) return { post: concurrentlyCreatedPost, persistent: true };
           }
           throw error;
@@ -1092,6 +1093,7 @@ export const addAnswer = async (req, res) => {
     post.answers ||= [];
     if (post.answers.length === 0) newAnswer.isFirstSolver = true;
     post.answers.push(newAnswer);
+    appendCommunityNotification(post,{kind:'answer',actor:newAnswer.author,recipients:[post.author?.id],targetId:newAnswer.id,anchor:newAnswer.id,content:newAnswer.content});
     if (!post.isAccepted) post.status = 'answered';
     await saveLoadedPost(loaded);
 
@@ -1199,6 +1201,7 @@ export const acceptAnswer = async (req, res) => {
     post.isAccepted = shouldAccept;
     post.status = shouldAccept ? 'solved' : (post.answers.length > 0 ? 'answered' : 'unanswered');
     post.acceptedAnswerId = shouldAccept ? answerId : null;
+    if(shouldAccept) appendCommunityNotification(post,{kind:'accepted_solution',actor:actorFromUser(user),recipients:[selectedAnswer.author?.id],targetId:answerId,anchor:answerId});
 
     await saveLoadedPost(loaded);
     return res.json({
@@ -1326,6 +1329,7 @@ export const addCommentToAnswer = async (req, res) => {
     }
     newComment.parentId = parentId || null;
     answer.comments.push(newComment);
+    appendCommunityNotification(loaded.post,{kind:'comment',actor:newComment.author,recipients:[answer.author?.id,...(parentId?[answer.comments.find(c=>c.id===parentId)?.author?.id]:[])],targetId:newComment.id,anchor:`comment-${newComment.id}`,content:newComment.content});
     await saveLoadedPost(loaded);
 
     return res.status(201).json({

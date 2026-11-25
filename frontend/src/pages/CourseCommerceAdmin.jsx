@@ -46,6 +46,7 @@ function AdminWorkspace({ course, onCourseChange }) {
   const paid = overview?.totals.find(row => row._id === 'PAID');
   return <div className="commerce-admin">
     <header className="admin-heading"><div><Link to="/courses" className="admin-back"><ArrowLeft size={15} /> Khóa học</Link><p className="admin-eyebrow">α∫M4A / QUẢN TRỊ</p><h1>Vận hành khóa học</h1><p>Học phí, ưu đãi và quyền học trong cùng một nơi.</p></div><button className="admin-button" onClick={loadOverview} disabled={loading || busy}><RefreshCw size={16} className={loading ? 'admin-spin' : ''} /> Làm mới</button></header>
+    <p><Link to="/notifications/admin">Quản trị email & thông báo →</Link></p>
     {error && <div className="admin-alert is-error" role="alert">{error}</div>}
     {message && <div className="admin-alert is-success" role="status"><Check size={17} />{message}<button aria-label="Đóng thông báo" onClick={() => setMessage('')}><X size={16} /></button></div>}
     {!overview ? <div className="admin-sheet admin-empty"><ShieldCheck size={28} /><h2>{loading ? 'Đang kết nối hệ thống…' : 'Chưa tải được quản trị'}</h2><p>Các thao tác sẽ sẵn sàng sau khi máy chủ xác minh quyền.</p>{!loading && <button className="admin-button" onClick={loadOverview}>Thử lại</button>}</div> : <>

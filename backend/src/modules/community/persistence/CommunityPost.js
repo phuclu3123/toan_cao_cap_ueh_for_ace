@@ -46,6 +46,7 @@ const CommunityPostSchema = new mongoose.Schema({
   origin: { type: String, enum: ['community', 'curated'], default: 'community' },
   sampleMetricsRemoved: { type: Boolean, default: false },
   metricsResetAt: { type: Date },
+  notificationEvents: {type:[new mongoose.Schema({id:String,kind:String,at:Date,recipients:[String],actor:{id:String,name:String,avatar:String},targetId:String,anchor:String},{_id:false})],default:undefined,select:false},
   type: { type: String, default: 'question', enum: ['question', 'discussion', 'article'] },
   title: { type: String, required: true },
   content: { type: String, required: true },

@@ -7,6 +7,6 @@ export const redeemCourseKey = (courseId, key) => request(`/${encodeURIComponent
 export const listCourseAdmin = (courseId, kind, page, search, signal) => request(`/admin/${encodeURIComponent(courseId)}?kind=${kind}&page=${page}&search=${encodeURIComponent(search)}`, undefined, signal);
 export const createCourseKeys = (courseId, body) => request(`/admin/${encodeURIComponent(courseId)}/keys`, body);
 export const grantCourseEmail = (courseId, body) => request(`/admin/${encodeURIComponent(courseId)}/grants`, body);
-export const revokeCourseMember = (courseId, userId) => request(`/admin/${encodeURIComponent(courseId)}/members/${encodeURIComponent(userId)}/revoke`, {});
+export const revokeCourseMember = (courseId, userId, reason='') => request(`/admin/${encodeURIComponent(courseId)}/members/${encodeURIComponent(userId)}/revoke`, {reason});
 export const disableCourseKey = (courseId, id) => request(`/admin/${encodeURIComponent(courseId)}/keys/${encodeURIComponent(id)}/disable`, {});
 export const notifyCourseAccessChanged = (courseId) => window.dispatchEvent(new CustomEvent(COURSE_ACCESS_EVENT, { detail: { courseId } }));

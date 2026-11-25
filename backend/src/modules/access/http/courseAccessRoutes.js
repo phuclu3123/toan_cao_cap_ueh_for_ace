@@ -24,6 +24,6 @@ router.use('/course-access/admin', (req, res, next) => {
 router.get('/course-access/admin/:courseId', handle(async (req, res) => res.json({ success: true, ...await listCourseAccess(req.params.courseId, req.query) })));
 router.post('/course-access/admin/:courseId/keys', handle(async (req, res) => res.status(201).json({ success: true, codes: await issueCourseKeys(req.params.courseId, req.body || {}, req.authUser) })));
 router.post('/course-access/admin/:courseId/grants', handle(async (req, res) => res.json({ success: true, ...await grantCourseEmail(req.params.courseId, req.body?.email, req.body?.restore, req.authUser) })));
-router.post('/course-access/admin/:courseId/members/:userId/revoke', handle(async (req, res) => { await revokeCourseMember(req.params.courseId, req.params.userId, req.authUser); res.json({ success: true }); }));
+router.post('/course-access/admin/:courseId/members/:userId/revoke', handle(async (req, res) => { await revokeCourseMember(req.params.courseId, req.params.userId, req.authUser,req.body?.reason); res.json({ success: true }); }));
 router.post('/course-access/admin/:courseId/keys/:id/disable', handle(async (req, res) => { await disableCourseKey(req.params.courseId, req.params.id, req.authUser); res.json({ success: true }); }));
 export default router;

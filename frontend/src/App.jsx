@@ -41,6 +41,8 @@ const CommunityProfilePage = safeLazy(() => import('./pages/CommunityProfilePage
 const FlashcardStudyPage = safeLazy(() => import('./pages/StudyWorkspace'));
 const FlashcardAdmin = safeLazy(() => import('./pages/FlashcardAdmin'));
 const CourseCommerceAdmin = safeLazy(() => import('./pages/CourseCommerceAdmin'));
+const NotificationSettings = safeLazy(() => import('./pages/NotificationSettings'));
+const NotificationAdmin = safeLazy(() => import('./pages/NotificationAdmin'));
 const PurchaseTerms = safeLazy(() => import('./pages/PurchaseTerms'));
 import { safeLocalStorage } from './utils/safeStorage';
 import { claimChunkRecovery, isRecoverableChunkError } from './utils/chunkRecovery';
@@ -297,6 +299,8 @@ const router = createBrowserRouter([
         path: 'admin/courses',
         element: <Suspense fallback={<BrandLoader label="Đang tải quản trị khóa học…" />}><CourseCommerceAdmin /></Suspense>
       },
+      {path:'notifications/settings',element:<Suspense fallback={<BrandLoader label="Đang tải tùy chọn thông báo…"/>}><NotificationSettings/></Suspense>},
+      {path:'notifications/admin',element:<Suspense fallback={<BrandLoader label="Đang tải quản trị email…"/>}><NotificationAdmin/></Suspense>},
       {
         path: 'purchase-terms',
         element: <Suspense fallback={<BrandLoader label="Đang tải điều khoản mua…" />}><PurchaseTerms /></Suspense>

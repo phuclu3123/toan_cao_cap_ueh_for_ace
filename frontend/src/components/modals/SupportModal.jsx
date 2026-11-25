@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowRight, Check, CheckCircle2, ExternalLink, Heart, Loader2, RefreshCw, ShieldCheck, X } from 'lucide-react';
 import TurnstileWidget from '../TurnstileWidget';
+import { useAuth } from '../../contexts/AuthContext';
 import { createSupportToken, readSupportSession, safeSupportCheckout, storeSupportSession, supportRequest } from '../../services/supportPaymentService';
 import '../../assets/styles/SupportModal.css';
 
@@ -10,6 +11,8 @@ const terminal=status=>['PAID','CANCELLED','FAILED'].includes(status);
 const amounts=[20000,50000,100000,200000];
 
 export default function SupportModal({onClose,returnedOrder}) {
+  const { currentUser } = useAuth();
+  const [emailReceipt,setEmailReceipt] = useState(()=>Boolean(readSupportSession()?.emailReceipt));
   const [returnMismatch]=useState(()=>Boolean(returnedOrder && Number(returnedOrder)!==readSupportSession()?.orderCode));
   const [session,setSession]=useState(()=>returnedOrder && Number(returnedOrder)!==readSupportSession()?.orderCode?null:readSupportSession());
   const [amount,setAmount]=useState(()=>readSupportSession()?.amount || 50000);
@@ -65,10 +68,10 @@ export default function SupportModal({onClose,returnedOrder}) {
     setError('');
     let token;
     try {token=turnstileRef.current?.getToken() || '';} catch(failure) {setError(failure.message);return;}
-    const next=session || {token:createSupportToken(),amount};
+    const next=session || {token:createSupportToken(),amount,emailReceipt};
     storeSupportSession(next);setSession(next);busyRef.current=true;setBusy(true);
     try {
-      const data=await supportRequest('',next.token,{method:'POST',body:JSON.stringify({amount:next.amount,'cf-turnstile-response':token})});
+      const data=await supportRequest('',next.token,{method:'POST',body:JSON.stringify({amount:next.amount,emailReceipt:Boolean(next.emailReceipt),'cf-turnstile-response':token})});
       const saved={...next,orderCode:data.orderCode};storeSupportSession(saved);
       if(live.current) {setSession(saved);setPayment(data);}
     } catch(failure) {if(live.current) {
@@ -93,7 +96,7 @@ export default function SupportModal({onClose,returnedOrder}) {
       <aside className="support-aside paper-surface" data-paper="mint"><span className="support-eyebrow">α∫M4A · HỌC LIỆU MỞ</span><div className="support-heart" aria-hidden="true"><Heart size={54} strokeWidth={1.2}/></div><h2>Góp một chút.<br/>Mở thêm kiến thức.</h2><p>Mỗi đóng góp giúp duy trì website và tiếp tục phát triển học liệu cho cộng đồng.</p><span className="support-secure"><ShieldCheck size={17}/> Thanh toán qua PayOS</span></aside>
       <div className="support-main"><button type="button" className="support-close" onClick={onClose} aria-label="Đóng cửa sổ ủng hộ"><X size={20}/></button>
         <span className="support-eyebrow">{paid?'CẢM ƠN BẠN':'CÙNG DUY TRÌ α∫M4A'}</span><h3 id="support-title">{paid?'Đã nhận được ủng hộ.':hasOrder?'Hoàn tất ủng hộ.':'Bạn muốn góp bao nhiêu?'}</h3><p id="support-description">{paid?'Cảm ơn bạn đã đồng hành cùng học liệu mở.':'Đóng góp tự nguyện, bạn chọn số tiền phù hợp.'}</p>
-        {!hasOrder ? <form onSubmit={handleCreate}><fieldset disabled={busy || Boolean(session) || returnMismatch}><legend className="support-sr-only">Chọn số tiền ủng hộ</legend><div className="support-amounts">{amounts.map(value=><button key={value} type="button" aria-pressed={amount===value} onClick={()=>setAmount(value)}>{money(value)}{amount===value && <Check size={15}/>}</button>)}</div><label className="support-custom" htmlFor="support-amount">Số tiền khác<span><input id="support-amount" type="number" min="5000" max="10000000" step="1" inputMode="numeric" value={amount || ''} onChange={event=>setAmount(event.target.value===''?0:Number(event.target.value))} required/><span>VNĐ</span></span></label></fieldset><TurnstileWidget ref={turnstileRef} action="support"/>{session && <p className="support-note">Phiên trước chưa hoàn tất. Tiếp tục với cùng số tiền để kiểm tra.</p>}<button type="submit" className="support-primary" disabled={busy || returnMismatch}>{busy?<Loader2 size={17} className="support-spinner"/>:<Heart size={17}/>} {busy?'Đang tạo phiên…':`Ủng hộ ${money(session?.amount || amount)}`}<ArrowRight size={17}/></button><p className="support-note">Bạn sẽ thấy QR và đường dẫn thanh toán ở bước tiếp theo.</p></form> : paid ? <div className="support-complete"><CheckCircle2 size={42}/><strong>{money(payment.amount)}</strong><p>PayOS đã xác nhận giao dịch #{payment.orderCode}.</p><button type="button" className="support-primary" onClick={onClose}>Hoàn tất <Check size={17}/></button><button type="button" className="support-text-button" onClick={handleRestart}>Ủng hộ lần khác</button></div> : <div className="support-payment">
+        {!hasOrder ? <form onSubmit={handleCreate}><fieldset disabled={busy || Boolean(session) || returnMismatch}><legend className="support-sr-only">Chọn số tiền ủng hộ</legend><div className="support-amounts">{amounts.map(value=><button key={value} type="button" aria-pressed={amount===value} onClick={()=>setAmount(value)}>{money(value)}{amount===value && <Check size={15}/>}</button>)}</div><label className="support-custom" htmlFor="support-amount">Số tiền khác<span><input id="support-amount" type="number" min="5000" max="10000000" step="1" inputMode="numeric" value={amount || ''} onChange={event=>setAmount(event.target.value===''?0:Number(event.target.value))} required/><span>VNĐ</span></span></label>{currentUser?.username && !currentUser.username.endsWith('.invalid') && <label className="support-receipt-choice"><input type="checkbox" checked={emailReceipt} onChange={event=>setEmailReceipt(event.target.checked)}/> Gửi thư cảm ơn đến email tài khoản của tôi</label>}</fieldset><TurnstileWidget ref={turnstileRef} action="support"/>{session && <p className="support-note">Phiên trước chưa hoàn tất. Tiếp tục với cùng số tiền để kiểm tra.</p>}<button type="submit" className="support-primary" disabled={busy || returnMismatch}>{busy?<Loader2 size={17} className="support-spinner"/>:<Heart size={17}/>} {busy?'Đang tạo phiên…':`Ủng hộ ${money(session?.amount || amount)}`}<ArrowRight size={17}/></button><p className="support-note">Bạn sẽ thấy QR và đường dẫn thanh toán ở bước tiếp theo.</p></form> : paid ? <div className="support-complete"><CheckCircle2 size={42}/><strong>{money(payment.amount)}</strong><p>PayOS đã xác nhận giao dịch #{payment.orderCode}.</p><button type="button" className="support-primary" onClick={onClose}>Hoàn tất <Check size={17}/></button><button type="button" className="support-text-button" onClick={handleRestart}>Ủng hộ lần khác</button></div> : <div className="support-payment">
           <div className="support-payment-state" role="status">{checking?<Loader2 size={15} className="support-spinner"/>:<span/>}{payment?.status==='CANCELLED'?'Phiên thanh toán đã đóng':payment?.status==='FAILED'?'Chưa tạo được phiên thanh toán':checking?'Đang kiểm tra với PayOS…':'Đang chờ thanh toán'}</div>
           <strong className="support-total">{money(payment?.amount || session.amount)}</strong>
           {!terminal(payment?.status) && <div className="support-qr">{qrImage?<img src={qrImage} alt={`QR ủng hộ ${money(payment?.amount || session.amount)} qua PayOS`}/>:<div><Loader2 size={28} className="support-spinner"/><span>{checkout?'Có thể mở PayOS để thanh toán.':'Đang lấy thông tin thanh toán…'}</span></div>}</div>}
