@@ -7,6 +7,7 @@ import { getCourseById } from '../../data/coursesData';
 import { formatPlaybackTime as formatTime, getMediaKey, getPlaybackOwner, readPlaybackProgress, readPlayerPreferences, savePlaybackProgress, savePlayerPreferences } from '../../utils/coursePlaybackStorage';
 import { describeYouTubeError, loadYouTubePlayerAPI } from '../../utils/youtubePlayer';
 import '../../assets/styles/LearningPlayer.css';
+import '../../assets/styles/PlayerFullscreen.css';
 
 export default function LearningPlayer() {
   const state = useGlobalPlayer();
@@ -38,7 +39,7 @@ function LessonViewer({ state }) {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [playlistOpen, setPlaylistOpen] = useState(false);
+  const [playlistOpen, setPlaylistOpen] = useState(() => window.innerWidth >= 1000);
   const [theater, setTheater] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
   const [attempt, setAttempt] = useState(0);
@@ -121,7 +122,7 @@ function LessonViewer({ state }) {
       if (disposed || !target.isConnected) return;
       instance = new YT.Player(target, {
         width: '100%', height: '100%', videoId: lesson.media.videoId,
-        playerVars: { autoplay: resumePendingRef.current ? 0 : 1, controls: 0, playsinline: 1, rel: 0, fs: 1, origin: window.location.origin, widget_referrer: window.location.href },
+        playerVars: { autoplay: resumePendingRef.current ? 0 : 1, controls: 0, playsinline: 1, rel: 0, fs: 0, iv_load_policy: 3, origin: window.location.origin, widget_referrer: window.location.href },
         events: {
           onReady: ({ target: player }) => {
             if (disposed) return;
@@ -277,7 +278,7 @@ function LessonViewer({ state }) {
     else if (nativeRef.current?.webkitEnterFullscreen) nativeRef.current.webkitEnterFullscreen();
   }, []);
   useEffect(() => {
-    const handleChange = () => setFullscreen(Boolean(document.fullscreenElement));
+    const handleChange = () => setFullscreen(document.fullscreenElement === dialogRef.current);
     document.addEventListener('fullscreenchange', handleChange);
     return () => document.removeEventListener('fullscreenchange', handleChange);
   }, []);
@@ -385,7 +386,7 @@ function LessonViewer({ state }) {
         </div>
       </header>
 
-      <div className="learning-player__workspace">
+      <div className={`learning-player__workspace ${playlistOpen && !isMinimized ? 'has-playlist' : ''}`}>
         <div className="learning-player__main">
           {video ? <>
             <div className="learning-player__stage">
@@ -438,8 +439,8 @@ function LessonViewer({ state }) {
           </footer>}
         </div>
         {playlistOpen && !isMinimized && <aside className="learning-player__playlist" aria-label="Danh sách bài học">
-          <div className="learning-player__playlist-heading"><strong>Bài giảng</strong><button type="button" className="learning-icon-button" aria-label="Đóng danh sách bài" onClick={() => setPlaylistOpen(false)}><X size={18} /></button></div>
-          {allLessons.map((item, index) => <button type="button" key={item.id}
+          <div className="learning-player__playlist-heading"><div><span>Lộ trình của bạn</span><strong>Bài giảng · {allLessons.length} bài</strong></div><button type="button" className="learning-icon-button" aria-label="Đóng danh sách bài" onClick={() => setPlaylistOpen(false)}><X size={18} /></button></div>
+          <div className="learning-player__lesson-list">{allLessons.map((item, index) => <button type="button" key={item.id}
             className={`learning-player__lesson ${item.id === lesson.id ? 'is-current' : ''}`}
             aria-current={item.id === lesson.id ? 'true' : undefined}
             disabled={loadingNext}
@@ -447,7 +448,7 @@ function LessonViewer({ state }) {
             <span>{String(index + 1).padStart(2, '0')}</span>
             <div><strong>{item.title}</strong><small>{item.duration}{item.isLocked && !state.courseAccessAllowed ? ' · Cần mở khóa' : ''}</small></div>
             {item.isLocked && !state.courseAccessAllowed ? <LockKeyhole size={16} aria-label="Bài học đã khóa" /> : item.id === lesson.id && <Check size={16} />}
-          </button>)}
+          </button>)}</div>
         </aside>}
       </div>
     </section>

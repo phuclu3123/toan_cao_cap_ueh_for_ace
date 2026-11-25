@@ -1,3 +1,4 @@
+import StudyWelcome from '../components/learning/StudyWelcome';
 import { useMemo, useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ChevronLeft, ChevronRight, Search } from 'lucide-react';
@@ -157,6 +158,7 @@ export default function BlogPage() {
           )}
         </div>
       </section>
+      <StudyWelcome current="blog" />
     </div>
   );
 }

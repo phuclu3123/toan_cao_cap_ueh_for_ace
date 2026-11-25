@@ -1,3 +1,4 @@
+import StudyWelcome from '../components/learning/StudyWelcome';
 import { useState } from 'react';
 import { Compass, Users, BookOpen } from 'lucide-react';
 import CommunityPanel from '../components/community/CommunityPanel';
@@ -224,6 +225,7 @@ export default function CommunityPage() {
                 </div>
               </>
             )}
+          <StudyWelcome current="community" />
           </main>
 
           {/* Right Column: Widgets Sidebar */}

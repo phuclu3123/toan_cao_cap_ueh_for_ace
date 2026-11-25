@@ -1,3 +1,4 @@
+import StudyWelcome from '../components/learning/StudyWelcome';
 import { useEffect, useMemo, useState, useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
@@ -164,6 +165,8 @@ export default function ResourcesPage() {
           </aside>
         </div>
       </section>
+
+      <StudyWelcome current="resources" />
 
       <div id="library-resources" className="container resources-control-panel">
         <div className="controls-wrapper" role="search">

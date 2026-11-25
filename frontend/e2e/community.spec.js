@@ -83,13 +83,23 @@ async function open(page, path = '/community') {
 }
 
 test('refreshed composer, notebook and member profile fit all three screen sizes', async ({ page, context }, info) => {
+  test.setTimeout(120_000);
   const state = await fixture(context); await open(page);
+  await page.evaluate(() => { window.notebookCopies = []; Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: async text => { window.notebookCopies.push(text); } } }); });
   for (const width of [1440, 768, 390]) {
     await page.setViewportSize({ width, height: 1000 });
     await page.getByRole('button', { name: 'Đặt câu hỏi', exact: true }).click();
     const composer = page.locator('.create-post-modal-card');
     await expect(composer).toBeVisible();
     const cardBox = await composer.boundingBox();
+    await expect(composer.locator('.question-sheet')).toBeVisible();
+    await expect(composer.locator('.composer-details')).toHaveCount(0);
+    expect(await composer.evaluate(node => node.scrollWidth <= node.clientWidth)).toBeTruthy();
+    await expect(composer.locator('.docs-math-row')).not.toBeVisible();
+    await page.evaluate(() => document.fonts.ready);
+    await page.screenshot({ path: info.outputPath(`composer-default-${width}.png`) });
+    await composer.getByRole('button', { name: 'Công thức toán', exact: true }).click();
+    await expect(composer.locator('.docs-math-row')).toBeVisible();
     for (const field of await composer.locator('.form-row-2col .form-group').all()) {
       const box = await field.boundingBox(); expect(box.x + box.width).toBeLessThanOrEqual(cardBox.x + cardBox.width);
     }
@@ -99,6 +109,16 @@ test('refreshed composer, notebook and member profile fit all three screen sizes
     await composer.getByRole('button', { name: 'Sổ tay của Phúc', exact: true }).click();
     await expect(page.locator('.cheatsheet-modal-card')).toBeVisible();
     await page.screenshot({ path: info.outputPath(`notebook-${width}.png`) });
+    const notebook = page.locator('.formula-notebook');
+    await expect(notebook.locator('.notebook-index')).toBeVisible();
+    await expect(notebook.locator('.cheatsheet-card').first()).toHaveCSS('border-radius', '0px');
+    await expect(notebook.locator('.cheatsheet-formula').first()).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+    await notebook.getByRole('button', { name: 'Chép', exact: true }).first().click();
+    await expect(notebook.getByRole('button', { name: 'Đã chép', exact: true })).toBeVisible();
+    expect(await page.evaluate(() => window.notebookCopies.at(-1))).toBe('a > b');
+    await notebook.getByLabel('Tìm công thức', { exact: true }).fill('không có công thức xyz');
+    await expect(notebook.locator('.cheatsheet-empty')).toBeVisible();
+    await notebook.getByLabel('Tìm công thức', { exact: true }).fill('');
     await page.getByRole('button', { name: 'Bảng Hy Lạp đầy đủ', exact: true }).click();
     await expect(page.locator('.symbol-explorer-card')).toBeVisible();
     await page.keyboard.press('Escape');
@@ -168,7 +188,7 @@ test('saved feed, hide/restore, and failed votes show real outcomes', async ({ p
 test('create, edit and delete question persist via API and ask for confirmation', async ({ page, context }) => {
   const state = await fixture(context); await open(page);
   await page.getByRole('button', { name: 'Đặt câu hỏi', exact: true }).click();
-  const dialog = page.getByRole('dialog', { name: 'Soạn câu hỏi học thuật' });
+  const dialog = page.getByRole('dialog', { name: 'Câu hỏi của bạn.' });
   await dialog.locator('#post-title-input').fill('Tìm giới hạn của hàm phân thức');
   await dialog.locator('.docs-wysiwyg-content').fill('Mình đã thử phân tích tử số thành nhân tử nhưng chưa tìm được giới hạn.');
   await dialog.getByRole('button', { name: /Đăng|Xuất bản|Gửi câu hỏi/ }).last().click();
@@ -214,7 +234,8 @@ test('legacy profile links resolve to the canonical member and missing profiles 
   await expect(page.getByRole('heading', { name: 'Bài toán hoặc nội dung không tồn tại' })).toHaveCount(0);
 });
 
-test('new answer, attachment and comment use API; accepted answer updates the thread', async ({ page, context }) => {
+test('new answer, attachment and comment use API; accepted answer updates the thread', async ({ page, context }, info) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
   const state = await fixture(context); await open(page);
   await page.locator('#post-question-a .se-question-title a').click();
   const composer = page.locator('#answer-composer-section');
@@ -229,6 +250,15 @@ test('new answer, attachment and comment use API; accepted answer updates the th
   await answer.locator('.qa-comment-composer textarea').fill('Mình đã hiểu cách biến đổi, cảm ơn bạn.');
   await answer.locator('.qa-comment-composer button[type="submit"]').click();
   await expect(answer).toContainText('Mình đã hiểu cách biến đổi, cảm ơn bạn.');
+  const discussion = answer.locator('.qa-discussion');
+  await expect(discussion.locator('.qa-comment-bubble')).toHaveCSS('background-color', 'rgb(243, 249, 252)');
+  await discussion.scrollIntoViewIfNeeded();
+  await page.screenshot({ path: info.outputPath('bright-comments-1440.png') });
+  await page.setViewportSize({ width: 390, height: 1000 });
+  await discussion.scrollIntoViewIfNeeded();
+  await page.screenshot({ path: info.outputPath('bright-comments-390.png') });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
+  await page.setViewportSize({ width: 1440, height: 1000 });
   await answer.getByRole('button', { name: 'Chấp nhận lời giải', exact: true }).click();
   await page.getByRole('dialog', { name: 'Chấp nhận lời giải này?' }).getByRole('button', { name: /Chấp nhận/, exact: false }).click();
   await expect(answer.getByRole('button', { name: /Đã ghim chấp nhận/ })).toBeVisible();
@@ -300,4 +330,55 @@ for (const width of [1440, 768, 390]) test(`responsive community at ${width}px`,
   await page.screenshot({ path: testInfo.outputPath('community.png'), fullPage: true });
   await page.evaluate(() => document.documentElement.dataset.theme = 'dark');
   await page.screenshot({ path: testInfo.outputPath('community-dark.png'), fullPage: true });
+});
+
+
+test('hand-drawn study introductions and personal portfolio fit the public sections', async ({ page, context }, info) => {
+  test.setTimeout(150_000);
+  await fixture(context);
+  const errors = []; page.on('pageerror', error => errors.push(error.message));
+  await page.goto('/');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /aim4a-social-20261125\.png$/);
+  await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', 'α∫M4A - Math for all • Aim for A');
+  await page.evaluate(() => document.fonts.load('48px "Oooh Baby"', 'Một hành trình cùng Toán.'));
+  await expect(page.locator('#hp-mementos-title')).toHaveCSS('font-family', /Oooh Baby/);
+  await page.locator('#hp-mementos-title').scrollIntoViewIfNeeded();
+  await page.screenshot({ path: info.outputPath('milestones-handwriting.png') });
+  const portfolio = page.locator('.hp-portfolio-note');
+  await expect(portfolio.getByRole('link', { name: 'Khám phá thêm về Phúc' })).toHaveAttribute('href', 'https://phuclu3123.github.io/portfolio/');
+  for (const width of [1440, 768, 390]) {
+    await page.setViewportSize({ width, height: 1000 });
+    await portfolio.scrollIntoViewIfNeeded();
+    await page.screenshot({ path: info.outputPath(`portfolio-${width}.png`) });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
+  }
+  for (const route of ['/courses', '/resources', '/exams', '/community', '/blog']) {
+    await page.goto(route);
+    const welcome = page.locator('.study-welcome').first();
+    await expect(welcome).toBeVisible();
+    await expect(welcome.locator('a')).toHaveCount(0);
+    await expect(welcome.locator('.study-scene')).toBeVisible();
+    await expect(welcome).toHaveClass(new RegExp(`study-welcome--${route.slice(1)}`));
+    if (route === '/exams') expect(await page.evaluate(() => {
+      const intro = document.querySelector('.study-welcome--exams');
+      return intro.previousElementSibling.classList.contains('exam-practice-section') && intro.nextElementSibling.classList.contains('exam-midterm-section');
+    })).toBe(true);
+    expect((await welcome.locator('svg path').count())).toBeGreaterThan(4);
+    if (route === '/courses') {
+      const spacing = await welcome.evaluate(element => {
+        const style = getComputedStyle(element);
+        return { top: parseFloat(style.paddingTop), bottom: parseFloat(style.paddingBottom) };
+      });
+      expect(spacing.top).toBeGreaterThanOrEqual(100);
+      expect(spacing.bottom).toBeGreaterThanOrEqual(100);
+    }
+    for (const width of [1440, 768, 390]) {
+      await page.setViewportSize({ width, height: 1000 });
+      await page.evaluate(() => document.fonts.ready);
+      await welcome.scrollIntoViewIfNeeded();
+      await page.screenshot({ path: info.outputPath(`${route.slice(1)}-welcome-${width}.png`) });
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
+    }
+  }
+  expect(errors).toEqual([]);
 });

@@ -143,7 +143,7 @@ function CourseDetailContent({ course }) {
   };
 
   return (
-    <div className={`course-detail-page cd-tone-${courseTone}`}>
+    <div className={`course-detail-page course-studio cd-tone-${courseTone}`}>
       <CourseStudyDock courseId={course.id} tone={courseTone} />
       <header className="cd-hero">
         <div className="container cd-hero__inner">
@@ -153,20 +153,13 @@ function CourseDetailContent({ course }) {
           </Link>
 
           <div className="cd-hero__grid">
-            <div className="cd-hero__copy">
+            <div className="cd-hero__copy paper-surface" data-paper="peach">
               <span className="cd-kicker">
                 <GraduationCap size={16} aria-hidden="true" />
                 {course.tag}
               </span>
               <h1>{course.title}</h1>
               <p>{course.desc}</p>
-
-              <div className="cd-meta-grid" aria-label="Thông tin khóa học">
-                <span><BookOpen size={18} /> {Number.isInteger(course.lessonsCount) ? `${course.lessonsCount} bài hiện có` : 'Nội dung đang chuẩn bị'}</span>
-                {Number.isInteger(course.sectionsCount) && <span><FolderOpen size={18} /> {course.sectionsCount} phần</span>}
-                <span><Clock3 size={18} /> {course.duration}</span>
-                {Number.isInteger(course.studentsCount) && <span><Users size={18} /> {course.studentsCount} học viên</span>}
-              </div>
 
               <div className="cd-hero__actions">
                 {firstLesson && (
@@ -189,18 +182,25 @@ function CourseDetailContent({ course }) {
               </div>
             </div>
 
-            <figure className="cd-hero__art">
-              <div className="cd-art-orbit cd-art-orbit--one" aria-hidden="true" />
-              <div className="cd-art-orbit cd-art-orbit--two" aria-hidden="true" />
-              <div className="cd-art-card">
-                <img src={course.image} alt={`Ảnh bìa ${course.title}`} />
-                <figcaption>
-                  <span>{course.badge}</span>
-                  <strong>{course.instructor}</strong>
-                </figcaption>
+            <figure className="cd-hero__art paper-surface" data-paper="sky">
+              <div className="cd-studio-art-label"><BookOpen size={17} /><span>{course.id === 'tu-hoc-toan-cao-cap' ? 'Học từ từng nét bút' : 'Một góc học mới'}</span></div>
+              <div className={`cd-studio-sheets ${course.id === 'tu-hoc-toan-cao-cap' ? 'cd-notebook-fan' : ''}`}>
+                {course.id === 'tu-hoc-toan-cao-cap' ? [
+                  ['input-output', 'Mô hình Input–Output'],
+                  ['elasticity', 'Hệ số co giãn'],
+                  ['stationary-points', 'Điểm dừng và cực trị'],
+                  ['lagrange', 'Phương pháp Lagrange']
+                ].map(([id, label], index) => <img key={id} className={`cd-notebook-page cd-notebook-page--${index + 1}`} src={`/images/courses/notes/${id}-page.webp`} alt={`Trang viết tay của Phúc: ${label}`} />)
+                  : <img className="cd-studio-cover" src={course.image} alt={`Ảnh bìa ${course.title}`} />}
               </div>
-              <span className="cd-art-formula" aria-hidden="true">{course.artFormula || '∫ · ∇ · det(A)'}</span>
+              <figcaption className="cd-studio-art-caption"><span>{course.badge}</span><strong>{course.instructor}</strong></figcaption>
             </figure>
+          </div>
+          <div className="cd-meta-grid cd-studio-facts" aria-label="Thông tin khóa học">
+            <span><BookOpen size={18} /> {Number.isInteger(course.lessonsCount) ? `${course.lessonsCount} bài hiện có` : `${allLessons.length} bài trong lộ trình`}</span>
+            <span><FolderOpen size={18} /> {Number.isInteger(course.sectionsCount) ? course.sectionsCount : course.chapters.length} phần</span>
+            <span><Clock3 size={18} /> {course.duration}</span>
+            {Number.isInteger(course.studentsCount) && <span><Users size={18} /> {course.studentsCount} học viên</span>}
           </div>
         </div>
       </header>
@@ -304,9 +304,11 @@ function CourseDetailContent({ course }) {
           </section>
 
           <aside className="cd-enrollment" aria-label="Đăng ký khóa học">
-            <div className="cd-enrollment__cover">
-              <img src={course.image} alt="" />
-              <span>{course.tag}</span>
+            <div className="cd-enrollment__intro paper-surface" data-paper={hasCourseAccess ? 'mint' : 'sun'}>
+              <BookOpen size={26} strokeWidth={1.5} />
+              <span>{hasCourseAccess ? 'Góc học của bạn' : 'Bắt đầu cùng nhau'}</span>
+              <h3>{hasCourseAccess ? 'Mở bài. Hiểu thêm.' : 'Một lộ trình, từng bước nhỏ.'}</h3>
+              <p>{hasCourseAccess ? 'Chọn bài trong lộ trình để bắt đầu hoặc tiếp tục buổi học.' : 'Xem thử bài giảng trước khi chọn khóa học phù hợp với bạn.'}</p>
             </div>
 
             <div className="cd-enrollment__body">
@@ -321,7 +323,7 @@ function CourseDetailContent({ course }) {
                 <span className="cd-enrollment__eyebrow">Quyền học trọn khóa</span>
               )}
 
-              <div className="cd-price">
+              {!hasCourseAccess && <div className="cd-price">
                 {course.isClosed ? (
                   <strong>{course.discountPrice}</strong>
                 ) : course.isFree ? (
@@ -332,7 +334,7 @@ function CourseDetailContent({ course }) {
                     <strong>{course.discountPrice}</strong>
                   </>
                 )}
-              </div>
+              </div>}
 
               <ul className="cd-benefits">
                 {course.highlights.slice(0, 4).map((highlight) => (

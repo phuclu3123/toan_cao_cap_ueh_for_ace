@@ -1,0 +1,69 @@
+/* One notebook, one index, flat rows: formulas no longer live inside nested cards. */
+.formula-notebook .cheatsheet-header { display:grid; grid-template-columns:52px minmax(0,1fr) auto; align-items:center; gap:18px; }
+.formula-notebook .cheatsheet-header > .study-drawn-icon { width:52px; height:58px; }
+.formula-notebook .notebook-workspace { display:grid; grid-template-columns:185px minmax(0,1fr); min-height:0; flex:1; overflow:hidden; }
+.formula-notebook .notebook-index { min-width:0; padding:24px 14px 24px 22px; overflow-y:auto; border-right:1px solid var(--ui-line,#e4e8df); }
+.formula-notebook .notebook-index > span { display:block; margin:0 10px 17px; font-size:10px; font-weight:750; letter-spacing:.09em; color:var(--ui-muted,#65715b); }
+.formula-notebook .cheatsheet-category-tabs { display:flex; flex-direction:column; gap:5px; overflow:visible; padding:0; }
+.formula-notebook .cheatsheet-category-tabs .cs-tab-btn { width:100%; text-align:left; justify-content:flex-start; white-space:normal; line-height:1.6; border-radius:0; padding:10px 12px; font-size:12px; }
+.formula-notebook .cheatsheet-modal-body { min-width:0; padding:22px 26px; }
+.formula-notebook .cheatsheet-grid { display:block; }
+.formula-notebook .cheatsheet-section { margin-bottom:30px; }
+.formula-notebook .cheatsheet-section-header { padding-bottom:12px; margin-bottom:0; }
+.formula-notebook .cheatsheet-cat-title { font-size:15px; line-height:1.6; }
+.formula-notebook .cheatsheet-card { display:grid; grid-template-columns:minmax(150px,.85fr) minmax(0,1fr) auto; align-items:center; gap:18px; padding:20px 0; border:0; border-bottom:1px solid var(--ui-line,#e4e8df); border-radius:0; background:transparent; box-shadow:none; min-height:88px; }
+.formula-notebook .cheatsheet-card .cheatsheet-formula { min-width:0; min-height:0; padding:0; margin:0; border:0; border-radius:0; background:transparent; overflow-x:auto; }
+.formula-notebook .cheatsheet-formula :is(.math-block,.katex-display) { padding:0 !important; margin:0 !important; background:transparent; border:0; text-align:left; }
+.formula-notebook .cheatsheet-formula .katex-display > .katex { text-align:left; }
+.formula-notebook .cheatsheet-card .cheatsheet-meta { gap:5px; }
+.formula-notebook .cheatsheet-item-name { font-size:13px; line-height:1.6; }
+.formula-notebook .cheatsheet-item-desc { font-size:11px; line-height:1.7; overflow-wrap:anywhere; }
+.formula-notebook .cheatsheet-card-actions { display:flex; align-items:center; gap:6px; }
+.formula-notebook .notebook-symbol-row { display:block; }
+.formula-notebook .notebook-symbol-row .cs-symbols-container { padding:0; border:0; border-radius:0; background:transparent; }
+.formula-notebook .notebook-symbol-row .cheatsheet-card-foot { display:flex; align-items:center; justify-content:space-between; margin-top:15px; padding:0; border:0; background:transparent; }
+.formula-notebook .cs-action-btn { padding:8px 9px; border-radius:6px; min-height:36px; font-size:11px; }
+.formula-notebook .notebook-symbol-row { display:block; }
+.formula-notebook :is(.cs-symbols-container,.notebook-symbol-row .cheatsheet-card-foot) { border:0; border-radius:0; padding:0; background:transparent; box-shadow:none; }
+.formula-notebook .notebook-symbol-row .cheatsheet-card-foot { margin-top:16px; }
+.formula-notebook .cheatsheet-controls-bar { padding:14px 24px; }
+.formula-notebook .cheatsheet-footer { gap:14px; }
+:root[data-theme='light'] .formula-notebook.cheatsheet-modal-card { background:#fff; border-color:#e3e6dd; border-radius:20px; }
+:root[data-theme='light'] .formula-notebook .cheatsheet-header { background:#fff; padding:20px 24px; border-color:#e3e6dd; }
+:root[data-theme='light'] .formula-notebook .qa-modal-title { font:400 30px/1.35 'Lora',Georgia,serif; letter-spacing:-.045em; }
+:root[data-theme='light'] .formula-notebook .qa-modal-sub { font-size:12px; margin-top:6px; }
+:root[data-theme='light'] .formula-notebook .cheatsheet-controls-bar { background:#fff; border-color:#e6e9e1; }
+:root[data-theme='light'] .formula-notebook .notebook-index { background:#f5f7f0; }
+:root[data-theme='light'] .formula-notebook .cs-tab-btn { background:transparent; color:#59644f; border:0; border-left:2px solid transparent; box-shadow:none; }
+:root[data-theme='light'] .formula-notebook .cs-tab-btn.active { background:transparent; color:#202d1c; border-left-color:#668259; font-weight:750; }
+:root[data-theme='light'] .formula-notebook .cheatsheet-card { background:transparent; border-color:#e6e9e1; border-radius:0; box-shadow:none; }
+:root[data-theme='light'] .formula-notebook .cheatsheet-card:hover { background:#fafbf7; transform:none; }
+:root[data-theme='light'] .formula-notebook .cheatsheet-formula { background:transparent; border:0; }
+:root[data-theme='light'] .formula-notebook .cheatsheet-item-count { background:transparent; color:#6b755f; font-size:11px; padding:0; }
+:root[data-theme='light'] .formula-notebook .cs-action-btn { color:#46563b; border:0; background:#edf2e7; }
+:root[data-theme='light'] .formula-notebook .cs-action-btn.copied { background:#dbe9cf; color:#2d4920; }
+:root[data-theme='light'] .formula-notebook .cheatsheet-footer { background:#fff; border-color:#e3e6dd; padding:14px 24px; }
+@media(max-width:760px) {
+  .formula-notebook .notebook-workspace { grid-template-columns:minmax(0,1fr); grid-template-rows:auto minmax(0,1fr); }
+  .formula-notebook .notebook-index { padding:10px 15px; border-right:0; border-bottom:1px solid var(--ui-line,#e4e8df); overflow:auto; }
+  .formula-notebook .notebook-index > span { display:none; }
+  .formula-notebook .cheatsheet-category-tabs { flex-direction:row; overflow:auto; }
+  .formula-notebook .cheatsheet-category-tabs .cs-tab-btn { width:auto; flex-shrink:0; white-space:nowrap; padding:7px 10px; }
+  .formula-notebook .cheatsheet-modal-body { padding:18px; }
+  .formula-notebook .cheatsheet-card { grid-template-columns:minmax(100px,.8fr) minmax(0,1fr) auto; gap:12px; padding-block:16px; }
+}
+@media(max-width:500px) {
+  .formula-notebook .cheatsheet-header { grid-template-columns:minmax(0,1fr) auto; gap:12px; }
+  .formula-notebook .cheatsheet-header > .study-drawn-icon { display:none; }
+  :root[data-theme='light'] .formula-notebook .cheatsheet-header { padding:18px; }
+  :root[data-theme='light'] .formula-notebook .qa-modal-title { font-size:25px; }
+  .formula-notebook .cheatsheet-controls-bar { padding:12px 18px; }
+  .formula-notebook .cheatsheet-card { grid-template-columns:minmax(0,1fr) auto; gap:9px 14px; }
+  .formula-notebook .cheatsheet-card .cheatsheet-formula { grid-column:1; }
+  .formula-notebook .cheatsheet-card .cheatsheet-meta { grid-column:1; grid-row:2; }
+  .formula-notebook .cheatsheet-card .cheatsheet-card-actions { grid-column:2; grid-row:1/3; }
+  .formula-notebook .cheatsheet-item-desc { display:none; }
+  :root[data-theme='light'] .formula-notebook .cheatsheet-footer { padding:12px 18px; }
+  .formula-notebook .cheatsheet-footer-hint { display:none; }
+  .formula-notebook .cheatsheet-footer-hint.has-copy-feedback { display:block; flex-basis:100%; font-size:12px; line-height:1.6; }
+}

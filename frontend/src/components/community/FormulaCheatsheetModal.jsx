@@ -2,6 +2,8 @@ import { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { BookOpen, X, Copy, Check, Search, Sparkles, PlusCircle, Layers, Grid } from 'lucide-react';
 import MathRenderer from '../MathRenderer';
+import { StudyIcon } from '../learning/StudyDoodles';
+import '../../assets/styles/FormulaNotebook.css';
 import useModalFocus from '../../hooks/useModalFocus';
 import '../../assets/styles/community.css';
 
@@ -248,6 +250,7 @@ export default function FormulaCheatsheetModal({ isOpen, onClose, onSelectFormul
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState('all');
   const [copiedCode, setCopiedCode] = useState('');
+  const [copyFeedback, setCopyFeedback] = useState('');
   const [activeQuickToast, setActiveQuickToast] = useState({ id: null, message: '' });
   const [showGreekExplorer, setShowGreekExplorer] = useState(false);
   const [greekTab, setGreekTab] = useState('all');
@@ -276,13 +279,20 @@ export default function FormulaCheatsheetModal({ isOpen, onClose, onSelectFormul
 
   if (!isOpen) return null;
 
-  const handleCopy = (code, label = '') => {
-    navigator.clipboard?.writeText(code);
-    setCopiedCode(code);
-    const toastMsg = label ? `Đã chép: ${label}` : 'Đã chép công thức!';
-    setActiveQuickToast({ id: code, message: toastMsg });
+  const handleCopy = async (code, label = '') => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedCode(code);
+      const toastMsg = label ? `Đã chép: ${label}` : 'Đã chép công thức!';
+      setCopyFeedback(toastMsg);
+      setActiveQuickToast({ id: code, message: toastMsg });
+    } catch {
+      setCopiedCode('');
+      setCopyFeedback('Chưa chép được công thức. Vui lòng cho phép trình duyệt sao chép rồi thử lại.');
+    }
     setTimeout(() => {
       setCopiedCode('');
+      setCopyFeedback('');
       setActiveQuickToast({ id: null, message: '' });
     }, 1800);
   };
@@ -308,16 +318,17 @@ export default function FormulaCheatsheetModal({ isOpen, onClose, onSelectFormul
       aria-modal="true"
       aria-labelledby="cheatsheet-title"
     >
-      <div className="cheatsheet-modal-card" onClick={(e) => e.stopPropagation()}>
+      <div className="cheatsheet-modal-card formula-notebook" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <header className="cheatsheet-header">
+          <StudyIcon kind="notes" />
           <div className="cheatsheet-title-wrap">
             <span className="q-eyebrow qa-modal-eyebrow">
-              <BookOpen size={13} /> Sổ tay học thuật UEH
+              <BookOpen size={13} /> MỘT TRANG ĐỂ NHỚ
             </span>
-            <h2 id="cheatsheet-title" className="qa-modal-title">Sổ tay công thức toán của Phúc</h2>
+            <h2 id="cheatsheet-title" className="qa-modal-title">Sổ tay của Phúc</h2>
             <p className="qa-modal-sub">
-              {totalCount} khối công thức chuẩn mực cho Toán Cao Cấp UEH của Hoàng Phúc — tra cứu, sao chép hoặc chèn thẳng vào bài.
+              {totalCount} công thức và ký hiệu. Tìm nhanh, chép lại hoặc chèn vào bài.
             </p>
           </div>
           <button type="button" className="modal-close-btn" onClick={onClose} aria-label="Đóng sổ tay">
@@ -331,7 +342,7 @@ export default function FormulaCheatsheetModal({ isOpen, onClose, onSelectFormul
             <Search size={15} />
             <input
               type="search"
-              placeholder="Tìm công thức (alpha, partial, pmatrix, le, ge, forall, exists, Lagrange, Bayes)..."
+              placeholder="Bạn đang tìm công thức nào? (alpha, tích phân, ma trận…)"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               aria-label="Tìm công thức"
@@ -344,10 +355,14 @@ export default function FormulaCheatsheetModal({ isOpen, onClose, onSelectFormul
             )}
           </div>
 
+        </div>
+        <div className="notebook-workspace">
+          <nav className="notebook-index" aria-label="Mục lục sổ tay"><span>MỤC LỤC</span>
           <div className="cheatsheet-category-tabs">
             <button
               type="button"
               className={`cs-tab-btn ${activeCategory === 'all' ? 'active' : ''}`}
+              aria-pressed={activeCategory === 'all'}
               onClick={() => setActiveCategory('all')}
             >
               Tất cả <span className="q-num">{totalCount}</span>
@@ -357,14 +372,14 @@ export default function FormulaCheatsheetModal({ isOpen, onClose, onSelectFormul
                 type="button"
                 key={cat.id}
                 className={`cs-tab-btn ${activeCategory === cat.id ? 'active' : ''}`}
+                aria-pressed={activeCategory === cat.id}
                 onClick={() => setActiveCategory(cat.id)}
               >
                 {cat.badge}
               </button>
             ))}
           </div>
-        </div>
-
+          </nav>
         {/* Formula grid */}
         <div className="cheatsheet-modal-body custom-scrollbar">
           {filteredCategories.length === 0 ? (
@@ -390,7 +405,7 @@ export default function FormulaCheatsheetModal({ isOpen, onClose, onSelectFormul
                     // Multi-symbol chip picker card
                     if (item.isChipGrid && item.chips) {
                       return (
-                        <article key={idx} className="cheatsheet-card" style={{ gridColumn: 'span 2' }}>
+                        <article key={idx} className="cheatsheet-card notebook-symbol-row">
                           <div className="cs-symbols-container">
                             <div className="cheatsheet-formula" style={{ minHeight: 'auto', padding: '12px' }}>
                               <div className="cs-symbol-chips-grid">
@@ -454,7 +469,6 @@ export default function FormulaCheatsheetModal({ isOpen, onClose, onSelectFormul
                           <MathRenderer text={item.display} />
                         </div>
 
-                        <div className="cheatsheet-card-foot">
                           <div className="cheatsheet-meta">
                             <span className="cheatsheet-item-name">{item.name}</span>
                             {item.desc && <span className="cheatsheet-item-desc">{item.desc}</span>}
@@ -482,7 +496,6 @@ export default function FormulaCheatsheetModal({ isOpen, onClose, onSelectFormul
                               <span>{isCopied ? 'Đã chép' : 'Chép'}</span>
                             </button>
                           </div>
-                        </div>
                       </article>
                     );
                   })}
@@ -492,10 +505,11 @@ export default function FormulaCheatsheetModal({ isOpen, onClose, onSelectFormul
           )}
         </div>
 
+        </div>
         {/* Footer */}
         <footer className="modal-footer cheatsheet-footer">
-          <span className="cheatsheet-footer-hint">
-            Chọn ký hiệu hoặc nút <strong>Chép</strong> để sao chép công thức.
+          <span className={`cheatsheet-footer-hint ${copyFeedback ? 'has-copy-feedback' : ''}`} role="status">
+            {copyFeedback || <>Chọn ký hiệu hoặc nút <strong>Chép</strong> để sao chép công thức.</>}
           </span>
           <div className="cheatsheet-footer-actions">
             <button

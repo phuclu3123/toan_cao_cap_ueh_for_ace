@@ -505,7 +505,8 @@ export default function AuthModal({
           <X size={19} aria-hidden="true" />
         </button>
 
-        <header className="auth-modal-header">
+        <div className="auth-brand-line"><img src="/images/brand/aim4a-mark.png" alt="α∫M4A" /><span>α∫M4A - Math for all • Aim for A</span></div>
+        <header className="auth-modal-header paper-surface" data-paper="mint">
           <span className="auth-modal-mark" aria-hidden="true">
             {authMode === 'forgot' ? <KeyRound size={21} /> : <CircleUserRound size={22} />}
           </span>

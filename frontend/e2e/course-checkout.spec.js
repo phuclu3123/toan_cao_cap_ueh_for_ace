@@ -206,29 +206,114 @@ async function confirmCheckout(dialog) {
 }
 
 test('refreshed course, player and auth remain usable across screen sizes', async ({ page, context }, info) => {
+  test.setTimeout(120_000);
   const state = await installFixture(context, { user: null });
+  await context.addInitScript(() => {
+    window.fixtureTurnstileThemes = [];
+    window.turnstile = { render(_node, options) { window.fixtureTurnstileThemes.push(options.theme); queueMicrotask(() => options.callback('ui-fixture-token')); return 1; }, remove() {}, reset() {} };
+  });
   await openCourse(page);
+  await expect(page).toHaveTitle('α∫M4A - Math for all • Aim for A');
+  await expect(page.locator('.cd-notebook-page')).toHaveCount(4);
+  for (const sheet of await page.locator('.cd-notebook-page').all()) {
+    await expect(sheet).toHaveCSS('object-fit', 'contain');
+    expect(await sheet.evaluate(node => node.complete && node.naturalHeight > node.naturalWidth)).toBeTruthy();
+    expect(await sheet.getAttribute('src')).toMatch(/-page\.webp$/);
+  }
+
+  const icon = await page.locator('link[rel="icon"]').getAttribute('href');
+  expect(icon).toBe('/images/brand/aim4a-round.svg');
+  const pixels = await page.evaluate(async src => {
+    const image = new Image(); image.src = src; await image.decode();
+    const canvas = document.createElement('canvas'); canvas.width = 128; canvas.height = 128;
+    const ctx = canvas.getContext('2d'); ctx.drawImage(image, 0, 0, 128, 128);
+    return { corner: ctx.getImageData(0, 0, 1, 1).data[3], center: ctx.getImageData(64, 64, 1, 1).data[3] };
+  }, icon);
+  expect(pixels).toEqual({ corner: 0, center: 255 });
   for (const width of [1440, 768, 390]) {
     await page.setViewportSize({ width, height: 1000 });
     await page.evaluate(() => document.fonts.ready);
     await page.screenshot({ path: info.outputPath(`course-${width}.png`) });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
+    await page.locator('#curriculum').scrollIntoViewIfNeeded();
+    await page.screenshot({ path: info.outputPath(`curriculum-${width}.png`) });
+    await page.evaluate(() => scrollTo(0, 0));
   }
   await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.emulateMedia({ colorScheme: 'dark' }); // App stays light even on a dark OS.
   await page.getByRole('button', { name: 'Đăng Nhập', exact: true }).first().click();
   await expect(page.locator('.auth-modal-panel')).toBeVisible();
+  await expect.poll(() => page.evaluate(() => window.fixtureTurnstileThemes.at(-1))).toBe('light');
+  await page.locator('#username').fill('student@example.test');
+  await page.locator('#password').fill('fixture-password');
+  const session = await context.newCDPSession(page);
+  await session.send('DOM.enable'); await session.send('CSS.enable');
+  const { root } = await session.send('DOM.getDocument');
+  for (const selector of ['#username', '#password']) {
+    const { nodeId } = await session.send('DOM.querySelector', { nodeId: root.nodeId, selector });
+    await session.send('CSS.forcePseudoState', { nodeId, forcedPseudoClasses: ['autofill'] });
+    const ink = await page.locator(selector).evaluate(node => ({ ink: getComputedStyle(node).webkitTextFillColor, cover: getComputedStyle(node).boxShadow, scheme: getComputedStyle(node).colorScheme }));
+    expect(ink.ink).toBe('rgb(32, 39, 32)');
+    expect(ink.scheme).toBe('light');
+    // Chromium reserves its autofill background; the inset paint is the visible surface.
+    expect(ink.cover).toContain('rgb(255, 255, 255)');
+    expect(ink.cover).toContain('inset');
+  }
   for (const width of [1440, 768, 390]) {
     await page.setViewportSize({ width, height: 1000 });
     await page.screenshot({ path: info.outputPath(`auth-${width}.png`) });
     const box = await page.locator('.auth-modal-panel').boundingBox();
     expect(box.x).toBeGreaterThanOrEqual(0); expect(box.x + box.width).toBeLessThanOrEqual(width);
   }
-  await page.keyboard.press('Escape');
-  state.user = student; state.previewEnabled = true;
+  await session.detach(); await page.keyboard.press('Escape');
+  state.user = student; state.previewEnabled = true; state.reason = 'ENROLLED';
   await page.reload();
+  await expect(page.locator('.cd-price')).toHaveCount(0);
   await page.getByRole('button', { name: 'Xem bài học đầu tiên', exact: true }).click();
-  await expect(page.locator('.learning-player')).toBeVisible();
-  await page.screenshot({ path: info.outputPath('player-390.png') });
+  const player = page.locator('.learning-player');
+  await expect(player).toBeVisible();
+  const playlistToggle = player.getByRole('button', { name: 'Bài học', exact: true });
+  if (await playlistToggle.getAttribute('aria-expanded') === 'false') await playlistToggle.click();
+  for (const width of [1440, 768, 390]) {
+    await page.setViewportSize({ width, height: 1000 });
+    const playerBox = await player.boundingBox();
+    expect(playerBox.x).toBeGreaterThanOrEqual(0);
+    expect(playerBox.x + playerBox.width).toBeLessThanOrEqual(width);
+    if (width === 1440) {
+      expect(playerBox.width).toBeGreaterThan(1200);
+      expect(playerBox.height).toBeLessThan(800);
+      const stage = await player.locator('.learning-player__stage').boundingBox();
+      expect(stage.height).toBeLessThanOrEqual(521);
+    }
+    const bounds = await player.evaluate(node => {
+      const main = node.querySelector('.learning-player__main').getBoundingClientRect();
+      const workspace = node.querySelector('.learning-player__workspace').getBoundingClientRect();
+      const list = node.querySelector('.learning-player__playlist').getBoundingClientRect();
+      return { mainBottom: main.bottom, workspaceBottom: workspace.bottom, listBottom: list.bottom, listTop: list.top, mainRight: main.right, listLeft: list.left, scrollWidth: node.scrollWidth, width: node.clientWidth };
+    });
+    expect(bounds.scrollWidth).toBeLessThanOrEqual(bounds.width + 1);
+    if (width > 850) {
+      expect(Math.abs(bounds.mainBottom - bounds.workspaceBottom)).toBeLessThan(2);
+      expect(Math.abs(bounds.listBottom - bounds.workspaceBottom)).toBeLessThan(2);
+      expect(bounds.mainRight).toBeLessThanOrEqual(bounds.listLeft + 1);
+    } else expect(bounds.listTop).toBeGreaterThanOrEqual(bounds.mainBottom - 1);
+    await page.screenshot({ path: info.outputPath(`player-playlist-${width}.png`) });
+    if (width === 1440 || width === 390) {
+      await player.getByRole('button', { name: 'Toàn màn hình', exact: true }).click();
+      await expect.poll(() => page.evaluate(() => document.fullscreenElement?.classList.contains('learning-player'))).toBe(true);
+      const fullBounds = await player.evaluate(node => {
+        const stage = node.querySelector('.learning-player__stage').getBoundingClientRect();
+        const controls = node.querySelector('.learning-player__controls');
+        return { height:node.getBoundingClientRect().height, stage:stage.height, viewport:innerHeight, ink:getComputedStyle(controls).color };
+      });
+      expect(Math.abs(fullBounds.height - fullBounds.viewport)).toBeLessThan(2);
+      expect(fullBounds.stage).toBeGreaterThan(fullBounds.viewport * (width === 1440 ? .65 : .4));
+      expect(fullBounds.ink).toBe('rgb(242, 246, 242)');
+      await page.screenshot({ path: info.outputPath(`player-fullscreen-${width}.png`) });
+      await player.getByRole('button', { name: 'Thoát toàn màn hình', exact: true }).click();
+      await expect.poll(() => page.evaluate(() => Boolean(document.fullscreenElement))).toBe(false);
+    }
+  }
 });
 
 test('checkout countdown does not restart polling and donate stays isolated in the same browser', async ({ page, context }) => {

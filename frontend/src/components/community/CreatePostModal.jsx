@@ -9,7 +9,6 @@ import {
   RotateCcw,
   AlertCircle,
   CheckCircle2,
-  ShieldCheck,
   FileQuestion
 } from 'lucide-react';
 import WYSIWYGMathEditor from './WYSIWYGMathEditor';
@@ -233,7 +232,7 @@ export default function CreatePostModal({
           if (e.target === e.currentTarget) handleAttemptClose();
         }}
       >
-        <div ref={modalRef} tabIndex={-1} className="create-post-modal-card glass-panel animate-scale-up" onClick={(e) => e.stopPropagation()}>
+        <div ref={modalRef} tabIndex={-1} className="create-post-modal-card question-composer glass-panel animate-scale-up" onClick={(e) => e.stopPropagation()}>
           {/* Header */}
           <div className="create-modal-header">
             <div className="header-badge-title">
@@ -241,9 +240,9 @@ export default function CreatePostModal({
               <div>
                 <span className="q-eyebrow">α∫M4A</span>
                 <h2 id="create-post-modal-title" className="create-modal-title">
-                  {editingPost ? 'Chỉnh sửa bài viết' : 'Soạn câu hỏi học thuật'}
+                  {editingPost ? 'Chỉnh sửa bài viết' : type === 'question' ? 'Câu hỏi của bạn.' : 'Chia sẻ của bạn.'}
                 </h2>
-                <p className="create-modal-subtitle">Trình bày vấn đề rõ ràng, thêm công thức hoặc ảnh đề bài khi cần.</p>
+                <p className="create-modal-subtitle">Một đề bài rõ ràng, thêm nhiều góc nhìn.</p>
               </div>
               {hasDraftLoaded && !editingPost && (
                 <span className="draft-badge-indicator" title="Bản nháp đã được tự động lưu">
@@ -272,7 +271,7 @@ export default function CreatePostModal({
                 onClick={() => setType('question')}
               >
                 <HelpCircle size={16} />
-                <span>Đặt câu hỏi / Bài toán khó</span>
+                <span>Đặt câu hỏi</span>
               </button>
 
               <button
@@ -281,190 +280,179 @@ export default function CreatePostModal({
                 onClick={() => setType('article')}
               >
                 <BookOpen size={16} />
-                <span>Chia sẻ bài viết / Kinh nghiệm học</span>
+                <span>Chia sẻ kinh nghiệm</span>
               </button>
             </div>
 
-            {/* 2. Title Input */}
-            <div className="form-group">
-              <label className="form-label" htmlFor="post-title-input">
-                Tiêu đề bài viết: <span className="text-danger">*</span>
-              </label>
-              <input
-                id="post-title-input"
-                type="text"
-                className={`form-input ${errors.title ? 'input-error' : ''}`}
-                placeholder={
-                  type === 'question'
-                    ? 'VD: Tìm cực trị hàm 2 biến bằng phương pháp Lagrange trong đề thi giữa kỳ?'
-                    : 'VD: Tổng hợp công thức tính định thức ma trận cấp n và mẹo bấm máy Casio 580...'
-                }
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-              {errors.title && <span className="form-error-msg">{errors.title}</span>}
-            </div>
-
-            {/* 3. Category & Difficulty Selector Row */}
-            <div className="form-row-2col">
-              <div className="form-group">
-                <label className="form-label" htmlFor="post-subject-select">
-                  Chuyên môn môn học: <span className="text-danger">*</span>
-                </label>
-                <CommunitySelect
-                  id="post-subject-select"
-                  value={subject}
-                  options={SUBJECT_CATEGORIES.filter((s) => s.id !== 'all').map((s) => ({
-                    value: s.id,
-                    label: s.label
-                  }))}
-                  onChange={setSubject}
-                  ariaLabel="Chọn chuyên môn môn học"
-                  className="create-post-select"
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label" htmlFor="post-diff-select">
-                  Mức độ khó: <span className="text-danger">*</span>
-                </label>
-                <CommunitySelect
-                  id="post-diff-select"
-                  value={difficulty}
-                  options={DIFFICULTY_LEVELS.map((d) => ({ value: d.id, label: d.label }))}
-                  onChange={setDifficulty}
-                  ariaLabel="Chọn mức độ khó"
-                  className="create-post-select"
-                />
-              </div>
-            </div>
-
-            {/* 4. Full-Width Editor with Preview Tab Toggle */}
-            <div className="create-editor-section">
-              <div className="create-editor-tabs-bar">
-                <button
-                  type="button"
-                  className={`create-tab-btn ${activeMobileTab === 'editor' ? 'active' : ''}`}
-                  onClick={() => setActiveMobileTab('editor')}
-                >
-                  <Edit3 size={15} />
-                  <span>Soạn thảo nội dung</span>
-                </button>
-
-                <button
-                  type="button"
-                  className={`create-tab-btn ${activeMobileTab === 'preview' ? 'active' : ''}`}
-                  onClick={() => setActiveMobileTab('preview')}
-                >
-                  <Eye size={15} />
-                  <span>Xem trước ({content.trim() ? 'Sẵn sàng' : 'Chưa có nội dung'})</span>
-                </button>
-              </div>
-
-              {activeMobileTab === 'editor' ? (
-                <div className="create-editor-pane">
-                  <WYSIWYGMathEditor
-                    value={content}
-                    onChange={setContent}
-                    onAttachImage={item => { setImages([item]); setImage(item.preview); setAltText(item.altText); }}
-                    placeholder="Viết câu hỏi hoặc đề bài của bạn. Có thể thêm công thức và hình minh họa."
-                    onOpenCheatsheet={onOpenCheatsheet}
-                    minHeight="220px"
-                    showLivePreview={false}
+            <div className="question-sheet">
+                {/* 2. Title Input */}
+                <div className="form-group">
+                  <label className="form-label" htmlFor="post-title-input">
+                    Bạn muốn hỏi điều gì? <span className="text-danger">*</span>
+                  </label>
+                  <textarea
+                    id="post-title-input"
+                    rows={2}
+                    className={`form-input ${errors.title ? 'input-error' : ''}`}
+                    placeholder={
+                      type === 'question'
+                        ? 'Ví dụ: Mình nên bắt đầu bài cực trị Lagrange này từ đâu?'
+                        : 'VD: Tổng hợp công thức tính định thức ma trận cấp n và mẹo bấm máy Casio 580...'
+                    }
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
                   />
-                  {errors.content && <span className="form-error-msg">{errors.content}</span>}
+                  {errors.title && <span className="form-error-msg">{errors.title}</span>}
                 </div>
-              ) : (
-                <div className="create-preview-full-card">
-                  <div className="preview-pane-header">
-                    <Eye size={14} />
-                    <span>Xem trước bài viết</span>
+
+              <div className="question-metadata" aria-label="Thông tin bài viết">
+                {/* Subject and difficulty */}
+                <div className="form-row-2col">
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="post-subject-select">
+                      Chủ đề <span className="text-danger">*</span>
+                    </label>
+                    <CommunitySelect
+                      id="post-subject-select"
+                      value={subject}
+                      options={SUBJECT_CATEGORIES.filter((s) => s.id !== 'all').map((s) => ({
+                        value: s.id,
+                        label: s.label
+                      }))}
+                      onChange={setSubject}
+                      ariaLabel="Chọn chuyên môn môn học"
+                      className="create-post-select"
+                    />
                   </div>
-                  <div className="preview-content-box full-preview">
-                    {content.trim() ? (
-                      <MathRenderer text={content} />
-                    ) : (
-                      <span className="preview-placeholder">
-                        Chưa có nội dung. Hãy chuyển qua tab "Soạn thảo nội dung" để nhập đề bài và công thức toán!
-                      </span>
+
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="post-diff-select">
+                      Mức độ <span className="text-danger">*</span>
+                    </label>
+                    <CommunitySelect
+                      id="post-diff-select"
+                      value={difficulty}
+                      options={DIFFICULTY_LEVELS.map((d) => ({ value: d.id, label: d.label }))}
+                      onChange={setDifficulty}
+                      ariaLabel="Chọn mức độ khó"
+                      className="create-post-select"
+                    />
+                  </div>
+                </div>
+
+              </div>
+                {/* Writing and preview */}
+                <div className="create-editor-section">
+                  <div className="create-editor-tabs-bar">
+                    <button
+                      type="button"
+                      className={`create-tab-btn ${activeMobileTab === 'editor' ? 'active' : ''}`}
+                      onClick={() => setActiveMobileTab('editor')}
+                    >
+                      <Edit3 size={15} />
+                      <span>Soạn thảo nội dung</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      className={`create-tab-btn ${activeMobileTab === 'preview' ? 'active' : ''}`}
+                      onClick={() => setActiveMobileTab('preview')}
+                    >
+                      <Eye size={15} />
+                      <span>Xem trước</span>
+                    </button>
+                    <button type="button" className="composer-notebook" onClick={onOpenCheatsheet}><BookOpen size={15} /> Sổ tay của Phúc</button>
+                  </div>
+
+                  {activeMobileTab === 'editor' ? (
+                    <div className="create-editor-pane">
+                      <WYSIWYGMathEditor
+                        value={content}
+                        onChange={setContent}
+                        onAttachImage={item => { setImages([item]); setImage(item.preview); setAltText(item.altText); }}
+                        placeholder="Viết câu hỏi hoặc đề bài của bạn. Có thể thêm công thức và hình minh họa."
+                        onOpenCheatsheet={onOpenCheatsheet}
+                        minHeight="240px"
+                        streamlined
+                        showLivePreview={false}
+                      />
+                      {errors.content && <span className="form-error-msg">{errors.content}</span>}
+                    </div>
+                  ) : (
+                    <div className="create-preview-full-card">
+                      <div className="preview-pane-header">
+                        <Eye size={14} />
+                        <span>Xem trước bài viết</span>
+                      </div>
+                      <div className="preview-content-box full-preview">
+                        {content.trim() ? (
+                          <MathRenderer text={content} />
+                        ) : (
+                          <span className="preview-placeholder">
+                            Chưa có nội dung. Hãy chuyển qua tab "Soạn thảo nội dung" để nhập đề bài và công thức toán!
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+              <details className="question-extras" open={images.length || tags.length ? true : undefined}>
+                <summary><span><BookOpen size={16} /> Ảnh đề bài &amp; hashtag</span><span>Tùy chọn</span></summary>
+                <div className="question-extras-content">
+                {/* 5. Image Uploader */}
+                <div className="form-group">
+                  <label className="form-label">Ảnh đính kèm đề bài / sơ đồ (1 ảnh, tối đa 1MB; có thể dán <b>Ctrl+V</b>):</label>
+                  <ImageUploader
+                    images={images}
+                    maxImages={1}
+                    maxFileBytes={1024 * 1024}
+                    onChange={(nextImages) => {
+                      setImages(nextImages);
+                      setImage(nextImages[0]?.preview || nextImages[0]?.url || null);
+                      setAltText(nextImages[0]?.altText || '');
+                    }}
+                  />
+                </div>
+
+                {/* 6. Tags Input */}
+                <div className="form-group">
+                  <label className="form-label" htmlFor="post-tags-input">
+                    Hashtag · tối đa 5 thẻ
+                  </label>
+                  <div className="tags-input-container">
+                    <div className="tags-chips-list">
+                      {tags.map((t, idx) => (
+                        <span key={idx} className="tag-chip">
+                          {t}
+                          <button type="button" onClick={() => handleRemoveTag(t)}>
+                            <X size={12} />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+
+                    {tags.length < 5 && (
+                      <input
+                        id="post-tags-input"
+                        type="text"
+                        className="tag-text-input"
+                        placeholder="Gõ tag rồi bấm Enter (VD: Lagrange, TichPhan)..."
+                        value={tagInput}
+                        onChange={(e) => setTagInput(e.target.value)}
+                        onKeyDown={handleAddTag}
+                      />
                     )}
                   </div>
                 </div>
-              )}
+
+                </div>
+              </details>
             </div>
-
-            {/* 5. Image Uploader */}
-            <div className="form-group">
-              <label className="form-label">Ảnh đính kèm đề bài / sơ đồ (1 ảnh, tối đa 1MB; có thể dán <b>Ctrl+V</b>):</label>
-              <ImageUploader
-                images={images}
-                maxImages={1}
-                maxFileBytes={1024 * 1024}
-                onChange={(nextImages) => {
-                  setImages(nextImages);
-                  setImage(nextImages[0]?.preview || nextImages[0]?.url || null);
-                  setAltText(nextImages[0]?.altText || '');
-                }}
-              />
-            </div>
-
-            {/* 6. Tags Input */}
-            <div className="form-group">
-              <label className="form-label" htmlFor="post-tags-input">
-                Hashtags liên quan (Tối đa 5 thẻ):
-              </label>
-              <div className="tags-input-container">
-                <div className="tags-chips-list">
-                  {tags.map((t, idx) => (
-                    <span key={idx} className="tag-chip">
-                      {t}
-                      <button type="button" onClick={() => handleRemoveTag(t)}>
-                        <X size={12} />
-                      </button>
-                    </span>
-                  ))}
-                </div>
-
-                {tags.length < 5 && (
-                  <input
-                    id="post-tags-input"
-                    type="text"
-                    className="tag-text-input"
-                    placeholder="Gõ tag rồi bấm Enter (VD: Lagrange, TichPhan)..."
-                    value={tagInput}
-                    onChange={(e) => setTagInput(e.target.value)}
-                    onKeyDown={handleAddTag}
-                  />
-                )}
-              </div>
-            </div>
-
-            {type === 'question' && (
-              <div className={`qa-preflight-panel ${publishReview.passes ? 'is-ready' : 'has-issues'}`}>
-                <div className="qa-preflight-icon">
-                  {publishReview.passes ? <ShieldCheck size={19} /> : <AlertCircle size={19} />}
-                </div>
-                <div className="qa-preflight-copy">
-                  <strong>{publishReview.passes ? 'Sẵn sàng để đăng' : 'Kiểm tra câu hỏi trước khi đăng'}</strong>
-                  <span>
-                    {publishReview.passes
-                      ? 'Không phát hiện spam, mã nguy hiểm hoặc ngôn từ công kích.'
-                      : publishReview.violations[0]}
-                  </span>
-                </div>
-                <div className="qa-preflight-checks" aria-label="Các tiêu chí kiểm tra">
-                  <span className={publishReview.checks.clarity ? 'ok' : ''}><CheckCircle2 size={12} /> Rõ đề</span>
-                  <span className={publishReview.checks.noSpam ? 'ok' : ''}><CheckCircle2 size={12} /> Không spam</span>
-                  <span className={publishReview.checks.respectful ? 'ok' : ''}><CheckCircle2 size={12} /> Tôn trọng</span>
-                </div>
-              </div>
-            )}
-
-            <p className="qa-publish-policy">
-              Chỉ câu hỏi được kiểm tra trước khi đăng. Lời giải và bình luận được hiển thị ngay;
-              nội dung vi phạm có thể bị cộng đồng báo cáo và quản trị viên xử lý sau.
-            </p>
-
+            {type === 'question' && (title.trim() || content.trim()) && <div className={`question-readiness ${publishReview.passes ? 'is-ready' : ''}`} role="status">
+              {publishReview.passes ? <CheckCircle2 size={15} /> : <HelpCircle size={15} />}
+              <span>{publishReview.passes ? 'Đề bài đã sẵn sàng để chia sẻ.' : publishReview.violations[0]}</span>
+            </div>}
             {/* General submit errors */}
             {errors.submit && (
               <div className="alert-box alert-error">
@@ -505,7 +493,7 @@ export default function CreatePostModal({
                 ) : editingPost ? (
                   'Cập nhật bài viết'
                 ) : (
-                  'Đăng bài ngay'
+                  type === 'question' ? 'Đăng câu hỏi' : 'Chia sẻ bài viết'
                 )}
               </button>
             </div>

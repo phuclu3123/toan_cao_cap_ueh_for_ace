@@ -1,7 +1,9 @@
-import { useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { useContext, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { ThemeContext } from '../App';
 import { loadTurnstile, turnstileEnabled } from '../services/turnstileService';
 
 export default function TurnstileWidget({ action, ref }) {
+  const { theme = 'light' } = useContext(ThemeContext) || {};
   const containerRef = useRef(null);
   const widgetRef = useRef(null);
   const tokenRef = useRef('');
@@ -29,7 +31,7 @@ export default function TurnstileWidget({ action, ref }) {
       widgetRef.current = api.render(containerRef.current, {
         sitekey: import.meta.env.VITE_TURNSTILE_SITE_KEY,
         action,
-        theme: 'auto',
+        theme: theme === 'dark' ? 'dark' : 'light',
         size: 'flexible',
         callback: (token) => { tokenRef.current = token; setStatus('Đã xác minh chống bot.'); },
         'expired-callback': () => { tokenRef.current = ''; setStatus('Xác minh đã hết hạn. Vui lòng xác minh lại.'); },
@@ -42,7 +44,7 @@ export default function TurnstileWidget({ action, ref }) {
       if (widgetRef.current !== null) window.turnstile?.remove(widgetRef.current);
       widgetRef.current = null;
     };
-  }, [action, enabled]);
+  }, [action, enabled, theme]);
 
   if (!enabled) return null;
   return (

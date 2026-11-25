@@ -132,7 +132,7 @@ function BlogDetailContent({ post, slug }) {
   useEffect(() => {
     if (!post) return undefined;
     const previousTitle = document.title;
-    document.title = `${post.title} | α∫M4A`;
+    document.title = `${post.title} | α∫M4A - Math for all • Aim for A`;
     return () => {
       document.title = previousTitle;
     };

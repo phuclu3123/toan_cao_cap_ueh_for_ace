@@ -646,7 +646,7 @@ export default function WYSIWYGMathEditor({
           </div>
 
           {streamlined && <div className="docs-toolbar-section docs-disclosure-tools">
-            <button type="button" className="docs-tool-btn docs-labeled-tool" aria-expanded={mathTools} onClick={() => setMathTools(value => !value)} title="Công thức toán"><Sigma size={16} /><span>Công thức</span></button>
+            <button type="button" className="docs-tool-btn docs-labeled-tool" aria-label="Công thức toán" aria-expanded={mathTools} onClick={() => setMathTools(value => !value)} title="Công thức toán"><Sigma size={16} /><span>Công thức</span></button>
             <button type="button" className="docs-tool-btn" aria-expanded={expandedTools} onClick={() => setExpandedTools(value => !value)} title="Công cụ định dạng khác" aria-label="Công cụ định dạng khác"><SlidersHorizontal size={16} /></button>
           </div>}
           {/* Preview Toggle Button */}

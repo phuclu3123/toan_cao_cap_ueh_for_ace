@@ -1,4 +1,5 @@
-﻿import { useContext, useMemo, useState } from 'react';
+import StudyWelcome from '../components/learning/StudyWelcome';
+import { useContext, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ArrowUpRight, Clock, FileText, Search, ScanLine } from 'lucide-react';
 import { midtermExams } from '../data/documentsData';
@@ -39,6 +40,7 @@ export default function ExamsPage() {
       </article>)}</div>
       {!exams.length && <div className="exam-empty"><h3>Chưa có đề phù hợp.</h3><p>Thử một mã đề hoặc khóa khác.</p><button type="button" onClick={() => { setQuery(''); setCohort('all'); }}>Xem tất cả đề</button></div>}
     </div></section>
+    <StudyWelcome current="exams" />
     <section className="exam-midterm-section"><div className="container"><header className="exam-section-heading"><div><span className="catalog-eyebrow">ÔN THEO LỚP CỦA BẠN</span><h2>Giữa kỳ,<br/><em>chuẩn bị từng phần.</em></h2></div><p>Đề thi và học liệu theo giảng viên. Xem trang gốc trước khi chọn tài liệu để ôn.</p></header><div className="exam-midterm-grid">{midtermExams.map((exam,index) => {
       const source = midtermPreviewData[exam.id];
       return <Link className="exam-teacher-note paper-surface" data-paper={['lavender','sun','peach','sky','mint'][index]} to={`/document/${exam.id}`} key={exam.id}>

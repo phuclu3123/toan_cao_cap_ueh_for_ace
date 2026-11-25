@@ -1,5 +1,8 @@
 import { useEffect, useId, useRef } from 'react';
+import { StudyIcon } from './StudyDoodles';
+import '../../assets/styles/StudyEditorial.css';
 import '../../assets/styles/HomeMilestones.css';
+import '../../assets/styles/HandwritingType.css';
 
 // These are the owner's original photographs. The polygons trim only their outer surroundings.
 // No document text, seal or photograph is redrawn.
@@ -82,6 +85,11 @@ export default function HomeMilestones() {
         </div>)}
       </div>
     </div>
+    </div>
+    <div className="hp-portfolio-note">
+      <StudyIcon kind="pencil" />
+      <div><span className="hp-kicker">CÒN MỘT GÓC KHÁC</span><p>Những điều mình học, làm<br/>và muốn <em>kể thêm.</em></p></div>
+      <a href="https://phuclu3123.github.io/portfolio/" target="_blank" rel="noopener noreferrer">Khám phá thêm về Phúc <svg viewBox="0 0 90 55" fill="none" aria-hidden="true"><path d="M5 36q38 8 40-13 2-16-12-11-11 9 10 16 18 4 40-7m-12-7 12 7-11 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></a>
     </div>
   </section>;
 }

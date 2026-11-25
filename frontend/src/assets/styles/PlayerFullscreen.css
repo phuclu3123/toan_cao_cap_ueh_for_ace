@@ -1,0 +1,48 @@
+/* Fullscreen is its own flex layout, independent of the shallow modal's height cap. */
+:root[data-theme] .learning-player:fullscreen:not(.is-mini) {
+  width:100vw; height:100dvh; max-width:none; max-height:none; margin:0;
+  border:0; border-radius:0; background:#121a16; color:#f2f6f2;
+  --lp-ink:#f2f6f2; --lp-muted:#b8c8be; --lp-rule:#ffffff25;
+  --lp-hover:#ffffff16; --lp-accent:#b9d6c3;
+}
+:root[data-theme] .learning-player:fullscreen:not(.is-mini) .learning-player__header {
+  background:#1b2720; color:#f2f6f2; border-radius:0; flex:0 0 auto;
+}
+:root[data-theme] .learning-player:fullscreen:not(.is-mini) .learning-player__workspace {
+  display:flex; flex:1 1 0; min-height:0; overflow:hidden; border-radius:0;
+}
+:root[data-theme] .learning-player:fullscreen:not(.is-mini) .learning-player__main {
+  flex:1 1 0; min-height:0; height:100%;
+}
+:root[data-theme] .learning-player:fullscreen:not(.is-mini) .learning-player__stage {
+  flex:1 1 0; height:auto; min-height:0; max-height:none; aspect-ratio:auto;
+}
+:root[data-theme] .learning-player:fullscreen:not(.is-mini) .learning-player__controls {
+  background:#1b2720; color:#f2f6f2;
+}
+:root[data-theme] .learning-player:fullscreen:not(.is-mini) .learning-player__footer {
+  background:#1b2720; color:#f2f6f2; border-color:#ffffff25;
+}
+:root[data-theme] .learning-player:fullscreen:not(.is-mini) .learning-player__playlist {
+  color:#f2f6f2; background:#202e25; border-color:#ffffff25;
+}
+:root[data-theme] .learning-player:fullscreen:not(.is-mini) .learning-player__playlist-heading {
+  background:#293c30; color:#f2f6f2;
+}
+:root[data-theme] .learning-player:fullscreen:not(.is-mini) .learning-player__lesson {
+  color:#f2f6f2; border-color:#ffffff25;
+}
+:root[data-theme] .learning-player:fullscreen:not(.is-mini) .learning-player__lesson.is-current {
+  background:#34533f; box-shadow:inset 3px 0 #b9d6c3;
+}
+:root[data-theme] .learning-player:fullscreen:not(.is-mini) :is(.learning-player__lesson small,.learning-player__lesson > span,.learning-player__playlist-heading > div > span) {
+  color:#b8c8be;
+}
+:root[data-theme] .learning-player:fullscreen:not(.is-mini) .learning-next-button {
+  color:#17261c; background:#d4e9d8;
+}
+@media(max-width:850px) {
+  :root[data-theme] .learning-player:fullscreen:not(.is-mini) .learning-player__workspace { flex-direction:column; }
+  :root[data-theme] .learning-player:fullscreen:not(.is-mini) .learning-player__main { height:auto; }
+  :root[data-theme] .learning-player:fullscreen:not(.is-mini) .learning-player__playlist { flex:0 0 auto; max-height:26dvh; }
+}

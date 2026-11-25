@@ -1,3 +1,5 @@
+import StudyWelcome from '../components/learning/StudyWelcome';
+import { StudyIcon } from '../components/learning/StudyDoodles';
 import { useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -79,7 +81,8 @@ export default function CoursesPage() {
           <div className="section-title section-title-split" style={{ marginBottom: '32px' }}>
             <div>
               <span className="section-subtitle">DANH MỤC KHÓA HỌC</span>
-              <h2>Chọn khóa học.</h2>
+              <h2>Khóa học của <em>α∫M4A.</em></h2>
+              <div className="course-title-doodles" aria-hidden="true"><StudyIcon kind="book"/><span>~</span><StudyIcon kind="pencil"/><span>~</span><StudyIcon kind="chat"/></div>
             </div>
             <p>Học từ nền tảng hoặc luyện theo bộ đề. Xem nội dung trước khi đăng ký.</p>
           </div>
@@ -136,6 +139,8 @@ export default function CoursesPage() {
       </div></section>
 
       {/* Enrollment Consultation Form */}
+      <StudyWelcome current="courses" />
+
       <section id="enroll" className="course-consultation paper-surface" data-paper="peach">
         <div className="container">
           <div className="enroll-panel">
