@@ -1264,10 +1264,10 @@ export default function Navbar() {
             <div className="nav-links">
               <Link to="/" className={`nav-link-item ${isActivePath('/') ? 'active' : ''}`} aria-current={isActivePath('/') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.home}</Link>
               <Link to="/courses" className={`nav-link-item ${isActivePath('/courses') ? 'active' : ''}`} aria-current={isActivePath('/courses') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.courses}</Link>
-              <Link to="/community" className={`nav-link-item ${isActivePath('/community') ? 'active' : ''}`} aria-current={isActivePath('/community') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.community || 'Hỏi đáp TCC'}</Link>
+              <Link to="/community" className={`nav-link-item ${isActivePath('/community') ? 'active' : ''}`} aria-current={isActivePath('/community') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.community || 'Hỏi đáp'}</Link>
               <Link to="/resources?category=all" className={`nav-link-item ${location.pathname === '/resources' ? 'active' : ''}`} aria-current={location.pathname === '/resources' ? 'page' : undefined} onClick={handleNavClick}>{t.nav.library}</Link>
               <Link to="/exams" className={`nav-link-item ${isActivePath('/exams') ? 'active' : ''}`} aria-current={isActivePath('/exams') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.exams}</Link>
-              <Link to="/flashcards" className={`nav-link-item ${isActivePath('/flashcards') ? 'active' : ''}`} aria-current={isActivePath('/flashcards') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.flashcards || 'Flashcard TCC'}</Link>
+              <Link to="/flashcards" className={`nav-link-item ${isActivePath('/flashcards') ? 'active' : ''}`} aria-current={isActivePath('/flashcards') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.flashcards || 'Thẻ ôn tập'}</Link>
               <Link to="/blog" className={`nav-link-item ${isActivePath('/blog') ? 'active' : ''}`} aria-current={isActivePath('/blog') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.blog}</Link>
               <Link to="/20-10" className={`nav-link-item rose-link ${location.pathname === '/20-10' ? 'active' : ''}`} aria-current={location.pathname === '/20-10' ? 'page' : undefined} onClick={handleNavClick}>{t.nav.gift}</Link>
             </div>
@@ -1508,10 +1508,10 @@ export default function Navbar() {
             <div className="mobile-links">
               <Link to="/" className={`mobile-link-item ${isActivePath('/') ? 'active' : ''}`} aria-current={isActivePath('/') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.home}</Link>
               <Link to="/courses" className={`mobile-link-item ${isActivePath('/courses') ? 'active' : ''}`} aria-current={isActivePath('/courses') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.courses}</Link>
-              <Link to="/community" className={`mobile-link-item ${isActivePath('/community') ? 'active' : ''}`} aria-current={isActivePath('/community') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.community || 'Hỏi đáp TCC'}</Link>
+              <Link to="/community" className={`mobile-link-item ${isActivePath('/community') ? 'active' : ''}`} aria-current={isActivePath('/community') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.community || 'Hỏi đáp'}</Link>
               <Link to="/resources?category=all" className={`mobile-link-item ${location.pathname === '/resources' ? 'active' : ''}`} aria-current={location.pathname === '/resources' ? 'page' : undefined} onClick={handleNavClick}>{t.nav.library}</Link>
               <Link to="/exams" className={`mobile-link-item ${isActivePath('/exams') ? 'active' : ''}`} aria-current={isActivePath('/exams') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.exams}</Link>
-              <Link to="/flashcards" className={`mobile-link-item ${isActivePath('/flashcards') ? 'active' : ''}`} aria-current={isActivePath('/flashcards') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.flashcards || 'Flashcard TCC'}</Link>
+              <Link to="/flashcards" className={`mobile-link-item ${isActivePath('/flashcards') ? 'active' : ''}`} aria-current={isActivePath('/flashcards') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.flashcards || 'Thẻ ôn tập'}</Link>
               <Link to="/blog" className={`mobile-link-item ${isActivePath('/blog') ? 'active' : ''}`} aria-current={isActivePath('/blog') ? 'page' : undefined} onClick={handleNavClick}>{t.nav.blog}</Link>
               <Link to="/20-10" className={`mobile-link-item rose-link ${location.pathname === '/20-10' ? 'active' : ''}`} aria-current={location.pathname === '/20-10' ? 'page' : undefined} onClick={handleNavClick}>{t.nav.gift}</Link>
 

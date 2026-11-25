@@ -1,20 +1,20 @@
 export const translations = {
   vi: {
     nav: {
-      home: "Trang Chủ",
+      home: "Trang chủ",
       about: "Về Chúng Tôi",
-      library: "Thư Viện",
-      exams: "Đề Thi TCC",
+      library: "Tài liệu",
+      exams: "Luyện đề",
       midterm: "Đề Giữa Kỳ",
-      gift: "Quà 20/10",
-      login: "Đăng Nhập",
+      gift: "Góc nhỏ",
+      login: "Đăng nhập",
       welcome: "Chào, ",
       logout: "Thoát",
       upload: "Đăng tài liệu",
       courses: "Khóa học",
-      community: "Hỏi đáp TCC",
-      flashcards: "Flashcard TCC",
-      blog: "Blog"
+      community: "Hỏi đáp",
+      flashcards: "Thẻ ôn tập",
+      blog: "Góc đọc"
     },
     hero: {
       kicker: "Nền tảng hỗ trợ học tập số 1 UEH",
